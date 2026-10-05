@@ -1,4 +1,4 @@
-//! 完整持久载荷的嵌套未知字段必须在业务 I/O 前拒绝。
+//! Reject nested unknown fields in complete persisted payloads before business I/O.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod common;

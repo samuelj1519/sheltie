@@ -1,23 +1,25 @@
-# C003：MVP 文档归档
+# C003: MVP documentation archive
 
-状态：`completed`
-目标版本：`none`（文档归档）
-兼容性：`none`
-基线：`eb0918b2026190908e58c7c62cb95bb585abf194`
-Owner：Codex
-记录形式：`reference`
-历史快照：`f38954d543ff01eb5a798be48f29060b80d5952c`
+English | [简体中文](README.zh-CN.md)
 
-## 变化与理由
+Status: `completed`
+Target version: `none (documentation archive)`
+Compatibility: `none`
+Baseline: `dbce2b158628306dc6edbc0e0670693f83b459ea`
+Owner: Codex
+Record form: `reference`
+Historical snapshot: `9d98bf8f15944b7bda4fbd4096e7771b09eab728`
 
-将已发布 MVP 与后续迭代分开，使用 Git tag 重建发布时规格，避免复制多份当前合同。历史任务不再作为开发入口。
+## Changes and rationale
 
-## 验证与限制
+Separate released MVP from subsequent iterations. Tags reconstruct release specifications instead of duplicating current contracts. Historical tasks are no longer development entry points.
 
-只调整文档和历史任务检查路径，不改变产品行为。原任务正文与发布闭包可按固定快照读取。
+## Validation and limits
 
-本页保留设计与结果摘要；当前行为以根规格和合同为准。历史验证不能直接复用为当前候选 PASS。
+Only documentation and historical task-check paths changed; product behavior did not. Fixed snapshots retain original tasks and release closure.
 
-## 参考
+This page retains design/outcome summaries. Root specifications/contracts govern current behavior. Historical validation cannot directly qualify the current candidate as PASS.
 
-[v0.1.0](../../../reference/releases/v0.1.0/README.md)、[MVP 设计理由](../../../explanation/decisions/mvp.md)、[历史查阅](../../../how-to/maintain-docs.md#查阅历史原件)。完整任务、审查与运行原件按[历史查阅指南](../../../how-to/maintain-docs.md#查阅历史原件)从上述快照读取。
+## References
+
+[v0.1.0](../../../reference/releases/v0.1.0/README.md), [MVP design reasons](../../../explanation/decisions/mvp.md), [Historical lookup](../../../how-to/maintain-docs.md#read-original-historical-records). Read full tasks, reviews, and original runs from the snapshot above using the [historical lookup guide](../../../how-to/maintain-docs.md#read-original-historical-records).

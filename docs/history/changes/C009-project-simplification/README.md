@@ -1,23 +1,25 @@
-# C009：实现与测试精简
+# C009: Implementation and test simplification
 
-状态：`completed`
-目标版本：`v0.3.0`
-兼容性：保持 CLI、Store、Workbook 格式及产品行为；收窄无生产消费者的内部支持接口
-基线：`01613652687c349c485c0e349257f89ad9e504ee`
-Owner：`Codex /root；code-simplifier 与分区实现者；独立 Reviewer`
-记录形式：`reference`
-历史快照：`f38954d543ff01eb5a798be48f29060b80d5952c`
+English | [简体中文](README.zh-CN.md)
 
-## 变化与理由
+Status: `completed`
+Target version: `v0.3.0`
+Compatibility: `preserve CLI, Store, Workbook formats and behavior; narrow internal support without production consumers`
+Baseline: `afe6a425eb80b45f1fc223e3990c88ff36bb869b`
+Owner: Codex /root; code-simplifier and partition implementers; independent Reviewer
+Record form: `reference`
+Historical snapshot: `9d98bf8f15944b7bda4fbd4096e7771b09eab728`
 
-收敛重复投影、交付和响应处理，移除没有生产消费者的内部接口，合并重复测试支持。精简以完整行为和实际消费者为单位，保留冻结字节、身份、持久恢复、故障时点与独立后继 oracle。
+## Changes and rationale
 
-## 验证与限制
+Consolidate duplicate projections, delivery, and response handling; remove internal interfaces without production consumers and merge duplicate test support. Simplify complete behaviors/real consumers while preserving frozen bytes, identity, persistent recovery, fault timing, and independent successor oracles.
 
-归档候选通过 948 个测试、5 个 doctest、MSRV 与限定独立审查。数字属于该历史候选，不是当前检出的测试承诺，也不证明产品收益或发布资格。
+## Validation and limits
 
-本页保留设计与结果摘要；当前行为以根规格和合同为准。历史验证不能直接复用为当前候选 PASS。
+The archived candidate passed 948 tests, 5 doctests, MSRV, and bounded independent review. Counts belong to that historical candidate, without promising current-checkout counts or establishing product benefit/release qualification.
 
-## 参考
+This page retains design/outcome summaries. Root specifications/contracts govern current behavior. Historical validation cannot directly qualify the current candidate as PASS.
 
-[工程规范](../../../../specs/engineering.md)、[验证预算](../../../how-to/validate-change.md)、[源码导读](../../../explanation/source-tour.md)。完整任务、审查与运行原件按[历史查阅指南](../../../how-to/maintain-docs.md#查阅历史原件)从上述快照读取。
+## References
+
+[Engineering rules](../../../../specs/engineering.md), [Validation budget](../../../how-to/validate-change.md), [Source tour](../../../explanation/source-tour.md). Read full tasks, reviews, and original runs from the snapshot above using the [historical lookup guide](../../../how-to/maintain-docs.md#read-original-historical-records).

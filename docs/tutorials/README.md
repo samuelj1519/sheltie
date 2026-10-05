@@ -1,8 +1,10 @@
-# 教程
+# Tutorials
 
-教程提供固定起点、逐步动作和可观察的学习结果。先[从源码构建](../how-to/build-from-source.md)，再按顺序完成练习；使用独立临时管理根，避免影响真实运行。
+English | [简体中文](README.zh-CN.md)
 
-1. [第一个 Work](first-work.md)：装入两步方法，领取任务书、写输出、提交，观察流程成功但未声明最终成果的情况。
-2. [门槛与明确成果](gate-and-result.md)：创建最小方法，观察提交后的门槛，再批准并读取明确选择的原字节。
+Tutorials provide fixed starts, sequential actions, and observable outcomes. [Build](../how-to/build-from-source.md), then follow exercises using independent temporary roots to protect actual runs.
 
-已知道要完成什么时使用[操作指南](../how-to/README.md)，无需重新走教程。教程中的手工输出用于学习机械流程，不是实际模型质量或产品收益验证。
+1. [First Work](first-work.md): install two-step, claim/write/submit, observe success without final selections.
+2. [Gates and explicit results](gate-and-result.md): create a minimal method, observe post-submit blocking, approve/read selected bytes.
+
+For known goals use [guides](../how-to/README.md) without repeating tutorials. Handwritten outputs teach mechanics, without model-quality/product-benefit validation.

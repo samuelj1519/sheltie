@@ -1,8 +1,8 @@
-//! C002-T13：skill 安装产物自包含（GF-18）。
+//! C002-T13: self-contained skill installation artifacts (GF-18).
 //!
-//! 期望值全部手写：交付文件集合、发布资产成员表、链接清单、命令白名单都由本文件独立
-//! 解析或写死，不调用 scripts/skill-delivery.sh 的解析逻辑——脚本只作为被测对象运行。
-//! 安装与校验都发生在临时目录，绝不触碰真实宿主配置。
+//! Handwritten expectations: independently parse or define delivered files, archive members, links, and command allowlists,
+//! without calling skill-delivery.sh parsing logic; run the script only as the subject under test.
+//! Install/validate only in temporary directories, without touching host configuration.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod common;
@@ -19,7 +19,7 @@ fn repo_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
 }
 
-/// 在独立源码树替身里跑脚本：scripts + skills + specs/contracts 与仓库同构。
+/// Run scripts in an isolated source-tree substitute mirroring scripts, skills, and contracts.
 fn temp_source_tree(base: &Path) -> PathBuf {
     let tree = base.join("src");
     copy_dir(&repo_root().join("scripts"), &tree.join("scripts"));
@@ -48,7 +48,7 @@ fn out_text(out: &Output) -> String {
     )
 }
 
-/// 与 check-docs.sh 同一取法的手写版：](目标)，跳过 URL 与纯锚点，去掉 #锚点。
+/// Handwritten link extraction matching check-docs: skip URLs/pure anchors and strip target anchors.
 fn link_targets(text: &str) -> Vec<String> {
     let mut out = Vec::new();
     let mut rest = text;
@@ -106,7 +106,7 @@ fn file_set(dir: &Path) -> BTreeSet<String> {
     out
 }
 
-/// 逐个解析交付内的本地链接（相对路径），必须全部在交付目录内解析得到。
+/// Resolve every local relative delivery link beneath the delivery root.
 fn delivery_links(dir: &Path) -> Vec<(String, String)> {
     let root = dir.canonicalize().unwrap();
     let mut out = Vec::new();
@@ -119,9 +119,12 @@ fn delivery_links(dir: &Path) -> Vec<(String, String)> {
         let text = fs::read_to_string(&md).unwrap();
         for t in link_targets(&text) {
             let joined = md.parent().unwrap().join(&t);
-            assert!(joined.exists(), "链接解析不到：{rel} → {t}");
+            assert!(joined.exists(), "Cannot resolve link: {rel} -> {t}");
             let canon = joined.canonicalize().unwrap();
-            assert!(canon.starts_with(&root), "链接越出交付目录：{rel} → {t}");
+            assert!(
+                canon.starts_with(&root),
+                "Link escapes delivery root: {rel} -> {t}"
+            );
             out.push((rel.clone(), t));
         }
     }
@@ -129,7 +132,7 @@ fn delivery_links(dir: &Path) -> Vec<(String, String)> {
     out
 }
 
-/// SKILL.md 里引用的命令（sheltie <group> <verb>）。
+/// Commands referenced by SKILL.md: sheltie <group> <verb>.
 fn skill_commands(text: &str) -> Vec<(String, String)> {
     let mut out = Vec::new();
     for line in text.lines() {
@@ -144,7 +147,7 @@ fn skill_commands(text: &str) -> Vec<(String, String)> {
     out
 }
 
-/// 协议 §2 操作一览里的 `group verb` 对（只扫 §2 标题到下一个 ## 之间）。
+/// Protocol §2 group/verb pairs, scanning only that section until the next ## heading.
 fn protocol_pairs(text: &str) -> BTreeSet<(String, String)> {
     let mut out = BTreeSet::new();
     let mut inside = false;
@@ -165,7 +168,7 @@ fn protocol_pairs(text: &str) -> BTreeSet<(String, String)> {
         let Some(end) = rest.find('`') else {
             continue;
         };
-        // 与 check-skill.sh 的取法一致：单元格里取随后两个词作 group verb
+        // Match check-skill.sh: take the next two words in the cell as group/verb
         let mut words = rest[..end].split_whitespace();
         let (Some(a), Some(b)) = (words.next(), words.next()) else {
             continue;
@@ -175,8 +178,8 @@ fn protocol_pairs(text: &str) -> BTreeSet<(String, String)> {
     out
 }
 
-/// 把 markdown 链接 `[文字](目标)` 收成 `文字`。独立手写实现，用来核生成 reference
-/// 除链接外与单一权威逐字相同——去链接变换不得吞正文。
+/// Independently strip Markdown links to their labels, verifying generated references preserve authority prose
+/// verbatim except for link markup; link stripping must not swallow body text.
 fn strip_links(text: &str) -> String {
     let mut out = String::new();
     let mut i = 0;
@@ -206,50 +209,60 @@ fn strip_links(text: &str) -> String {
     out
 }
 
-/// 隔离安装副本逐项可解析：链接、相对路径、引用命令（命令还用真实二进制过一遍 --help）。
+/// Validate isolated installations: links, paths, and commands, also testing each command with real-binary --help.
 fn assert_delivery_resolves(dir: &Path) {
     let links = delivery_links(dir);
     assert!(
         links
             .iter()
             .all(|(_, t)| !t.contains("specs/") && !t.contains("..")),
-        "交付里不应再指向仓库路径：{links:?}"
+        "Delivery must not reference repository paths: {links:?}"
     );
     let expected: BTreeSet<(String, String)> = [
-        ("SKILL.md".to_string(), "references/protocol.md".to_string()),
-        ("SKILL.md".to_string(), "references/workbook.md".to_string()),
-        (
-            "references/protocol.md".to_string(),
-            "workbook.md".to_string(),
-        ),
-        (
-            "references/workbook.md".to_string(),
-            "protocol.md".to_string(),
-        ),
+        ("SKILL.md", "SKILL.zh-CN.md"),
+        ("SKILL.md", "references/protocol.md"),
+        ("SKILL.md", "references/workbook.md"),
+        ("SKILL.zh-CN.md", "SKILL.md"),
+        ("SKILL.zh-CN.md", "references/protocol.zh-CN.md"),
+        ("SKILL.zh-CN.md", "references/workbook.zh-CN.md"),
+        ("references/protocol.md", "protocol.zh-CN.md"),
+        ("references/protocol.md", "workbook.md"),
+        ("references/protocol.zh-CN.md", "protocol.md"),
+        ("references/protocol.zh-CN.md", "workbook.zh-CN.md"),
+        ("references/workbook.md", "workbook.zh-CN.md"),
+        ("references/workbook.md", "protocol.md"),
+        ("references/workbook.zh-CN.md", "workbook.md"),
+        ("references/workbook.zh-CN.md", "protocol.zh-CN.md"),
     ]
     .into_iter()
+    .map(|(from, to)| (from.to_string(), to.to_string()))
     .collect();
     assert_eq!(links.iter().cloned().collect::<BTreeSet<_>>(), expected);
 
-    let skill = fs::read_to_string(dir.join("SKILL.md")).unwrap();
-    let protocol = fs::read_to_string(dir.join("references/protocol.md")).unwrap();
-    let allowed = protocol_pairs(&protocol);
-    let cmds = skill_commands(&skill);
-    assert!(
-        cmds.len() >= 8,
-        "skill 里至少要演示八条命令，实际 {}",
-        cmds.len()
-    );
-    for (g, v) in &cmds {
+    for (skill_file, protocol_file) in [
+        ("SKILL.md", "protocol.md"),
+        ("SKILL.zh-CN.md", "protocol.zh-CN.md"),
+    ] {
+        let skill = fs::read_to_string(dir.join(skill_file)).unwrap();
+        let protocol = fs::read_to_string(dir.join("references").join(protocol_file)).unwrap();
+        let allowed = protocol_pairs(&protocol);
+        let cmds = skill_commands(&skill);
         assert!(
-            allowed.contains(&(g.clone(), v.clone())),
-            "命令不在交付协议 §2：sheltie {g} {v}"
+            cmds.len() >= 8,
+            "{skill_file} must demonstrate at least eight commands; actual {}",
+            cmds.len()
         );
-        Bin::cargo_bin("sheltie")
-            .unwrap()
-            .args([g.as_str(), v.as_str(), "--help"])
-            .assert()
-            .success();
+        for (g, v) in &cmds {
+            assert!(
+                allowed.contains(&(g.clone(), v.clone())),
+                "Command absent from {protocol_file} section 2: sheltie {g} {v}"
+            );
+            Bin::cargo_bin("sheltie")
+                .unwrap()
+                .args([g.as_str(), v.as_str(), "--help"])
+                .assert()
+                .success();
+        }
     }
 }
 
@@ -259,8 +272,8 @@ fn install_copy(from: &Path, host: &Path) -> PathBuf {
     installed
 }
 
-/// 在源码树替身里生成一份交付。放在树内 `out/sheltie`，退回仓库相对路径的链接
-/// 在树内仍解析得到，才能单独验出「越出交付目录」这一个条件。
+/// Generate delivery beneath the substitute source tree at out/sheltie; repository-relative escaped links
+/// still resolve in the tree, isolating the delivery-root escape rejection.
 fn pack_in_tree(tree: &Path) -> PathBuf {
     let dist = tree.join("out").join("sheltie");
     let out = bash(
@@ -277,13 +290,18 @@ fn generated_reference_keeps_authority_prose_verbatim() {
     let tmp = tempfile::tempdir().unwrap();
     let tree = temp_source_tree(tmp.path());
     let dist = pack_in_tree(&tree);
-    for name in ["protocol.md", "workbook.md"] {
+    for name in [
+        "protocol.md",
+        "protocol.zh-CN.md",
+        "workbook.md",
+        "workbook.zh-CN.md",
+    ] {
         let authority = fs::read_to_string(tree.join("specs/contracts").join(name)).unwrap();
         let generated = fs::read_to_string(dist.join("references").join(name)).unwrap();
         assert_eq!(
             strip_links(&authority),
             strip_links(&generated),
-            "{name} 除链接外应与单一权威逐字相同"
+            "{name} must match authority prose verbatim except for link markup"
         );
     }
 }
@@ -300,23 +318,26 @@ fn installed_delivery_stays_self_contained_after_source_tree_is_removed() {
     );
     assert!(out.status.success(), "{}", out_text(&out));
 
-    // 手写期望：交付文件恰为 SKILL.md 与两份生成 reference
+    // Handwritten closure: both skill languages and four generated contract references
     let files = file_set(&dist);
     let expected: BTreeSet<String> = [
         "SKILL.md".to_string(),
+        "SKILL.zh-CN.md".to_string(),
         "references/protocol.md".to_string(),
+        "references/protocol.zh-CN.md".to_string(),
         "references/workbook.md".to_string(),
+        "references/workbook.zh-CN.md".to_string(),
     ]
     .into_iter()
     .collect();
     assert_eq!(files, expected);
 
-    // 隔离安装：复制进临时宿主 skill 目录（不是真实 ~/.claude）
+    // Isolated installation into a temporary host skill directory
     let host = tmp.path().join("host-home");
     let installed = install_copy(&dist, &host);
     assert_delivery_resolves(&installed);
 
-    // 移除源码树、再移动安装位置，重复同一套检查
+    // Remove the source tree, relocate the installation, and repeat the same checks
     fs::remove_dir_all(&tree).unwrap();
     let moved_host = tmp.path().join("moved-home");
     fs::rename(&host, &moved_host).unwrap();
@@ -334,7 +355,7 @@ fn release_tarball_matches_readme_install_shape() {
     );
     assert!(out.status.success(), "{}", out_text(&out));
 
-    // 成员表手写期望（目录项不算文件）
+    // Handwritten archive member expectations, excluding directory entries
     let list = Command::new("tar")
         .args(["tzf", tarball.to_str().unwrap()])
         .output()
@@ -350,12 +371,15 @@ fn release_tarball_matches_readme_install_shape() {
         members,
         vec![
             "sheltie/SKILL.md",
+            "sheltie/SKILL.zh-CN.md",
             "sheltie/references/protocol.md",
-            "sheltie/references/workbook.md"
+            "sheltie/references/protocol.zh-CN.md",
+            "sheltie/references/workbook.md",
+            "sheltie/references/workbook.zh-CN.md"
         ]
     );
 
-    // README 的安装方式：解压进 skills 目录后得到一个自包含 skill
+    // README installation: extract into skills to obtain a self-contained skill
     let skills_dir = tmp.path().join("claude-skills");
     fs::create_dir_all(&skills_dir).unwrap();
     let x = Command::new("tar")
@@ -370,21 +394,21 @@ fn release_tarball_matches_readme_install_shape() {
     assert!(x.status.success());
     assert_delivery_resolves(&skills_dir.join("sheltie"));
 
-    // README 的下载地址与发布工作流挂出的资产是同一个名字
+    // README download and release workflow refer to the same asset name
     let asset = "sheltie-skill.tar.gz";
     let readme = fs::read_to_string(repo_root().join("README.md")).unwrap();
     assert!(
         readme.contains(&format!("releases/latest/download/{asset}")),
-        "README 应给出该发布资产的下载地址"
+        "README must give this release asset's download URL"
     );
     let workflow = fs::read_to_string(repo_root().join(".github/workflows/release.yml")).unwrap();
     assert!(
         workflow.contains(&format!("artifacts/{asset}")),
-        "发布工作流应挂出同名资产"
+        "Release workflow must attach the same-named asset"
     );
     assert!(
         workflow.contains("scripts/skill-delivery.sh tar"),
-        "发布工作流的打包入口应是 skill-delivery.sh tar"
+        "Release workflow packaging entry must be skill-delivery.sh tar"
     );
 }
 
@@ -395,7 +419,7 @@ fn check_skill_fails_when_delivery_misses_one_reference() {
     let tree = temp_source_tree(tmp.path());
     let dist = pack_in_tree(&tree);
 
-    // 唯一改变的条件：漏同步 workbook 这一份 reference
+    // One changed condition: omit the workbook reference
     fs::remove_file(dist.join("references/workbook.md")).unwrap();
     let out = bash(
         &tree.join("scripts/check-skill.sh"),
@@ -416,10 +440,10 @@ fn check_skill_fails_when_delivery_reference_is_stale() {
     let tree = temp_source_tree(tmp.path());
     let dist = pack_in_tree(&tree);
 
-    // 唯一改变的条件：protocol 这份 reference 内容过期（追加一行）
+    // One changed condition: stale protocol reference, by appending one line
     let protocol = dist.join("references/protocol.md");
     let mut text = fs::read_to_string(&protocol).unwrap();
-    text.push_str("（过期）\n");
+    text.push_str("(stale)\n");
     fs::write(&protocol, text).unwrap();
     let out = bash(
         &tree.join("scripts/check-skill.sh"),
@@ -440,8 +464,8 @@ fn check_skill_fails_when_delivery_link_escapes() {
     let tree = temp_source_tree(tmp.path());
     let dist = pack_in_tree(&tree);
 
-    // 唯一改变的条件：交付里链接退回仓库相对路径（O11 的缺陷形态）。
-    // 交付放在树内 out/sheltie，该路径在树内解析得到，失败点只剩「越出交付目录」。
+    // One changed condition: delivery links fall back to repository-relative paths (O11).
+    // Delivery at out/sheltie leaves the path resolvable, isolating the delivery-root escape rejection.
     let skill = dist.join("SKILL.md");
     let text = fs::read_to_string(&skill).unwrap();
     fs::write(
@@ -458,7 +482,7 @@ fn check_skill_fails_when_delivery_link_escapes() {
     );
     assert!(!out.status.success(), "{}", out_text(&out));
     assert!(
-        out_text(&out).contains("越出交付目录"),
+        out_text(&out).contains("escapes the delivery directory"),
         "{}",
         out_text(&out)
     );
@@ -470,7 +494,7 @@ fn check_skill_fails_when_reference_source_is_gone() {
     let tmp = tempfile::tempdir().unwrap();
     let tree = temp_source_tree(tmp.path());
 
-    // 唯一改变的条件：单一权威缺了 workbook 合同，生成不出那份 reference
+    // One changed condition: missing workbook authority prevents reference generation
     fs::remove_file(tree.join("specs/contracts/workbook.md")).unwrap();
     let out = bash(&tree.join("scripts/check-skill.sh"), &[]);
     assert!(!out.status.success(), "{}", out_text(&out));

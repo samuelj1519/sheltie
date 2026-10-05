@@ -1,6 +1,6 @@
-# C010 历史任务映射
+# C010 historical task mapping
 
-仅供工具核任务完成状态与测试归属；原任务正文从固定 Git 快照读取。
+Tooling only: verify task completion states and test ownership. Read original task bodies from the fixed Git snapshot.
 
 | C010-T01 | done |
 
@@ -12,6 +12,6 @@
 
 ### C010-T02
 
-**测试。** `spec_dev_final_results_are_frozen_and_wait_for_gate_approval`。
+**Tests.** `spec_dev_final_results_are_frozen_and_wait_for_gate_approval`.
 
 ### C010-T03

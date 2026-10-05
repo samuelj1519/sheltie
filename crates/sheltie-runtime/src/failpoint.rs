@@ -1,12 +1,12 @@
-//! 崩溃测试用的故障注入点。只在 `failpoint` 特性下生效。
+//! Crash-test fault injection, enabled only by the failpoint feature.
 //!
-//! 命名崩溃点包括 `before_commit`、`after_commit_before_effects` 与
-//! `update_between_renames`、`delete_after_first_payload_child` 与
-//! `delete_after_tree_removed_before_marker`；测试 rendezvous 只在 `failpoint` feature 开启时可配置。
-//! 调用处已由骨架放好；`maybe_exit` 原属 T23，因 `commit()` 一开始就调用它，
-//! T13 起测试在 `--all-features` 下必经此函数，提前到 T13 填（见 plan.md T13 任务卡）。
+//! Named crash points include before_commit, after_commit_before_effects,
+//! update_between_renames, delete_after_first_payload_child, and
+//! delete_after_tree_removed_before_marker; configure test rendezvous only with the failpoint feature.
+//! The skeleton fixes call sites. maybe_exit was planned for T23, but commit calls it immediately;
+//! all-feature tests require it from T13, so implementation moved to T13 (plan.md task card).
 
-/// 若开启特性且环境变量 `SHELTIE_FAILPOINT` 等于 `name`，以退出码 70 结束进程。否则什么都不做。
+/// With the feature enabled and SHELTIE_FAILPOINT equal to name, exit with code 70; otherwise do nothing.
 #[cfg(feature = "failpoint")]
 pub fn maybe_exit(name: &str) {
     // A subprocess can pause at exactly the same point before the parent sends SIGKILL.
@@ -19,7 +19,7 @@ pub fn maybe_exit(name: &str) {
     }
 }
 
-/// 没开特性时是空函数，编译器会把它优化掉。
+/// Without the feature, the compiler eliminates this no-op.
 #[cfg(not(feature = "failpoint"))]
 pub fn maybe_exit(_name: &str) {}
 
@@ -49,7 +49,7 @@ struct SyncFailure {
 #[cfg(all(test, feature = "failpoint"))]
 pub(crate) static RENDEZVOUS_TEST_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
-/// 设置按名称与作用域匹配的测试同步点；不修改环境变量或宿主配置。
+/// Configure a name/scope-matched test synchronization point without changing environment or host configuration.
 pub fn arm_rendezvous(
     name: &str,
     request_id: &str,
@@ -152,7 +152,7 @@ pub(crate) fn cleanup_error(name: &str) -> std::io::Result<()> {
     Ok(())
 }
 
-/// 仅匹配指定测试名称与作用域，避免并行进程中的无关I/O进入同步点。
+/// Match only the specified test name/scope, excluding unrelated I/O in parallel processes.
 pub(crate) fn rendezvous(name: &str, request_id: &str) -> std::io::Result<()> {
     rendezvous_payload(name, request_id, name.as_bytes())
 }
@@ -202,5 +202,5 @@ fn rendezvous_payload(name: &str, request_id: &str, payload: &[u8]) -> std::io::
     Ok(())
 }
 
-/// 故障注入点的退出码。
+/// Fault-injection exit code.
 pub const EXIT_CODE: i32 = 70;

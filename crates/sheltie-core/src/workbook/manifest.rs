@@ -1,4 +1,4 @@
-//! `workbook.toml` 的 DTO 与领域类型。
+//! workbook.toml DTO and domain types.
 
 use serde::{Deserialize, Serialize};
 
@@ -7,7 +7,7 @@ use crate::error::{Error, Result};
 use crate::ids::{WorkbookId, validate_id};
 use crate::path::RelPath;
 
-/// 宿主资源类型（合同 §2 `requires[].kind`）。
+/// Host resource kind (contract §2 requires[].kind).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum RequireKind {
@@ -25,7 +25,7 @@ impl RequireKind {
         }
     }
 
-    /// 解析 `skill` / `agent` / `mcp`。
+    /// Parse skill / agent / mcp.
     pub fn parse(value: &str) -> Option<Self> {
         match value {
             "skill" => Some(Self::Skill),
@@ -36,8 +36,8 @@ impl RequireKind {
     }
 }
 
-/// 一条宿主资源声明。身份是 `kind + name`。
-/// Reply 快照读取需要反序列化，字段仍按 manifest 规则校验。
+/// Host resource declaration, identified by kind + name.
+/// Deserialize Reply snapshots while retaining manifest field validation.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct HostRequire {
     pub(crate) kind: RequireKind,
@@ -69,14 +69,18 @@ impl<'de> Deserialize<'de> for HostRequire {
             .as_ref()
             .is_some_and(|value| value.len() > VERSION_MAX_BYTES)
         {
-            return Err(serde::de::Error::custom("requires.version 超过 32 字节"));
+            return Err(serde::de::Error::custom(
+                "requires.version exceeds 32 bytes",
+            ));
         }
         if wire
             .source
             .as_ref()
             .is_some_and(|value| value.len() > SOURCE_MAX_BYTES)
         {
-            return Err(serde::de::Error::custom("requires.source 超过 512 字节"));
+            return Err(serde::de::Error::custom(
+                "requires.source exceeds 512 bytes",
+            ));
         }
         Ok(Self {
             kind: wire.kind,
@@ -98,7 +102,7 @@ impl HostRequire {
     }
 }
 
-/// 校验过的 manifest。外部调用方只能读取，不能修改解析后的定义。
+/// Validated manifest; external callers can read but not mutate parsed definitions.
 ///
 /// ```compile_fail
 /// use sheltie_core::workbook::parse_manifest;
@@ -145,7 +149,7 @@ impl Manifest {
         &self.requires
     }
 
-    /// 按 `kind:name` 查一条声明。
+    /// Look up a declaration by kind:name.
     pub fn find_require(&self, kind: RequireKind, name: &str) -> Option<&HostRequire> {
         self.requires
             .iter()
@@ -153,20 +157,20 @@ impl Manifest {
     }
 }
 
-/// 版本串允许的字符：`[0-9A-Za-z.+-]`，≤ 32 字节。
+/// Version syntax: [0-9A-Za-z.+-], at most 32 bytes.
 pub const VERSION_MAX_BYTES: usize = 32;
-/// `name` ≤ 128 字节。
+/// name is at most 128 bytes.
 pub const NAME_MAX_BYTES: usize = 128;
 /// `description` ≤ 2 KiB。
 pub const DESCRIPTION_MAX_BYTES: usize = 2048;
-/// `requires` ≤ 32 项。
+/// requires has at most 32 entries.
 pub const REQUIRES_MAX: usize = 32;
-/// `source` ≤ 512 字节。
+/// source is at most 512 bytes.
 pub const SOURCE_MAX_BYTES: usize = 512;
-/// version 的内部保留名：引擎自己的 staging 目录段（存储合同 §5.3）。
+/// Reserved internal version name: engine staging directory segment (storage contract §5.3).
 pub const RESERVED_VERSION: &str = ".staging";
 
-/// 原始 TOML 结构。未知字段拒绝。
+/// Raw TOML structure; reject unknown fields.
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct ManifestDto {
@@ -194,12 +198,12 @@ struct RequireDto {
     source: Option<String>,
 }
 
-/// 解析并校验 `workbook.toml`。
+/// Parse and validate workbook.toml.
 ///
-/// 任何 TOML 语法错误或未知字段返回 `Error::WorkbookInvalid { field: "toml", .. }`；
-/// 字段级错误的 `field` 用路径写法，如 `flows[1]`、`requires[0].digest`。
-/// 规则见合同 §2 两张表：`schema` 必须是 `workbook/v1`；`flows` 非空；
-/// `requires` 的 `(kind, name)` 唯一，`digest` 必须是 `sha256:` 加 64 位小写十六进制。
+/// TOML syntax errors or unknown fields return Error::WorkbookInvalid { field: "toml", .. };
+/// field-level errors use paths such as flows[1] and requires[0].digest.
+/// Contract §2 tables require workbook/v1 schema and nonempty flows;
+/// unique (kind, name) requires, and digest as sha256: followed by 64 lowercase hexadecimal digits.
 pub fn parse_manifest(toml_text: &str) -> Result<Manifest> {
     let dto: ManifestDto = toml::from_str(toml_text).map_err(|e| Error::WorkbookInvalid {
         field: "toml".to_string(),
@@ -208,29 +212,32 @@ pub fn parse_manifest(toml_text: &str) -> Result<Manifest> {
     convert(dto)
 }
 
-/// DTO 到领域类型的逐字段转换。这是 T03 要填的函数。
+/// Convert DTO fields into domain types (T03 implementation entry).
 ///
-/// 校验失败一律归到 `Error::WorkbookInvalid`，`field` 用 TOML 路径写法，
-/// 让协调者能直接指着 `workbook.toml` 的某一行改。
+/// All validation failures use WorkbookInvalid with TOML field paths,
+/// so coordinators can locate the workbook.toml line to change.
 fn convert(dto: ManifestDto) -> Result<Manifest> {
     let invalid = |field: String, reason: String| Error::WorkbookInvalid { field, reason };
 
     if dto.schema != "workbook/v1" {
         return Err(invalid(
             "schema".to_string(),
-            format!("必须是 workbook/v1，实际 {:?}", dto.schema),
+            format!("Must be workbook/v1; actual {:?}", dto.schema),
         ));
     }
 
     let id = WorkbookId::new(&dto.id).map_err(|e| invalid("id".to_string(), e.to_string()))?;
 
     if dto.version.is_empty() {
-        return Err(invalid("version".to_string(), "不能为空".to_string()));
+        return Err(invalid(
+            "version".to_string(),
+            "Must not be empty".to_string(),
+        ));
     }
     if dto.version.len() > VERSION_MAX_BYTES {
         return Err(invalid(
             "version".to_string(),
-            format!("超过 {VERSION_MAX_BYTES} 字节"),
+            format!("Exceeds {VERSION_MAX_BYTES} bytes"),
         ));
     }
     if !dto
@@ -240,24 +247,24 @@ fn convert(dto: ManifestDto) -> Result<Manifest> {
     {
         return Err(invalid(
             "version".to_string(),
-            "只能含 0-9、A-Z、a-z、.、+ 与 -".to_string(),
+            "May contain only 0-9, A-Z, a-z, ., +, and -".to_string(),
         ));
     }
-    // version 要作为单个安全目录段（存储合同 §5.3）：拒绝点段与内部保留名。
+    // version is one safe directory segment (storage contract §5.3); reject dot segments and reserved names.
     if matches!(dto.version.as_str(), "." | ".." | RESERVED_VERSION) {
         return Err(invalid(
             "version".to_string(),
-            format!("不得是 .、.. 或保留名 {RESERVED_VERSION}"),
+            format!("Must not be ., .., or reserved name {RESERVED_VERSION}"),
         ));
     }
 
     if dto.name.is_empty() {
-        return Err(invalid("name".to_string(), "不能为空".to_string()));
+        return Err(invalid("name".to_string(), "Must not be empty".to_string()));
     }
     if dto.name.len() > NAME_MAX_BYTES {
         return Err(invalid(
             "name".to_string(),
-            format!("超过 {NAME_MAX_BYTES} 字节"),
+            format!("Exceeds {NAME_MAX_BYTES} bytes"),
         ));
     }
 
@@ -265,13 +272,16 @@ fn convert(dto: ManifestDto) -> Result<Manifest> {
         if description.len() > DESCRIPTION_MAX_BYTES {
             return Err(invalid(
                 "description".to_string(),
-                format!("超过 {DESCRIPTION_MAX_BYTES} 字节"),
+                format!("Exceeds {DESCRIPTION_MAX_BYTES} bytes"),
             ));
         }
     }
 
     if dto.flows.is_empty() {
-        return Err(invalid("flows".to_string(), "不能为空".to_string()));
+        return Err(invalid(
+            "flows".to_string(),
+            "Must not be empty".to_string(),
+        ));
     }
     let mut flows = Vec::with_capacity(dto.flows.len());
     for (i, raw) in dto.flows.iter().enumerate() {
@@ -282,17 +292,17 @@ fn convert(dto: ManifestDto) -> Result<Manifest> {
     if dto.requires.len() > REQUIRES_MAX {
         return Err(invalid(
             "requires".to_string(),
-            format!("最多 {REQUIRES_MAX} 项"),
+            format!("At most {REQUIRES_MAX} entries"),
         ));
     }
     let mut requires = Vec::with_capacity(dto.requires.len());
     for (i, req) in dto.requires.into_iter().enumerate() {
-        // 字段级错误用 requires[i].<字段>；整项错误（重复）用 requires[i]。
+        // Field errors use requires[i].<field>; whole-entry duplicates use requires[i].
         let field = |suffix: &str| format!("requires[{i}].{suffix}");
         let kind = RequireKind::parse(&req.kind).ok_or_else(|| {
             invalid(
                 field("kind"),
-                format!("{:?} 不是 skill、agent 或 mcp", req.kind),
+                format!("{:?} must be skill, agent, or mcp", req.kind),
             )
         })?;
         validate_id(&req.name, "name").map_err(|e| invalid(field("name"), e.to_string()))?;
@@ -300,20 +310,20 @@ fn convert(dto: ManifestDto) -> Result<Manifest> {
             if version.len() > VERSION_MAX_BYTES {
                 return Err(invalid(
                     field("version"),
-                    format!("超过 {VERSION_MAX_BYTES} 字节"),
+                    format!("Exceeds {VERSION_MAX_BYTES} bytes"),
                 ));
             }
         }
         let digest = match &req.digest {
             None => None,
             Some(raw) => {
-                let hex = raw
-                    .strip_prefix("sha256:")
-                    .ok_or_else(|| invalid(field("digest"), "必须以 sha256: 开头".to_string()))?;
+                let hex = raw.strip_prefix("sha256:").ok_or_else(|| {
+                    invalid(field("digest"), "Must start with sha256:".to_string())
+                })?;
                 Some(Sha256Hex::new(hex).map_err(|_| {
                     invalid(
                         field("digest"),
-                        "sha256: 之后必须是 64 位小写十六进制".to_string(),
+                        "sha256: must be followed by 64 lowercase hexadecimal digits".to_string(),
                     )
                 })?)
             }
@@ -322,7 +332,7 @@ fn convert(dto: ManifestDto) -> Result<Manifest> {
             if source.len() > SOURCE_MAX_BYTES {
                 return Err(invalid(
                     field("source"),
-                    format!("超过 {SOURCE_MAX_BYTES} 字节"),
+                    format!("Exceeds {SOURCE_MAX_BYTES} bytes"),
                 ));
             }
         }
@@ -332,7 +342,7 @@ fn convert(dto: ManifestDto) -> Result<Manifest> {
         {
             return Err(invalid(
                 format!("requires[{i}]"),
-                "kind 与 name 的组合重复".to_string(),
+                "Duplicate kind/name pair".to_string(),
             ));
         }
         requires.push(HostRequire {
@@ -389,7 +399,7 @@ mod tests {
 schema = "workbook/v1"
 id = "two-step"
 version = "1.0.0"
-name = "两步"
+name = "Two steps"
 flows = ["flows/default.toml"]
 "#;
 
@@ -515,7 +525,7 @@ name = "db"
         );
     }
 
-    // ── M1 补测（长度与个数上限：恰好上限接受，多一个字节拒绝） ─────
+    // ── M1 additional length/count limits: accept exactly the limit, reject one more ─────
 
     fn require_toml(kind: &str, name: &str, extra: &str) -> String {
         format!("[[requires]]\nkind = \"{kind}\"\nname = \"{name}\"\n{extra}\n")
@@ -524,7 +534,7 @@ name = "db"
     fn field_of(text: &str) -> String {
         match parse_manifest(text) {
             Err(Error::WorkbookInvalid { field, .. }) => field,
-            other => panic!("应报 WorkbookInvalid：{other:?}"),
+            other => panic!("Expected WorkbookInvalid, got {other:?}"),
         }
     }
 
@@ -540,9 +550,9 @@ name = "db"
     // Task: T03
     #[test]
     fn name_limit_is_128_bytes() {
-        let at = MINIMAL.replace("\"两步\"", &format!("\"{}\"", "a".repeat(128)));
+        let at = MINIMAL.replace("\"Two steps\"", &format!("\"{}\"", "a".repeat(128)));
         assert!(parse_manifest(&at).is_ok());
-        let over = MINIMAL.replace("\"两步\"", &format!("\"{}\"", "a".repeat(129)));
+        let over = MINIMAL.replace("\"Two steps\"", &format!("\"{}\"", "a".repeat(129)));
         assert_eq!(field_of(&over), "name");
     }
 
@@ -604,10 +614,10 @@ name = "db"
             let text = MINIMAL.replace("\"1.0.0\"", &format!("\"{bad}\""));
             assert!(
                 matches!(parse_manifest(&text), Err(Error::WorkbookInvalid { field, .. }) if field == "version"),
-                "{bad:?} 应当拒绝"
+                "{bad:?} should be rejected"
             );
         }
-        // 只改一个条件：同样以点开头的合法 version 仍接受。
+        // One changed condition: a valid dot-prefixed version is still accepted.
         assert!(parse_manifest(&MINIMAL.replace("\"1.0.0\"", "\".1.0\"")).is_ok());
     }
 }

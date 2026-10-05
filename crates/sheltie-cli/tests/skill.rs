@@ -1,4 +1,4 @@
-//! T24：`skills/sheltie/SKILL.md` 里出现的每条命令都真实存在。
+//! T24: every command in skills/sheltie/SKILL.md actually exists.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::path::Path;
@@ -25,5 +25,8 @@ fn every_command_in_skill_exists() {
             .success();
         seen += 1;
     }
-    assert!(seen >= 8, "skill 里至少要演示八条命令，实际 {seen}");
+    assert!(
+        seen >= 8,
+        "Skill must demonstrate at least eight commands; actual {seen}"
+    );
 }

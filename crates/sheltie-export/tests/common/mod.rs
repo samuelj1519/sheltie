@@ -109,8 +109,8 @@ impl Fixture {
         std::fs::create_dir(&parent).unwrap();
         std::fs::create_dir(&workbook).unwrap();
         std::fs::create_dir(workbook.join("flows")).unwrap();
-        std::fs::write(workbook.join("workbook.toml"), "schema='workbook/v1'\nid='byte-fixture'\nversion='1.0.0'\nname='原字节夹具'\nflows=['flows/default.toml']\n").unwrap();
-        std::fs::write(workbook.join("flows/default.toml"), "schema='flow/v1'\nid='default'\nentry='make'\n[[nodes]]\nid='make'\ntitle='成果'\nexecutor='agent'\ninstruction={text='按声明生成成果'}\ninputs=[{name='task',from='start.task',result=true}]\noutputs=[{name='binary',path='final.bin',result=true},{name='empty',path='empty.bin',result=true}]\n").unwrap();
+        std::fs::write(workbook.join("workbook.toml"), "schema='workbook/v1'\nid='byte-fixture'\nversion='1.0.0'\nname='Raw-byte fixture'\nflows=['flows/default.toml']\n").unwrap();
+        std::fs::write(workbook.join("flows/default.toml"), "schema='flow/v1'\nid='default'\nentry='make'\n[[nodes]]\nid='make'\ntitle='Results'\nexecutor='agent'\ninstruction={text='Produce declared results'}\ninputs=[{name='task',from='start.task',result=true}]\noutputs=[{name='binary',path='final.bin',result=true},{name='empty',path='empty.bin',result=true}]\n").unwrap();
         ok(&home, &["workbook", "add", workbook.to_str().unwrap()]);
         let started = ok(
             &home,
@@ -143,7 +143,7 @@ impl Fixture {
                 "--attempt",
                 "make#1.0",
                 "--summary",
-                "产物完成",
+                "Artifacts complete",
             ],
         );
         let result = ok(&home, &["work", "result", &work])["data"].clone();

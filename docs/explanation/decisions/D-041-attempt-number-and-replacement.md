@@ -1,27 +1,29 @@
-# D-041：创建顺序号与行政替换
+# D-041: Creation sequence and administrative replacement
 
-状态：`accepted`
-日期：2026-10-03
-关联 change：[C005](../../history/changes/C005-executor-continuity/README.md)
+English | [简体中文](D-041-attempt-number-and-replacement.zh-CN.md)
 
-当前适用范围：schema 4／cli-result/v4 与行政替换。它延续 [D-033](D-033-store-schema-2.md)、[D-040](D-040-result-resume-format.md) 的单一格式与冻结读取原则，替代其中的 schema 2／3 和 cli-result/v2／v3 版本选择；不废除它们仍有效的设计理由。
+Status: `accepted`
+Date: 2026-10-03
+Related change: [C005](../../history/changes/C005-executor-continuity/README.md)
 
-## 背景
+Current applicability: schema 4 / `cli-result/v4` and administrative replacement. This extends the single-format and frozen-read principles of [D-033](D-033-store-schema-2.md) and [D-040](D-040-result-resume-format.md), superseding their schema 2/3 and cli-result/v2/v3 versions without invalidating their remaining design reasons.
 
-撤销正式提交资格需要在一个事务中结束旧 Attempt 并开始新 Attempt，不能拆为 fail 和 begin。业务失败额度描述实际执行失败，不能被行政撤销消耗。
+## Context
 
-## 选择
+Revoking formal submission qualification must end the old Attempt and start the new one in a single transaction, rather than separate fail and begin calls. Business failure limits describe actual execution failures and must not be consumed by administrative revocation.
 
-Attempt 后缀采用创建顺序号 `number`，只维护这一套字段。`failed` 与 `superseded` 计数从事实序列派生；每个 Occurrence 固定最多替换一次。
+## Decision
 
-Store 升为 schema 4，公开响应快照采用 `cli-result/v4`。`replacement_reason` 必须存在，值可以为 null；serde 不将缺字段默认为 None。旧 schema 1/2/3 原件保留并整体拒绝，不迁移，不同时维护 retry 与 number。Workbook、成果与目录摘要格式保持。
+Attempt suffixes use creation sequence `number`, with only this field set. Counts of `failed` and `superseded` derive from the fact sequence. Each Occurrence permits at most one replacement.
 
-新 Attempt 继承旧冻结的非统计输入引用与进入来源。runtime 使用同一文件句柄核路径、sha256 与 bytes；新 stats 按含新 Attempt 的提交后状态生成，精确历史字节随请求登记。
+Store becomes schema 4 and public response snapshots cli-result/v4. `replacement_reason` must be present, though its value may be null; serde must not default a missing field to None. Preserve and wholly reject old schema 1/2/3 without migration or parallel retry/number fields. Workbook, result, and directory digest formats remain.
 
-历史 fail 响应核原 Failed Attempt 及截至它的失败前缀，不用当前总失败数或 number 代替。Replace 审计保存物化后的完整有界 reason，并与旧 Attempt 的 `replacement_reason` 逐字核对；意图仍保存字面参数或文件源路径。此核验不新增状态库，其他命令的审计摘要政策保持。
+The new Attempt inherits old frozen non-statistical input references and entry source. runtime validates paths, sha256, and bytes with the same file handle. New stats use post-commit state including the new Attempt; requests record exact historical bytes.
 
-## 后果与确认
+Historical fail responses validate the original Failed Attempt and failure prefix through it, rather than current total failures or number. Replace audit records preserve the complete materialized bounded reason and compare it byte-for-byte with the old replacement_reason. Intent still records literal parameters or source file paths. This adds no state store; other commands retain their audit-summary policies.
 
-替换只撤销正式接口资格，不停止进程、不隔离宿主、不认证接手者。操作者确认旧执行者和共享工作区处置，引擎不把这种外部确认升级为自己的已核事实。
+## Consequences and verification
 
-真实消费者核合法与拒绝例、一次额度、`max_retries=0/1`、迟到提交、同意图重放、并发单胜及 COMMIT 前后的原字节恢复。独立 Reviewer 不编写被审修复。当前操作见[接续指南](../../how-to/resume-work.md)，格式见[存储合同](../../../specs/contracts/storage.md)。
+Replacement revokes formal interface qualification only. It does not stop processes, isolate hosts, or authenticate successors. Operators confirm treatment of old executors and shared workspaces; the engine does not turn external confirmation into its own verified fact.
+
+Real consumers verify accepted/rejected cases, the one-replacement limit, `max_retries=0/1`, late submission, same-intent replay, one concurrent winner, and raw-byte recovery around COMMIT. Independent reviewers do not author reviewed repairs. See the [resume guide](../../how-to/resume-work.md) and [storage contract](../../../specs/contracts/storage.md).

@@ -1,23 +1,25 @@
-# 方法、状态与内容判断
+# Methods, state, and content judgment
 
-Workbook 是可重复使用的方法，Work 是冻结某个方法版本后的一次运行。Flow 定义阶段与显式边，Node 定义一步的说明、输入、输出、执行者、门槛和额度。业务词汇不需要进入引擎才能成为方法。
+English | [简体中文](workflow-model.zh-CN.md)
 
-## 到达、尝试与反馈
+A Workbook is a reusable method; a Work is one run of a frozen method version. A Flow defines stages and explicit edges. A Node defines instructions, inputs, outputs, executor, gate, and limits for one step. Business vocabulary does not have to enter the engine to become a method.
 
-节点每次到达形成一个 Occurrence，在同一次到达内的执行记录叫 Attempt。执行失败后重试产生新 Attempt；沿回边再次到达形成新 Occurrence。两者分别受 max_retries 和 max_visits 限制。
+## Arrivals, attempts, and feedback
 
-审查已完成但内容结论“不通过”，仍是执行 succeeded。协调者读取报告，从显式合法边选返工；引擎不从自然语言选边。实际执行者崩溃或无法交付才是 failed。撤销旧正式资格是 superseded，不计业务失败；它不停止宿主进程。
+Every arrival at a node forms an Occurrence; an execution record within that arrival is an Attempt. Retrying after execution failure creates a new Attempt. Returning along a back edge creates a new Occurrence. `max_retries` and `max_visits` limit these separately.
 
-## 任务书为何只给绑定来源
+A completed review with a failing content verdict is still an execution that succeeded. The coordinator reads the report and selects a legal explicit edge for rework; the engine does not select edges from natural language. An executor crash or inability to deliver is failed. Administrative revocation of formal qualification is superseded, without counting as business failure or stopping the host process.
 
-说明正文由方法作者预写，引擎把当次冻结输入路径与输出要求交给执行者。可选反馈在首次到达可能没有来源；之后绑定具体成功产物，避免协调者猜哪个文件最新。
+## Why briefs provide bound sources
 
-会话中断后，resume 让新上下文找到当前任务书、冻结输入与草稿位置。它不证明草稿质量或存在性，操作者仍要处理旧执行者和共享工作区。普通中断不自动变成一次失败或行政撤销。
+Method authors write instructions in advance. The engine gives the executor frozen input paths and output requirements for this Attempt. Optional feedback may have no source at the first arrival; later it binds to a specific successful artifact, avoiding guesses about which file is newest.
 
-## 门槛、成功与成果是不同事实
+After session interruption, resume lets a new context find the current brief, frozen inputs, and draft locations. It proves neither draft quality nor file existence. Operators still handle old executors and the shared workspace. Ordinary interruption does not automatically become failure or administrative revocation.
 
-executor 决定谁执行，gate 决定成功后是否要批准才能离开。人工 Node 可以交付一份结论，gate 本身只记批准调用，不认证独立真人或判断输出内容。
+## Gates, success, and results are separate facts
 
-没有出边的终点完成且不存在未批准门槛后，Work 可以 succeeded。最终成果仍取决于终点显式 result 选择；没有声明就没有选集，不能把所有输出或目录里最后一个文件当成果。两步样例刻意没有声明最终选集，教程可观察到这个差别；code-change 与 spec-dev 则明确选择其交付。
+executor determines who executes; gate determines whether approval is required after success before leaving. A human Node can deliver a conclusion. A gate records an approval call without authenticating an independent person or judging output content.
 
-统一术语见 [CONTEXT](../../CONTEXT.md)，字段与状态查[参考](../reference/data-model.md)，实际操作见[接续指南](../how-to/resume-work.md)。
+A Work can succeed after a terminal node with no outgoing edges finishes and no unapproved gate remains. Final results still depend on that terminal's explicit result selections. Without declarations there is no selected set: neither all outputs nor the last file in a directory is automatically a result. The two-step example deliberately has no final selections, making this distinction observable in the tutorial. code-change and spec-dev explicitly select their deliveries.
+
+Use [CONTEXT](../../CONTEXT.md) terminology. See [data reference](../reference/data-model.md) for fields and states and the [resume guide](../how-to/resume-work.md) for operations.

@@ -1,7 +1,7 @@
-# 独立审查代码变更
+# Independently review a code change
 
-审查者不得参与被审代码的编写。读取 task、project 与 change，核实际候选、代码、调用者、适用规格和原始检查输出。必要时独立执行有界反例验证，并保留原文。
+Reviewers must not have authored reviewed code. Read task/project/change, inspect actual candidate/code/callers/specifications/raw outputs. Run bounded independent counterexamples where needed, retaining raw evidence.
 
-在 review.md 第一行写通过、需修改或阻断，后续写每个具体问题的依据、位置、影响与可复核证据。代码提交或检查成功不能代替全部验收义务。未知、未执行和环境缺项分别标明。不得修改被审实现或降低标准。
+First line: Accepted, Changes required, or Blocked. For each finding record authority/location/impact/reproducible evidence. Commits/passing checks do not satisfy every acceptance obligation. Distinguish unknown, unrun, and missing environment. Do not edit implementation or lower standards.
 
-协调者读取审查报告后按已声明的边选择下一阶段；本报告的结论不自动推进引擎状态。
+Coordinator selects the declared edge after reading this report; conclusions do not automatically advance state.

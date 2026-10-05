@@ -12,7 +12,7 @@ import { readTree, materialize } from '../lib/files.mjs';
 import { removeOwnedRoot } from '../lib/engine.mjs';
 import { MAX_BODY, MAX_BYTES, toWire } from '../public/files.mjs';
 const binary = process.env.SHELTIE_EDITOR_ENGINE;
-if (!binary) throw new Error('必须提供真实引擎');
+if (!binary) throw new Error('A real engine is required');
 function request(editor, { path = '/api/check', method = 'POST', headers = {}, payload = '[]', omit = [] } = {}) {
   const base = { Host: new URL(editor.origin).host, Origin: editor.origin, 'X-Editor-Token': editor.token, 'Content-Type': 'application/json' };
   for (const key of omit) delete base[key];
@@ -26,7 +26,7 @@ function cli(argv, home) {
   const result = spawnSync(binary, argv, { env: { ...process.env, SHELTIE_HOME: home }, encoding: 'utf8', timeout: 30000, maxBuffer: 1048576 });
   console.log(JSON.stringify({ boundary: 'real-cli-zip', argv: [binary, ...argv], home, stdout: result.stdout, stderr: result.stderr, exit: result.status })); assert.equal(result.status, 0); return JSON.parse(result.stdout);
 }
-test('真实 HTTP Host/Origin/token 拒绝矩阵，固定静态路由和样例', async () => {
+test('Real HTTP Host/Origin/token rejection matrix and fixed static/sample routes', async () => {
   const roots = [], editor = await createEditor({ binary, port: 0, onRoot: root => roots.push(root) });
   try {
     for (const item of [
@@ -48,7 +48,7 @@ test('真实 HTTP Host/Origin/token 拒绝矩阵，固定静态路由和样例',
     console.log(JSON.stringify({ boundary: 'real-http', origin: editor.origin, matrix: '9 forbidden before materialization, 8 existing static + 2 exact-byte production modules + fixed sample, 4 unknown routes' }));
   } finally { await editor.close(); }
 });
-test('真实 HTTP 逐项路径/base64/数量/16MiB 与24MiB流式限额；所有前检不物化', async () => {
+test('Real HTTP entry/path/base64/count/16MiB and streaming 24MiB limits refuse before materialization', async () => {
   const roots = [], editor = await createEditor({ binary, port: 0, onRoot: root => roots.push(root) });
   try {
     const invalid = [{ x: '' }, [['../x', '']], [['a', ''], ['a', '']], [['Dir/a', ''], ['dir/b', '']], [['a', ''], ['a/b', '']], [['x', 'YR==']], Array.from({ length: 1025 }, (_, i) => [`f${i}`, '']), [['x', Buffer.alloc(MAX_BYTES + 1).toString('base64')]]];
@@ -62,27 +62,27 @@ test('真实 HTTP 逐项路径/base64/数量/16MiB 与24MiB流式限额；所有
     console.log(JSON.stringify({ boundary: 'real-http-limits', precheckRoots: 0, exactLimitRootsRemoved: roots.length, invalidCases: invalid.length, exactBody: MAX_BODY, oneOverBody: MAX_BODY + 1 }));
   } finally { await editor.close(); }
 });
-test('真实 HTTP check/export 同字节 ZIP 解压后 add/show/verify；失败绝无成功 ZIP', async () => {
+test('Real HTTP check/export ZIP bytes pass add/show/verify after extraction; failures never produce a success ZIP', async () => {
   const roots = [], editor = await createEditor({ binary, port: 0, onRoot: root => roots.push(root) });
   const root = await mkdtemp(join(tmpdir(), 'editor-zip-test-'));
   try {
     const files = await readTree(resolve('../../examples/code-change')); files.set('resources/binary', Buffer.from([0, 255, 1, 128, 13, 10]));
-    const model = new WorkbookModel(files); model.edit('flows/default.toml', model.flow('flows/default.toml').nodes[0], 'title', '真实 HTTP 编辑');
+    const model = new WorkbookModel(files); model.edit('flows/default.toml', model.flow('flows/default.toml').nodes[0], 'title', 'real-HTTP-edit');
     const exact = model.snapshot(), payload = JSON.stringify(toWire(exact));
     const checked = await request(editor, { payload }); assert.equal(checked.status, 200, checked.bytes.toString()); assert.equal(JSON.parse(checked.bytes).ok, true);
     const exported = await request(editor, { path: '/api/export', payload }); assert.equal(exported.status, 200, exported.bytes.toString()); assert.equal(exported.headers['content-type'], 'application/zip');
     const unzipped = unzipSync(exported.bytes); assert.deepEqual(Object.keys(unzipped).sort(), [...exact.keys()].sort()); for (const [path, bytes] of exact) assert.deepEqual(Buffer.from(unzipped[path]), Buffer.from(bytes), path);
     await materialize(new Map(Object.entries(unzipped)), join(root, 'unzipped'));
     const home = join(root, 'home'); const added = cli(['--json', 'workbook', 'add', join(root, 'unzipped')], home); assert.equal(added.data.id, 'code-change');
-    const shown = cli(['--json', 'workbook', 'show', 'code-change@1.0.0'], home); assert.equal(shown.ok, true); assert.match(JSON.stringify(shown.data), /真实 HTTP 编辑/);
-    const verified = cli(['--json', 'workbook', 'verify', 'code-change@1.0.0'], home); assert.equal(verified.ok, true); assert.match(JSON.stringify(verified.data), /"status":"ok"/);
+    const shown = cli(['--json', 'workbook', 'show', 'code-change@1.0.1'], home); assert.equal(shown.ok, true); assert.match(JSON.stringify(shown.data), /real-HTTP-edit/);
+    const verified = cli(['--json', 'workbook', 'verify', 'code-change@1.0.1'], home); assert.equal(verified.ok, true); assert.match(JSON.stringify(verified.data), /"status":"ok"/);
     model.edit('flows/default.toml', model.flow('flows/default.toml'), 'entry', 'absent');
     const failed = await request(editor, { path: '/api/export', payload: JSON.stringify(toWire(model.snapshot())) }); assert.equal(failed.status, 422); assert.equal(failed.headers['content-type'], 'application/json; charset=utf-8'); assert.match(failed.bytes.toString(), /FLOW_INVALID/); assert.equal(JSON.parse(failed.bytes).engineError.code, 'FLOW_INVALID'); assert.equal(JSON.parse(failed.bytes).engineError.detail.path, 'entry');
     for (const owned of roots) await assert.rejects(access(owned));
     console.log(JSON.stringify({ boundary: 'real-http-zip', origin: editor.origin, zipBytes: exported.bytes.length, files: exact.size, ownedRootsRemoved: roots }));
   } finally { await editor.close(); await removeOwnedRoot(root); }
 });
-test('真实HTTP断开终止归属直接child，观察close后清自有根', async () => {
+test('HTTP disconnection stops the owned direct child and cleans its root only after close is observed', async () => {
   const scripts = await mkdtemp(join(tmpdir(), 'editor-http-disconnect-'));
   let root, seenRoot, seenClose;
   const readyRoot = new Promise(resolve => { seenRoot = resolve; }), closed = new Promise(resolve => { seenClose = resolve; });

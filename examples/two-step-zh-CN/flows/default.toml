@@ -1,0 +1,24 @@
+schema = "flow/v1"
+id = "default"
+entry = "outline"
+
+[[nodes]]
+id = "outline"
+title = "列提纲"
+executor = "agent"
+instruction = { file = "instructions/outline.md" }
+inputs  = [{ name = "topic", from = "start.topic" }]
+outputs = [{ name = "outline", path = "outline.md", max_bytes = 65536 }]
+
+[[nodes]]
+id = "summary"
+title = "按提纲写摘要"
+executor = "agent"
+instruction = { file = "instructions/summary.md" }
+inputs  = [{ name = "outline", from = "outline.outline" }]
+outputs = [{ name = "summary", path = "summary.md", max_bytes = 65536 }]
+
+[[edges]]
+from = "outline"
+to = "summary"
+kind = "main"

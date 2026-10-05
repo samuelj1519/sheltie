@@ -1,4 +1,4 @@
-//! 真实CLI故障进程；Cargo提供当前候选及feature的二进制，不在测试期间构建。
+//! Real CLI fault processes; Cargo provides candidate/feature binaries, without builds during tests.
 #![cfg(feature = "failpoint")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -62,12 +62,15 @@ fn kill_before_commit_leaves_state_unchanged_and_replay_succeeds() {
     assert_eq!(
         out.status.code(),
         Some(sheltie_runtime::failpoint::EXIT_CODE),
-        "子进程输出：{}{}",
+        "Subprocess output: {}{}",
         String::from_utf8_lossy(&out.stdout),
         String::from_utf8_lossy(&out.stderr)
     );
     let (_, json) = svc.status(&wid).unwrap();
-    assert!(json.last_attempt.is_none(), "提交前被杀，状态不变");
+    assert!(
+        json.last_attempt.is_none(),
+        "Termination before commit leaves state unchanged"
+    );
     let again = svc
         .begin(
             &wid,
@@ -75,7 +78,10 @@ fn kill_before_commit_leaves_state_unchanged_and_replay_succeeds() {
             Some("r-begin".into()),
         )
         .unwrap();
-    assert!(!again.replayed, "原请求没提交，这次是正常提交");
+    assert!(
+        !again.replayed,
+        "Original request did not commit; this is a fresh commit"
+    );
 }
 
 // Task: T23
@@ -99,13 +105,16 @@ fn kill_after_commit_leaves_state_advanced_and_replay_returns_original_reply_and
     assert_eq!(
         out.status.code(),
         Some(sheltie_runtime::failpoint::EXIT_CODE),
-        "子进程输出：{}{}",
+        "Subprocess output: {}{}",
         String::from_utf8_lossy(&out.stdout),
         String::from_utf8_lossy(&out.stderr)
     );
     let brief = std::path::PathBuf::from(home.work_dir(&wid).as_str())
         .join("attempts/outline/occurrence-001/attempt-000/brief.md");
-    assert!(!brief.exists(), "效果前被杀，任务书还没写");
+    assert!(
+        !brief.exists(),
+        "Terminated before effects; brief not written yet"
+    );
     let (_, json) = svc.status(&wid).unwrap();
     assert_eq!(json.last_attempt.as_ref().unwrap().attempt, "outline#1.0");
     let again = svc
@@ -116,7 +125,7 @@ fn kill_after_commit_leaves_state_advanced_and_replay_returns_original_reply_and
         )
         .unwrap();
     assert!(again.replayed);
-    assert!(brief.exists(), "重放补写了任务书");
+    assert!(brief.exists(), "Replay restored the brief");
 }
 
 // Task: C002-T27
@@ -138,7 +147,7 @@ fn kill_after_delete_before_marker_leaves_result_unknown_and_blocks_next_write()
             request_id,
             "workbook",
             "remove",
-            "two-step@1.0.0",
+            "two-step@1.0.1",
         ],
     );
     assert_eq!(
@@ -160,9 +169,12 @@ fn kill_after_delete_before_marker_leaves_result_unknown_and_blocks_next_write()
     let marker = home
         .pending_dir()
         .join_segment(&format!("{internal_id}.deleted"));
-    assert!(!home.workbook_dir("two-step", "1.0.0").as_path().exists());
+    assert!(!home.workbook_dir("two-step", "1.0.1").as_path().exists());
     assert!(!home.rel(pending).unwrap().as_path().exists());
-    assert!(!marker.as_path().exists(), "删除后被杀时还没有完成证明");
+    assert!(
+        !marker.as_path().exists(),
+        "Termination after deletion leaves no completion proof"
+    );
     assert_eq!(
         conn.query_row(
             "SELECT published FROM requests WHERE request_id = ?1",
@@ -174,7 +186,7 @@ fn kill_after_delete_before_marker_leaves_result_unknown_and_blocks_next_write()
     );
 
     let error = repo
-        .remove("two-step", "1.0.0", Some(request_id.to_string()))
+        .remove("two-step", "1.0.1", Some(request_id.to_string()))
         .unwrap_err();
     let Error::EffectPending {
         committed,
@@ -185,7 +197,7 @@ fn kill_after_delete_before_marker_leaves_result_unknown_and_blocks_next_write()
         ..
     } = error
     else {
-        panic!("缺marker的删除结果必须保留本请求不确定性：{error:?}");
+        panic!("Deletion without marker must preserve this request's uncertainty: {error:?}");
     };
     assert!(committed);
     assert_eq!(actual_request, request_id);
@@ -195,7 +207,10 @@ fn kill_after_delete_before_marker_leaves_result_unknown_and_blocks_next_write()
     assert_eq!(original["ok"], true);
     assert_eq!(original["request_id"], request_id);
     assert_eq!(original["data"]["id"], "two-step");
-    assert!(!marker.as_path().exists(), "恢复不得补造完成证明");
+    assert!(
+        !marker.as_path().exists(),
+        "Recovery must not invent completion proof"
+    );
 
     let blocked = repo
         .add(
@@ -211,7 +226,7 @@ fn kill_after_delete_before_marker_leaves_result_unknown_and_blocks_next_write()
         ..
     } = blocked
     else {
-        panic!("结果不明的旧删除必须阻断新写：{blocked:?}");
+        panic!("Old deletion with unknown result must block new writes: {blocked:?}");
     };
     assert!(!committed);
     assert_eq!(current, "t27-write-blocked-by-delete");
@@ -247,7 +262,7 @@ fn kill_during_partial_tree_delete_keeps_pending_for_digest_rejection() {
             request_id,
             "workbook",
             "remove",
-            "two-step@1.0.0",
+            "two-step@1.0.1",
         ],
     );
     assert_eq!(
@@ -265,7 +280,7 @@ fn kill_during_partial_tree_delete_keeps_pending_for_digest_rejection() {
     let effects: serde_json::Value = serde_json::from_str(&effects_raw).unwrap();
     let pending = effects[0]["pending"].as_str().unwrap();
     let payload = home.rel(pending).unwrap();
-    assert!(!home.workbook_dir("two-step", "1.0.0").as_path().exists());
+    assert!(!home.workbook_dir("two-step", "1.0.1").as_path().exists());
     assert!(payload.as_path().is_dir());
     assert!(
         !std::fs::read_dir(payload.as_path())
@@ -275,7 +290,7 @@ fn kill_during_partial_tree_delete_keeps_pending_for_digest_rejection() {
     );
 
     let error = repo
-        .remove("two-step", "1.0.0", Some(request_id.to_string()))
+        .remove("two-step", "1.0.1", Some(request_id.to_string()))
         .unwrap_err();
     let Error::EffectPending {
         committed,
@@ -284,7 +299,9 @@ fn kill_during_partial_tree_delete_keeps_pending_for_digest_rejection() {
         ..
     } = error
     else {
-        panic!("部分删除后摘要变化必须停止，不得继续猜测：{error:?}");
+        panic!(
+            "Digest changes after partial deletion must stop, without further guesses: {error:?}"
+        );
     };
     assert!(committed);
     assert_eq!(actual_request, request_id);
@@ -331,7 +348,7 @@ fn delete_refuses_root_replaced_before_unlink() {
             request_id,
             "workbook",
             "remove",
-            "two-step@1.0.0",
+            "two-step@1.0.1",
         ],
     );
     assert_eq!(
@@ -361,7 +378,7 @@ fn delete_refuses_root_replaced_before_unlink() {
     let recovery_home = home.clone();
     let recovery_id = request_id.to_string();
     let recovery = std::thread::spawn(move || {
-        WorkbookRepo::new(recovery_home).remove("two-step", "1.0.0", Some(recovery_id))
+        WorkbookRepo::new(recovery_home).remove("two-step", "1.0.1", Some(recovery_id))
     });
     let reached = rendezvous.path().join("reached");
     let release = rendezvous.path().join("release");
@@ -373,7 +390,7 @@ fn delete_refuses_root_replaced_before_unlink() {
         let _ = std::fs::write(&release, b"release");
         let _ = recovery.join();
         sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
-        panic!("删除没有到达root unlink前的句柄身份检查点");
+        panic!("Deletion did not reach the handle-identity check before root unlink");
     }
     std::fs::rename(payload.as_path(), &preserved).unwrap();
     std::fs::create_dir(payload.as_path()).unwrap();
@@ -394,7 +411,7 @@ fn delete_refuses_root_replaced_before_unlink() {
         ..
     } = error
     else {
-        panic!("root被换绑后不得unlink替代对象：{error:?}");
+        panic!("Rebinding root must prevent unlinking its replacement: {error:?}");
     };
     assert!(committed);
     assert_eq!(actual_request, request_id);
@@ -419,7 +436,7 @@ fn delete_refuses_root_replaced_before_unlink() {
             .next()
             .is_none()
     );
-    assert!(!home.workbook_dir("two-step", "1.0.0").as_path().exists());
+    assert!(!home.workbook_dir("two-step", "1.0.1").as_path().exists());
     assert!(
         !home
             .pending_dir()
@@ -463,7 +480,7 @@ fn remove_refuses_a_different_final_or_pending_tree() {
                 &request_id,
                 "workbook",
                 "remove",
-                "two-step@1.0.0",
+                "two-step@1.0.1",
             ],
         );
         assert_eq!(
@@ -481,7 +498,7 @@ fn remove_refuses_a_different_final_or_pending_tree() {
         let effects: serde_json::Value = serde_json::from_str(&effects_raw).unwrap();
         let pending_rel = effects[0]["pending"].as_str().unwrap();
         let payload = home.rel(pending_rel).unwrap().as_path().to_path_buf();
-        let final_dir = home.workbook_dir("two-step", "1.0.0");
+        let final_dir = home.workbook_dir("two-step", "1.0.1");
         if endpoint == "pending" {
             std::fs::set_permissions(
                 std::path::Path::new(home.root().as_str()).join("workbooks"),
@@ -501,7 +518,7 @@ fn remove_refuses_a_different_final_or_pending_tree() {
         let replacement = copy_example("two-step", replacement_root.path());
         std::fs::write(
             replacement.join("instructions/outline.md"),
-            "另一个不同摘要的Workbook生命周期。\n",
+            "Another Workbook lifecycle with a different digest.\n",
         )
         .unwrap();
         let original_root = replacement_root.path().join("preserved-original");
@@ -528,7 +545,7 @@ fn remove_refuses_a_different_final_or_pending_tree() {
         let original_bytes = std::fs::read(original_root.join("instructions/outline.md")).unwrap();
 
         let error = repo
-            .remove("two-step", "1.0.0", Some(request_id.clone()))
+            .remove("two-step", "1.0.1", Some(request_id.clone()))
             .unwrap_err();
         let Error::EffectPending {
             committed,
@@ -538,7 +555,9 @@ fn remove_refuses_a_different_final_or_pending_tree() {
             ..
         } = error
         else {
-            panic!("删除不得把不同final/payload对象当作完成：{error:?}");
+            panic!(
+                "Deletion must not treat different final/payload objects as complete: {error:?}"
+            );
         };
         assert!(committed);
         assert_eq!(actual_request, request_id);
@@ -606,28 +625,28 @@ fn kill_between_update_renames_leaves_prev_and_rollback_recovers() {
     assert_eq!(
         out.status.code(),
         Some(sheltie_runtime::failpoint::EXIT_CODE),
-        "子进程输出：{}{}",
+        "Subprocess output: {}{}",
         String::from_utf8_lossy(&out.stdout),
         String::from_utf8_lossy(&out.stderr)
     );
-    // 替换窗口的终态（存储合同 §9）：目标没了，`.prev` 就是替换前的旧二进制。
+    // Replacement window's final state (storage §9): absent destination, .prev holds the pre-replacement binary.
     assert_eq!(
         std::fs::read(bin.join("sheltie.prev")).unwrap(),
         old_bytes,
-        ".prev 不是替换前的旧二进制"
+        ".prev is not the pre-replacement binary"
     );
     assert!(!bin.join("sheltie").exists());
     sheltie_runtime::selfmgmt::rollback(&home).unwrap();
     assert_eq!(
         std::fs::read(bin.join("sheltie")).unwrap(),
         old_bytes,
-        "rollback 恢复的不是旧二进制字节"
+        "rollback did not restore the old binary bytes"
     );
     assert!(!bin.join("sheltie.prev").exists());
 }
 
-/// 造一个本地「发布目录」：tag 布局的 `dist-manifest.json` 与对应平台的包。
-/// T20 定义精确格式、T15 改成 `latest/` + `v<version>/` 布局，本 helper 与之一致。
+/// Create a local release directory: tagged dist-manifest.json and its platform artifact.
+/// T20 defines the format; T15 adds latest/ + v<version>/ layout, matched by this helper.
 mod sheltie_runtime_test_release {
     use std::path::Path;
 

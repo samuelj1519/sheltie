@@ -1,0 +1,7 @@
+schema = "workbook/v1"
+id = "spec-dev-zh-cn"
+version = "0.2.2"
+name = "规格驱动的软件开发"
+description = "从一句需求到一组已验证、已提交的小改动。人拍板规格与方案，最后批准交付；中间的实现、验证、审查、修复全部由 agent 完成。"
+
+flows = ["flows/default.toml"]

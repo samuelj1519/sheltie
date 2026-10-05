@@ -72,7 +72,7 @@ jobs:
         with:
           name: cargo-dist-cache
           path: ~/.cargo/bin/dist
-      # 标签推送调用 host；PR 使用 plan，不创建发布。
+      # Tag pushes invoke host; PRs use plan without creating releases.
       - id: plan
         run: |
           dist ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && format('host --steps=create --tag={0}', github.ref_name)) || 'plan' }} --output-format=json > plan-dist-manifest.json
@@ -85,8 +85,8 @@ jobs:
           name: artifacts-plan-dist-manifest
           path: plan-dist-manifest.json
 
-  # 质量门禁（C002-T15；dist 不生成，重新跑 dist init 会丢掉，需照此补回）：
-  # 发布必须挂在同一 SHA 的质量 job 上。announce 的 needs 与 if 挡住质量失败的发布。
+  # Custom quality gate (C002-T15); restore this job after regenerating with dist init.
+  # Release depends on quality for the same SHA; announce needs/if reject failed quality.
   quality:
     runs-on: "macos-14"
     env:
@@ -97,7 +97,7 @@ jobs:
           persist-credentials: false
           submodules: recursive
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          # check-specs 要解析历史 tags/commits，浅检出取不到老 tag。
+          # check-specs resolves historical tags/commits; shallow checkouts omit old tags.
           fetch-depth: 0
       - name: Record and verify the quality candidate
         shell: bash
@@ -144,6 +144,7 @@ jobs:
           scripts/check-docs.sh 2>&1 | tee quality-evidence/docs.log
           scripts/check-specs.sh 2>&1 | tee quality-evidence/specs.log
           scripts/check-skill.sh 2>&1 | tee quality-evidence/skill.log
+          python3 scripts/check-language.py 2>&1 | tee quality-evidence/language.log
           scripts/check-core-vocab.sh 2>&1 | tee quality-evidence/core-vocab.log
           scripts/check-tests.sh 2>&1 | tee quality-evidence/test-governance.log
       - name: Check code format
@@ -359,7 +360,7 @@ jobs:
     needs:
       - plan
       - host
-      # C002-T15：质量失败不能发布。quality 与 host 同一 SHA，任一失败都挡住建 Release。
+      # C002-T15: quality and host use the same SHA; either failure blocks release creation.
       - quality
     # use "always() && ..." to allow us to wait for all publish jobs while
     # still allowing individual publish jobs to skip themselves (for prereleases).
@@ -385,9 +386,9 @@ jobs:
         run: |
           # Remove the granular manifests
           rm -f artifacts/*-dist-manifest.json
-      # 自定义步骤（dist 不生成，重新跑 dist init 会丢掉，需照此补回）：打包自包含
-      # skill 交付并挂成发布资产。资产名 sheltie-skill.tar.gz 与 README「装 skill」的
-      # 下载地址一一对应；打包与校验规则的单一事实源是 scripts/skill-delivery.sh。
+      # Custom steps: restore after dist init; package the self-contained skill
+      # delivery as a release asset. sheltie-skill.tar.gz matches the README download URL;
+      # scripts/skill-delivery.sh is the single authority for packaging and verification.
       - name: Pack sheltie skill
         shell: bash
         run: scripts/skill-delivery.sh tar artifacts/sheltie-skill.tar.gz

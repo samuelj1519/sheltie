@@ -136,7 +136,7 @@ fn metadata_versions_terminal_binders_and_status_shapes_follow_the_full_contract
     assert!(fixture.source.result().is_ok());
     let mut backslash_leaf = baseline.clone();
     backslash_leaf["data"]["artifacts"][0]["path"] = json!("/original/x\\y");
-    rejected(&backslash_leaf, Some("叶名"));
+    rejected(&backslash_leaf, Some("leaf name"));
 
     for version in ["A".repeat(32), "a".into(), ".1+RC-2".into()] {
         let mut valid = baseline.clone();
@@ -159,7 +159,7 @@ fn metadata_versions_terminal_binders_and_status_shapes_follow_the_full_contract
     ] {
         let mut invalid = baseline.clone();
         invalid["data"]["workbook"]["version"] = json!(version);
-        rejected(&invalid, Some("Workbook版本"));
+        rejected(&invalid, Some("Workbook version"));
     }
 
     for attempt in ["finish#0.0", "finish#01.0", "finish#1.00"] {
@@ -191,22 +191,25 @@ fn metadata_versions_terminal_binders_and_status_shapes_follow_the_full_contract
             std::fs::write(&fixture.metadata, valid.to_string()).unwrap();
             assert!(fixture.source.result().is_ok());
         } else {
-            rejected(&valid, Some("需要无待完成效果"));
+            rejected(&valid, Some("Requires no pending effects"));
         }
         for reason in [Value::Null, json!("gate")] {
             let mut invalid = valid.clone();
             invalid["data"]["status"]["reason"] = reason;
-            rejected(&invalid, Some("status字段与variant不相符"));
+            rejected(&invalid, Some("status field does not match variant"));
         }
     }
     let mut blocked = baseline.clone();
     blocked["data"]["status"] = json!({"kind":"blocked","reason":"gate"});
-    rejected(&blocked, Some("需要无待完成效果"));
+    rejected(&blocked, Some("Requires no pending effects"));
     for (status, diagnostic) in [
-        (json!({"kind":"blocked"}), "status字段与variant不相符"),
+        (
+            json!({"kind":"blocked"}),
+            "status field does not match variant",
+        ),
         (
             json!({"kind":"blocked","reason":null}),
-            "status字段与variant不相符",
+            "status field does not match variant",
         ),
         (json!({"kind":"blocked","reason":1}), "expected value"),
         (
@@ -354,6 +357,6 @@ fn receive_stops_a_direct_source_child_instead_of_waiting_for_a_blocked_producer
     assert!(source.receive(3, &artifact, &mut std::io::sink()).is_err());
     assert!(
         started.elapsed() < std::time::Duration::from_secs(3),
-        "违规producer的60秒等待必须被终止并回收"
+        "Terminate and reap the invalid producer's 60-second wait"
     );
 }

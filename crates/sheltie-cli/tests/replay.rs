@@ -1,4 +1,4 @@
-//! T23：请求重放（cli 层）。
+//! T23: CLI request replay.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod common;

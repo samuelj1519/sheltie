@@ -810,7 +810,7 @@ fn replacement_transaction_crash_boundaries_preserve_exact_committed_history() {
                 Some("crash-replace".into()),
             )
             .unwrap();
-        panic!("指定故障点没有退出进程");
+        panic!("The specified fault point did not terminate the process");
     }
     for point in ["before_commit", "after_commit_before_effects"] {
         let (_directory, home, service, work, _) = fixture(1, false);
@@ -908,7 +908,7 @@ fn replacement_rejects_a_path_swap_after_opening_the_original_input() {
         )
     });
     let mut worker = RendezvousWorker::single(worker, rendezvous.path());
-    worker.wait("替换输入没有停在受限打开后的同步点");
+    worker.wait("Replacement input did not pause after confined opening");
     let retained = input.as_path().with_file_name("retained-topic");
     std::fs::rename(input.as_path(), &retained).unwrap();
     std::fs::write(input.as_path(), b"frozen topic").unwrap();

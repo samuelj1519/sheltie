@@ -1,4 +1,4 @@
-//! SQLite 存储：唯一状态权威。规则见 `specs/contracts/storage.md` §1、§2、§7。
+//! SQLite storage: sole state authority; storage contract §1, §2, and §7.
 
 pub mod commit;
 pub mod read;
@@ -18,23 +18,23 @@ pub use commit::{CommitInput, CommitOutcome};
 pub use read::WorkbookRow;
 pub use schema::SCHEMA_VERSION;
 
-/// 只读还是读写。只读打开不存在的库报 `NOT_FOUND`，不建库。
+/// Read-only/read-write mode; read-only missing databases yield NOT_FOUND without creation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum OpenMode {
     ReadOnly,
     ReadWrite,
 }
 
-/// 用 `READ_ONLY | NOFOLLOW` 核对 `user_version` 与逐表建表语句。识别连接在旧库
-/// 拒绝前不改 journal mode、不建表或checkpoint；`NO_CKPT_ON_CLOSE` 防止关闭时写主库。
-/// 只允许 SQLite 在已存在管理根内维护合同认可的 `store.db-shm` 控制文件。
+/// Use READ_ONLY | NOFOLLOW to verify user_version and table DDL. Recognition connections
+/// do not change journal mode, create tables, or checkpoint before rejecting old databases; NO_CKPT_ON_CLOSE prevents writes on closure.
+/// SQLite may maintain only contract-approved store.db-shm control files within the existing management root.
 fn validate_readonly(path: &AbsPath) -> Result<()> {
     let conn = rusqlite::Connection::open_with_flags(
         path.as_str(),
         rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,
     )?;
     prevent_checkpoint_on_close(&conn, path)?;
-    // 识别连接也要等待本地写者（首次建库窗口）。
+    // Recognition connections also wait for local writers during initial creation.
     conn.busy_timeout(std::time::Duration::from_millis(5000))?;
     check_schema(&conn)
 }
@@ -46,7 +46,7 @@ fn prevent_checkpoint_on_close(conn: &rusqlite::Connection, path: &AbsPath) -> R
     )? {
         return Err(Error::io(
             path.as_str(),
-            std::io::Error::other("SQLite未启用NO_CKPT_ON_CLOSE"),
+            std::io::Error::other("SQLite NO_CKPT_ON_CLOSE is not enabled"),
         ));
     }
     Ok(())
@@ -56,7 +56,7 @@ fn check_schema(conn: &rusqlite::Connection) -> Result<()> {
     let version: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
     if version != SCHEMA_VERSION {
         return Err(Error::StoreSchemaMismatch {
-            detail: format!("user_version 是 {version}，期望 {SCHEMA_VERSION}"),
+            detail: format!("user_version is {version}; expected {SCHEMA_VERSION}"),
         });
     }
     for (name, sql) in schema::TABLES {
@@ -70,13 +70,13 @@ fn check_schema(conn: &rusqlite::Connection) -> Result<()> {
         match got {
             None => {
                 return Err(Error::StoreSchemaMismatch {
-                    detail: format!("缺表 {name}"),
+                    detail: format!("Missing table {name}"),
                 });
             }
             Some(got) => {
                 if schema::normalize_sql(&got) != schema::normalize_sql(sql) {
                     return Err(Error::StoreSchemaMismatch {
-                        detail: format!("表 {name} 的建表语句与 SCHEMA_VERSION 不符"),
+                        detail: format!("Table {name} DDL does not match SCHEMA_VERSION"),
                     });
                 }
             }
@@ -85,7 +85,7 @@ fn check_schema(conn: &rusqlite::Connection) -> Result<()> {
     Ok(())
 }
 
-/// 存储句柄。不持久连接：每个方法开一个连接、用完关掉。
+/// Storage handle without persistent connections; open and close per method.
 #[derive(Debug, Clone)]
 pub(crate) struct Store {
     path: AbsPath,
@@ -95,13 +95,13 @@ pub(crate) struct Store {
 }
 
 impl Store {
-    /// 单元测试的低层Store夹具；产品代码必须经Home与WriteSession打开。
+    /// Low-level Store fixture for unit tests; production must open through Home and WriteSession.
     ///
-    /// 顺序（存储合同 §1.1）：库不存在且 `ReadWrite` → 一个事务内建表并写
-    /// `user_version`（无半结构库）；`ReadOnly` 且不存在 → `Error::NotFound`，
-    /// 不建库不建目录（GF-30）。库已存在时**先以只读连接**识别 `user_version` 与
-    /// 建表语句：`user_version ≠ SCHEMA_VERSION` 报 `StoreSchemaMismatch`，
-    /// 拒绝之前对库文件没有任何写入——不改 journal mode、不写 PRAGMA、不建表。
+    /// Storage §1.1 order: missing ReadWrite database -> create tables and write
+    /// user_version in one transaction; missing ReadOnly database -> NotFound,
+    /// without database/directory creation (GF-30). Existing databases are first identified read-only by user_version and
+    /// DDL; version mismatch yields StoreSchemaMismatch,
+    /// with no writes before rejection: no journal-mode changes, PRAGMA writes, or table creation.
     #[cfg(test)]
     pub(crate) fn open(path: &AbsPath, mode: OpenMode) -> Result<Self> {
         if let Err(error) = std::fs::symlink_metadata(path.as_path()) {
@@ -113,7 +113,7 @@ impl Store {
                     what: path.to_string(),
                 });
             }
-            // 合法写操作可以创建新管理根：先建父目录再建库（O06）。
+            // Valid writes may create a root: parent directory before database (O06).
             if let Some(parent) = path.as_path().parent() {
                 std::fs::create_dir_all(parent).map_err(|e| Error::io(parent.to_string(), e))?;
             }
@@ -158,7 +158,7 @@ impl Store {
             }
         }
         Err(last_mismatch.unwrap_or_else(|| Error::StoreCorrupt {
-            detail: "锁内重验Store schema时没有保留原始错误".into(),
+            detail: "Store schema recheck under the lock lost the original error".into(),
         }))
     }
 
@@ -193,7 +193,7 @@ impl Store {
         })?;
         if !metadata.file_type().is_file() {
             return Err(Error::InvalidRequest {
-                reason: format!("Store {} 必须是普通文件", path),
+                reason: format!("Store {} must be a regular file", path),
             });
         }
         #[cfg(unix)]
@@ -201,11 +201,11 @@ impl Store {
             use std::os::unix::fs::MetadataExt as _;
             if metadata.nlink() != 1 {
                 return Err(Error::InvalidRequest {
-                    reason: format!("Store {} 必须是单链接文件", path),
+                    reason: format!("Store {} must be singly linked", path),
                 });
             }
         }
-        // 只读识别：旧库拒绝前无写；有 Home 时还绑定根与主库inode前后身份。
+        // Read-only recognition performs no writes before rejecting old storage; Home also binds root/main-database inode identities.
         if let Some(home) = &owner_home {
             let readonly = Self::deferred_for_home(home, OpenMode::ReadOnly);
             drop(readonly.connect()?);
@@ -235,7 +235,7 @@ impl Store {
         &self.path
     }
 
-    /// 开一个连接并设 PRAGMA：WAL、`synchronous = FULL`、`foreign_keys = ON`、`busy_timeout = 5000`。
+    /// Open a connection and configure WAL, synchronous = FULL, foreign_keys = ON, busy_timeout = 5000.
     pub(crate) fn connect(&self) -> Result<rusqlite::Connection> {
         if let Some(home) = &self.owner_home {
             if let Some(lock) = &self.owner_lock {
@@ -257,7 +257,7 @@ impl Store {
         };
         if !metadata.file_type().is_file() {
             return Err(Error::InvalidRequest {
-                reason: format!("Store {} 必须是普通文件", self.path),
+                reason: format!("Store {} must be a regular file", self.path),
             });
         }
         #[cfg(unix)]
@@ -265,7 +265,7 @@ impl Store {
             use std::os::unix::fs::MetadataExt as _;
             if metadata.nlink() != 1 {
                 return Err(Error::InvalidRequest {
-                    reason: format!("Store {} 必须是单链接文件", self.path),
+                    reason: format!("Store {} must be singly linked", self.path),
                 });
             }
         }
@@ -286,13 +286,13 @@ impl Store {
             ),
         }?;
         self.verify_owner_binding(root_identity, file_identity(&metadata))?;
-        // 等待先于任何可能取写锁的 PRAGMA（journal_mode 在建库后的首次设置要等）。
+        // Wait before PRAGMAs that may take a write lock, including initial journal_mode configuration.
         conn.busy_timeout(std::time::Duration::from_millis(5000))?;
         if self.mode == OpenMode::ReadOnly {
             prevent_checkpoint_on_close(&conn, &self.path)?;
         }
         check_schema(&conn)?;
-        // WAL 与 synchronous 改的是库文件，只读连接上写不进去；本来就持久在库里。
+        // WAL/synchronous changes require writes; read-only connections retain existing persistent configuration.
         if self.mode == OpenMode::ReadWrite {
             conn.execute_batch("PRAGMA journal_mode = WAL; PRAGMA synchronous = FULL;")?;
         }
@@ -312,7 +312,7 @@ impl Store {
         if let Some(lock) = &self.owner_lock {
             if !lock.identity_still_valid() {
                 return Err(Error::InvalidRequest {
-                    reason: format!("{} 的HomeLock身份已改变", home.root()),
+                    reason: format!("{} HomeLock identity changed", home.root()),
                 });
             }
             crate::fsx::validate_store_files_locked(home, lock)?;
@@ -324,19 +324,22 @@ impl Store {
             .map_err(|error| Error::io(self.path.as_str(), error))?;
         if Some(actual_root) != expected_root || file_identity(&actual_store) != expected_store {
             return Err(Error::InvalidRequest {
-                reason: format!("{} 的根或Store对象在SQLite连接期间被替换", home.root()),
+                reason: format!(
+                    "{} root or Store object was replaced while opening the SQLite connection",
+                    home.root()
+                ),
             });
         }
         Ok(())
     }
 
-    /// 已存在的库：`user_version` 与逐表建表语句比对（存储合同 §1.1）。
-    /// 结构校验通过的读写连接才设 WAL。
+    /// Existing databases: compare user_version and per-table DDL (storage §1.1).
+    /// Configure WAL only on structurally verified read-write connections.
     fn validate(&self) -> Result<()> {
         self.connect().map(|_| ())
     }
 
-    /// 分配当日序号（存储合同 §7.1）。独立短事务；超过 999 报 `InvalidRequest`。
+    /// Allocate a daily sequence in an independent short transaction (storage §7.1); above 999 yields InvalidRequest.
     pub fn allocate_seq(&self, day: &str) -> Result<u32> {
         let mut conn = self.connect()?;
         let tx = conn.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
@@ -351,9 +354,9 @@ impl Store {
             |r| r.get(0),
         )?;
         if last > 999 {
-            // 返回 Err 会让事务回滚，当天最后一个已分配序号仍是 999。
+            // Err rolls back the transaction, retaining the day's final allocated sequence at 999.
             return Err(Error::InvalidRequest {
-                reason: format!("{day} 的当日序号已达 {last}，上限 999"),
+                reason: format!("Daily sequence for {day} is {last}; limit 999"),
             });
         }
         tx.commit()?;
@@ -366,7 +369,7 @@ fn root_identity(home: &Home) -> Result<(u64, u64)> {
         .map_err(|error| Error::io(home.root().as_str(), error))?;
     if !metadata.file_type().is_dir() {
         return Err(Error::InvalidRequest {
-            reason: format!("管理根 {} 必须是目录", home.root()),
+            reason: format!("Management root {} must be a directory", home.root()),
         });
     }
     Ok(file_identity(&metadata))

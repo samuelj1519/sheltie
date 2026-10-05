@@ -36,18 +36,24 @@ impl ExportChild {
                 if bytes == point.as_bytes() {
                     return;
                 }
-                assert!(point.as_bytes().starts_with(&bytes), "收到不同同步点的通知");
+                assert!(
+                    point.as_bytes().starts_with(&bytes),
+                    "Notification came from a different synchronization point"
+                );
             }
             if self.0.as_mut().unwrap().try_wait().unwrap().is_some() {
                 let output = self.0.take().unwrap().wait_with_output().unwrap();
                 panic!(
-                    "未到达真实边界 {point}：status={} stdout={} stderr={}",
+                    "Did not reach real boundary {point}: status={} stdout={} stderr={}",
                     output.status,
                     String::from_utf8_lossy(&output.stdout),
                     String::from_utf8_lossy(&output.stderr)
                 );
             }
-            assert!(Instant::now() < deadline, "等待真实边界 {point} 超时");
+            assert!(
+                Instant::now() < deadline,
+                "Timed out waiting for real boundary {point}"
+            );
             std::thread::sleep(Duration::from_millis(5));
         }
     }
@@ -207,7 +213,7 @@ fn killed_at(point: &str, expected: Scene) {
                 assert!(!bytes.is_empty());
                 assert!(
                     serde_json::from_slice::<Value>(&bytes).is_err(),
-                    "本窗口必须仍是不完整清单"
+                    "Manifest must remain incomplete in this window"
                 );
             } else {
                 assert!(!scene.join("manifest.json").exists());
@@ -217,7 +223,10 @@ fn killed_at(point: &str, expected: Scene) {
     let retained_bytes = bytes_in_tree(&scene);
     let output = child.kill_and_wait();
     assert_eq!(output.status.signal(), Some(9));
-    assert!(output.stdout.is_empty(), "被杀前不得输出完成响应");
+    assert!(
+        output.stdout.is_empty(),
+        "Must not output a completion response before termination"
+    );
     assert_eq!(std::fs::read_dir(&fixture.parent).unwrap().count(), 1);
     assert_eq!(
         ok(&fixture.home, &["work", "status", &fixture.work]),
@@ -412,13 +421,16 @@ fn boundary_rejects_bytes_from_another_checkpoint() {
     let rejected = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         child.wait_at(&marker, "after_manifest_write");
     }));
-    let panic = rejected.expect_err("不同同步点必须立即拒绝");
+    let panic = rejected.expect_err("Different synchronization points must reject immediately");
     let message = panic
         .downcast_ref::<String>()
         .map(String::as_str)
         .or_else(|| panic.downcast_ref::<&str>().copied())
         .unwrap();
-    assert!(message.contains("收到不同同步点的通知"), "{message}");
+    assert!(
+        message.contains("Notification came from a different synchronization point"),
+        "{message}"
+    );
 }
 
 // Task: C006-T06

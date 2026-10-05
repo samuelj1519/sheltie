@@ -1,4 +1,4 @@
-//! T16：Work 服务的库级端到端。
+//! T16: library end-to-end Work service tests.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod common;
@@ -81,14 +81,17 @@ fn assert_blocked_unpublished_start(
         ..
     } = error
     else {
-        panic!("恢复失败必须保留pending归属：{error:?}");
+        panic!("Recovery failure must preserve pending ownership: {error:?}");
     };
     assert!(!committed);
     assert_eq!(current, blocker_id);
     assert_eq!(pending_request_id.as_deref(), Some(request_id));
     assert_eq!(actual_cause, cause);
-    assert!(payload.exists(), "失败后保留pending原件");
-    assert!(!final_path.exists(), "身份不符时不得发布final");
+    assert!(payload.exists(), "Preserve pending originals after failure");
+    assert!(
+        !final_path.exists(),
+        "Identity mismatch must not publish final"
+    );
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     assert_eq!(
         conn.query_row(
@@ -118,7 +121,7 @@ fn attempt(s: &str) -> AttemptId {
     AttemptId::parse(s).unwrap()
 }
 
-/// 冻结副本整棵只读；篡改或删除前先放开权限，模拟有人绕过引擎动了文件。
+/// Frozen trees are read-only; relax permissions before tampering/deletion to simulate external changes.
 fn make_writable(path: &Path) {
     use std::os::unix::fs::PermissionsExt;
     let mode = if path.is_dir() { 0o755 } else { 0o644 };
@@ -138,14 +141,18 @@ fn two_step_runs_to_succeeded() {
     let wid = work_id_of(&started);
 
     let b1 = svc.begin(&wid, &node("outline"), None).unwrap();
-    write_output(&output_dir_of(&b1), "outline.md", "# 提纲\n- 一\n- 二\n");
-    svc.submit(&wid, &attempt("outline#1.0"), &lit("两个要点"), None)
+    write_output(
+        &output_dir_of(&b1),
+        "outline.md",
+        "# Outline\n- First\n- Second\n",
+    );
+    svc.submit(&wid, &attempt("outline#1.0"), &lit("Two points"), None)
         .unwrap();
 
     let b2 = svc.begin(&wid, &node("summary"), None).unwrap();
-    write_output(&output_dir_of(&b2), "summary.md", "摘要正文。");
+    write_output(&output_dir_of(&b2), "summary.md", "Summary body.");
     let done = svc
-        .submit(&wid, &attempt("summary#1.0"), &lit("写完了"), None)
+        .submit(&wid, &attempt("summary#1.0"), &lit("Written"), None)
         .unwrap();
 
     let (_card, json) = svc.status(&wid).unwrap();
@@ -155,7 +162,7 @@ fn two_step_runs_to_succeeded() {
         .join("attempts/outline/occurrence-001/attempt-000/outputs/outline.md");
     assert!(
         outline.metadata().unwrap().permissions().readonly(),
-        "产物只读"
+        "Artifacts are read-only"
     );
 }
 
@@ -166,7 +173,10 @@ fn start_allocates_work_id_with_today_and_seq_001() {
     let wid = work_id_of(&start_two_step(&svc));
     let today = sheltie_runtime::observe::now().day().to_string();
     assert!(wid.as_str().starts_with(&format!("{today}-001-")), "{wid}");
-    assert!(wid.as_str().ends_with("-default"), "默认名字是 flow id");
+    assert!(
+        wid.as_str().ends_with("-default"),
+        "Default name is the Flow ID"
+    );
 }
 
 // Task: T16
@@ -177,7 +187,7 @@ fn start_replay_returns_same_work_id_without_new_seq() {
         workbook_id: "two-step".into(),
         version: None,
         flow: "default".into(),
-        name: Some("重放".into()),
+        name: Some("replay".into()),
         inputs: inputs_lit(&[("topic", "x")]),
     };
     let a = svc.start(args.clone(), Some("req-1".into())).unwrap();
@@ -203,14 +213,14 @@ fn start_copies_workbook_into_work_dir_readonly() {
 fn begin_loads_graph_from_frozen_copy_not_repository() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
-    let repo_instr = std::path::PathBuf::from(home.workbook_dir("two-step", "1.0.0").as_str())
+    let repo_instr = std::path::PathBuf::from(home.workbook_dir("two-step", "1.0.1").as_str())
         .join("instructions/outline.md");
     std::fs::set_permissions(
         &repo_instr,
         std::os::unix::fs::PermissionsExt::from_mode(0o644),
     )
     .unwrap();
-    std::fs::write(&repo_instr, "被改过的说明").unwrap();
+    std::fs::write(&repo_instr, "Modified instructions").unwrap();
     let b = svc.begin(&wid, &node("outline"), None).unwrap();
     let brief = {
         let brief_path = match &b.reply {
@@ -219,8 +229,8 @@ fn begin_loads_graph_from_frozen_copy_not_repository() {
         };
         std::fs::read_to_string(brief_path.as_str()).unwrap()
     };
-    assert!(brief.contains("列一份提纲"));
-    assert!(!brief.contains("被改过的说明"));
+    assert!(brief.contains("Read topic and prepare an outline."));
+    assert!(!brief.contains("Modified instructions"));
 }
 
 // Task: T16
@@ -260,7 +270,7 @@ fn begin_binds_resource_input_to_frozen_copy_path() {
         .unwrap();
     let wid = work_id_of(&started);
     let b = svc.begin(&wid, &node("draft"), None).unwrap();
-    write_output(&output_dir_of(&b), "article.md", "文章");
+    write_output(&output_dir_of(&b), "article.md", "Article");
     svc.submit(&wid, &attempt("draft#1.0"), &lit("ok"), None)
         .unwrap();
     let r = svc.begin(&wid, &node("review"), None).unwrap();
@@ -297,7 +307,7 @@ fn status_card_regenerated_after_each_commit() {
 // Task: T16
 #[test]
 fn concurrent_writers_one_gets_revision_conflict() {
-    // 两个线程同时对同一 Attempt 提交：一个成功，另一个要么先报 REVISION_CONFLICT、重试后变成 ATTEMPT_NOT_RUNNING，要么直接报 ATTEMPT_NOT_RUNNING。
+    // Concurrent submissions of one Attempt: one succeeds; the other yields REVISION_CONFLICT then ATTEMPT_NOT_RUNNING on retry, or ATTEMPT_NOT_RUNNING immediately.
     let (_d, _home, svc) = home_with_example("two-step");
     let wid = work_id_of(&start_two_step(&svc));
     let b = svc.begin(&wid, &node("outline"), None).unwrap();
@@ -310,7 +320,7 @@ fn concurrent_writers_one_gets_revision_conflict() {
             let barrier = barrier.clone();
             std::thread::spawn(move || {
                 barrier.wait();
-                svc.submit(&wid, &attempt("outline#1.0"), &lit("并发"), None)
+                svc.submit(&wid, &attempt("outline#1.0"), &lit("Concurrent"), None)
             })
         })
         .collect();
@@ -382,12 +392,18 @@ fn begin_replay_returns_original_reply_and_rewrites_brief() {
         .begin(&wid, &node("outline"), Some("r-begin".into()))
         .unwrap();
     assert!(again.replayed);
-    assert_eq!(again.revision, first.revision, "重放不推进 revision");
-    assert_eq!(again.reply, first.reply, "重放返回原响应");
-    assert!(brief.exists(), "重放补写任务书");
+    assert_eq!(
+        again.revision, first.revision,
+        "Replay must not advance revision"
+    );
+    assert_eq!(
+        again.reply, first.reply,
+        "Replay returns the original response"
+    );
+    assert!(brief.exists(), "Replay restores the brief");
     assert!(
         !brief.parent().unwrap().join("engine/stats.json").exists(),
-        "没有 engine.stats 输入的 Attempt 不生成 stats.json"
+        "Attempts without engine.stats inputs must not generate stats.json"
     );
 }
 
@@ -443,8 +459,14 @@ fn audit_stores_command_with_instruction_text_redacted() {
             |r| r.get(0),
         )
         .unwrap();
-    assert!(json.contains("字节"), "说明书原文换成字节数：{json}");
-    assert!(!json.contains("列一份提纲"), "说明书原文不进审计表：{json}");
+    assert!(
+        json.contains("字节"),
+        "Audit replaces original instructions with byte count: {json}"
+    );
+    assert!(
+        !json.contains("Write an outline"),
+        "Original instructions must not enter audit storage: {json}"
+    );
 }
 
 // Task: T16
@@ -455,12 +477,12 @@ fn begin_replay_regenerates_missing_stats_json() {
     std::fs::create_dir_all(src.join("flows")).unwrap();
     std::fs::write(
         src.join("workbook.toml"),
-        "schema = \"workbook/v1\"\nid = \"stats-wb\"\nversion = \"1.0.0\"\nname = \"统计重放\"\ndescription = \"engine.stats 重放。\"\nflows = [\"flows/default.toml\"]\n",
+        "schema = \"workbook/v1\"\nid = \"stats-wb\"\nversion = \"1.0.0\"\nname = \"Statistics replay\"\ndescription = \"engine.stats replay.\"\nflows = [\"flows/default.toml\"]\n",
     )
     .unwrap();
     std::fs::write(
         src.join("flows/default.toml"),
-        "schema = \"flow/v1\"\nid = \"default\"\nentry = \"a\"\n\n[[nodes]]\nid = \"a\"\ntitle = \"甲\"\nexecutor = \"agent\"\ninstruction = { text = \"做甲。\" }\noutputs = [{ name = \"x\", path = \"x.md\", max_bytes = 65536 }]\n\n[[nodes]]\nid = \"b\"\ntitle = \"乙\"\nexecutor = \"agent\"\ninstruction = { text = \"做乙。\" }\ninputs = [{ name = \"stats\", from = \"engine.stats\" }, { name = \"x\", from = \"a.x\" }]\noutputs = [{ name = \"y\", path = \"y.md\", max_bytes = 65536 }]\n\n[[edges]]\nfrom = \"a\"\nto = \"b\"\nkind = \"main\"\n",
+        "schema = \"flow/v1\"\nid = \"default\"\nentry = \"a\"\n\n[[nodes]]\nid = \"a\"\ntitle = \"Task A\"\nexecutor = \"agent\"\ninstruction = { text = \"Do task A.\" }\noutputs = [{ name = \"x\", path = \"x.md\", max_bytes = 65536 }]\n\n[[nodes]]\nid = \"b\"\ntitle = \"Task B\"\nexecutor = \"agent\"\ninstruction = { text = \"Do task B.\" }\ninputs = [{ name = \"stats\", from = \"engine.stats\" }, { name = \"x\", from = \"a.x\" }]\noutputs = [{ name = \"y\", path = \"y.md\", max_bytes = 65536 }]\n\n[[edges]]\nfrom = \"a\"\nto = \"b\"\nkind = \"main\"\n",
     )
     .unwrap();
     let r = repo(&home);
@@ -484,7 +506,7 @@ fn begin_replay_regenerates_missing_stats_json() {
     svc.submit(&wid, &attempt("a#1.0"), &lit("ok"), None)
         .unwrap();
     let begin_b = svc.begin(&wid, &node("b"), Some("r-b".into())).unwrap();
-    // engine/stats.json 在 Attempt 目录的 engine/ 之下（T07 布局）。
+    // engine/stats.json is beneath the Attempt's engine/ directory (T07 layout).
     let stats = match &begin_b.reply {
         sheltie_core::work::Reply::AttemptBegun { inputs, .. } => {
             inputs["stats"].as_ref().unwrap().clone()
@@ -499,11 +521,11 @@ fn begin_replay_regenerates_missing_stats_json() {
     assert_eq!(
         std::fs::read(&stats).unwrap(),
         original,
-        "重放按提交时的口径重算 stats.json"
+        "Replay restores commit-time stats.json bytes"
     );
 }
 
-// ── M1 复核 O2：冻结副本缺失或被改，对本 Work 的操作报 STORE_CORRUPT（存储合同 §5.1）──
+// ── M1 review O2: missing/modified frozen copies yield STORE_CORRUPT for this Work (storage §5.1)──
 
 // Task: T16
 #[test]
@@ -512,7 +534,11 @@ fn begin_on_tampered_frozen_copy_is_store_corrupt() {
     let wid = work_id_of(&start_two_step(&svc));
     let copy = std::path::PathBuf::from(home.work_dir(&wid).as_str()).join("workbook");
     make_writable(&copy);
-    std::fs::write(copy.join("instructions/outline.md"), "被改过的说明").unwrap();
+    std::fs::write(
+        copy.join("instructions/outline.md"),
+        "Modified instructions",
+    )
+    .unwrap();
     let err = svc.begin(&wid, &node("outline"), None).unwrap_err();
     assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err}");
 }
@@ -525,7 +551,7 @@ fn missing_frozen_copy_is_store_corrupt_for_begin_and_status() {
     let copy = std::path::PathBuf::from(home.work_dir(&wid).as_str()).join("workbook");
     make_writable(&copy);
     std::fs::remove_dir_all(&copy).unwrap();
-    // 仓库里的那份还在，也不回退去读它。
+    // Do not fall back to the installed copy even when it still exists.
     let err = svc.begin(&wid, &node("outline"), None).unwrap_err();
     assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err}");
     let err = svc.status(&wid).unwrap_err();
@@ -615,7 +641,10 @@ fn invalid_later_effect_is_rejected_before_any_effect_runs() {
 
     let err = svc.cancel(&wid, None).unwrap_err();
     assert_effect_pending(err, false, None, Some(&request_id));
-    assert!(!brief.exists(), "首个合法效果也必须在批次校验后才执行");
+    assert!(
+        !brief.exists(),
+        "Even the first valid effect must wait for complete batch validation"
+    );
     assert_eq!(std::fs::read(&sentinel).unwrap(), before);
 }
 
@@ -830,7 +859,7 @@ fn tampered_begin_snapshot_path_is_rejected_on_historical_replay() {
     );
 }
 
-// 原任务 C002-T25；T34收紧原响应资格断言。
+// Original task C002-T25; T34 strengthens original-response qualification assertions.
 // Task: C002-T34
 #[test]
 fn duplicate_audit_owner_is_rejected_before_recovery_io() {
@@ -872,7 +901,10 @@ fn duplicate_audit_owner_is_rejected_before_recovery_io() {
     let blocked_request = "t34-duplicate-audit-blocked";
     let err = svc.cancel(&wid, Some(blocked_request.into())).unwrap_err();
     assert_effect_pending_without_original(err, false, blocked_request, Some(&request_id));
-    assert!(!brief.exists(), "重复audit归属时不得执行第一条效果");
+    assert!(
+        !brief.exists(),
+        "Duplicate audit ownership must prevent the first effect"
+    );
 }
 
 // Task: C002-T20
@@ -895,10 +927,13 @@ fn invalid_published_flag_is_not_treated_as_completed() {
 
     let err = svc.cancel(&wid, None).unwrap_err();
     assert_effect_pending(err, false, None, Some(&request_id));
-    assert!(!brief.exists(), "非0/1的published不能跳过效果校验");
+    assert!(
+        !brief.exists(),
+        "Nonbinary published values must not bypass effect validation"
+    );
 }
 
-// 原任务 C002-T20；T34收紧原响应资格断言。
+// Original task C002-T20; T34 strengthens original-response qualification assertions.
 // Task: C002-T34
 #[test]
 fn missing_audit_does_not_hide_unpublished_request_from_recovery() {
@@ -938,7 +973,10 @@ fn missing_audit_does_not_hide_unpublished_request_from_recovery() {
             |row| row.get(0),
         )
         .unwrap();
-    assert_eq!(published, 0, "缺少唯一audit时不能标记效果完成");
+    assert_eq!(
+        published, 0,
+        "Missing unique audit must prevent effect completion marking"
+    );
     assert_eq!(
         conn.query_row(
             "SELECT COUNT(*) FROM requests WHERE request_id != ?1 AND work_id = ?2",
@@ -947,7 +985,7 @@ fn missing_audit_does_not_hide_unpublished_request_from_recovery() {
         )
         .unwrap(),
         other_requests_before,
-        "恢复失败不能提交新的cancel请求"
+        "Recovery failure must not commit a new cancel request"
     );
 }
 
@@ -980,7 +1018,10 @@ fn empty_effect_batch_is_rejected_without_marking_published() {
             |row| row.get(0),
         )
         .unwrap();
-    assert_eq!(published, 0, "缺少必需效果时不得记录已完成");
+    assert_eq!(
+        published, 0,
+        "Missing required effects must not record completion"
+    );
 }
 
 // Task: C002-T20
@@ -1023,7 +1064,7 @@ fn pending_owner_json_roundtrips_opaque_request_id() {
     }));
 }
 
-// 原任务 C002-T25；T34收紧原响应资格断言。
+// Original task C002-T25; T34 strengthens original-response qualification assertions.
 // Task: C002-T34
 #[test]
 fn unpublished_work_start_requires_its_owner_sidecar() {
@@ -1090,13 +1131,17 @@ fn tampered_resource_input_is_store_corrupt_not_artifact_modified() {
         .unwrap();
     let wid = work_id_of(&started);
     let b = svc.begin(&wid, &node("draft"), None).unwrap();
-    write_output(&output_dir_of(&b), "article.md", "文章");
+    write_output(&output_dir_of(&b), "article.md", "Article");
     svc.submit(&wid, &attempt("draft#1.0"), &lit("ok"), None)
         .unwrap();
-    // `resource.<path>` 输入没有单独记录的摘要，由副本整体摘要覆盖。
+    // resource.<path> inputs are covered by the whole-copy digest, without separate stored digests.
     let copy = std::path::PathBuf::from(home.work_dir(&wid).as_str()).join("workbook");
     make_writable(&copy);
-    std::fs::write(copy.join("resources/review-checklist.md"), "被改过的清单").unwrap();
+    std::fs::write(
+        copy.join("resources/review-checklist.md"),
+        "Modified checklist",
+    )
+    .unwrap();
     let err = svc.begin(&wid, &node("review"), None).unwrap_err();
     assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err}");
 }
@@ -1153,7 +1198,7 @@ fn recover_submit_stops_and_keeps_unpublished(
             |row| row.get(0),
         )
         .unwrap();
-    assert_eq!(published, 0, "失败的seal不得标记已发布");
+    assert_eq!(published, 0, "Failed sealing must not mark publication");
 }
 
 // Task: C005-T02
@@ -1180,7 +1225,7 @@ fn post_commit_card_failure_returns_committed_response() {
         ..
     } = err
     else {
-        panic!("COMMIT后的状态卡错误必须保留请求归属：{err:?}");
+        panic!("Post-COMMIT status-card errors must preserve request ownership: {err:?}");
     };
     assert!(committed);
     assert_eq!(actual, request_id);
@@ -1247,7 +1292,10 @@ fn historical_write_with_missing_parent_keeps_committed_snapshot() {
         .unwrap_err();
     let original = assert_effect_pending(error, true, Some(request_id), None);
     assert_eq!(original["revision"], begun.revision);
-    assert!(!attempt_dir.exists(), "历史父目录缺失时不能自行补造");
+    assert!(
+        !attempt_dir.exists(),
+        "Must not invent missing historical parent directories"
+    );
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     assert_eq!(
         conn.query_row(
@@ -1257,7 +1305,7 @@ fn historical_write_with_missing_parent_keeps_committed_snapshot() {
         )
         .unwrap(),
         1,
-        "同请求历史核验失败不能产生新记录"
+        "Historical verification failure for the same request must not create new records"
     );
 }
 
@@ -1341,8 +1389,8 @@ fn malformed_gate_principal_is_not_projected_as_success() {
         .unwrap();
     let wid = work_id_of(&started);
     let begun = svc.begin(&wid, &node("notes"), None).unwrap();
-    write_output(&output_dir_of(&begun), "notes.md", "发布说明");
-    svc.submit(&wid, &attempt("notes#1.0"), &lit("完成"), None)
+    write_output(&output_dir_of(&begun), "notes.md", "Release notes");
+    svc.submit(&wid, &attempt("notes#1.0"), &lit("Completed"), None)
         .unwrap();
     let request_id = "t25-gate-principal";
     svc.approve(&wid, &node("notes"), Some(request_id.into()))
@@ -1394,7 +1442,7 @@ fn mark_published_zero_rows_returns_committed_recovery_error() {
     assert_eq!(original["revision"], 2);
     assert!(
         std::path::Path::new(&original["data"]["brief_path"].as_str().unwrap()).exists(),
-        "mark失败发生在效果与状态卡完成之后"
+        "Marking failure occurs after effects and status-card completion"
     );
 
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
@@ -1405,7 +1453,10 @@ fn mark_published_zero_rows_returns_committed_recovery_error() {
             |row| row.get(0),
         )
         .unwrap();
-    assert_eq!(published, 0, "零行UPDATE不能报告发布完成");
+    assert_eq!(
+        published, 0,
+        "Zero-row UPDATE must not report publication completion"
+    );
 }
 
 // Task: C002-T25
@@ -1442,7 +1493,7 @@ fn old_effect_blocks_new_request_with_distinct_identities() {
         ..
     } = blocked
     else {
-        panic!("旧请求失败必须阻断新请求：{blocked:?}");
+        panic!("Old-request failure must block new requests: {blocked:?}");
     };
     assert!(!committed);
     assert_eq!(request_id, new_request);
@@ -1462,7 +1513,7 @@ fn old_effect_blocks_new_request_with_distinct_identities() {
         )
         .unwrap(),
         0,
-        "B 在 A 恢复前不得提交"
+        "B must not commit before recovering A"
     );
 
     let replay = svc
@@ -1547,13 +1598,16 @@ fn malformed_current_owner_column_keeps_committed_request_identity() {
         ..
     } = error
     else {
-        panic!("已提交请求的owner类型损坏必须保留提交归属：{error:?}");
+        panic!("Corrupt committed-request owner type must preserve commit ownership: {error:?}");
     };
     assert!(committed);
     assert_eq!(actual, request_id);
     assert!(pending_request_id.is_none());
     assert_eq!(cause, ErrorCode::StoreCorrupt);
-    assert!(original.is_none(), "损坏的owner让next无法可信绑定Work");
+    assert!(
+        original.is_none(),
+        "Corrupt owner prevents trusted next-to-Work binding"
+    );
 }
 
 // Task: C002-T25
@@ -1674,7 +1728,7 @@ fn submit_at_seal_sync_point(
     });
     let release_path = rendezvous.path().join("release");
     let mut worker = RendezvousWorker::single(child, rendezvous.path());
-    worker.wait("submit 未到达 COMMIT 后、seal 前的同步点");
+    worker.wait("submit did not reach the post-COMMIT, pre-seal synchronization point");
     mutate(&output);
     std::fs::write(&release_path, b"release").unwrap();
     let result = worker.finish().unwrap();
@@ -1695,7 +1749,7 @@ fn assert_post_commit_seal_failure(
             request_id: actual,
             ..
         } => assert_eq!(actual, request_id),
-        other => panic!("COMMIT后的seal失败须保留已提交归属：{other:?}"),
+        other => panic!("Post-COMMIT sealing failure must preserve committed ownership: {other:?}"),
     }
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     let (revision, published): (u64, i64) = conn
@@ -1705,8 +1759,15 @@ fn assert_post_commit_seal_failure(
             |row| Ok((row.get(0)?, row.get(1)?)),
         )
         .unwrap();
-    assert_eq!(revision, base_revision + 1, "Store必须保留已提交revision");
-    assert_eq!(published, 0, "封存失败不得标记效果完成");
+    assert_eq!(
+        revision,
+        base_revision + 1,
+        "Store must preserve the committed revision"
+    );
+    assert_eq!(
+        published, 0,
+        "Sealing failure must not mark effects complete"
+    );
     let (owned_work, state_json, effects_json): (String, String, String) = conn
         .query_row(
             "SELECT r.work_id, w.state_json, r.effects_json FROM requests r JOIN works w USING(work_id) WHERE r.request_id = ?1",
@@ -1733,7 +1794,7 @@ fn assert_post_commit_seal_failure(
         sheltie_runtime::effects::EffectOp::RefreshStatusCard { .. },
     ] = effects.as_slice()
     else {
-        panic!("已提交效果须保留原SealOutputs引用：{effects:?}");
+        panic!("Committed effects must preserve original SealOutputs references: {effects:?}");
     };
     assert_eq!(refs.len(), 1);
     assert_eq!(refs[0].path, home.to_rel(&abs(output_path)).unwrap());
@@ -2018,7 +2079,7 @@ fn final_only_publication_recovery_checks_start_input_bytes() {
         ..
     } = error
     else {
-        panic!("final-only恢复输入不符必须停止：{error:?}");
+        panic!("final-only recovery must stop on input mismatch: {error:?}");
     };
     assert!(!committed);
     assert_eq!(pending_request_id.as_deref(), Some(request_id.as_str()));
@@ -2082,7 +2143,7 @@ fn real_workbook_add_and_start_final_publications_serve_status_and_show() {
     assert_eq!(added.request_id, "t26-workbook-add");
     let shown = repo(&home).load("two-step", None).unwrap();
     assert_eq!(shown.manifest.id().as_str(), "two-step");
-    assert_eq!(shown.manifest.version(), "1.0.0");
+    assert_eq!(shown.manifest.version(), "1.0.1");
 
     let svc = service(&home);
     let started = svc
@@ -2158,7 +2219,7 @@ fn publication_sync_failures_leave_effect_pending_and_retry_same_object() {
             ..
         } = error
         else {
-            panic!("sync失败必须准确返回EFFECT_PENDING：{error:?}");
+            panic!("sync failure must report EFFECT_PENDING precisely: {error:?}");
         };
         assert!(!committed);
         assert_eq!(pending_request_id.as_deref(), Some(request_id.as_str()));
@@ -2169,11 +2230,20 @@ fn publication_sync_failures_leave_effect_pending_and_retry_same_object() {
             "publish_file_sync" | "publish_tree_nested_dir_sync" | "publish_tree_root_sync"
         );
         if before_rename {
-            assert!(payload.exists(), "rename前文件sync失败时保留pending原件");
-            assert!(!final_path.exists(), "文件sync未成功不得rename");
+            assert!(
+                payload.exists(),
+                "Preserve pending originals on file-sync failure before rename"
+            );
+            assert!(!final_path.exists(), "Failed file sync must prevent rename");
         } else {
-            assert!(!payload.exists(), "rename后失败时pending路径不再存在");
-            assert!(final_path.exists(), "rename后的唯一final原件必须保留");
+            assert!(
+                !payload.exists(),
+                "After-rename failure leaves no pending path"
+            );
+            assert!(
+                final_path.exists(),
+                "Preserve the unique final original after rename"
+            );
         }
         let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
         assert_eq!(
@@ -2208,7 +2278,7 @@ fn publication_sync_failures_leave_effect_pending_and_retry_same_object() {
             ..
         } = retry_error
         else {
-            panic!("恢复重试必须再次经过{sync_point}：{retry_error:?}");
+            panic!("Recovery retry must revisit {sync_point}: {retry_error:?}");
         };
         assert!(!committed);
         assert_eq!(pending_request_id.as_deref(), Some(request_id.as_str()));
@@ -2222,7 +2292,7 @@ fn publication_sync_failures_leave_effect_pending_and_retry_same_object() {
             )
             .unwrap(),
             0,
-            "同一同步点第二次失败不得mark published"
+            "A second failure at the same synchronization point must not mark published"
         );
         assert_eq!(
             conn.query_row(
@@ -2299,7 +2369,9 @@ fn start_replay_sync_failure_preserves_own_commit_snapshot() {
             ..
         } = error
         else {
-            panic!("同一start重放的sync失败必须保留本请求归属：{error:?}");
+            panic!(
+                "Sync failure during same-start replay must preserve this request's ownership: {error:?}"
+            );
         };
         assert!(committed);
         assert_eq!(actual_request, request_id);
@@ -2322,7 +2394,7 @@ fn start_replay_sync_failure_preserves_own_commit_snapshot() {
             )
             .unwrap(),
             0,
-            "第 {retry_index} 次同请求恢复的父sync仍失败，不得mark"
+            "Same-request recovery retry {retry_index} parent sync still fails; must not mark"
         );
     }
 
@@ -2349,7 +2421,7 @@ fn start_replay_sync_failure_preserves_own_commit_snapshot() {
     assert_eq!(published, 1);
     assert_eq!(
         reply_after, original_reply,
-        "重放不可改写提交时snapshot字节"
+        "Replay must not rewrite commit-time snapshot bytes"
     );
     assert_eq!(row_count, 1);
 }
@@ -2375,7 +2447,7 @@ fn publication_refuses_payload_directory_replaced_after_sync() {
     });
     let release = rendezvous.path().join("release");
     let mut worker = RendezvousWorker::single(recovery, rendezvous.path());
-    worker.wait("发布没有到达目录同步后的身份交错点");
+    worker.wait("Publication did not reach the identity interleaving point after directory sync");
     std::fs::rename(&payload, &moved).unwrap();
     std::fs::create_dir(&payload).unwrap();
     std::fs::create_dir(payload.join("start-inputs")).unwrap();
@@ -2394,7 +2466,7 @@ fn publication_refuses_payload_directory_replaced_after_sync() {
         ..
     } = error
     else {
-        panic!("替换原件必须停止并保留归属：{error:?}");
+        panic!("Original replacement must stop and preserve ownership: {error:?}");
     };
     assert!(!committed);
     assert_eq!(pending_request_id.as_deref(), Some(request_id.as_str()));
@@ -2408,7 +2480,10 @@ fn publication_refuses_payload_directory_replaced_after_sync() {
         std::fs::read(payload.join("start-inputs/topic")).unwrap(),
         b"unverified replacement"
     );
-    assert!(!final_path.exists(), "未核验的替代目录不得发布");
+    assert!(
+        !final_path.exists(),
+        "Unverified replacement directories must not be published"
+    );
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     assert_eq!(
         conn.query_row(

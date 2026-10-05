@@ -1,4 +1,4 @@
-//! runtime 的错误。core 的错误原样包进来；存储、更新、文件系统的错误在这里定义。
+//! Runtime errors: wrap core errors unchanged; define storage, update, and filesystem errors here.
 
 use sheltie_core::ErrorCode;
 use sheltie_core::ids::WorkId;
@@ -9,27 +9,27 @@ use crate::workbook_repo::VerifyRow;
 pub enum Error {
     #[error(transparent)]
     Core(#[from] sheltie_core::Error),
-    #[error("Workbook {id}@{version} 已装")]
+    #[error("Workbook {id}@{version} is already installed")]
     WorkbookExists { id: String, version: String },
-    #[error("Workbook {id}@{version} 被 {} 个未结束的 Work 引用", works.len())]
+    #[error("Workbook {id}@{version} is referenced by {} unfinished Works", works.len())]
     WorkbookInUse {
         id: String,
         version: String,
         works: Vec<WorkId>,
     },
-    #[error("已装 Workbook 与记录不符")]
+    #[error("Installed Workbook does not match its stored record")]
     WorkbookTampered { results: Vec<VerifyRow> },
-    #[error("没有可用的更新：{reason}")]
+    #[error("No update available: {reason}")]
     UpdateUnavailable { reason: String },
-    #[error("下载文件摘要不符：期望 {expected}，实际 {actual}")]
+    #[error("Downloaded file digest mismatch: expected {expected}, actual {actual}")]
     UpdateChecksumMismatch { expected: String, actual: String },
-    #[error("{what} 不存在")]
+    #[error("{what} does not exist")]
     NotFound { what: String },
-    #[error("请求 {request_id} 已用不同意图提交过")]
+    #[error("Request {request_id} was already submitted with a different intent")]
     RequestConflict { request_id: String },
-    /// 效果未完成（协议 §5）。cause 是稳定错误码，原始成功快照和旧阻断请求快照
-    /// 分别保留，避免把两个请求的归属混在一个字段里。
-    #[error("效果未完成（committed={committed}，cause={cause}）：{cause_detail}")]
+    /// Incomplete effects (protocol §5). cause is a stable error code. Keep the original success snapshot
+    /// and old blocking-request snapshot separate so request ownership remains unambiguous.
+    #[error("Effects incomplete (committed={committed}, cause={cause}): {cause_detail}")]
     EffectPending {
         committed: bool,
         request_id: String,
@@ -39,11 +39,11 @@ pub enum Error {
         original: Option<Box<str>>,
         pending_original: Option<Box<str>>,
     },
-    #[error("revision 冲突：期望 {expected}，实际 {actual}")]
+    #[error("Revision conflict: expected {expected}, actual {actual}")]
     RevisionConflict { expected: u64, actual: u64 },
-    #[error("数据库结构与 SCHEMA_VERSION 不符：{detail}")]
+    #[error("Database structure does not match SCHEMA_VERSION: {detail}")]
     StoreSchemaMismatch { detail: String },
-    #[error("数据库内容损坏：{detail}")]
+    #[error("Database contents are corrupt: {detail}")]
     StoreCorrupt { detail: String },
     #[error("{path}：{source}")]
     Io {
@@ -51,12 +51,12 @@ pub enum Error {
         #[source]
         source: std::io::Error,
     },
-    /// 文件系统调用可能已经移动对象；调用方必须保留恢复现场，不得清理相关路径。
-    #[error("{path}：文件系统状态需要恢复：{detail}")]
+    /// The filesystem call may already have moved an object; preserve recovery state and do not clean up affected paths.
+    #[error("{path}: filesystem state requires recovery: {detail}")]
     RecoveryRequired { path: String, detail: String },
     #[error("{reason}")]
     InvalidRequest { reason: String },
-    #[error("读不了输入文件 {path}：{reason}")]
+    #[error("Cannot read input file {path}: {reason}")]
     InputFileInvalid { path: String, reason: String },
 }
 
@@ -82,7 +82,7 @@ impl Error {
         }
     }
 
-    /// 把 `std::io::Error` 连同路径包起来。
+    /// Wrap `std::io::Error` with its path.
     pub fn io(path: impl Into<String>, source: std::io::Error) -> Self {
         Self::Io {
             path: path.into(),

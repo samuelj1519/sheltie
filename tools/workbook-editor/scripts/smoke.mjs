@@ -6,7 +6,7 @@ import { unzipSync } from 'fflate';
 import { newWorkbook } from '../public/model.mjs';
 import { toWire } from '../public/files.mjs';
 const binary = process.env.SHELTIE_EDITOR_ENGINE;
-if (!binary) throw new Error('SHELTIE_EDITOR_ENGINE 必须给定可信绝对路径');
+if (!binary) throw new Error('SHELTIE_EDITOR_ENGINE requires a trusted absolute path');
 const argv = [resolve('server.mjs'), '--sheltie', binary, '--port', '4311'];
 const child = spawn(process.execPath, argv, { stdio: ['ignore', 'pipe', 'pipe'] });
 const closed = once(child, 'close');
@@ -15,10 +15,10 @@ child.stdout.on('data', b => { stdout += b.toString(); }); child.stderr.on('data
 let deadline;
 try {
   const origin = await new Promise((resolve, reject) => {
-    deadline = setTimeout(() => reject(new Error('启动未返回本地 URL')), 10000);
-    child.stdout.on('data', () => { const match = stdout.match(/http:\/\/127\.0\.0\.1:\d+/); if (match) resolve(match[0]); }); child.once('error', reject); child.once('exit', code => { if (code !== null) reject(new Error('服务提前退出：' + code + ' ' + stderr)); });
+    deadline = setTimeout(() => reject(new Error('Startup did not return a local URL')), 10000);
+    child.stdout.on('data', () => { const match = stdout.match(/http:\/\/127\.0\.0\.1:\d+/); if (match) resolve(match[0]); }); child.once('error', reject); child.once('exit', code => { if (code !== null) reject(new Error('Service exited early: ' + code + ' ' + stderr)); });
   }); clearTimeout(deadline);
-  const html = await fetch(origin); assert.equal(html.status, 200); assert.match(await html.text(), /id="viewport"/);
+  const html = await fetch(origin); assert.equal(html.status, 200); const page = await html.text(); assert.match(page, /id="viewport"/); assert.match(page, /<html lang="en">/); assert.match(page, /New Workbook/); assert.match(page, /Save new ZIP copy/);
   const session = await (await fetch(origin + '/api/session')).json();
   const model = newWorkbook(), payload = JSON.stringify(toWire(model.snapshot()));
   const headers = { 'Content-Type': 'application/json', Origin: origin, 'X-Editor-Token': session.token };

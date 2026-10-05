@@ -1,7 +1,7 @@
-# 整理最终成果
+# Prepare final delivery
 
-读取 task、change 和 review。核这两份报告指向同一个实际候选并覆盖任务标准；缺少依据时准确说明，不编造通过或外部操作。
+Read task/change/review. Verify both reports bind the same actual candidate and cover task standards. Accurately report missing evidence; fabricate no passes/external actions.
 
-在 delivery.md 第一行说明成果与未完成义务。提供实际代码候选或 patch 位置、检查原文、使用说明、审查结论及接受前需要核对的条件。普通 commit/patch/检查引用仍是报告内容，文件封存不证明引用的外部仓库或工具过程。
+First delivery.md line states results and remaining obligations. Include actual candidate/patch location, raw check evidence, usage instructions, review conclusion, and preacceptance checks. Commit/patch/check references remain report contents; sealing files does not prove external repository/tool processes.
 
-终点明确选择 change、review 和 delivery 的本次冻结引用。流程成功只说明执行和输出合同成立，内容是否可接受由使用者核对。默认不设人工 gate；具体任务有真实授权边界时，由方法作者采用新版本声明。
+Terminal selection binds current frozen change/review/delivery refs. Success establishes execution/output compliance only; users judge acceptability. Default has no gate; authors declare real authorization boundaries in adopted new versions.

@@ -1,4 +1,4 @@
-//! 一次写事务。顺序见 `specs/contracts/storage.md` §2。
+//! One write transaction; order in storage contract §2.
 
 use rusqlite::OptionalExtension;
 use sheltie_core::ids::WorkId;
@@ -7,42 +7,42 @@ use sheltie_core::work::{Principal, Timestamp, WorkState};
 use super::Store;
 use crate::error::{Error, Result};
 
-/// 一次写事务的全部输入（存储合同 §2.3）。
+/// Complete write-transaction input (storage §2.3).
 #[derive(Debug, Clone)]
 pub struct CommitInput {
-    /// `workbook add/remove` 之类不涉及 Work 的写操作为 `None`。
+    /// None for writes without Work ownership, such as workbook add/remove.
     pub work_id: Option<WorkId>,
-    /// `start` 为 `None`（插入新行）；其他写操作为调用前读到的 revision。
+    /// None for start inserts; other writes use the previously read revision.
     pub expected_revision: Option<u64>,
-    /// 新状态。`None` 表示本次不改 `works` 表。
+    /// New state; None leaves works unchanged.
     pub state: Option<WorkState>,
-    /// 本事务要插入的 `workbooks` 行（add）。
+    /// workbooks row to insert (add).
     pub workbook_insert: Option<super::WorkbookRow>,
-    /// 本事务要删除的 `workbooks` 行（remove）。
+    /// workbooks row to delete (remove).
     pub workbook_delete: Option<(String, String)>,
-    /// 与删除同事务的引用检查：有非终态 Work 引用时 `WORKBOOK_IN_USE`（§5.2）。
-    /// 损坏的 works 行在这里报 `STORE_CORRUPT`，不跳过。
+    /// Transactional reference check: nonterminal Work references yield WORKBOOK_IN_USE (§5.2).
+    /// Corrupt works rows yield STORE_CORRUPT here, without skipping them.
     pub workbook_in_use_check: Option<(String, String)>,
     pub request_id: String,
-    /// `RequestIntent` canonical JSON 的 sha256（§2.1）。
+    /// RequestIntent canonical JSON sha256 (§2.1).
     pub intent_hash: String,
-    /// 提交时的完整 `ResponseSnapshot`，重放时原样返回（cli-result/v2）。
+    /// Complete commit-time ResponseSnapshot, returned unchanged on replay (cli-result/v2).
     pub reply_json: String,
-    /// 效果登记（§3.2）。
+    /// Effect registration (§3.2).
     pub effects_json: String,
     pub principal: Principal,
-    /// 去掉大字段后的 Command JSON，进审计表。
+    /// Command JSON with large fields reduced, for audit storage.
     pub command_json: String,
     pub at: Timestamp,
 }
 
-/// 事务结果。
+/// Transaction result.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CommitOutcome {
-    /// 写入成功，`revision` 是提交后的值（不涉及 Work 时为 0）。
+    /// Successful write; revision is post-commit, or zero without Work ownership.
     Committed { revision: u64 },
-    /// 同 `request_id` 同意图重放：返回原响应快照与效果登记；`published` 是原请求
-    /// 的效果完成标记，调用方据此决定是否还需要恢复。
+    /// Same request_id/intent replay returns original response/effects; published records the original request's
+    /// effect completion, telling callers whether recovery remains necessary.
     Replayed {
         reply_json: String,
         effects_json: String,
@@ -51,27 +51,27 @@ pub enum CommitOutcome {
 }
 
 impl Store {
-    /// 执行一次写事务。
+    /// Execute one write transaction.
     ///
     /// ```text
     /// BEGIN IMMEDIATE
-    ///   查 requests：命中且 hash 相同 → ROLLBACK，Replayed；命中且不同 → ROLLBACK，RequestConflict
-    ///   若 expected_revision 有值：查 works.revision，不等 → ROLLBACK，RevisionConflict
-    ///   若 state 有值：UPDATE 或 INSERT works（revision + 1，status 列从 state 派生）
-    ///   INSERT audit（work_id 为 None 时用空串）
+    ///   Lookup requests: same hash -> ROLLBACK/Replayed; different hash -> ROLLBACK/RequestConflict
+    ///   With expected_revision, compare works.revision; mismatch -> ROLLBACK/RevisionConflict
+    ///   With state, UPDATE/INSERT works, incrementing revision and deriving status from state
+    ///   INSERT audit, using an empty work_id for None
     ///   INSERT requests
     /// COMMIT
     /// ```
-    /// 事务内不读文件、不算摘要。
+    /// No file reads or digest computation inside the transaction.
     pub fn commit(&self, input: CommitInput) -> Result<CommitOutcome> {
         if let Some(state) = &input.state {
             let id = input.work_id.as_ref().ok_or_else(|| Error::StoreCorrupt {
-                detail: "写入 WorkState 时缺 work_id".to_string(),
+                detail: "Missing work_id when writing WorkState".to_string(),
             })?;
             if &state.work_id != id {
                 return Err(Error::StoreCorrupt {
                     detail: format!(
-                        "写入目标 {id} 与 state_json.work_id {} 不一致",
+                        "Write target {id} differs from state_json.work_id {}",
                         state.work_id
                     ),
                 });
@@ -79,7 +79,7 @@ impl Store {
             state
                 .validate_persisted()
                 .map_err(|detail| Error::StoreCorrupt {
-                    detail: format!("写入 WorkState 不合法：{detail}"),
+                    detail: format!("Invalid WorkState write: {detail}"),
                 })?;
         }
         crate::failpoint::maybe_exit("before_commit");
@@ -100,7 +100,7 @@ impl Store {
             )
             .optional()?;
         if let Some((hash, reply, effects, published)) = prior {
-            // 两种命中都直接返回，事务在 drop 时回滚。
+            // Both replay hits return directly; drop rolls back the transaction.
             if hash == input.intent_hash {
                 return Ok(CommitOutcome::Replayed {
                     reply_json: reply,
@@ -128,7 +128,7 @@ impl Store {
                     .ok()
                     .filter(|revision| *revision > 0)
                     .ok_or_else(|| Error::StoreCorrupt {
-                        detail: format!("Work revision {value} 不合法"),
+                        detail: format!("Invalid Work revision {value}"),
                     })?,
                 None => 0,
             };
@@ -136,20 +136,20 @@ impl Store {
                 return Err(Error::RevisionConflict { expected, actual });
             }
         }
-        // start（expected_revision 为 None）插入 revision 1；其他写操作在期望值上加一。
+        // start with None expected_revision inserts revision 1; other writes increment the expected value.
         let mut revision = 0u64;
         if let Some(state) = &input.state {
             revision = match input.expected_revision {
                 None => 1,
                 Some(previous) => previous.checked_add(1).ok_or_else(|| Error::StoreCorrupt {
-                    detail: "Work revision 无法安全递增".to_string(),
+                    detail: "Work revision cannot be incremented safely".to_string(),
                 })?,
             };
             let db_revision = i64::try_from(revision).map_err(|_| Error::StoreCorrupt {
-                detail: "Work revision 超过 SQLite INTEGER 上限".to_string(),
+                detail: "Work revision exceeds SQLite INTEGER limit".to_string(),
             })?;
             let state_json = serde_json::to_string(state).map_err(|e| Error::StoreCorrupt {
-                detail: format!("序列化 WorkState 失败：{e}"),
+                detail: format!("WorkState serialization failed: {e}"),
             })?;
             let work_id = input
                 .work_id
@@ -191,7 +191,7 @@ impl Store {
             })?;
         }
         if let Some((id, version)) = &input.workbook_in_use_check {
-            // 逐行校验后查引用；损坏行整体停止（GF-16）。
+            // Validate rows before checking references; corrupt rows stop the whole operation (GF-16).
             let mut stmt = tx.prepare("SELECT work_id, revision, status, state_json FROM works")?;
             let rows = stmt.query_map([], |r| {
                 Ok((
@@ -232,7 +232,7 @@ impl Store {
             }
         }
         let audit_revision = i64::try_from(revision).map_err(|_| Error::StoreCorrupt {
-            detail: "审计 revision 超过 SQLite INTEGER 上限".to_string(),
+            detail: "Audit revision exceeds SQLite INTEGER limit".to_string(),
         })?;
         tx.execute(
             "INSERT INTO audit (work_id, revision, request_id, principal, command_json, at)

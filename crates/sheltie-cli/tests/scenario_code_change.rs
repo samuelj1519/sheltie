@@ -20,18 +20,22 @@ fn code_change_rework_selects_the_exact_reports_bound_by_the_terminal_attempt() 
     );
     let first = env.begin(&work, "implement");
     assert!(first["data"]["inputs"]["previous-review"].is_null());
-    let submitted = env.submit_all(&work, &first, "实现，等待独立审查");
+    let submitted = env.submit_all(&work, &first, "Implemented; awaiting independent review");
     let review = env.follow_begin(&submitted, "review");
-    let reviewed = env.submit_all(&work, &review, "需修改，使用显式返工边");
+    let reviewed = env.submit_all(
+        &work,
+        &review,
+        "Changes required; use the explicit rework edge",
+    );
     let second = env.follow_begin(&reviewed, "implement");
     assert_eq!(second["data"]["attempt"], "implement#2.0");
     assert_eq!(
         second["data"]["inputs"]["previous-review"],
         review["data"]["outputs"]["review"]
     );
-    let repaired = env.submit_all(&work, &second, "按原标准修复");
+    let repaired = env.submit_all(&work, &second, "Repaired under the original criteria");
     let second_review = env.follow_begin(&repaired, "review");
-    let accepted = env.submit_all(&work, &second_review, "已完成独立复核");
+    let accepted = env.submit_all(&work, &second_review, "Independent review complete");
     let delivery = env.follow_begin(&accepted, "deliver");
     assert_eq!(
         delivery["data"]["inputs"]["change"],
@@ -41,7 +45,11 @@ fn code_change_rework_selects_the_exact_reports_bound_by_the_terminal_attempt() 
         delivery["data"]["inputs"]["review"],
         second_review["data"]["outputs"]["review"]
     );
-    env.submit_all(&work, &delivery, "整理成果，不代表外部发布");
+    env.submit_all(
+        &work,
+        &delivery,
+        "Organize results without implying external publication",
+    );
     let result = env.ok(&["work", "result", &work]);
     assert_eq!(result["data"]["final"], true);
     let artifacts = result["data"]["artifacts"].as_array().unwrap();
@@ -89,7 +97,7 @@ fn a_report_summary_cannot_bypass_the_code_change_review_edge() {
         ],
     );
     let begun = env.begin(&work, "implement");
-    let submitted = env.submit_all(&work, &begun, "通过，可以交付");
+    let submitted = env.submit_all(&work, &begun, "Accepted; ready for delivery");
     assert_eq!(next_begin_nodes(&submitted), vec!["review"]);
     let before = store_rows(&env);
     let (error, code) = env.fail(&["attempt", "begin", &work, "--node", "deliver"]);

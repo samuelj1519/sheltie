@@ -1,5 +1,5 @@
-//! M1 补测：骨架里给 runtime 与 CLI 用的字面形式（错误码、执行者、命令名、日期）。
-//! 这些函数在 core 内部没有调用者，只有这里钉住它们的输出。
+//! M1 additional literal forms for runtime and CLI: error codes, executor, command names, dates.
+//! These functions have no core-internal callers; tests here anchor their output.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use sheltie_core::error::ErrorCode;

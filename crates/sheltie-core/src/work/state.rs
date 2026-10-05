@@ -1,4 +1,4 @@
-//! Work 的运行时状态。整份 `WorkState` 按一列 JSON 持久化（存储合同 §1.2）。
+//! Runtime Work state, persisted as one JSON column (storage contract §1.2).
 
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -11,17 +11,17 @@ use crate::ids::{AttemptId, FlowId, NodeId, WorkId, WorkName, WorkbookId};
 use crate::path::AbsPath;
 use crate::text::Summary;
 
-/// UTC 时间，秒精度，形如 `2026-09-24T03:00:00Z`（存储合同 §7）。由 runtime 传入。
+/// UTC timestamp, second precision, such as 2026-09-24T03:00:00Z (storage contract §7), supplied by runtime.
 ///
-/// 只能经 `parse` 或 `from_unix_secs` 构造，读取也走 `parse`：格式固定，所以字典序就是时间序，
-/// `day()` 取前 10 字节就是日期。
+/// Construct only through parse/from_unix_secs; reads also parse. Fixed syntax makes lexical order chronological,
+/// and day() returns the first ten bytes as the date.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize)]
 #[serde(transparent)]
 pub struct Timestamp(String);
 
 impl Timestamp {
-    /// 校验 `YYYY-MM-DDTHH:MM:SSZ`：年 0000–9999，月日按公历（含闰年），时 00–23，分秒 00–59。
-    /// 不收小数秒、时区偏移与闰秒。
+    /// Validate YYYY-MM-DDTHH:MM:SSZ: years 0000-9999, Gregorian month/day including leap years, hour 00-23, minute/second 00-59.
+    /// Reject fractional seconds, timezone offsets, and leap seconds.
     pub fn parse(value: &str) -> Result<Self> {
         let bad = |reason| Error::InvalidId {
             field: "timestamp".to_string(),
@@ -38,7 +38,7 @@ impl Timestamp {
                 _ => c.is_ascii_digit(),
             });
         if !shape_ok {
-            return Err(bad("不是 YYYY-MM-DDTHH:MM:SSZ"));
+            return Err(bad("Must be YYYY-MM-DDTHH:MM:SSZ"));
         }
         let num =
             |r: std::ops::Range<usize>| b[r].iter().fold(0u32, |n, c| n * 10 + u32::from(c - b'0'));
@@ -49,19 +49,19 @@ impl Timestamp {
             4 | 6 | 9 | 11 => 30,
             2 if leap => 29,
             2 => 28,
-            _ => return Err(bad("月份不在 01–12")),
+            _ => return Err(bad("Month must be in 01-12")),
         };
         if d == 0 || d > month_days {
-            return Err(bad("日期不存在"));
+            return Err(bad("Date does not exist"));
         }
         if num(11..13) > 23 || num(14..16) > 59 || num(17..19) > 59 {
-            return Err(bad("时分秒越界"));
+            return Err(bad("Hour, minute, or second out of range"));
         }
         Ok(Self(value.to_string()))
     }
 
-    /// Unix 秒数转成本类型。纯算法（Howard Hinnant 的 civil_from_days），不碰时钟。
-    /// 9999 年以后饱和到 `9999-12-31T23:59:59Z`，保证结果仍是 `parse` 接受的格式。
+    /// Convert Unix seconds using Howard Hinnant's pure civil_from_days algorithm, without clock access.
+    /// Saturate beyond year 9999 to 9999-12-31T23:59:59Z, preserving parse validity.
     pub fn from_unix_secs(secs: u64) -> Self {
         let secs = secs.min(253_402_300_799);
         let z = (secs / 86_400) as i64 + 719_468;
@@ -82,10 +82,10 @@ impl Timestamp {
         ))
     }
 
-    /// 距 1970-01-01T00:00:00Z 的秒数，1970 年以前为负。`work stats` 的耗时由它相减得出。
-    /// 构造时已校验，所以不会失败。
+    /// Seconds since 1970-01-01T00:00:00Z, negative before 1970; subtraction gives work stats durations.
+    /// Already validated on construction; cannot fail here.
     pub fn unix_secs(&self) -> i64 {
-        // `from_unix_secs` 的逆运算（Howard Hinnant 的 days_from_civil）；格式与日历由 `parse` 保证，直接取数。
+        // Inverse from_unix_secs (Howard Hinnant's days_from_civil); parse already validates syntax and calendar, so read values directly.
         let b = self.0.as_bytes();
         let num =
             |r: std::ops::Range<usize>| b[r].iter().fold(0i64, |n, c| n * 10 + i64::from(c - b'0'));
@@ -103,7 +103,7 @@ impl Timestamp {
         &self.0
     }
 
-    /// 取日期部分 `YYYY-MM-DD`，用于 `work_id`。
+    /// Return YYYY-MM-DD for work_id.
     pub fn day(&self) -> &str {
         &self.0[..10]
     }
@@ -115,7 +115,7 @@ impl std::fmt::Display for Timestamp {
     }
 }
 
-/// 读取时也校验：库里的坏时间串报错（runtime 映射为 `STORE_CORRUPT`），不带进耗时计算。
+/// Validate reads too; invalid stored timestamps reject as STORE_CORRUPT before duration calculations.
 impl<'de> Deserialize<'de> for Timestamp {
     fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
     where
@@ -126,12 +126,12 @@ impl<'de> Deserialize<'de> for Timestamp {
     }
 }
 
-/// 操作者身份。MVP 是操作系统用户名。
+/// Operator identity; MVP uses the operating-system username.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct Principal(pub String);
 
-/// Work 绑定的 Workbook 版本与内容摘要。
+/// Workbook version and content digest bound to a Work.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct WorkbookRef {
@@ -140,7 +140,7 @@ pub struct WorkbookRef {
     pub digest: Sha256Hex,
 }
 
-/// 一个按字节冻结的文件引用。
+/// A byte-frozen file reference.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ArtifactRef {
@@ -149,7 +149,7 @@ pub struct ArtifactRef {
     pub bytes: u64,
 }
 
-/// 节点第 `n` 次到达。
+/// The nth visit to a node.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Occurrence {
@@ -163,7 +163,7 @@ impl std::fmt::Display for Occurrence {
     }
 }
 
-/// Attempt 只有执行事实。
+/// Attempts record execution facts only.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum AttemptStatus {
@@ -184,17 +184,17 @@ impl AttemptStatus {
     }
 }
 
-/// 一次执行尝试。
+/// An execution Attempt.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Attempt {
     pub id: AttemptId,
     pub status: AttemptStatus,
-    /// 从哪个 Occurrence 经哪种边到达；入口为 `None`。重试沿用第一次的值。
+    /// Incoming Occurrence and edge kind; None on entry. Retries retain the original value.
     pub entered_from: Option<(Occurrence, EdgeKind)>,
-    /// 开工时冻结。`None` 只出现在 `required = false` 且上游尚无产出。
+    /// Frozen at begin; None only for optional inputs without upstream output.
     pub inputs: BTreeMap<String, Option<ArtifactRef>>,
-    /// 提交时封存。`Running` 时为空。
+    /// Sealed at submission; empty while Running.
     pub outputs: BTreeMap<String, ArtifactRef>,
     pub summary: Option<Summary>,
     pub fail_reason: Option<Summary>,
@@ -222,7 +222,7 @@ impl Attempt {
     }
 }
 
-/// 门槛批准记录。
+/// Gate approval record.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Approval {
@@ -232,7 +232,7 @@ pub struct Approval {
     pub at: Timestamp,
 }
 
-/// Work 为什么受阻。
+/// Work blocking reason.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BlockedReason {
@@ -251,7 +251,7 @@ impl BlockedReason {
     }
 }
 
-/// Work 状态。没有 `Failed`：重试耗尽后唯一出路是取消。
+/// Work status; no Failed state. Only work cancel remains after retries are exhausted.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(
     rename_all = "snake_case",
@@ -271,7 +271,7 @@ impl WorkStatus {
         matches!(self, Self::Succeeded | Self::Cancelled)
     }
 
-    /// 数据库 `status` 列用的字面量。
+    /// Literal for the database status column.
     pub fn column(self) -> &'static str {
         match self {
             Self::Active => "active",
@@ -291,7 +291,7 @@ impl std::fmt::Display for WorkStatus {
     }
 }
 
-/// 一个 Work 的全部状态。
+/// Complete state of one Work.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct WorkState {
@@ -299,37 +299,37 @@ pub struct WorkState {
     pub name: WorkName,
     pub workbook: WorkbookRef,
     pub flow: FlowId,
-    /// `~/.sheltie/works/<work_id>`。所有 Attempt 目录与冻结副本都在它下面。
+    /// ~/.sheltie/works/<work_id>, containing all Attempt directories and the frozen copy.
     pub work_dir: AbsPath,
     pub inputs: BTreeMap<String, ArtifactRef>,
     pub status: WorkStatus,
-    /// 当前所在 Occurrence。终态后保留最后一个。
+    /// Current Occurrence; terminal states retain the final one.
     pub current: Occurrence,
     pub visits: BTreeMap<NodeId, u32>,
     pub attempts: Vec<Attempt>,
     pub approvals: Vec<Approval>,
-    /// 累计受阻事实（GF-29）：gate 提交成功、重试耗尽、`no_legal_edge` 发生各 +1，
-    /// 由状态转换在发生时记录，取消后不减少。schema 1 的旧 state 没有该字段，
-    /// 读取按「缺字段即拒绝」处理，不用默认值猜历史。
+    /// Cumulative blocking (GF-29): gate submission success, exhausted retries, and no_legal_edge each increment once,
+    /// recorded by the transition without decreasing on cancellation. Old schema 1 state lacks this field;
+    /// reject missing fields on read instead of guessing history with defaults.
     pub blocked_count: u32,
     pub created_at: Timestamp,
     pub updated_at: Timestamp,
 }
 
 impl WorkState {
-    /// 核对持久状态内部必须相符的事实。Store 负责把字段位置映射为 STORE_CORRUPT。
+    /// Validate persistent-state consistency; Store maps field locations to STORE_CORRUPT.
     pub fn validate_persisted(&self) -> std::result::Result<(), String> {
         if self.work_id.as_str().get(15..) != Some(self.name.as_str()) {
-            return Err("work_id 与 name 不一致".to_string());
+            return Err("work_id and name do not match".to_string());
         }
         if self.work_id.as_str().get(..10) != Some(self.created_at.day()) {
-            return Err("work_id 日期与 created_at 不一致".to_string());
+            return Err("work_id date and created_at do not match".to_string());
         }
         if self.current.n == 0 || self.visits.get(&self.current.node) != Some(&self.current.n) {
-            return Err("current 与 visits 不一致".to_string());
+            return Err("current and visits do not match".to_string());
         }
         if self.visits.values().any(|count| *count == 0) {
-            return Err("visits 含零次到达".to_string());
+            return Err("visits contains a zero visit count".to_string());
         }
 
         let mut seen = BTreeSet::new();
@@ -344,10 +344,10 @@ impl WorkState {
                     .get(&id.node)
                     .is_none_or(|count| id.occurrence > *count)
             {
-                return Err(format!("attempts[{index}].id 与 visits 不一致"));
+                return Err(format!("attempts[{index}].id and visits do not match"));
             }
             if !seen.insert(id) {
-                return Err(format!("attempts[{index}].id 重复"));
+                return Err(format!("Duplicate attempts[{index}].id"));
             }
             let occurrence = attempt.occurrence();
             let expected = match sequences.get(&occurrence) {
@@ -356,20 +356,20 @@ impl WorkState {
                         previous.status,
                         AttemptStatus::Failed | AttemptStatus::Superseded
                     ) {
-                        return Err(format!("attempts[{index}] 没有合法前一次 Attempt"));
+                        return Err(format!("attempts[{index}] has no valid preceding Attempt"));
                     }
                     previous.id.number.checked_add(1)
                 }
                 None => Some(0),
             };
             if expected != Some(id.number) {
-                return Err(format!("attempts[{index}].id.number 不连续"));
+                return Err(format!("attempts[{index}].id.number is not sequential"));
             }
             sequences.insert(occurrence.clone(), attempt);
             let valid = match attempt.status {
                 AttemptStatus::Running => {
                     if running.replace(attempt.occurrence()).is_some() {
-                        return Err("存在多个 running Attempt".to_string());
+                        return Err("Multiple running Attempts exist".to_string());
                     }
                     attempt.ended_at.is_none()
                         && attempt.summary.is_none()
@@ -392,7 +392,7 @@ impl WorkState {
                 }
                 AttemptStatus::Superseded => {
                     if !replaced.insert(occurrence) {
-                        return Err("同一 Occurrence 有多次替换".to_string());
+                        return Err("Multiple replacements in one Occurrence".to_string());
                     }
                     attempt.ended_at.is_some()
                         && attempt.replacement_reason.is_some()
@@ -402,33 +402,35 @@ impl WorkState {
                 }
             };
             if !valid {
-                return Err(format!("attempts[{index}] 的 status/结果字段不一致"));
+                return Err(format!(
+                    "attempts[{index}] status/result fields do not match"
+                ));
             }
         }
         if sequences
             .values()
             .any(|attempt| attempt.status == AttemptStatus::Superseded)
         {
-            return Err("superseded Attempt 缺少接替 Attempt".to_string());
+            return Err("Superseded Attempt has no successor Attempt".to_string());
         }
         if running
             .as_ref()
             .is_some_and(|occurrence| occurrence != &self.current)
         {
-            return Err("running Attempt 与 current 不一致".to_string());
+            return Err("Running Attempt and current do not match".to_string());
         }
         if running.is_some()
             && self.status != WorkStatus::Active
             && self.status != WorkStatus::Cancelled
         {
-            return Err("running Attempt 与 Work status 不一致".to_string());
+            return Err("Running Attempt and Work status do not match".to_string());
         }
         if self
             .attempts
             .last()
             .is_some_and(|attempt| attempt.occurrence() != self.current)
         {
-            return Err("最新 Attempt 与 current 不一致".to_string());
+            return Err("Latest Attempt and current do not match".to_string());
         }
 
         for (index, approval) in self.approvals.iter().enumerate() {
@@ -437,7 +439,9 @@ impl WorkState {
                     && attempt.id.occurrence == approval.occurrence
                     && attempt.status == AttemptStatus::Succeeded
             }) {
-                return Err(format!("approvals[{index}] 没有对应的成功 Attempt"));
+                return Err(format!(
+                    "approvals[{index}] has no corresponding successful Attempt"
+                ));
             }
         }
 
@@ -451,14 +455,14 @@ impl WorkState {
             WorkStatus::Active | WorkStatus::Cancelled => None,
         };
         if expected.is_some_and(|status| latest != Some(status)) {
-            return Err("Work status 与当前 Attempt 不一致".to_string());
+            return Err("Work status and current Attempt do not match".to_string());
         }
         if self.status == WorkStatus::Blocked(BlockedReason::Gate)
             && self.approvals.iter().any(|approval| {
                 approval.node == self.current.node && approval.occurrence == self.current.n
             })
         {
-            return Err("当前 gate 已批准却仍受阻".to_string());
+            return Err("Current gate is approved but still blocked".to_string());
         }
         // Each blocking event belongs to an ended Attempt or a Gate Approval.
         // These are necessary bounds, not a reconstruction of the stored total.
@@ -469,12 +473,12 @@ impl WorkState {
             .saturating_add(usize::from(matches!(self.status, WorkStatus::Blocked(_))));
         let count = u64::from(self.blocked_count);
         if count < minimum as u64 || count > maximum as u64 {
-            return Err("blocked_count 与 Attempt/Approval 受阻事实不一致".to_string());
+            return Err("blocked_count does not match Attempt/Approval blocking facts".to_string());
         }
         Ok(())
     }
 
-    /// 冻结图提供门槛定义；持久状态只能引用已有批准事实，不能推断或补造批准。
+    /// Frozen graph defines gates; persisted state may reference existing approvals without inferring or inventing them.
     pub fn validate_gate_facts(&self, graph: &Graph) -> std::result::Result<(), String> {
         let approved = |node: &NodeId, occurrence: u32| {
             self.approvals
@@ -484,16 +488,22 @@ impl WorkState {
         for approval in &self.approvals {
             if !graph.node(&approval.node).is_some_and(|node| node.gate()) {
                 return Err(format!(
-                    "{}#{} 的批准没有对应门槛",
+                    "Approval for {}#{} has no corresponding gate",
                     approval.node, approval.occurrence
                 ));
             }
         }
-        let current = graph
-            .node(&self.current.node)
-            .ok_or_else(|| format!("当前Occurrence {} 不在冻结图中", self.current))?;
+        let current = graph.node(&self.current.node).ok_or_else(|| {
+            format!(
+                "Current Occurrence {} is absent from the frozen graph",
+                self.current
+            )
+        })?;
         if self.status == WorkStatus::Blocked(BlockedReason::Gate) && !current.gate() {
-            return Err(format!("当前非门槛 {} 不能是Gate受阻", self.current));
+            return Err(format!(
+                "Current nongate {} cannot be Gate-blocked",
+                self.current
+            ));
         }
         for attempt in &self.attempts {
             let occurrence = attempt.occurrence();
@@ -509,24 +519,26 @@ impl WorkState {
                 && has_left_or_can_leave
                 && !approved(&occurrence.node, occurrence.n)
             {
-                return Err(format!("已离开或可离开的门槛 {occurrence} 缺少批准"));
+                return Err(format!(
+                    "Gate {occurrence}, already left or eligible to leave, lacks approval"
+                ));
             }
         }
         Ok(())
     }
 
-    /// 冻结副本目录 `work_dir/workbook`。
+    /// Frozen-copy directory: work_dir/workbook.
     pub fn workbook_dir(&self) -> AbsPath {
         self.work_dir.join_segment("workbook")
     }
 
-    /// Attempt 目录：单一 `WorkLayout`（架构 §5）。
+    /// Attempt directory: canonical WorkLayout (architecture §5).
     /// `attempts/<node>/occurrence-<NNN>/attempt-<NNN>/`。
     pub fn attempt_dir(&self, id: &AttemptId) -> AbsPath {
         crate::work::layout::attempt_dir(&self.work_dir, id)
     }
 
-    /// 状态卡路径 `work_dir/status-card.md`（当前投影）。
+    /// Status-card path: work_dir/status-card.md, a current projection.
     pub fn status_card_path(&self) -> AbsPath {
         crate::work::layout::status_card_path(&self.work_dir)
     }
@@ -539,7 +551,7 @@ impl WorkState {
         self.attempts.iter_mut().find(|a| &a.id == id)
     }
 
-    /// 当前 Occurrence 的最新 Attempt。
+    /// Latest Attempt of the current Occurrence.
     pub fn latest_attempt_of_current(&self) -> Option<&Attempt> {
         self.attempts
             .iter()
@@ -562,7 +574,7 @@ impl WorkState {
         })
     }
 
-    /// 某节点最近一次 `Succeeded` 的 Attempt。
+    /// Latest Succeeded Attempt at a node.
     pub fn latest_succeeded_of(&self, node: &NodeId) -> Option<&Attempt> {
         self.attempts
             .iter()
@@ -622,7 +634,7 @@ mod tests {
             "２026-01-01T00:00:00Z",
             "",
         ] {
-            assert!(Timestamp::parse(bad).is_err(), "{bad:?} 应当报错");
+            assert!(Timestamp::parse(bad).is_err(), "{bad:?} should fail");
         }
     }
 
@@ -641,26 +653,26 @@ mod tests {
     // Task: T01
     #[test]
     fn timestamp_from_unix_secs_matches_known_dates() {
-        // 期望值由 Python datetime 独立算出。
+        // Expected values are independently calculated with Python datetime.
         for (secs, want) in [
             (0, "1970-01-01T00:00:00Z"),
-            // 1970-03-01 是穷举可达定义域找到的第一个判定日：yoe 的三个世纪修正项
-            // （/1460、/36524、/146096）被动任何一处，这天起算错一年。
+            // 1970-03-01 is the first distinguishing date from exhaustive domain search; changing any of the three yoe century corrections
+            // (/1460, /36524, /146096) yields a one-year error from this date.
             (5_097_600, "1970-03-01T00:00:00Z"),
             (1_790_218_800, "2026-09-24T03:00:00Z"),
             (951_782_400, "2000-02-29T00:00:00Z"),
             (4_107_542_399, "2100-02-28T23:59:59Z"),
-            // 远年：yoe 的世纪修正项（/1460、/36524、/146096）只在这些年份区段起作用。
+            // Distant years: yoe century corrections (/1460, /36524, /146096) affect these year ranges.
             (7_272_419_445, "2200-06-15T12:30:45Z"),
             (10_413_792_000, "2300-01-01T00:00:00Z"),
-            // era 末日的 doe = 146096：末项修正 /146096 只在这一天取值 1。
+            // On the era's final day, doe = 146096; correction /146096 equals one only on this day.
             (13_569_465_599, "2399-12-31T23:59:59Z"),
             (13_574_563_200, "2400-02-29T00:00:00Z"),
             (16_756_761_599, "2500-12-31T23:59:59Z"),
             (64_076_576_523, "4000-07-04T01:02:03Z"),
             (253_386_360_000, "9999-06-30T12:00:00Z"),
             (253_402_300_799, "9999-12-31T23:59:59Z"),
-            // 越过 9999 年饱和，不产出五位年份。
+            // Saturate beyond year 9999 without producing five-digit years.
             (253_402_300_800, "9999-12-31T23:59:59Z"),
             (u64::MAX, "9999-12-31T23:59:59Z"),
         ] {
@@ -673,7 +685,7 @@ mod tests {
     // Task: T10
     #[test]
     fn timestamp_unix_secs_matches_independent_calendar_math() {
-        // 期望值由 Python datetime 独立算出；1970 年以前为负。
+        // Independently calculated with Python datetime; negative before 1970.
         for (s, want) in [
             ("1970-01-01T00:00:00Z", 0),
             ("2026-09-24T03:04:05Z", 1_790_219_045),
@@ -682,7 +694,7 @@ mod tests {
             ("1969-12-31T23:59:59Z", -1),
             ("1900-03-01T00:00:00Z", -2_203_891_200),
             ("0000-01-01T00:00:00Z", -62_167_219_200),
-            // 远年：era/yoe 修正项只在这些区段起作用。
+            // Distant years: era/yoe corrections affect these ranges.
             ("2200-06-15T12:30:45Z", 7_272_419_445),
             ("2400-02-29T00:00:00Z", 13_574_563_200),
             ("4000-07-04T01:02:03Z", 64_076_576_523),

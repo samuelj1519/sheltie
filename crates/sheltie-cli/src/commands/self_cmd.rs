@@ -1,7 +1,7 @@
-//! `self install | update | rollback | uninstall | version`。除 `install` 建库外不打开 `store.db`。
+//! `self install | update | rollback | uninstall | version`. Only `install` opens `store.db` to initialize it.
 //!
-//! 不写任何宿主配置（`INV-3`）：`install` 的 PATH 只是提示文本。安装与更新的提示都要
-//! 说清 当前 Store schema 与旧数据保留——rollback 只换回旧二进制，不降级 Store。
+//! Never change host configuration (`INV-3`): PATH is advice only. Install and update messages must
+//! state the current Store schema and preservation of old data; rollback restores the binary without downgrading Store.
 
 use serde_json::json;
 use sheltie_runtime::selfmgmt;
@@ -12,13 +12,13 @@ use crate::output::{self, Outcome};
 
 fn schema_note(ctx: &Ctx) -> String {
     format!(
-        "Store schema 是 {}：旧数据保留在旧管理根，旧二进制拒绝当前格式的库。\
-rollback 只换回旧二进制，不降级 Store；查旧记录要旧二进制配旧管理根。",
+        "Store schema is {}: old data remains in its old management root; old binaries reject the current format.\
+rollback restores only the old binary, without downgrading Store; inspect old records with the old binary and old management root.",
         selfmgmt::version_info(&ctx.home).schema_version
     )
 }
 
-/// `uninstall --purge` 在文本模式下没有 `--yes` 时读一行 stdin，必须是 `yes`；JSON 模式下必须给 `--yes`。
+/// `uninstall --purge` without `--yes` reads stdin and requires `yes` in text mode; JSON mode requires `--yes`.
 pub fn run(ctx: &Ctx, cmd: SelfCmd) -> Outcome {
     match cmd {
         SelfCmd::Install => install(ctx),
@@ -39,9 +39,9 @@ fn install(ctx: &Ctx) -> Outcome {
                 "path_hint": out.path_hint,
             });
             let verb = if out.already_installed {
-                "已装在"
+                "Already installed at"
             } else {
-                "已装到"
+                "Installed at"
             };
             let text = format!(
                 "{verb} {}\n{}\n{}\n",
@@ -66,9 +66,9 @@ fn update(ctx: &Ctx, version: Option<&str>) -> Outcome {
                 "up_to_date": out.up_to_date,
             });
             let head = if out.up_to_date {
-                format!("已是最新（{}）\n", out.to)
+                format!("Already up to date ({})\n", out.to)
             } else {
-                format!("已从 {} 升到 {}\n", out.from, out.to)
+                format!("Updated from {} to {}\n", out.from, out.to)
             };
             let text = format!("{head}{}\n", schema_note(ctx));
             output::ok(text, ctx.request_id.clone(), None, data, Vec::new())
@@ -81,7 +81,7 @@ fn update(ctx: &Ctx, version: Option<&str>) -> Outcome {
 fn rollback(ctx: &Ctx) -> Outcome {
     match selfmgmt::rollback(&ctx.home) {
         Ok(()) => output::ok(
-            "已换回上一版本\n".to_string(),
+            "Restored the previous version\n".to_string(),
             ctx.request_id.clone(),
             None,
             json!({ "rolled_back": true }),
@@ -93,14 +93,14 @@ fn rollback(ctx: &Ctx) -> Outcome {
 
 /// `self uninstall [--purge]`。
 fn uninstall(ctx: &Ctx, purge: bool, yes: bool) -> Outcome {
-    // 只有 purge 要确认；文本模式读一行 stdin，JSON 模式必须给 --yes（协议 §3 self uninstall）。
+    // Only purge needs confirmation; text mode reads stdin, and JSON requires --yes (protocol §3 self uninstall).
     let confirmed = if !purge || yes {
         true
     } else if ctx.json {
         false
     } else {
         println!(
-            "将清理管理根中的 Workbook、Work、pending、临时文件、binary 与数据库；保留根目录和锁文件：{}",
+            "Clear Workbooks, Works, pending data, temporary files, binary, and database; retain the root and lock file: {}",
             ctx.home.root().as_str()
         );
         let mut line = String::new();
@@ -114,7 +114,7 @@ fn uninstall(ctx: &Ctx, purge: bool, yes: bool) -> Outcome {
             if purge {
                 return output::ok(
                     format!(
-                        "已清理管理数据与 binary。保留：\n  {}\n  {}\n",
+                        "Cleared managed data and binary. Retained:\n  {}\n  {}\n",
                         ctx.home.root(),
                         ctx.home.lock_path()
                     ),
@@ -124,7 +124,7 @@ fn uninstall(ctx: &Ctx, purge: bool, yes: bool) -> Outcome {
                     Vec::new(),
                 );
             }
-            let mut text = String::from("已删 bin/。保留：\n");
+            let mut text = String::from("Removed bin/. Retained:\n");
             let mut paths = Vec::with_capacity(kept.len());
             for p in &kept {
                 text.push_str(&format!("  {}\n", p.as_str()));
@@ -142,7 +142,7 @@ fn uninstall(ctx: &Ctx, purge: bool, yes: bool) -> Outcome {
     }
 }
 
-/// `self version`。只读，不建管理根。
+/// `self version`: read-only, without creating the management root.
 fn version(ctx: &Ctx) -> Outcome {
     let info = selfmgmt::version_info(&ctx.home);
     let data = json!({

@@ -1,4 +1,4 @@
-//! 精确窗口的真实子进程终止；exit70与SIGKILL分别运行，不模拟Store提交。
+//! Terminate real subprocesses at precise windows, running exit70/SIGKILL separately without simulated Store commits.
 #![cfg(feature = "failpoint")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -119,7 +119,7 @@ fn container(env: &Env, id: &str) -> PathBuf {
             }
         }
     }
-    panic!("{id}的owner不存在");
+    panic!("owner for {id} does not exist");
 }
 fn original_reply(replay: &Value, stored: &Value, id: &str, work: Option<&str>) {
     assert_eq!(replay["request_id"], id);
@@ -248,7 +248,10 @@ fn start_and_add_recover_each_publication_window_after_exit70_and_actual_kill() 
                 let replay = env.ok(&args);
                 let current = record(&env, &id).unwrap();
                 assert!(current.published);
-                assert!(!pending.exists(), "无引用旧容器/完成元数据应清理");
+                assert!(
+                    !pending.exists(),
+                    "Clean unreferenced old containers/completion metadata"
+                );
                 if let Some(prior) = &prior {
                     original_reply(&replay, &prior.reply, &id, prior.work.as_deref());
                     same_files(
@@ -276,7 +279,7 @@ fn start_and_add_recover_each_publication_window_after_exit70_and_actual_kill() 
                     env.ok(&["attempt", "begin", work, "--node", "outline"]);
                 } else {
                     same_files(
-                        &env.dir.path().join("workbooks/two-step/1.0.0"),
+                        &env.dir.path().join("workbooks/two-step/1.0.1"),
                         &tree(&source),
                     );
                     env.start("two-step", &[("topic", "cross-entry")]);
@@ -377,7 +380,7 @@ fn remove_real_windows_preserve_unknown_results_and_do_not_touch_a_new_lifecycle
             let env = Env::new();
             env.add_example("two-step");
             let id = format!("t31-remove-{point}-{mode:?}");
-            let args = ["--request-id", &id, "workbook", "remove", "two-step@1.0.0"];
+            let args = ["--request-id", &id, "workbook", "remove", "two-step@1.0.1"];
             stop(&env, &args, point, mode);
             let stored = record(&env, &id).unwrap();
             assert_eq!(
@@ -414,11 +417,11 @@ fn remove_real_windows_preserve_unknown_results_and_do_not_touch_a_new_lifecycle
             } else {
                 let replay = env.ok(&args);
                 original_reply(&replay, &stored.reply, &id, stored.work.as_deref());
-                assert!(!env.dir.path().join("workbooks/two-step/1.0.0").exists());
+                assert!(!env.dir.path().join("workbooks/two-step/1.0.1").exists());
                 let source = copy_example("two-step", &env.dir.path().join("new-source"));
                 std::fs::write(source.join("instructions/outline.md"), b"new lifecycle\n").unwrap();
                 env.ok(&["workbook", "add", source.to_str().unwrap()]);
-                let final_path = env.dir.path().join("workbooks/two-step/1.0.0");
+                let final_path = env.dir.path().join("workbooks/two-step/1.0.1");
                 let before = tree(&final_path);
                 let replay = env.ok(&args);
                 original_reply(&replay, &stored.reply, &id, stored.work.as_deref());
@@ -547,7 +550,7 @@ fn purge_partial_termination_preserves_root_lock_and_can_finish_without_reviving
         assert_eq!(
             std::fs::read(env.dir.path().join("store.db")).unwrap(),
             database,
-            "Store应最后删除"
+            "Delete Store last"
         );
         let current = std::fs::metadata(env.dir.path().join(".lock")).unwrap();
         assert_eq!((current.dev(), current.ino()), (lock.dev(), lock.ino()));
@@ -608,7 +611,7 @@ fn purge_waiters_reach_the_failed_try_lock_before_initialization_or_old_work_rej
             database
         );
         if let Ok(wal) = std::fs::metadata(env.dir.path().join("store.db-wal")) {
-            assert_eq!(wal.len(), 0, "只读不能产生WAL记录");
+            assert_eq!(wal.len(), 0, "Read-only access must not create WAL records");
             println!(
                 "SQLITE_CONTROL_RAW {}",
                 json!({"action":action,"wal_bytes":wal.len(),"main_bytes_unchanged":true})
@@ -645,7 +648,7 @@ fn moved_delete_recovery_resyncs_both_rename_parents_before_deleting_payload() {
     let env = Env::new();
     env.add_example("two-step");
     let id = "t31-delete-parent-sync";
-    let args = ["--request-id", id, "workbook", "remove", "two-step@1.0.0"];
+    let args = ["--request-id", id, "workbook", "remove", "two-step@1.0.1"];
     stop(
         &env,
         &args,
@@ -668,7 +671,7 @@ fn moved_delete_recovery_resyncs_both_rename_parents_before_deleting_payload() {
         }
         let guard = Guard;
         let error = sheltie_runtime::WorkbookRepo::new(home.clone())
-            .remove("two-step", "1.0.0", Some(id.into()))
+            .remove("two-step", "1.0.1", Some(id.into()))
             .unwrap_err();
         let sheltie_runtime::Error::EffectPending {
             committed,
@@ -1514,11 +1517,11 @@ fn corrupt_remove_snapshot_cannot_be_projected_as_a_successful_original() {
         let env = Env::new();
         env.add_example("two-step");
         let rid = "t34-remove-original";
-        let args = ["--request-id", rid, "workbook", "remove", "two-step@1.0.0"];
+        let args = ["--request-id", rid, "workbook", "remove", "two-step@1.0.1"];
         let committed = env.ok(&args);
         assert_eq!(
             committed["data"],
-            json!({"id":"two-step", "version":"1.0.0", "replayed":false})
+            json!({"id":"two-step", "version":"1.0.1", "replayed":false})
         );
         let mut expected_replay = committed.clone();
         expected_replay["data"]["replayed"] = json!(true);
@@ -1553,7 +1556,7 @@ fn corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original() 
         let old = "t34-old-remove";
         stop(
             &env,
-            &["--request-id", old, "workbook", "remove", "two-step@1.0.0"],
+            &["--request-id", old, "workbook", "remove", "two-step@1.0.1"],
             "after_commit_before_effects",
             Termination::Exit70,
         );
@@ -1561,7 +1564,7 @@ fn corrupt_pending_remove_snapshot_cannot_be_projected_as_a_blockers_original() 
         assert!(!stored.published);
         assert_eq!(
             stored.reply["data"],
-            json!({"id":"two-step", "version":"1.0.0"})
+            json!({"id":"two-step", "version":"1.0.1"})
         );
         let mut snapshot = stored.reply;
         snapshot["data"][field] = json!(replacement);
@@ -1638,7 +1641,7 @@ fn add_snapshot_target_is_bound_before_an_original_response_is_released() {
             )
             .unwrap();
         let before_rows = store_rows(&env);
-        let before_files = tree(&env.workbook_dir("two-step", "1.0.0"));
+        let before_files = tree(&env.workbook_dir("two-step", "1.0.1"));
         let (error, exit) = env.fail(&args);
         assert_eq!(exit, 1);
         assert_eq!(error["error"]["code"], "EFFECT_PENDING");
@@ -1647,7 +1650,7 @@ fn add_snapshot_target_is_bound_before_an_original_response_is_released() {
         assert_eq!(error["request_id"], rid);
         assert!(error.get("original").is_none(), "{field}: {error}");
         assert_eq!(store_rows(&env), before_rows);
-        assert_eq!(tree(&env.workbook_dir("two-step", "1.0.0")), before_files);
+        assert_eq!(tree(&env.workbook_dir("two-step", "1.0.1")), before_files);
     }
 }
 
@@ -1876,7 +1879,7 @@ fn replay_of_a_cleaned_delete_does_not_invent_a_marker_cleanup_warning() {
         "fully-cleaned-delete",
         "workbook",
         "remove",
-        "two-step@1.0.0",
+        "two-step@1.0.1",
     ];
     env.ok(&args);
     env.ok(&args);
@@ -1956,7 +1959,7 @@ fn subprocess_rendezvous_reaches_only_the_configured_name_and_scope() {
         assert_eq!(reply["ok"], true);
         assert_eq!(reply["request_id"], rid);
         assert_eq!(reply["data"]["id"], "two-step");
-        assert_eq!(reply["data"]["version"], "1.0.0");
+        assert_eq!(reply["data"]["version"], "1.0.1");
         assert_eq!(reply["data"]["replayed"], false);
         assert_eq!(carrier.path().join("reached").exists(), matched);
         let db = connection(&env);
@@ -1973,6 +1976,6 @@ fn subprocess_rendezvous_reaches_only_the_configured_name_and_scope() {
             .unwrap();
         assert_eq!(audit, rid);
         assert!(record(&env, &rid).unwrap().published);
-        same_files(&env.dir.path().join("workbooks/two-step/1.0.0"), &expected);
+        same_files(&env.dir.path().join("workbooks/two-step/1.0.1"), &expected);
     }
 }

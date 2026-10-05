@@ -1,4 +1,4 @@
-//! 合法下一步。表见 `specs/architecture.md` §3.1。
+//! Legal next actions; table in `specs/architecture.md` §3.1.
 
 use serde::{Deserialize, Serialize};
 
@@ -6,11 +6,11 @@ use super::state::{AttemptStatus, BlockedReason, WorkState, WorkStatus};
 use crate::flow::{EdgeKind, Executor, Graph, Tier};
 use crate::ids::{AttemptId, NodeId, WorkId};
 
-/// 一项可执行的下一步。能直接拼成命令行（协议 §5 的 `next` 项）。
+/// One legal next action, directly renderable as a command line (protocol §5 next item).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "op", deny_unknown_fields)]
 pub enum NextOp {
-    /// `attempt begin`。进入另一节点时带 `edge`；同节点重试或首次开工时为 `None`。
+    /// `attempt begin`: include edge when entering another node; omit it on entry or same-node retry.
     #[serde(rename = "attempt begin")]
     BeginAttempt {
         node: NodeId,
@@ -31,9 +31,9 @@ pub enum NextOp {
 }
 
 impl NextOp {
-    /// 命令行形式：
-    /// `sheltie attempt begin <work> --node <node>`、`sheltie attempt submit <work> --attempt <id> --summary "<一句话结论>"`、
-    /// `sheltie attempt fail <work> --attempt <id> --reason "<原因>"`、`sheltie gate approve <work> --node <node>`、
+    /// Command-line forms:
+    /// `sheltie attempt begin <work> --node <node>`、`sheltie attempt submit <work> --attempt <id> --summary "<one-sentence conclusion>"`、
+    /// `sheltie attempt fail <work> --attempt <id> --reason "<reason>"`、`sheltie gate approve <work> --node <node>`、
     /// `sheltie work cancel <work>`。
     pub fn to_command_line(&self, work_id: &WorkId) -> String {
         match self {
@@ -41,41 +41,43 @@ impl NextOp {
                 format!("sheltie attempt begin {work_id} --node {node}")
             }
             Self::SubmitAttempt { attempt } => format!(
-                "sheltie attempt submit {work_id} --attempt {attempt} --summary \"<一句话结论>\""
+                "sheltie attempt submit {work_id} --attempt {attempt} --summary \"<one-sentence conclusion>\""
             ),
             Self::FailAttempt { attempt } => {
-                format!("sheltie attempt fail {work_id} --attempt {attempt} --reason \"<原因>\"")
+                format!("sheltie attempt fail {work_id} --attempt {attempt} --reason \"<reason>\"")
             }
             Self::ReplaceAttempt { attempt } => {
-                format!("sheltie attempt replace {work_id} --attempt {attempt} --reason \"<原因>\"")
+                format!(
+                    "sheltie attempt replace {work_id} --attempt {attempt} --reason \"<reason>\""
+                )
             }
             Self::ApproveGate { node } => format!("sheltie gate approve {work_id} --node {node}"),
             Self::Cancel => format!("sheltie work cancel {work_id}"),
         }
     }
 
-    /// 这项是不是「进入或重试节点 `node`」。
+    /// Whether this action enters or retries node `node`.
     pub fn is_begin_of(&self, node: &NodeId) -> bool {
         matches!(self, Self::BeginAttempt { node: n, .. } if n == node)
     }
 }
 
-/// 计算当前合法下一步。
+/// Compute current legal next actions.
 ///
-/// 按 `state.status` 与当前 Occurrence 的最新 Attempt 分支：
-/// - 终态：空。
+/// Branch on state.status and the current Occurrence's latest Attempt:
+/// - Terminal: empty.
 /// - `Blocked(Gate)`：`gate approve <current>`、`work cancel`。
 /// - `Blocked(RetriesExhausted | NoLegalEdge)`：`work cancel`。
-/// - 当前 Occurrence 无 Attempt，或最新 `Failed` 且真实失败数未超过 `max_retries`：`attempt begin <current>`（`edge = None`）、`work cancel`。
-/// - 最新 `Running`：`attempt submit`、`attempt fail`、`work cancel`；本 Occurrence 尚未替换时另列 `attempt replace`。
-/// - 最新 `Succeeded`（无门槛或已批准）：每条出边 `current -> to` 且 `visits[to] < max_visits[to]`
-///   给一项 `attempt begin <to>` 带 `edge`；再加 `work cancel`。
+/// - No current Attempt, or latest Failed with retries remaining: `attempt begin <current>` without edge, and work cancel.
+/// - Latest Running: attempt submit, attempt fail, work cancel; include attempt replace if not already replaced in this Occurrence.
+/// - Latest Succeeded (no gate or approved): every outgoing current -> to with visits below max_visits
+///   yields attempt begin <to> with edge; also include work cancel.
 ///
-/// T06 填「终态」与「无 Attempt」；T07 填「Succeeded」与「Failed 可重试」；T08 填「Running」与「Blocked」。
+/// T06 covers terminal/no-Attempt branches; T07 Succeeded/retryable Failed; T08 Running/Blocked.
 pub fn legal_next(state: &WorkState, graph: &Graph) -> Vec<NextOp> {
     match state.status {
         WorkStatus::Active => match state.latest_attempt_of_current() {
-            // 首次到达本 Occurrence：进入或重试都从 begin 当前节点开始，不带边。
+            // First Attempt in this Occurrence: entry and retries begin at the current node without an edge.
             None => {
                 let mut ops = Vec::with_capacity(2);
                 if let Some(def) = graph.node(&state.current.node) {
@@ -108,7 +110,7 @@ pub fn legal_next(state: &WorkState, graph: &Graph) -> Vec<NextOp> {
                     ops
                 }
                 AttemptStatus::Failed => {
-                    // 还能重试就再 begin 当前节点（不带边）；否则只剩取消。
+                    // Retry the current node without edge while retries remain; otherwise only work cancel remains.
                     let mut ops = Vec::with_capacity(2);
                     if let Some(def) = graph.node(&state.current.node) {
                         if state.failed_count_of(&state.current) <= def.max_retries as usize {
@@ -124,7 +126,7 @@ pub fn legal_next(state: &WorkState, graph: &Graph) -> Vec<NextOp> {
                     ops
                 }
                 AttemptStatus::Succeeded => {
-                    // 每条出边目标未达 max_visits 就是一项 begin；再加取消。
+                    // Each outgoing target below max_visits yields begin; also include work cancel.
                     let mut ops = Vec::with_capacity(4);
                     for edge in graph.out_edges(&state.current.node) {
                         let Some(def) = graph.node(&edge.to) else {

@@ -6,12 +6,12 @@ import { materialize } from './files.mjs';
 export async function removeOwnedRoot(root) {
   async function writable(path) {
     const info = await lstat(path);
-    if (info.isSymbolicLink()) throw new Error(`自有根出现符号链接，保留待检查：${root}`);
+    if (info.isSymbolicLink()) throw new Error(`Symbolic link in the owned root; preserved for inspection: ${root}`);
     if (info.isDirectory()) {
       await chmod(path, 0o700);
       for (const name of await readdir(path)) await writable(join(path, name));
     } else if (info.isFile()) await chmod(path, 0o600);
-    else throw new Error(`自有根出现非普通文件，保留待检查：${root}`);
+    else throw new Error(`Nonregular file in the owned root; preserved for inspection: ${root}`);
   }
   await writable(root);
   await rm(root, { recursive: true });
@@ -38,17 +38,17 @@ export function runChild(binary, argv, { home, signal, timeoutMs = 30000, output
         closeTimer = setTimeout(() => finish(null, null, false), closeWaitMs);
       }, termGraceMs);
     };
-    const onAbort = () => stop('请求断开或取消');
-    const timeout = setTimeout(() => stop('CLI 超时'), timeoutMs);
+    const onAbort = () => stop('Request disconnected or cancelled');
+    const timeout = setTimeout(() => stop('CLI timed out'), timeoutMs);
     for (const stream of ['stdout', 'stderr']) {
       child[stream].on('data', data => {
         const available = Math.max(0, outputLimit - counts[stream]);
         if (available) chunks[stream].push(data.subarray(0, available));
         counts[stream] += data.length;
-        if (counts[stream] > outputLimit) stop(`${stream} 超过 ${outputLimit} 字节`);
+        if (counts[stream] > outputLimit) stop(`${stream} exceeds ${outputLimit} bytes`);
       });
     }
-    child.on('error', error => { reason ??= `CLI 启动失败：${error.message}`; });
+    child.on('error', error => { reason ??= `CLI startup failed: ${error.message}`; });
     child.on('exit', () => { exited = true; });
     child.on('close', (code, childSignal) => { onClose?.({ code, signal: childSignal }); finish(code, childSignal, true); });
     signal?.addEventListener('abort', onAbort, { once: true });
@@ -64,20 +64,20 @@ export async function checkWorkbook(files, binary, { signal, processOptions = {}
     const workbook = join(root, 'workbook');
     const home = join(root, 'home');
     await materialize(files, workbook);
-    if (signal?.aborted) throw new Error('请求断开或取消');
+    if (signal?.aborted) throw new Error('Request disconnected or cancelled');
     processResult = await runChild(binary, ['--json', 'workbook', 'add', workbook], { ...processOptions, home, signal });
-    if (!processResult.closed) { preserve = true; throw new Error(`无法确认直接 child 的退出和流关闭；保留 ${root}`); }
+    if (!processResult.closed) { preserve = true; throw new Error(`Cannot confirm direct-child exit and stream closure; preserving ${root}`); }
     if (processResult.reason) throw new Error(processResult.reason);
     if (processResult.code !== 0) {
       try {
         const failure = JSON.parse(processResult.stdout);
         if (failure.ok === false && typeof failure.error?.code === 'string' && typeof failure.error?.message === 'string') engineError = failure.error;
-      } catch { /* 不完整失败流仍保持 CLI 失败，不构造引擎字段。 */ }
-      throw new Error(engineError?.message ?? '引擎拒绝 Workbook');
+      } catch { /* An incomplete failure stream remains a CLI failure; do not fabricate engine fields. */ }
+      throw new Error(engineError?.message ?? 'The engine rejected the Workbook');
     }
     let result;
-    try { result = JSON.parse(processResult.stdout); } catch { throw new Error('引擎未返回完整 JSON'); }
-    if (result.ok !== true || typeof result.request_id !== 'string' || !Array.isArray(result.next) || !result.data || typeof result.data.id !== 'string' || typeof result.data.version !== 'string' || !/^[0-9a-f]{64}$/.test(result.data.digest) || !Array.isArray(result.data.flows) || result.data.flows.some(v => typeof v !== 'string') || !Array.isArray(result.data.requires) || typeof result.data.replayed !== 'boolean') throw new Error('引擎未返回完整成功结果');
+    try { result = JSON.parse(processResult.stdout); } catch { throw new Error('The engine did not return complete JSON'); }
+    if (result.ok !== true || typeof result.request_id !== 'string' || !Array.isArray(result.next) || !result.data || typeof result.data.id !== 'string' || typeof result.data.version !== 'string' || !/^[0-9a-f]{64}$/.test(result.data.digest) || !Array.isArray(result.data.flows) || result.data.flows.some(v => typeof v !== 'string') || !Array.isArray(result.data.requires) || typeof result.data.replayed !== 'boolean') throw new Error('The engine did not return a complete success result');
     return { ok: true, result, process: processResult };
   } catch (error) {
     return { ok: false, error: error.message, process: processResult ?? null, ...(engineError ? { engineError } : {}), ...(preserve ? { residualRoot: root } : {}) };

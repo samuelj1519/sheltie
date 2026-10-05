@@ -1,12 +1,14 @@
 # Change package templates
 
-提案准备时复制需要的模板，小提案可以先只写 README。采用进入 active 后，必须具备 README、plan、progress、validation 与 tasks.toml；完成时还须有独立 review。内容按实际风险展开，不用模板增加无意义任务。
+English | [简体中文](README.zh-CN.md)
 
-- [change-readme.md](change-readme.md)：范围、状态与入口。
-- [plan.md](plan.md)：任务、Owner、依赖和状态。
-- [progress.md](progress.md)：当前跨会话交接。
-- [validation.md](validation.md)：验证模式、候选和证据。
-- [review.md](review.md)：独立审查结论、阻断项与建议。
-- [tasks.toml](tasks.toml)：任务文件白名单与测试文件。
+Copy needed templates while preparing proposals. Small proposals may begin with README only. Adopted active packages require README, plan, progress, validation, and tasks.toml; completion also requires independent review. Scale contents to actual risk without meaningless template-driven tasks.
 
-完成资格先在完整 package 中保存，再按[文档维护指南](../../../docs/how-to/maintain-docs.md)提炼参考摘要。模板用于未来变更，不作为当前实施授权。
+- [change-readme.md](change-readme.md): scope, status, entry points.
+- [plan.md](plan.md): tasks, owners, dependencies, status.
+- [progress.md](progress.md): current cross-session handoff.
+- [validation.md](validation.md): execution modes, candidate, evidence.
+- [review.md](review.md): independent conclusions, blockers, suggestions.
+- [tasks.toml](tasks.toml): task production/test file allowlists.
+
+Preserve qualification in the complete package before extracting lasting references under the [maintenance guide](../../../docs/how-to/maintain-docs.md). Templates guide future changes, not current implementation authorization.

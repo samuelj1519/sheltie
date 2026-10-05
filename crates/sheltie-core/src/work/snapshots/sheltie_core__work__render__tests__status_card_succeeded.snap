@@ -2,28 +2,28 @@
 source: crates/sheltie-core/src/work/render.rs
 expression: "render_status_card(fx.state(), &fx.graph)"
 ---
-# Work 2026-09-24-001-t（t）
+# Work 2026-09-24-001-t (t)
 
-workbook: two-step@1.0.0   flow: default   status: succeeded
+workbook: two-step@1.0.1   flow: default   status: succeeded
 current: summary#1
 done: outline#1, summary#1
-pending: 无
+pending: none
 visits: outline 1/1, summary 1/1
 
-## 当前任务
+## Current task
 
 attempt: summary#1.0
 brief_path: /tmp/sheltie-test/works/2026-09-24-001-t/attempts/summary/occurrence-001/attempt-000/brief.md
 inputs:
   outline → /tmp/sheltie-test/works/2026-09-24-001-t/attempts/outline/occurrence-001/attempt-000/outputs/outline.md (sha256 fc11d6f28e59d3cc33c0b14ceb644bf0902ebd63d61218dffe9e7dac7c254542, 10 B)
 
-## 最近一次尝试
+## Latest Attempt
 
 summary#1.0 succeeded
-summary: 摘要好了
+summary: Summary ready
 outputs:
   summary → /tmp/sheltie-test/works/2026-09-24-001-t/attempts/summary/occurrence-001/attempt-000/outputs/summary.md (sha256 fc11d6f28e59d3cc33c0b14ceb644bf0902ebd63d61218dffe9e7dac7c254542, 10 B)
 
-## 合法下一步
+## Legal next actions
 
-- 无
+- none

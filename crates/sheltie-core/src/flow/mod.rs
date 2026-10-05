@@ -1,5 +1,5 @@
-//! Flow：解析（`parse`）、编译成图（`compile`）、图本身（`graph`）。
-//! 格式与规则见 `specs/contracts/workbook.md` §3、§4。
+//! Flow parsing (`parse`), compilation (`compile`), and graph representation (`graph`).
+//! Formats and rules: `specs/contracts/workbook.md` §3 and §4.
 
 pub mod compile;
 pub mod def;

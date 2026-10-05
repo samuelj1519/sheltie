@@ -1,30 +1,30 @@
-你要把一句需求写成一份别人能照着做、做完能对着验的需求规格。
+Turn a request into requirements others can implement and independently verify.
 
-## 读什么
+## Read
 
-1. `request`：用户的原始需求。
-2. `project`：项目根目录的绝对路径。只读根目录下的 `README.md`、`AGENTS.md`、`CONTEXT.md`（有哪个读哪个），再用 `ls` 看一层目录结构。**不要遍历整个仓库**，不要读源码。规格阶段不需要知道实现细节。
-3. `template`：规格模板。输出必须按它的标题顺序写。
-4. `checklist`：交稿前逐条自查。
-5. `decision`：审核人的意见。任务书「来自」是 `plan-review` 时才有且才需要读。先读它，按意见改，改完在规格末尾「修订记录」里写一行改了什么。
+1. Request: original user need.
+2. Project: absolute root. Read only existing README.md, AGENTS.md, CONTEXT.md, then ls one directory level. **Do not traverse the repository or read source.** Requirements need no implementation detail.
+3. Template: preserve heading order.
+4. Checklist: apply every item before delivery.
+5. Decision: human feedback; read only when From is plan-review. Revise accordingly and record changes under Revision history.
 
-## 怎么写
+## Write
 
-- 用简体中文，短句。每个标题下只写这个标题该有的内容。
-- 「目标」一段话说清做完后用户能做到什么新的事。
-- 「范围」列进来的和不进来的，各自一个列表。拿不准的放「不做」。
-- 「验收标准」每条都要能执行、能观察，形如「运行 X，看到 Y」。不写「性能良好」「体验流畅」这类无法检验的话。至少三条，不超过十条。
-- 「开放问题」列出你必须问用户才能定的事。**能自己合理假设的，写进「假设」，不要问。** 每个开放问题给一个你推荐的答案。
-- 不写技术方案。怎么实现是下一步的事。
+- English, short sentences; each section contains only its own subject.
+- Goal: one paragraph explaining new user capability.
+- Scope: separate included/excluded lists; uncertain items are excluded.
+- Acceptance: executable observable “Run X, observe Y,” not vague performance/experience claims. Three to ten criteria.
+- Open questions: only decisions requiring user answers, each with a recommendation. Put reasonable independent decisions in Assumptions instead of asking.
+- No technical plan; implementation belongs to the next stage.
 
-## 停下来的条件
+## Stop condition
 
-如果原始需求少到连「目标」都写不出来，仍然按模板写完，「开放问题」里写明缺什么，然后正常交稿。审核人会回答。
+If the request cannot establish even a goal, still complete the template, identify missing inputs as open questions, and deliver normally for human answers.
 
-## 写到哪
+## Output
 
-把规格写到任务书「输出要求」里 `spec` 对应的路径。
+Write to spec's declared path.
 
-## 怎么回复协调者
+## Reply
 
-三到五句话：目标一句，范围一句，验收标准几条，有没有开放问题。不要复述整份文档。
+Three to five sentences: goal, scope, criterion count, open questions. Do not repeat the document.

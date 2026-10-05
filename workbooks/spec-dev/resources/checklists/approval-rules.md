@@ -1,5 +1,5 @@
-# 人工审批更正与交接
+# Human approval correction and handoff
 
-只有绑定的 escalation 第一行为「继续」、明确写出 `更正原审批: <原decision路径>`、`批准的规格: <当前spec的sha256>`、`批准的方案: <当前plan的sha256>`，且原审批第一行为「通过」时，才按更正核验当前版本。普通「继续」不等于批准。保留原审批的条件；人明确改动条件时按更正记录逐条核验。
+Only bound escalation with first line Continue, explicit Corrected approval: <original-decision-path>, Approved specification: <current-spec-sha256>, Approved plan: <current-plan-sha256>, and original decision first line Accepted authorizes corrected-version checks. Ordinary Continue is not approval. Preserve original conditions; explicitly changed human conditions are checked against correction.
 
-在交接记录写 `审批更正来源: <该escalation路径>`，后续节点即使绑定了新 escalation，也从这条明确引用读取并核验更正。verify 的 `审批来源` 和本轮累计表行引用实际更正文件，另写 `原审批来源: <原decision路径>`；未更正时引用 decision。缺引用、摘要不符或原审批未通过时停止，不猜更正内容。
+Record Approval correction source: <escalation-path> in handoff. Later nodes follow that explicit reference even when new escalation is bound. Verify's Approval source and current cumulative row point to actual correction; also record Original approval source: <original-decision-path>. Without correction use decision. Missing references/digest mismatch/original rejection stop without guessed correction.

@@ -1,162 +1,164 @@
-# 公开操作、状态卡与错误
+# Public operations, status cards, and errors
 
-本合同定义协调者与人能对引擎做的全部操作。MVP 只有 CLI 一个接口；MCP 接口是同一组操作的薄封装（见 [路线图](../roadmap.md)）。响应格式版本串 `cli-result/v4`：Work 与 Workbook 写操作的响应字段全部来自提交时快照，CLI 不在提交后回读状态拼数据。
+English | [简体中文](protocol.zh-CN.md)
 
-## 1. 全局约定
+This contract defines every engine operation available to coordinators and people. MVP exposes CLI only; a future MCP interface is a thin wrapper over the same operations ([roadmap](../roadmap.md)). Response format is `cli-result/v4`: every Work/Workbook write-response field comes from its commit-time snapshot; CLI must not reread postcommit state to assemble data.
+
+## 1. Global conventions
 
 ```text
 sheltie [--json] [--home <dir>] <group> <verb> [args]
 ```
 
-| 旗标 | 含义 |
+| Flag | Meaning |
 | --- | --- |
-| `--json` | stdout输出一行JSON（§5响应封装）。维护告警独立写stderr，不改业务JSON。不带时输出人读文本 |
-| `--home <dir>` | 覆盖管理根。默认取 `SHELTIE_HOME`，再默认 `~/.sheltie` |
-| `--request-id <uuid>` | 仅 Work 与 Workbook 写操作可选。不给时引擎生成并在响应里返回。协调者若要安全重试，先记下 id 再调用。只读操作和整个 `self` 命令组都不支持：给出即 `INVALID_REQUEST`、退出码 2，查询不虚构 request-id |
+| `--json` | One JSON line on stdout (§5). Maintenance warnings go separately to stderr without changing business JSON. Otherwise render human-readable text |
+| `--home <dir>` | Override management root; otherwise SHELTIE_HOME, then ~/.sheltie |
+| `--request-id <uuid>` | Optional only for Work/Workbook writes. Generated and returned when omitted. Coordinators must record an ID before calling when safe retry is needed. Read-only operations and all self commands reject it with INVALID_REQUEST/exit 2; queries must not invent IDs |
 
-**主体。** 每次调用的操作者身份取发起进程的真实 OS 账户（unix 的 effective uid 对应账户名；查不到或名称不是 UTF-8 时记 `uid:<数值>`），记进审计与批准记录；不采信 `USER`/`USERNAME` 环境变量。同一 OS 账户环境下不提供独立真人认证（宪章 §5）。
+**Principal.** Use the invoking process's actual OS account (Unix effective uid's account name; `uid:<number>` if unavailable or non-UTF-8) in audit/approval. Do not trust USER/USERNAME environment variables. A shared OS account does not provide independent human authentication (constitution §5).
 
-**只读操作**（`list`、`show`、`status`、`result`、`stats`、`verify`、`self version`）不改业务状态、不建Home或引擎`.lock`、不刷状态卡。WAL查询可按D-039维护已有Store的共享内存控制文件，或在WAL缺失时创建零字节WAL控制载体。`work start`确定性拒绝不建Home（GF-30）。`workbook add`源结构/类型/限额粗检失败不建Home；粗检通过后内容校验只针对锁内私有副本，失败不得登记业务行、request、audit或最终Workbook，可保留空schema 4控制Store、锁和自有未提交pending。
+**Read-only operations** (list, show, status, result, stats, verify, self version) do not change business state, create Home/engine .lock, or refresh cards. WAL queries may maintain an existing Store's shared-memory control file or create a missing zero-byte WAL carrier under D-039. Deterministic start rejection creates no Home (GF-30). Add source structure/type/limit coarse-check failure creates no Home. After coarse checks, validate content only in the locked private copy. Failure must not register business rows, requests, audit, or final Workbook; an empty schema-4 control Store, lock, and owned uncommitted pending may remain.
 
-## 2. 操作一览
+## 2. Operations
 
-| 命令 | 写 | 作用 |
+| Command | Writes | Purpose |
 | --- | --- | --- |
-| `self install` | 是 | 把当前运行的二进制装到 `bin/sheltie`，建管理根。不写 shell 配置 |
-| `self update [--version <v>]` | 是 | 下载新版本，校验，原子替换 |
-| `self rollback` | 是 | 换回上一版本 |
-| `self uninstall [--purge]` | 是 | 默认删`bin/`；确认purge删用户数据/binary，保留空根和同一个`.lock` |
-| `self version` | 否 | 版本、平台、管理根、`SCHEMA_VERSION` |
-| `workbook add <dir>` | 是 | 校验并复制 Workbook 到管理根 |
-| `workbook list` | 否 | 列出已装 Workbook 的 id、版本、名称，标出每个 id 的最高版本；待发布版本带 `pending_publish` |
-| `workbook show <id>[@<version>]` | 否 | 打印 manifest、宿主资源声明与每个 Flow 的节点、边、有序起始输入键 |
-| `workbook remove <id>@<version>` | 是 | 删除一个已装版本；有非终态 Work 引用时拒绝 |
-| `workbook verify [<id>@<version>]` | 否 | 重算目录摘要与库中记录对比 |
-| `work start --workbook <id>[@<version>] --flow <flow> [--name <n>] [--input k=v]...` | 是 | 创建 Work，冻结一份 Workbook 副本 |
-| `work list` | 否 | 列出 Work 的 id、名称、状态、当前节点、更新时间 |
-| `work status <work>` | 否 | 打印紧凑状态与当前 Attempt 接续指针（文本或 JSON） |
-| `work result <work>` | 否 | 返回终点明确选择的最终成果引用与交付就绪事实 |
-| `work stats <work>` | 否 | 打印事实视图：每个节点到达、尝试、失败几次，平均耗时，从哪进来 |
-| `work cancel <work>` | 是 | 取消 |
-| `attempt begin <work> --node <node>` | 是 | 进入节点并开始一次尝试；返回任务书 |
-| `attempt submit <work> --attempt <id> --summary <text\|@file>` | 是 | 提交尝试；引擎校验并封存输出 |
-| `attempt fail <work> --attempt <id> --reason <text>` | 是 | 标记真实执行失败 |
-| `attempt replace <work> --attempt <id> --reason <text\|@file>` | 是 | 原子撤销旧提交资格并领取新Attempt，每Occurrence固定最多一次 |
-| `gate approve <work> --node <node>` | 是 | 真人批准门槛 |
+| `self install` | Yes | Install running binary at bin/sheltie; create root; no shell configuration |
+| `self update [--version <v>]` | Yes | Download, verify, atomically replace |
+| `self rollback` | Yes | Restore previous version |
+| `self uninstall [--purge]` | Yes | Default removes bin/; confirmed purge removes user data/binary, retaining empty root and the same .lock |
+| `self version` | No | Version, platform, root, SCHEMA_VERSION |
+| `workbook add <dir>` | Yes | Validate/copy Workbook into root |
+| `workbook list` | No | Installed IDs, versions, names, highest version per ID; unpublished entries have pending_publish |
+| `workbook show <id>[@<version>]` | No | Manifest, host declarations, Flow nodes/edges/ordered start keys |
+| `workbook remove <id>@<version>` | Yes | Remove version; reject nonterminal references |
+| `workbook verify [<id>@<version>]` | No | Compare directory digests with records |
+| `work start --workbook <id>[@<version>] --flow <flow> [--name <n>] [--input k=v]...` | Yes | Create Work and frozen Workbook copy |
+| `work list` | No | Work ID/name/status/current node/update time |
+| `work status <work>` | No | Compact state and current Attempt resume pointers, text or JSON |
+| `work result <work>` | No | Explicit terminal result references and delivery readiness |
+| `work stats <work>` | No | Arrival/attempt/failure counts, mean duration, arrival sources |
+| `work cancel <work>` | Yes | Cancel |
+| `attempt begin <work> --node <node>` | Yes | Enter node/start Attempt; return brief |
+| `attempt submit <work> --attempt <id> --summary <text\|@file>` | Yes | Validate/seal outputs and submit |
+| `attempt fail <work> --attempt <id> --reason <text>` | Yes | Record real execution failure |
+| `attempt replace <work> --attempt <id> --reason <text\|@file>` | Yes | Atomically revoke old qualification/start replacement; at most once per Occurrence |
+| `gate approve <work> --node <node>` | Yes | Human gate approval |
 
-`<work>` 接受完整 `work_id`（如 `2026-09-24-001-article`）或唯一前缀（如 `2026-09-24-001`）。新请求的前缀有多个匹配时报 `INVALID_REQUEST` 并列出候选；已有 `request_id` 的重放先与 `requests.work_id` 中的原目标核对，后来的同前缀 Work 不改变历史请求。`--input k=v` 的 `v` 以 `@` 开头时读文件内容。`--version` 省略时取该 id 已装的最高版本（字面排序）。
+Work accepts a full ID (2026-09-24-001-article) or unique prefix (2026-09-24-001). Ambiguous new-request prefixes return INVALID_REQUEST with candidates. Historical request replay first checks the original requests.work_id; later same-prefix Works do not alter it. Input values beginning @ read files. Omitted Workbook versions select the highest installed version by literal ordering.
 
-## 3. 各操作细则
+## 3. Operation details
 
-### `self` 组
+### `self` group
 
-`self install`。把 `std::env::current_exe()` 复制到 `bin/sheltie`，先创建管理根目录（含父目录）再建 `store.db`。已存在且字节相同则直接返回 `data.already_installed = true`（与[存储合同 §9](storage.md) 同一口径，见 [v0.1.0 decision log](../../docs/explanation/decisions/mvp.md) D-31）。只打印一行「把 `~/.sheltie/bin` 加进 PATH」的提示文本，不写任何 shell 配置文件（引擎只写管理根，`INV-3`）。
+Install copies std::env::current_exe() to bin/sheltie, creating root/parents before store.db. Identical existing bytes return data.already_installed=true ([storage §9](storage.md); [MVP D-31](../../docs/explanation/decisions/mvp.md)). Print one hint to add ~/.sheltie/bin to PATH; never write shell configuration (INV-3).
 
-`self update [--version <v>]`。发布身份先固定：未给版本用 latest，给了版本则锁定 tag `v<v>`，清单与资产都取自同一 tag（[存储合同 §9](storage.md)）。此后按存储合同的顺序：下载到 `tmp/`、核对 sha256、`sheltie` 挪到 `sheltie.prev`、`rename` 新文件到位。没有对应平台或版本的发布报 `UPDATE_UNAVAILABLE`；摘要不符报 `UPDATE_CHECKSUM_MISMATCH` 并删下载文件。成功返回 `{ from, to }`。已是最新返回 `data.up_to_date = true`。
+Update fixes release identity first: omitted version selects latest; explicit version pins tag v<v>; manifest/assets come from that same tag. Follow storage §9: download to tmp/, verify sha256, move sheltie to sheltie.prev, rename new file into place. Missing platform/version release returns UPDATE_UNAVAILABLE. Digest mismatch returns UPDATE_CHECKSUM_MISMATCH and deletes download. Success returns {from,to}; already latest returns data.up_to_date=true.
 
-`self rollback`。`sheltie.prev` 不存在报 `NOT_FOUND`。只保留一级。
+Rollback requires sheltie.prev or returns NOT_FOUND. Retain only one prior version.
 
-`self uninstall`默认只删`bin/`并打印保留的Store/workbooks/works。`--purge`经显式确认后删所有用户数据/binary，保留空管理根及原`.lock`；执行前列出删除范围，文本模式输入`yes`，JSON模式给`--yes`。失败报告部分清理，重复purge可继续。
+Uninstall defaults to bin/ only and reports retained Store/workbooks/works. Explicitly confirmed purge deletes all user data/binary, retaining the empty root and original .lock. List the deletion scope first; text mode requires yes, JSON mode --yes. Failures report partial cleanup; repeated purge may continue.
 
-`self version`。只读，不需要管理根存在。
+Version is read-only and does not require an existing root.
 
 ### `workbook add <dir>`
 
-先按源目录参数构造意图并查 `request_id`，命中时不读取当前源目录；新请求才按 [Workbook 合同](workbook.md) §1 校验并复制。登记身份与摘要来自复制后的最终副本。成功返回 `{ id, version, digest, flows: [...], requires: [...] }`。`digest` 是 `workbook-digest/v2`（[存储合同 §5.1](storage.md)）。支持 `--request-id` 重放语义（GF-15）。
+Construct intent from the source argument and look up request-id before reading the current source. Only new requests validate/copy under [Workbook §1](workbook.md#1-directory). Register final-copy identity/digest. Return {id,version,digest,flows:[...],requires:[...]}; digest uses workbook-digest/v2 ([storage §5.1](storage.md)). Request replay follows GF-15.
 
-已提交但尚未发布的 add 在 `workbook list/show/verify` 中仍可按 [存储合同 §3.3](storage.md) 的同一 pending 原件只读访问；list 的对应项、show 的 `data`、verify 的对应结果均带 `pending_publish: true`，文本标「待发布」。verify 对原件摘要相符时 `status = ok`，不把暂缺最终目录误报为 `missing`。待发布的 `workbook remove` 则由下一次写操作先恢复后继续；只读遇其已删行不重新展示旧版本。
+Committed unpublished add remains readable through list/show/verify from the same protected pending original ([storage §3.3](storage.md)). List entry, show data, and verify result carry pending_publish=true; text says pending publication. A matching original digest yields verify status=ok, not missing merely because final directory is absent. The next write recovers pending remove before continuing. Read-only queries do not redisplay versions whose rows were removed.
 
 ### `workbook remove <id>@<version>`
 
-1. 版本必须给全，不接受「最高版本」默认，防误删。
-2. 引用检查、删行、审计与请求登记在同一个事务（[存储合同 §5.2](storage.md)）：先校验全部 `works` 行的 `state_json` 与冗余列，再从已校验状态查非终态引用；有引用时报 `WORKBOOK_IN_USE`，`detail.works` 列出它们。损坏行报 `STORE_CORRUPT`，不得按冗余 `status` 预筛后跳过。终态 Work 不阻断，它们各有冻结副本。
-3. 提交后把已核归属的目录移入本操作 pending 再删除；失败由效果恢复处理，不静默。成功 `data` 为 `{ id, version, replayed }`；支持 `--request-id` 重放语义。
+1. Require an explicit version; no highest-version default.
+2. Check references, delete row, audit, and register request in one transaction (storage §5.2). Validate every works.state_json and redundant column, then find nonterminal references from validated state. References yield WORKBOOK_IN_USE/detail.works. Corrupt rows yield STORE_CORRUPT; do not prefilter by redundant status and skip validation. Terminal Works retain frozen copies and do not block removal.
+3. After commit, move the ownership-verified directory to this operation's pending and delete it. Recover failures through effects rather than silence. Return {id,version,replayed}; request-id replay is supported.
 
 ### `workbook show <id>[@<version>]`
 
-打印 manifest、宿主资源声明与每个 Flow 的节点、边，外加**有序起始输入键** `start_inputs`：该 Flow 全部 `start.<key>` 引用按节点声明顺序首次出现的列表。协调者第一次调用就能拿全开一个 Work 需要的键，不用失败 start 探测。文本与 JSON 都带；JSON 里 `flows[].start_inputs` 是字符串数组。
+Include manifest, host declarations, Flow nodes/edges, and ordered start_inputs: all start.<key> references in first-appearance node-declaration order. Coordinators get every required start key without probing through failed starts. Text/JSON both include them; flows[].start_inputs is a string array.
 
 ### `workbook verify [<id>@<version>]`
 
-省略参数时核对全部已装版本。对每个版本重算目录摘要与 `workbooks.digest` 对比，输出一张表：`ok | tampered | missing`。任一非 `ok` 则 `ok = false`，错误码 `WORKBOOK_TAMPERED`，`detail.results` 是整张表。
+Omission verifies every installed version. Recompute each digest and compare workbooks.digest; report ok/tampered/missing. Any non-ok yields ok=false, WORKBOOK_TAMPERED, and the complete table in detail.results.
 
 ### `work start`
 
-以下步骤先做**无业务副作用预检**（GF-30）。命中已提交的 `request_id` 时，在读取当前 Workbook 或 `@file` 前按存储合同 §2.1 比对意图；相同则完成必要的既有效果恢复并返回原响应，不重新解释最新版本。未命中才继续确定性校验。校验失败时不分配当日序号、不创建最终目录、不登记请求，也不改变已有主数据库/WAL/业务文件；只读SQLite依D-039可能维护已有Store的`store.db-shm`或创建缺失的零字节`store.db-wal`，且不因此创建管理根、`.lock`或数据库。
+Perform deterministic **preflight without business side effects** (GF-30). For committed request-id hits, compare intent under storage §2.1 before current Workbook or @file reads. Equal intent recovers necessary existing effects and returns the original response without resolving latest again. Only misses continue deterministic validation. Failure allocates no daily sequence, creates no final directory/request, and changes no existing main database/WAL/business bytes. Under D-039 read-only SQLite may maintain existing store.db-shm or create missing zero-byte store.db-wal; this never creates root, .lock, or database.
 
-1. 解析 `--input` 的键和字面值或 `@file` 词法路径，以用户提供的name原值及省略状态构造 `RequestIntent`；此时不规范化 `WorkName`、不读 `@file` 内容、不装入 Workbook。名字参数是意图的一部分，省略与显式flow名不同，见存储合同 §2.1。
-2. 只读识别已有 Store 并查 `request_id`：意图相同按原快照重放，不同报 `REQUEST_CONFLICT`。已有请求的恢复失败按 §5 返回 `EFFECT_PENDING`。新请求才继续。
-3. 仅新请求规范化WorkName：名字省略时取`flow` id；去首尾空白，连续空白替换为一个`-`，转小写。规范化后必须只含小写字母、数字、汉字与单个`-`（不以`-`开头或结尾，无连续`-`）且≤48字节，否则`INVALID_REQUEST`。「汉字」是下列码点区间的闭集，与实现逐区间一致：`3400–4DBF`（扩展 A）、`4E00–9FFF`（基本区）、`F900–FAFF`（兼容）、`20000–2A6DF`（B）、`2A700–2B73F`（C）、`2B740–2B81F`（D）、`2B820–2CEAF`（E）、`2CEB0–2EBEF`（F）、`2EBF0–2EE5F`（I）、`2F800–2FA1F`（兼容补充）、`30000–3134F`（G）、`31350–323AF`（H）。部首、康熙部首、`〇`等`Han`脚本的其他码点不接受。
-4. 按 `--workbook` 找到已装版本、装入并编译图，确认指定 Flow。已提交未发布的 add 可按存储合同 §3.3 从受保护 pending 原件读取，锁内恢复后重核。确实缺 Workbook 或 Flow 才报 `NOT_FOUND`。
-5. 先核对起始输入键：Flow 里所有 `start.<key>` 引用的键都必须给出；多给的键拒绝。键集合与顺序来自 core 的 `start_requirements`，与 `workbook show` 的 `start_inputs` 同源。键合法后才读取全部 `@file` 内容（读取失败退出码 2）。进入写路径后再次在锁内装入定义并核对键集合，复用预检已读取的同一份输入内容。
+1. Parse input keys and literal values or lexical @file paths. Construct RequestIntent from raw name value and omission state, without WorkName normalization, file reads, or Workbook loading. Omission differs from explicit flow name (storage §2.1).
+2. Read-only identify existing Store/request-id. Same intent replays original snapshot; different intent returns REQUEST_CONFLICT. Recovery failures return EFFECT_PENDING (§5). Continue only for new requests.
+3. Normalize new WorkName only: default to flow ID, trim, collapse consecutive whitespace into one hyphen, lowercase. Require lowercase letters, digits, accepted Han, and single hyphens, no leading/trailing/consecutive hyphens, ≤48 bytes; otherwise INVALID_REQUEST. Accepted Han is exactly: 3400–4DBF (A), 4E00–9FFF (basic), F900–FAFF (compatibility), 20000–2A6DF (B), 2A700–2B73F (C), 2B740–2B81F (D), 2B820–2CEAF (E), 2CEB0–2EBEF (F), 2EBF0–2EE5F (I), 2F800–2FA1F (compatibility supplement), 30000–3134F (G), 31350–323AF (H). Reject other Han-script points, including radicals, Kangxi radicals, and U+3007.
+4. Resolve installed Workbook, load/compile, confirm Flow. Protected pending add originals are readable under storage §3.3, then recovered/rechecked under lock. Return NOT_FOUND only for actual missing Workbook/Flow.
+5. Require all and only Flow start keys. Core start_requirements provides the same set/order as show.start_inputs. Read @file contents only after key validation (read failure exit 2). In the write path reload definitions/recheck keys under lock and reuse exactly the preflight-read contents.
 
-预检通过后进入[存储合同 §2.3](storage.md) 的写路径：
+Then enter [storage §2.3](storage.md):
 
-6. 分配 `work_id = <UTC 日期 YYYY-MM-DD>-<当日序号 001..999>-<名字>`。序号按 UTC 日期在 SQLite 事务内递增（[存储合同 §7](storage.md)），同一天第 1000 个 Work 报 `INVALID_REQUEST`。序号之后的失败会留下空号，这是接受的代价；序号之前的失败（上面五步）不烧号。
-7. 在本操作自己的 `pending/<内部 id>/payload/` 里建 Work 目录：复制 Workbook 到 `workbook/` 并对副本重新核验摘要（[存储合同 §5.4](storage.md)），置只读；建 `start-inputs/`，把每个输入值写成文件 `start-inputs/<key>`，记 `ArtifactRef`。这是本 Work 的冻结定义，之后每次操作都从这里加载，不再读 `workbooks/`。
-8. `current = entry#1`，`status = active`；COMMIT 后把 `payload/` rename 到 `works/<work_id>/` 并刷新状态卡。
-9. 返回 `{ work_id, name, workbook: { id, version, digest }, flow, work_dir, requires: [...] }` 与 `next`，全部来自提交时快照。`requires` 是 Workbook 声明的全部宿主资源，按 manifest 声明顺序，每项原样是那条声明 `{ kind, name, version, digest, source }`（没写的字段为 `null`；`digest` 与其他回复一样是裸 64 位十六进制，不带 `sha256:` 前缀），供协调者在开工前自行确认；MVP 的引擎不检查宿主。
+6. Allocate <UTC YYYY-MM-DD>-<daily 001..999>-<name> in a SQLite transaction (storage §7). The 1000th daily Work returns INVALID_REQUEST. Later failures may leave gaps; the first five steps do not consume numbers.
+7. Prepare pending/<internal-id>/payload/: copy/reverify Workbook digest (storage §5.4), make it read-only, create start-inputs/<key> value files and ArtifactRefs. Later operations use this frozen definition, never workbooks/.
+8. Set current=entry#1/status=active; after COMMIT rename payload to works/<work_id>/ and refresh card.
+9. Return {work_id,name,workbook:{id,version,digest},flow,work_dir,requires:[...]} and next entirely from commit snapshot. Requires includes every host declaration in manifest order, {kind,name,version,digest,source}; omitted fields are null; digest is bare 64-digit hex without sha256:. Coordinators check readiness; MVP does not inspect hosts.
 
-例：`sheltie work start --workbook article-review --flow default --name "文章 初稿"` 得到 `2026-09-24-003-文章-初稿`。
+English example: `sheltie work start --workbook article-review --flow default --name "Article Draft"` produces `2026-09-24-003-article-draft`. Han names remain valid under the exact ranges above.
 
 ### `attempt begin <work> --node <node>`
 
-1. `node` 必须出现在当前 `next` 里，否则 `ILLEGAL_NEXT`（响应里附上当前 `next`）。
-2. 若 `node ≠ current.node`：按边进入，`visits[node] += 1`，`current = node#n`，记下来自哪个 Occurrence 与边类型。重试时沿用上一次的来源。
-3. 绑定输入：对每个 `inputs[]`，找到来源文件，重算 sha256 与已记录值核对。不符报 `ARTIFACT_MODIFIED`。来源为 `resource.<path>` 的输入读 Work 的冻结副本，它没有单独记录的摘要，由副本整体摘要覆盖：副本缺失或摘要不符报 `STORE_CORRUPT`（[存储合同 §5.4](storage.md)），不报 `ARTIFACT_MODIFIED`。上游还没成功产出时，`required = true` 报 `INPUT_UNAVAILABLE`，`required = false` 则不绑定，任务书标「尚无」。
-4. 在提交前确定 `brief.md`（§4）与 `engine/stats.json` 的精确字节和目标路径；COMMIT 后按 `prepare_attempt` 效果建立 Attempt 目录 `attempts/<node>/occurrence-<NNN>/attempt-<NNN>/`（标签零补齐三位，`AttemptId` 仍是 `node#n.number`）、`engine/`、`outputs/` 与声明输出的父目录，再按 `write_file` 写入历史文件。效果失败按 §5 返回 `EFFECT_PENDING`。
-5. 返回 `{ attempt, node, occurrence, number, brief_path, output_dir, inputs: {name: path}, outputs: {name: path}, requires: [...] }`；`attempt` 是 `node#n.number` 字符串，`output_dir` 是 Attempt 目录下的 `outputs/`，`outputs` 各项是 `output_dir/<declared-path>`。
+1. Node must be in current next; otherwise ILLEGAL_NEXT includes current next.
+2. For a different current node, enter along the edge, increment visits, set node#n, and record source Occurrence/edge kind. Retries retain the previous source.
+3. Bind input sources, recomputing sha256 against recorded values; mismatch yields ARTIFACT_MODIFIED. Resources come from the frozen Work copy and are covered by its aggregate digest rather than an independent prior digest: missing/mismatched copies yield STORE_CORRUPT (storage §5.4). Missing successful upstream output yields INPUT_UNAVAILABLE for required inputs; optional inputs stay unbound and show unavailable.
+4. Determine exact brief.md (§4), engine/stats.json bytes and targets before commit. After COMMIT prepare attempts/<node>/occurrence-<NNN>/attempt-<NNN>/ (three-digit padded labels; AttemptId remains node#n.number), engine/, outputs/, and output parents, then write registered historical bytes. Effect failure returns EFFECT_PENDING.
+5. Return {attempt,node,occurrence,number,brief_path,output_dir,inputs:{name:path},outputs:{name:path},requires:[...]}. Output_dir is Attempt outputs/; each output path joins its declared path.
 
-`inputs` 与 `outputs` 里的路径都是绝对路径；来源为 `resource.<path>` 的输入指向 `works/<work_id>/workbook/<path>`。第 3 步未绑定的可选输入仍在 `inputs` 里占一行，值是 `null`，任务书对它标「尚无」。`requires` 是本节点引用的宿主资源，按节点里的书写顺序，每项是 manifest 里对应的那条声明，格式同 `work start`。协调者把 `brief_path` 交给工作 agent 即可。
+Paths are absolute; resources point to works/<work_id>/workbook/<path>. Unbound optional inputs remain present as null and unavailable in briefs. Requires follows node declaration order, resolving full manifest declarations in start's shape. Give brief_path to the worker.
 
 ### `attempt submit <work> --attempt <id> --summary <text|@file>`
 
-1. Attempt 必须 `running`，否则 `ATTEMPT_NOT_RUNNING`。
-2. `summary` ≤ 4096 字节，否则 `SUMMARY_TOO_LONG`。
-3. 对每个声明输出：文件在 `output_dir/<path>` 存在、是普通文件且非符号链接、硬链接计数为 1（[存储合同 §4](storage.md)）；`required = true` 缺失报 `OUTPUT_MISSING`；大小超 `max_bytes` 报 `OUTPUT_TOO_LARGE`。任一失败则 Attempt 仍 `running`，不改任何状态。
-4. 在提交时记录每个输出的 `ArtifactRef`；COMMIT 后按效果登记封存同一文件对象，失败按 §5 返回 `EFFECT_PENDING`。
-5. Attempt → `succeeded`。然后按顺序判断：节点 `gate = true` → Work `blocked(gate)`；节点无出边 → Work `succeeded`；有出边但每条的目标都已达 `max_visits` → Work `blocked(no_legal_edge)`；否则保持 `active`。
-6. 返回 `{ attempt, outputs: {name: ArtifactRef}, work_status }` 与 `next`。
+1. Require running or ATTEMPT_NOT_RUNNING.
+2. Summary ≤4096 bytes or SUMMARY_TOO_LONG.
+3. Each output is a regular nonsymlink single-link file at output_dir/<path> (storage §4). Missing required yields OUTPUT_MISSING; excess size yields OUTPUT_TOO_LARGE. Any rejection leaves Attempt running and all state unchanged.
+4. Record ArtifactRefs at submit; after COMMIT seal the same registered file objects. Effect failure returns EFFECT_PENDING.
+5. Mark Attempt succeeded, then in order: gate → blocked(gate); no outgoing edge → succeeded; every target at max_visits → blocked(no_legal_edge); otherwise active.
+6. Return {attempt,outputs:{name:ArtifactRef},work_status} and next.
 
 ### `attempt fail <work> --attempt <id> --reason <text>`
 
-Attempt → `failed`，记 `reason`（≤ 4096 字节）。`max_retries = k` 表示同一Occurrence允许k次业务失败重试；第k+1次真实failed进入 `blocked(retries_exhausted)`。number是创建顺序号，superseded不算failed或业务重试；原fail响应校验使用到该Attempt为止的failed前缀，不用当前总失败数。返回 `{ attempt, work_status }` 与 `next`。
+Mark failed and record reason (≤4096 bytes). max_retries=k allows k business-failure retries per Occurrence; the (k+1)th actual failed blocks with retries_exhausted. Number is creation order; superseded is neither failure nor business retry. Validate historical fail responses against the failed prefix through that Attempt, not current total failures. Return {attempt,work_status} and next.
 
-### `attempt replace <work> --attempt <id> --reason <text\|@file>`
+### `attempt replace <work> --attempt <id> --reason <text|@file>`
 
-仅新请求按顺序核：Work非终态（终态WORK_TERMINAL）→旧身份存在（无则NOT_FOUND）→running（非running ATTEMPT_NOT_RUNNING）→active当前Occurrence最新资格（否则ILLEGAL_NEXT）→固定一次额度（已用REPLACEMENTS_EXHAUSTED）→有界reason和冻结输入。request-id重放先于这些新请求条件；reason最多4096bytes，@file意图仅词法绝对源路径，提交后重放不再读文件。
+For new requests check in order: nonterminal Work (WORK_TERMINAL), old identity exists (NOT_FOUND), running (ATTEMPT_NOT_RUNNING), latest active qualification of current Occurrence (ILLEGAL_NEXT), unused fixed allowance (REPLACEMENTS_EXHAUSTED), bounded reason and frozen inputs. Request replay precedes these checks. Reason ≤4096 bytes. @file intent records only lexical absolute source path; committed replay does not reread it.
 
-在一个Decision/事务/revision中：旧Attempt→superseded，ended_at及replacement_reason；追加同Occurrence新running，number检查加1，继承entered_from和非stats完整inputs（包括optional null）。runtime同句柄核旧引用path/sha/bytes；不重新绑定上游最新，不把旧草稿当新正式文件。新engine.stats按poststate生成，brief使用冻结说明书，精确历史字节登记并沿既有prepare/write/refresh效果链发布。COMMIT后失败EFFECT_PENDING/committed=true，同id恢复同一新Attempt和字节。
+In one Decision/transaction/revision, supersede old Attempt with ended_at/replacement_reason; append same-Occurrence running Attempt with checked number+1, inherited entered_from and complete non-stats inputs including optional null. Runtime validates old ref path/sha/bytes through the same handle; do not rebind latest upstream or promote old drafts. Generate new stats from poststate and brief from frozen instructions. Register exact historical bytes and publish through prepare/write/refresh effects. Postcommit failure is EFFECT_PENDING/committed=true; same-ID recovery returns the same replacement and bytes.
 
-持久data为 `{replaced_attempt,attempt,node,occurrence,number,brief_path,output_dir,inputs,outputs,requires}`，结构和来源沿begin；顶层revision/request_id/next来自提交快照。次数后缀从0连续，不是失败数。一个Occurrence至多一个superseded；额度用尽不新增blocked状态，当前Attempt仍可submit/fail/cancel。next仅资格满足时列 `attempt replace`，args `{work,attempt}`；需要调用者补reason。
+Persist {replaced_attempt,attempt,node,occurrence,number,brief_path,output_dir,inputs,outputs,requires}, following begin structure/sources. Top-level revision/request_id/next come from commit snapshot. Suffixes are contiguous from zero, not failure counts. At most one superseded per Occurrence. Exhausted replacement allowance adds no blocked state; current Attempt may submit/fail/cancel. Qualified next includes attempt replace with {work,attempt}; caller supplies reason.
 
-旧superseded的新submit/fail在非终态返回ATTEMPT_NOT_RUNNING，Work终态先返回WORK_TERMINAL。旧成功请求照历史重放，其next不是当前下一步。替换不改变输入标准、不跳Node或gate、不停旧进程、不认证接手者、不隔离宿主；操作者核旧进程与共享工作区。
+New submit/fail for old superseded returns ATTEMPT_NOT_RUNNING in nonterminal Work; terminal Work returns WORK_TERMINAL first. Old successful requests still replay historical next, not current next. Replacement changes no standards, skips no node/gate, stops no old process, authenticates no successor, and provides no host isolation. Operators check old processes/shared workspace.
 
 ### `gate approve <work> --node <node>`
 
-Work 必须是 `blocked(gate)` 且 `node = current.node`，否则 `ILLEGAL_NEXT`。记录 `{ node, occurrence, by, at }`（`by` 是发起调用的 OS 账户）；用户授权后由 agent 代执行时，`by` 记的是 agent 进程的账户，如实呈现，不表述为「已验证独立真人」（宪章 §5）。然后按 `attempt submit` 第 5 步除门槛之外的规则决定 Work 状态：无出边 → `succeeded`；无合法边 → `blocked(no_legal_edge)`；否则 `active`。返回 `{ node, occurrence, by, at, work_status }` 与 `next`。
+Require blocked(gate) and current node, otherwise ILLEGAL_NEXT. Record {node,occurrence,by,at}, with actual invoking OS account. An agent executing human-authorized approval records the agent process's account truthfully, never independently authenticated human (constitution §5). Apply submit's rules excluding the gate: terminal → succeeded; no legal edge → blocked(no_legal_edge); otherwise active. Return {node,occurrence,by,at,work_status} and next.
 
 ### `work result`
 
-`sheltie [--json] work result <work>` 是只读查询，前缀解析遵守 §2，不接受 request-id，不自动恢复或刷状态卡。`data` 为 `work-result/v1`：
+Read-only, with §2 prefix resolution; rejects request-id; no recovery/card refresh. Data is work-result/v1:
 
-| 字段 | 合同 |
+| Field | Contract |
 | --- | --- |
-| `format` | 固定 `work-result/v1` |
-| `work_id`、`revision` | 同一 SQLite 读快照的完整 WorkId 和整数 revision |
-| `workbook` | `{id, version, digest}`，本 Work 的冻结身份 |
-| `flow`、`status` | 冻结 Flow ID 和 WorkStatus 对象 |
-| `effects_pending` | 本 Work 关联的已提交请求存在未完成文件效果；严格核完整 requests/audit/effects，不按 published 预筛 |
-| `final` | 仅合法 succeeded 终点、有效 gate 事实且 effects_pending=false 时为 true |
-| `artifacts` | final=false 时为空；否则选中项按 key 排序，每项 `{key,path,sha256,bytes,source:{attempt,kind,name}}` |
+| `format` | Exactly work-result/v1 |
+| `work_id`, `revision` | Full ID and integer revision from one SQLite snapshot |
+| `workbook` | This Work's frozen {id,version,digest} |
+| `flow`, `status` | Frozen Flow ID and WorkStatus object |
+| `effects_pending` | Associated committed requests have incomplete file effects; strictly validate complete requests/audit/effects without prefiltering published |
+| `final` | True only for valid succeeded terminal/gate facts and no pending effects |
+| `artifacts` | Empty unless final; otherwise sorted by key, {key,path,sha256,bytes,source:{attempt,kind,name}} |
 
-`source.kind` 为 `input` 或 `output`；`source.attempt` 是进行绑定或封存的具体成功终点 Attempt 字符串，`name` 是选中槽的逻辑名。ArtifactRef 完整采用该 Attempt 的冻结引用，不选上游最新产物。没有声明时 final=true、artifacts=[]，文本说明“未声明最终成果”；状态声称成功但终点、必需引用或归属矛盾时为 STORE_CORRUPT，不伪装成空选择。next 来自同次状态与图。
+Source kind is input/output; source Attempt is the particular successful terminal binding/sealing Attempt; name identifies the selected slot. Preserve its complete frozen ArtifactRef, never latest upstream. No declarations yields final=true/artifacts=[] and “No final results declared.” Contradictory terminal/required-ref/ownership success facts yield STORE_CORRUPT, never false empty selection. Next derives from that same state/graph.
 
-该查询列举已封存引用，不声称查询时重新核验全部源字节，不核报告中的 commit、退出码或业务结论。消费与复制原件须按自己的实际读取合同核字节。
+This lists sealed references without claiming to reverify all current bytes, reported commits, exit codes, or business conclusions. Actual readers/exporters validate bytes under their own reading contract.
 
 ### `work stats <work>`
 
-只读。对 `WorkState` 做计数，不含任何判断：
+Read-only counting of WorkState without judgment:
 
 ```text
 # Stats 2026-09-24-001-t
@@ -170,218 +172,221 @@ status: active   total: 3120s   blocked: 1   approvals: 0
 | publish | 0/1 | 0 | 0 | 0 | 0s |  |
 ```
 
-行按图声明顺序。superseded统计行政撤销次数，不计failed；结束耗时口径仍纳入已结束Attempt。`total` 是 `created_at` 到 `updated_at`。`approvals` 是 `gate approve` 的次数。`avg` 是该节点已结束 Attempt 的平均耗时。`entered_via` 按首次出现顺序列出 `来源节点(边类型)×次数`，入口写 `entry`。`--json` 输出同样字段（`nodes[]` 各项 `node / visits / max_visits / attempts / failed / superseded / avg_seconds / entered_via`；`entered_via` 是 `{"from": string|null, "edge": string|null, "count": n}` 数组）。
+Rows follow graph declaration order. Superseded counts administrative revocations, not failures, while ended Attempt durations include them. Total is created_at to updated_at; approvals counts approve calls; avg averages ended Attempts per node. Entered_via preserves first-appearance order and edge kinds, source(edge)×count or entry×count. JSON node fields: node/visits/max_visits/attempts/failed/superseded/avg_seconds/entered_via. Entries are {from:string|null,edge:string|null,count:n}; null source denotes entry; edge kinds remain main/back/branch/re_review.
 
-`entered_via` 保留边的类型：JSON 里是 `{ from, edge, count }` 数组（`from` 为 `null` 表示入口，`edge` 是 `main | back | branch | re_review`）；文本里写 `draft(back)×1`、`entry×1`。`blocked` 是累计受阻事实（GF-29）：gate 节点提交成功 +1，重试耗尽 +1，`no_legal_edge` 发生 +1；取消后不减少，由状态转换在发生时记录。
+Blocked is cumulative (GF-29): +1 for successful gated submit, exhausted retries, or no_legal_edge. Transitions record it at occurrence; cancellation never decrements it.
 
-`engine.stats` 输入绑定的就是这份 JSON：`attempt begin` 时引擎把它写到 `attempts/<node>/occurrence-*/attempt-*/engine/stats.json`，记 sha256，任务书输入表里像其他文件一样列出。口径含本次 Attempt 本身（当前节点的 `visits` 与 `attempts` 都已计入，`total_seconds` 算到本次提交时刻）：内容在提交前定稿，精确字节登记进 `requests.effects_json`，崩溃后的重放按登记字节恢复同一份文件，不从最新状态重算（D-29 的口径不变，恢复方式按 v2）。
+Engine.stats binds this JSON at begin as attempts/<node>/occurrence-*/attempt-*/engine/stats.json with sha256 and a normal brief input row. It includes the new Attempt's visits/attempts; total_seconds reaches current commit time. Finalize bytes before commit and register them in requests.effects_json. Crash replay restores those exact bytes rather than recomputing latest state (D-29 semantics unchanged; recovery follows v2).
 
 ### `work cancel <work>`
 
-非终态即可。Work → `cancelled`。正在 `running` 的 Attempt 保持原样，不伪造结束。返回 `{ work_id, work_status: { kind: "cancelled" } }` 与空 `next`。
+Allowed for nonterminal Work. Mark cancelled; running Attempts remain running without fabricated completion. Return {work_id,work_status:{kind:"cancelled"}} and empty next.
 
-## 4. 任务书 `brief.md`
+## 4. Brief `brief.md`
 
-引擎生成，写在 Attempt 目录。正文是说明书原文，前后各加一段引擎生成的固定格式：
+Generated under the Attempt directory. Wrap verbatim instructions in fixed engine headers/footer:
 
 ```markdown
-# 任务书：<node.title>
+# Brief: <node.title>
 
-Work: <work_id>（<name>）
-节点: <node>#<n>，第 <number> 次尝试
-来自: <上游节点>#<m>（<edge.kind> 边）        入口节点写「入口」
-执行者: agent（standard）                      human 节点只写 human
+Work: <work_id> (<name>)
+Node: <node>#<n>, Attempt <number>
+From: <upstream>#<m> (<edge.kind> edge)       # Entry nodes say entry
+Executor: agent (standard)                  # Human nodes say human only
 
-## 输入
+## Inputs
 
-| 名称 | 路径 | sha256 |
+| Name | Path | sha256 |
 | --- | --- | --- |
 | topic | /Users/me/.sheltie/works/<id>/start-inputs/topic | 3f2a… |
 | checklist | /Users/me/.sheltie/works/<id>/workbook/resources/review-checklist.md | 8b40… |
-| decision | 尚无（上游 plan-review 还没有产出） | |
+| decision | Not available (upstream plan-review has not produced output) | |
 
-## 需要的宿主资源
+## Required host resources
 
-| 类型 | 名称 | 版本 | 说明 |
+| Kind | Name | Version | Instructions |
 | --- | --- | --- | --- |
-| skill | company-api | ^1 | 请确认你的宿主已装此 skill；未装请停下并告知用户 |
+| skill | company-api | ^1 | Confirm your host has this skill installed; otherwise stop and inform the user |
 
-（节点没有声明时省略本节。「此 skill」随类型变成「此 agent」「此 mcp」；版本没写时填 `-`。）
+## Instructions
 
-## 说明
+<verbatim instruction; trim trailing newlines and let the template insert them>
 
-<instruction 原文，逐字；末尾的换行去掉，由模板统一换行>
+## Output requirements
 
-## 输出要求
-
-| 名称 | 写到 | 必需 | 上限 |
+| Name | Write to | Required | Limit |
 | --- | --- | --- | --- |
-| article | /Users/me/.sheltie/works/<id>/attempts/draft/occurrence-001/attempt-000/outputs/article.md | 是 | 256 KiB |
+| article | /Users/me/.sheltie/works/<id>/attempts/draft/occurrence-001/attempt-000/outputs/article.md | yes | 256 KiB |
 
-完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。
+Do not modify input files after finishing. Summarize your conclusion for the coordinator and list the output files you wrote.
 ```
 
-执行者为 `human` 时，最后一段换成提交命令，人写完输出后直接运行：
+Omit host-resource section when undeclared. Substitute agent/mcp for skill by kind; missing version displays -. For human executors replace the final paragraph with:
 
 ```markdown
-写完输出文件后，在终端运行：
+After writing the output files, run in your terminal:
 
-    sheltie attempt submit <work_id> --attempt <attempt_id> --summary "<一句话结论>"
+    sheltie attempt submit <work_id> --attempt <attempt_id> --summary "<one-sentence conclusion>"
 ```
 
-任务书里的输出路径都在 Attempt 目录的 `outputs/` 之下；`engine/stats.json` 在 `engine/` 之下，不占用输出命名空间。
+Outputs live under outputs/; stats under engine/, outside the worker namespace. Coordinators may append context or reword before delivery but must preserve direction, standards, and output requirements. They retain their modified version; the engine does not receive it.
 
-协调者可以在交给工作 agent 前在任务书后追加上下文，或改写措辞，但不得改变说明书的原意（方向、标准、产出要求）。改写后的版本由协调者自己保存，引擎不收。
+## 5. Response envelope (`--json`, `cli-result/v4`)
 
-## 5. 响应封装（`--json`，`cli-result/v4`）
-
-成功：
+Success:
 
 ```json
 {
   "ok": true,
   "request_id": "0192…",
   "revision": 7,
-  "data": { },
+  "data": {},
   "next": [
     { "op": "attempt begin", "args": { "work": "…", "node": "review" }, "edge": "main", "executor": "agent", "tier": "strong" },
-    { "op": "attempt begin", "args": { "work": "…", "node": "draft" },  "edge": "back", "executor": "agent", "tier": "standard" },
-    { "op": "work cancel",   "args": { "work": "…" } }
+    { "op": "attempt begin", "args": { "work": "…", "node": "draft" }, "edge": "back", "executor": "agent", "tier": "standard" },
+    { "op": "work cancel", "args": { "work": "…" } }
   ]
 }
 ```
 
-Work 与 Workbook 写操作的 `data.replayed` 首次为 `false`，重放为 `true`；其他业务字段来自提交时的 `ResponseSnapshot`（[存储合同 §1.2](storage.md)），历史 `next` 原样保留——它是历史响应的一部分，续接要查当前状态。`request_id` 在这些写操作成功或返回 `EFFECT_PENDING` 时出现；`revision` 只在已提交的 Work 写操作中出现。只读与 `self` 响应省略不适用字段，`self` 没有请求快照或 `replayed`；所有响应都有 `next` 数组，无合法下一步时为空。
+Work/Workbook writes have data.replayed=false initially/true on replay. Other fields come from commit-time ResponseSnapshot (storage §1.2), including unchanged historical next; resume requires current status. Request_id appears on successful/committed EFFECT_PENDING writes; revision only on committed Work writes. Read-only/self omit inapplicable fields; self has no request snapshot/replayed. Every response has next, empty when none.
 
-写响应的 `data.work_status` 与状态卡的 `data.status` 都是 WorkStatus 对象：`{"kind":"active"}`、`{"kind":"succeeded"}`、`{"kind":"cancelled"}`，或 `{"kind":"blocked","reason":"gate"}`；受阻原因还可为 `retries_exhausted`、`no_legal_edge`。文本渲染使用 `active`、`blocked(gate)` 等供人阅读的字符串。
+Write data.work_status and card data.status are WorkStatus objects: {kind:"active"}, {kind:"succeeded"}, {kind:"cancelled"}, or {kind:"blocked",reason:"gate"}; other reasons retries_exhausted/no_legal_edge. Text renders active/blocked(gate).
 
-失败：
+Failure:
 
 ```json
 {
   "ok": false,
-  "error": { "code": "OUTPUT_MISSING", "message": "必需输出 article 不存在：/…/article.md", "detail": { "output": "article" } },
-  "next": [ ]
+  "error": { "code": "OUTPUT_MISSING", "message": "Required output article is missing: /…/article.md", "detail": { "output": "article" } },
+  "next": []
 }
 ```
 
-本次 Work/Workbook 写操作已提交，但自己的效果失败时，失败封装额外携带：
+When this Work/Workbook request committed but its own effect failed, include:
 
 ```json
 {
   "ok": false,
-  "error": { "code": "EFFECT_PENDING", "message": "…", "detail": { …恢复动作… } },
-  "next": [ ],
+  "error": { "code": "EFFECT_PENDING", "message": "…", "detail": { "cause": "IO" } },
+  "next": [],
   "committed": true,
   "revision": 7,
   "request_id": "0192…",
-  "original": { "ok": true, "…": "提交时的完整成功响应" }
+  "original": { "ok": true, "data": {} }
 }
 ```
 
-调用者据此知道**本次请求**已提交，用同一 `request_id` 重试触发恢复，不能当成未提交而换新请求。示例是 Work 写操作；Workbook 写操作的 `EFFECT_PENDING` 省略 `revision`，仍带 `request_id`、`committed` 与 `original`。
+Original represents the **complete** commit-time success response, abbreviated in the example. Retry the same ID to recover; do not mistake it for uncommitted failure and issue a new ID. Workbook EFFECT_PENDING omits revision but keeps request_id/committed/original.
 
-`original` 和 `pending_original` 只提供已核实的提交快照。字段类型合法、Reply与data相互一致，还不足以证明业务绑定；须核请求、audit、目标及冻结定义中的对应事实。元数据或绑定损坏时省略无法核实的原响应及revision，保留已确认的提交身份和准确cause，不构造成功回复、不修写历史记录。已核合法快照遇到效果载荷、路径、sync或完成标记错误时，仍提供原响应。若Start或add的发布登记本身使快照身份无法独立核实，也省略原响应，不改用当前已装Workbook或猜测载荷。
+Original/pending_original contain only verified snapshots. Valid field types and mutually consistent Reply/data do not establish business binding: verify request, audit, target, and corresponding frozen-definition facts. Corrupt metadata/bindings omit unverifiable original/revision, retain confirmed committed identity/accurate cause, and fabricate no success or historical repair. Verified legitimate originals remain available for effect payload/path/sync/mark errors. If Start/add publication registration prevents independent snapshot-identity verification, omit original rather than substitute current installed definitions or guess payloads.
 
-若新请求 B 取得写锁后被旧请求 A 的未完成效果阻断，B 尚未提交。此时仍用 `EFFECT_PENDING`，但返回 `committed = false`、`request_id = B`，且 `error.detail.pending_request_id = A`、`error.detail.pending_original` 是 A 的提交时响应；不在顶层放 B 的 `original` 或 revision。调用者修复 A 的效果后，用 B 原来的 request-id 重试 B。不能把 A 的快照当作 B 的成功结果：
+If new request B is blocked under lock by old A's effects, B has not committed. Return EFFECT_PENDING/committed=false/request_id=B with detail.pending_request_id=A and verified detail.pending_original=A's commit response, no top-level B original/revision. Repair A then retry B with its same ID; A's snapshot is not B's success:
 
 ```json
 {
   "ok": false,
-  "error": { "code": "EFFECT_PENDING", "message": "旧请求的文件效果未完成", "detail": { "pending_request_id": "A", "pending_original": { "ok": true }, "cause": "IO" } },
+  "error": { "code": "EFFECT_PENDING", "message": "An earlier request has unfinished file effects", "detail": { "pending_request_id": "A", "pending_original": { "ok": true }, "cause": "IO" } },
   "next": [],
   "committed": false,
   "request_id": "B"
 }
 ```
 
-`next` 列出当前合法操作和目标身份参数。提交摘要与失败、替换理由必须由调用者补充；文本命令中的占位符也须替换为实际内容后执行。`next` 项的形状全协议只有一种（与状态卡 `data.next` 完全相同）：`op`、`args`、以及仅在 `attempt begin` 项上的 `edge`、`executor`、`tier`。只读操作也带 `next`。`executor` 与 `tier` 让协调者在派活前就知道该找谁、用什么模型。
+Next lists legal operations and target identity arguments. Callers supply summaries/failure/replacement reasons and replace text placeholders before executing. One next shape applies everywhere, including card data.next: op/args, plus edge/executor/tier only for attempt begin. Read-only responses also include next; executor/tier support delegation before execution.
 
-新请求读取用户提供的`@file`时，缺失、不可读、非UTF-8、非普通文件、符号链接、硬链接（`nlink > 1`）或超出[存储合同§5.3](storage.md)的单文件读取上限（32 MiB）均报`INVALID_REQUEST`、退出码2，detail给path/reason。只有新请求读取文件；同路径重放不重新打开。文件源上限依据storage §5.3，摘要/原因文本本身超过4096字节仍报`SUMMARY_TOO_LONG`、退出码1，不与文件源上限合并。
+New-request @file failures (missing, unreadable, non-UTF-8, nonregular, symlink, hardlink nlink>1, >32 MiB source limit from storage §5.3) yield INVALID_REQUEST/exit2 with path/reason. Only new requests open sources; same-path replay does not. Materialized summary/reason >4096 bytes still yields SUMMARY_TOO_LONG/exit1, separate from source-read limits.
 
-退出码：成功 `0`；`ok = false` 时 `1`；参数解析错误 `2`。
+Exit: success 0; ok=false 1; argument parsing 2.
 
-## 6. 状态卡 `status-card.md`
+## 6. Status card `status-card.md`
 
-每次影响该 Work 的写操作提交后，`refresh_status_card` 从最新状态重写 `works/<work_id>/status-card.md`；失败按 §5 返回 `EFFECT_PENDING`。`work status` 从单一只读 SQLite 事务取得 state/revision、关联 requests/audit/效果与 Start 发布定位，严格核验后生成相同状态投影，未发布时按存储合同 §3.3 读取受保护的 pending 原件。有界，无历史正文，只有指针。
+After each affecting write commit, refresh_status_card rewrites works/<work_id>/status-card.md from latest state; failures return EFFECT_PENDING. Status reads state/revision, associated requests/audit/effects, and Start publication location in one read-only transaction, strictly validates, then projects the same compact pointer-only card. Unpublished Start uses protected pending original (storage §3.3).
 
 ```markdown
-# Work <work_id>（<name>）
+# Work 2026-09-24-001-t (t)
 
-workbook: article-review@1.0.0   flow: default   status: active
-current: review#2
-done: draft#1, review#1, draft#2
+workbook: article-review@1.0.1   flow: default   status: active
+current: draft#2
+done: draft#1, review#1
 pending: publish
-visits: draft 2/3, review 2/3, publish 0/1
+visits: draft 2/3, review 1/3, publish 0/1
 
-## 最近一次尝试
+## Current task
 
-review#1.0 succeeded
-summary: 不通过。第二段论据不足，见 review.md 第 12 行。
-outputs:
-  verdict → /…/attempts/review/occurrence-001/attempt-000/outputs/review.md (sha256 9c1e…, 2.1 KiB)
+attempt: draft#2.0
+brief_path: /tmp/sheltie-test/works/2026-09-24-001-t/attempts/draft/occurrence-002/attempt-000/brief.md
+inputs:
+  review → /tmp/sheltie-test/works/2026-09-24-001-t/attempts/review/occurrence-001/attempt-000/outputs/review.md (sha256 fc11d6f28e59d3cc33c0b14ceb644bf0902ebd63d61218dffe9e7dac7c254542, 10 B)
+  topic → /tmp/sheltie-test/works/2026-09-24-001-t/start-inputs/topic (sha256 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824, 5 B)
+draft_outputs:
+  article → /tmp/sheltie-test/works/2026-09-24-001-t/attempts/draft/occurrence-002/attempt-000/outputs/article.md
 
-## 合法下一步
+## Latest Attempt
 
-- sheltie attempt begin <work_id> --node review
-- sheltie work cancel <work_id>
+draft#2.0 running
+
+## Legal next actions
+
+- sheltie attempt submit 2026-09-24-001-t --attempt draft#2.0 --summary "<one-sentence conclusion>"
+- sheltie attempt fail 2026-09-24-001-t --attempt draft#2.0 --reason "<reason>"
+- sheltie attempt replace 2026-09-24-001-t --attempt draft#2.0 --reason "<reason>"
+- sheltie work cancel 2026-09-24-001-t
 ```
 
-`--json` 时输出同样字段的结构化形式，字段与文本一一对应：`work_id / name / workbook / flow / status / current / done / pending / visits / blocked / last_attempt / next`。`last_attempt` 含 `attempt / status / summary / reason / outputs`：失败时 `reason` 是失败原因文本；`outputs` 是 `{name: {path, sha256, bytes}}` 的完整产物引用（与文本卡同样的路径、摘要与大小）。`blocked` 是与文本行相同的说明串（如 `gate: review#2 需要 gate approve`），无则 `null`。`next` 与 §5 响应封装的 `next` 项完全同形。实时查询始终带 `pending_publish` 布尔值；Start 发布尚未完成时为 true（[存储合同 §3.3](storage.md)），否则为 false。
+JSON matches text: work_id/name/workbook/flow/status/current/done/pending/visits/blocked/last_attempt/next. Last_attempt contains attempt/status/summary/reason/outputs; reason is failure text; outputs maps names to complete {path,sha256,bytes}. Blocked is matching explanation text (for example gate: review#2 requires gate approve), or null. Next matches §5 exactly. Live queries always include pending_publish boolean, true for incomplete Start publication, false otherwise.
 
-`resume` 无当前 Attempt 时为 null，否则为 `{attempt,brief_path,inputs,draft_outputs}`。attempt 是当前 Occurrence 的最新 Attempt；inputs 按该 Attempt 的冻结映射给完整 ArtifactRef 或 null。draft_outputs 是 `{name: absolute_path}` 对象，仅 running 时按冻结声明派生草稿绝对路径，否则为 `{}`。草稿位置不证明文件存在、完整或封存。默认不展开历史尝试正文。
+Resume is null without current Attempt; otherwise {attempt,brief_path,inputs,draft_outputs}. Attempt is current Occurrence's latest; inputs preserve its frozen complete ArtifactRefs/null. Draft_outputs maps names to absolute declared draft paths only while running, otherwise {}. Draft locations prove neither existence, completeness, nor sealing. Do not expand historical bodies by default.
 
-实时 `work status` 在 data 中另有 `revision`、`effects_pending` 和 `pending_publish`。它们来自同一 Store 读快照；effects_pending 只核本 Work，其他 Work 未完成效果不隐藏当前结果。磁盘卡只保存 state/graph 的共有状态与 resume，不保存实时 revision/效果就绪。refresh_status_card 在 mark_published 之前，不把 pending=true 固化成永久状态。查询不取 HomeLock，不修改业务状态、不恢复效果。
+Live data also includes revision/effects_pending/pending_publish from the same Store snapshot. Effects_pending checks only this Work; other Works' effects do not hide results. Disk cards store shared state/graph/resume only, not live revision/readiness. Refresh occurs before mark_published and must not permanently freeze pending=true. Queries acquire no HomeLock, change no business state, and recover no effects.
 
-`done` 列出所有成功的 Occurrence；`pending` 列出从未到达的节点；`blocked` 存在时另起一行说明原因（`gate: review#2 需要 gate approve`、`retries_exhausted: draft#2` 或 `no_legal_edge: review#3 的全部出边目标已达 max_visits`）。
+Done lists successful Occurrences; pending lists never-arrived nodes. Blocked explanations: gate: review#2 requires gate approve; retries_exhausted: draft#2; no_legal_edge: review#3 has all outgoing targets at max_visits.
 
-## 7. 错误码闭集
+## 7. Closed error-code set
 
-每个错误都属于且只属于下表一项。新增错误必须改本表并加一条测试。
+Each error belongs to exactly one row. New codes require this table and a test.
 
-| 代码 | 含义 | 已发生什么 | 下一步 |
+| Code | Meaning | What happened | Next action |
 | --- | --- | --- | --- |
-| `INVALID_REQUEST` | 参数格式或取值不对 | 无变化 | 修参数 |
-| `NOT_FOUND` | Workbook、Work、节点或 Attempt 不存在 | 无变化 | 核对 id |
-| `WORKBOOK_INVALID` | manifest 或文件引用不合规，`detail.path` 指出位置 | 无 Workbook 行或最终目录；可能留本请求私有 pending | 修 Workbook；下次持锁写操作核归属后清理 pending |
-| `FLOW_INVALID` | 图编译失败，`detail.path` 与 `detail.rule` 指出哪条规则 | 无 Workbook 行或最终目录；可能留本请求私有 pending | 修 Flow；下次持锁写操作核归属后清理 pending |
-| `WORKBOOK_EXISTS` | 同 id 同版本已装 | 无变化 | 升版本 |
-| `WORKBOOK_IN_USE` | 有非终态 Work 引用该版本，`detail.works` | 无变化 | 先完成或取消这些 Work |
-| `WORKBOOK_TAMPERED` | 已装目录摘要与记录不符或目录缺失，`detail.results` | 无变化 | 人工核查并恢复已登记版本的原字节；同版本 `add` 不会覆盖，已有 Work 使用各自冻结副本 |
-| `UPDATE_UNAVAILABLE` | 没有当前平台的发布，或网络不可达，`detail.reason` | 无变化 | 稍后重试或手工安装 |
-| `UPDATE_CHECKSUM_MISMATCH` | 下载文件摘要与发布清单不符 | 下载文件已删 | 重试；仍失败则报告 |
-| `INPUT_MISSING` | `work start` 缺起始输入键 | 无变化 | 补 `--input` |
-| `WORK_TERMINAL` | Work 已是终态 | 无变化 | 无 |
-| `ILLEGAL_NEXT` | 操作不在当前 `next` 里，`detail.next` 给出合法集合 | 无变化 | 从 `next` 里选 |
-| `INPUT_UNAVAILABLE` | 上游节点还没有成功产出，`detail.input` 与 `detail.node` 指出哪条输入 | 未进入节点 | 先完成上游 |
-| `ARTIFACT_MODIFIED` | 输入文件当前摘要与记录不符，`detail.path` | 未进入节点 | 人工核查该文件 |
-| `ATTEMPT_NOT_RUNNING` | 对非 `running` 的 Attempt 提交、标失败或替换 | 无变化 | 看状态卡 |
-| `REPLACEMENTS_EXHAUSTED` | 当前Occurrence已使用固定一次行政替换 | 无状态变化，当前Attempt资格保持 | 按current next继续submit/fail/cancel，或既定业务返工路径 |
-| `SUMMARY_TOO_LONG` | 摘要或原因文本超 4096 字节 | 无变化 | 缩短，细节放文件 |
-| `OUTPUT_MISSING` | 必需输出文件不存在，`detail.output` | 无变化，Attempt 仍 `running` | 让工作 agent 补文件 |
-| `OUTPUT_TOO_LARGE` | 输出超 `max_bytes` | 同上 | 缩小 |
-| `REQUEST_CONFLICT` | 同 `request_id` 不同目标或载荷 | 无变化 | 换新 id |
-| `REVISION_CONFLICT` | 并发写入，`expected_revision` 不符 | 无变化 | 重读状态卡再试 |
-| `EFFECT_PENDING` | 效果未完成：当前请求已提交时 `committed = true` 并带自己的原响应；旧效果阻断新请求时 `committed = false`、`pending_request_id` 指向旧请求 | 看 `committed`：当前请求已提交或尚未提交；旧效果仍待恢复 | 先恢复 `pending_request_id`（若有），再用本次 `request_id` 重试 |
-| `STORE_SCHEMA_MISMATCH` | 数据库结构与 `SCHEMA_VERSION = 4` 不符（含 schema 1/2/3 旧库） | 拒绝业务打开，主库与既有 WAL 字节不变；只读 SQLite 控制文件例外见 D-039 | 换新管理根；旧记录用旧二进制配旧管理根查 |
-| `STORE_CORRUPT` | 数据库内容、持久身份或未提交阶段的受管文件不符合同 | 未提交新业务状态 | 人工核查；已提交效果中的完整性错误由 `EFFECT_PENDING.detail.cause` 指明 |
-| `IO` | 文件系统错误，`detail.path` 与系统错误文本 | 视具体操作，响应说明 | 检查权限与磁盘 |
+| `INVALID_REQUEST` | Invalid argument syntax/value | No change | Correct arguments |
+| `NOT_FOUND` | Missing Workbook/Work/node/Attempt | No change | Verify ID |
+| `WORKBOOK_INVALID` | Invalid manifest/file refs; detail.path | No Workbook row/final directory; owned private pending may remain | Fix; next locked write verifies ownership and cleans |
+| `FLOW_INVALID` | Compilation failure; detail.path/rule | Same as above | Fix Flow; next locked write cleans owned pending |
+| `WORKBOOK_EXISTS` | Same ID/version installed | No change | Bump version |
+| `WORKBOOK_IN_USE` | Nonterminal references; detail.works | No change | Finish/cancel them |
+| `WORKBOOK_TAMPERED` | Digest mismatch/missing installed directory; detail.results | No change | Restore registered original bytes manually; same-version add does not overwrite; existing Works retain copies |
+| `UPDATE_UNAVAILABLE` | Missing platform release/unreachable network; detail.reason | No change | Retry/manual install |
+| `UPDATE_CHECKSUM_MISMATCH` | Download digest differs | Download removed | Retry/report repeated failure |
+| `INPUT_MISSING` | Missing start key | No change | Supply --input |
+| `WORK_TERMINAL` | Terminal Work | No change | None |
+| `ILLEGAL_NEXT` | Operation absent from next; detail.next | No change | Choose legal next |
+| `INPUT_UNAVAILABLE` | No successful upstream output; detail.input/node | Node not entered | Finish upstream |
+| `ARTIFACT_MODIFIED` | Input digest mismatch; detail.path | Node not entered | Inspect manually |
+| `ATTEMPT_NOT_RUNNING` | Submit/fail/replace nonrunning Attempt | No change | Read status |
+| `REPLACEMENTS_EXHAUSTED` | Fixed one-per-Occurrence replacement used | No state change; current qualification remains | Submit/fail/cancel or established business rework |
+| `SUMMARY_TOO_LONG` | Summary/reason >4096 bytes | No change | Shorten; put detail in files |
+| `OUTPUT_MISSING` | Required output absent; detail.output | No change; Attempt running | Worker supplies file |
+| `OUTPUT_TOO_LARGE` | Exceeds max_bytes | Same | Reduce size |
+| `REQUEST_CONFLICT` | Same ID, different target/payload | No change | New ID |
+| `REVISION_CONFLICT` | Concurrent write/expected_revision mismatch | No change | Reread status/retry |
+| `EFFECT_PENDING` | Incomplete effects; own committed request carries original; old blocking effects use committed=false/pending_request_id | Current request committed or not as indicated; old effects pending | Recover old ID when present, retry current ID |
+| `STORE_SCHEMA_MISMATCH` | Structure differs from SCHEMA_VERSION=4, including schema1/2/3 | Refuse business open; main/existing WAL bytes unchanged; D-039 control-file exception | New root; old binary/root for old records |
+| `STORE_CORRUPT` | Database, persisted identity, or precommit managed files violate contract | No new business commit | Inspect manually; committed integrity errors appear in EFFECT_PENDING.detail.cause |
+| `IO` | Filesystem error; detail.path/system text | Depends on operation; response explains | Check permissions/disk |
 
-**重放不是错误。** 同 `request_id` 同意图（目标与用户参数相同）返回原响应，`ok = true`，`data.replayed = true`；观察到的文件变化不影响意图指纹。
+Replay is not an error: same ID/intent returns original success with replayed=true. Observed file changes do not affect intent fingerprints. Replacement intent preserves literal reason or source path; audit preserves full materialized bounded reason and compares it verbatim with replaced Attempt reason. Committed replay does not reread reason files.
 
-替换请求意图保存理由字面参数或文件源路径；替换审计保存物化后的完整有界理由，与被替换 Attempt 的理由逐字核对。已提交重放不重新读取理由文件。
-
-## 8. 最终 Artifact 原字节与外围导出
+## 8. Original final Artifact bytes and external export
 
 ```text
 sheltie --home <management-root> work result <full-work-id> --artifact <key> --revision <positive-integer>
 sheltie-export --sheltie <absolute-trusted-binary> --home <real-absolute-management-root> --work <full-work-id> --to <existing-real-absolute-parent> [--json]
 ```
 
-原字节模式artifact/revision同时出现，拒绝json/request-id，参数拒绝stdout为空、stderr诊断/exit2。以单一已验证读取的结果核revision精确相同、final=true、effects_pending=false及key；普通模式仍只列Refs。用已核Ref的受限普通单链接同FD读取，限额、实际size/sha/身份全部成功才exit0，原件缺失/修改/不安全及业务资格按既有错误code/exit规则拒绝，诊断只在stderr。可能已有部分stdoutbytes，消费者先暂存并核最终exit；不把部分输出当完成，不清理或恢复。
+Raw mode requires artifact/revision together and rejects json/request-id. Argument rejection writes no stdout, diagnoses stderr, exit2. One validated result read verifies exact revision, final=true, effects_pending=false, and key. Ordinary mode still lists refs only. Read the verified Ref through one confined regular single-link FD; require limits, actual size/sha/identity and final success for exit0. Missing/modified/unsafe originals or qualification failures use existing codes/exits, diagnostics only on stderr. Partial stdout is possible; consumers stage it and check final exit rather than treat it as complete. No cleanup/recovery.
 
-外围工具严格接C004 payload，final/succeeded/无effects/nonempty选集，不重算选择。metadata至多1MiB、单file32MiB、全部256MiB，checked加法；未知字段/格式、乱序/重复key或不可表达的NUL key在暂存前拒绝。空key与Unicode有效，不当ID；leaf仅用于索引私有目录中的安全文件段。stdin关闭、直接argv不经shell、不依PATH。stdout/sha/bytes与child exit独立核，失败终止并wait直接child，stderr不按自然语言判断成功。
+External tools strictly accept the C004 payload: final/succeeded/no effects/nonempty selection, without recomputing selection. Metadata ≤1 MiB, file ≤32 MiB, aggregate ≤256 MiB with checked addition. Reject unknown fields/formats, unsorted/duplicate keys, or unrepresentable NUL keys before staging. Empty/Unicode keys are valid, not IDs; leaf names are safe segments only within indexed private directories. Close stdin, invoke direct argv without shell/PATH. Independently verify stdout/digest/bytes and child exit. On failure terminate/wait direct child; stderr natural language is never success authority.
 
-`work-export-manifest/v1` 保存完整result与按key排序的files数组 `{key,path,sha256,bytes}`，path为副本相对路径，不含时间或暂存名。父目录真实对象/祖先与Home核不重叠，拒绝链接/身份替换，目录0700文件0600独占普通单链接创建；全体接收、独立读回与规定OS sync后整目录原子NOREPLACE到 `<work-id>-<random>`。不覆盖、合并、接管旧暂存、自动删除竞争者或写回Store。
+Work-export-manifest/v1 retains complete result and key-sorted files {key,path,sha256,bytes}; paths are copy-relative, without timestamps/staging names. Verify real parent/ancestors do not overlap Home; reject links/identity replacement. Exclusively create directories0700/files0600, regular single-link. After complete reception, independent readback, and required OS sync, atomically publish the whole directory with NOREPLACE as <work-id>-<random>. No overwrite, merge, old-staging takeover, competitor deletion, or Store writeback.
 
-工具JSON为一行 `work-export/v1`：status/work_id/revision/target_path/staging_path/error（稳定code/message及source退出状态）；未知或不能确认的值为null。complete=0，参数/确定性资格rejected=2，source/target/完整性/IO的failed_before_publish=1，rename已发生后父sync/最终身份不确认的publication_unconfirmed=3。未确认时不回滚删除，路径只报告能核所属的对象。kill无响应时使用者核现场，重跑另建新副本；不保证进程树停止/断电物理持久/宿主隔离/用户修改后的持续一致。
+One-line work-export/v1 JSON contains status/work_id/revision/target_path/staging_path/error (stable code/message/source exit status); unknown/unconfirmed values are null. Complete exit0; argument/deterministic qualification rejected exit2; source/target/integrity/IO failed_before_publish exit1; postrename parent-sync/final-identity uncertainty publication_unconfirmed exit3. Never compensate by deleting unconfirmed publication; report only ownership-verifiable paths. After kill/no response, inspect the scene; reruns create new copies. No promise of process-tree termination, physical power-loss durability, host isolation, or continued equality after user edits.

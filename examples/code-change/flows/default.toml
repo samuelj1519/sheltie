@@ -4,7 +4,7 @@ entry = "implement"
 
 [[nodes]]
 id = "implement"
-title = "实现代码变更"
+title = "Implement a code change"
 executor = "agent"
 tier = "strong"
 instruction = { file = "instructions/implement.md" }
@@ -15,7 +15,7 @@ max_retries = 1
 
 [[nodes]]
 id = "review"
-title = "独立审查代码变更"
+title = "Independently review the code change"
 executor = "agent"
 tier = "strong"
 instruction = { file = "instructions/review.md" }
@@ -26,7 +26,7 @@ max_retries = 1
 
 [[nodes]]
 id = "deliver"
-title = "整理最终成果"
+title = "Prepare final delivery"
 executor = "agent"
 instruction = { file = "instructions/deliver.md" }
 inputs = [{ name = "task", from = "start.task" }, { name = "change", from = "implement.change", result = true }, { name = "review", from = "review.review", result = true }]

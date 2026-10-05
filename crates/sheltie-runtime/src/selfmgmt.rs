@@ -1,5 +1,5 @@
-//! 二进制自管理：`self install | update | rollback | uninstall | version`。
-//! 规则见 `specs/contracts/storage.md` §9 与协议 `self` 组。
+//! Binary self-management: self install | update | rollback | uninstall | version.
+//! Rules are in storage contract §9 and protocol self commands.
 
 use std::io::{Read as _, Write as _};
 use std::process::Stdio;
@@ -17,7 +17,7 @@ use crate::home::Home;
 
 const MAX_TOOL_STDERR_BYTES: u64 = 1024 * 1024;
 
-/// 发布清单的来源。默认 GitHub Releases；测试用环境变量 `SHELTIE_RELEASE_BASE` 指向本地目录。
+/// Release manifest source: GitHub Releases by default; tests point SHELTIE_RELEASE_BASE to a local directory.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ReleaseSource {
     pub base: String,
@@ -34,8 +34,8 @@ impl ReleaseSource {
         !self.base.starts_with("http://") && !self.base.starts_with("https://")
     }
 
-    /// 发布身份目录下的清单 URL。`tag` 是 `latest` 或 `v<version>`（存储合同 §9 步 1）。
-    /// 本地目录按 tag 布局镜像远端；远端 latest 是移动别名，固定 tag 走 download 路径。
+    /// Manifest URL under a release identity; tag is latest or v<version> (storage contract §9, step 1).
+    /// Local tag directories mirror remote releases; remote latest is mutable, pinned tags use download paths.
     fn manifest_url(&self, tag: &str) -> String {
         if self.is_local() {
             format!("{}/{tag}/dist-manifest.json", self.base)
@@ -79,7 +79,7 @@ pub struct VersionInfo {
     pub schema_version: i64,
 }
 
-/// 当前平台串，与发布包命名一致：Rust target triple（D-30）。
+/// Current platform: Rust target triple, matching release filenames (D-30).
 pub fn platform() -> String {
     match (std::env::consts::OS, std::env::consts::ARCH) {
         ("macos", "aarch64") => "aarch64-apple-darwin",
@@ -91,7 +91,7 @@ pub fn platform() -> String {
     .to_string()
 }
 
-/// `self version`。只读，不需要管理根存在。
+/// self version: read-only, without requiring an existing management root.
 pub fn version_info(home: &Home) -> VersionInfo {
     VersionInfo {
         version: env!("CARGO_PKG_VERSION").to_string(),
@@ -101,9 +101,9 @@ pub fn version_info(home: &Home) -> VersionInfo {
     }
 }
 
-/// `self install`：把当前可执行文件复制到 `bin/sheltie`（先写 `tmp/` 再 rename）。
-/// 已存在且字节相同 → `already_installed = true`。不写任何 shell 配置，PATH 提示
-/// 只是输出文本（存储合同 §9、协议 §3）。写动词持管理根写锁（§2.2）。
+/// self install copies the running executable to bin/sheltie, staging in tmp/ before rename.
+/// Identical existing bytes yield already_installed = true. Never change shell configuration; PATH advice
+/// is text only (storage contract §9, protocol §3). Writes hold the root lock (§2.2).
 pub fn install(home: &Home) -> Result<InstallOutcome> {
     match crate::store::Store::open_for_home(home, crate::store::OpenMode::ReadOnly) {
         Ok(store) => drop(store),
@@ -116,7 +116,10 @@ pub fn install(home: &Home) -> Result<InstallOutcome> {
             current
                 .to_str()
                 .ok_or_else(|| Error::InvalidRequest {
-                    reason: format!("当前可执行文件 {} 不是UTF-8路径", current.display()),
+                    reason: format!(
+                        "Current executable {} is not a UTF-8 path",
+                        current.display()
+                    ),
                 })?
                 .to_string(),
         )
@@ -127,10 +130,10 @@ pub fn install(home: &Home) -> Result<InstallOutcome> {
     let lock = session.lock;
     let bin = home.bin_dir();
     let target = bin.join_segment("sheltie");
-    // 建管理根的 store.db（协议 self install：复制之外还要建库）；
-    // 放在幂等短路之前，bin/ 里已有同字节二进制但库还没建的场合也能补齐。
-    // 缺失走独占新建；已存在对象必须是受管普通单链接文件，不能把软链当成
-    // “不同版本”覆盖。相同字节保持幂等。
+    // Create store.db (self install requires database initialization as well as copying);
+    // initialize before the idempotent shortcut so an identical existing binary does not skip missing storage.
+    // Exclusively create when absent; existing objects must be managed regular singly linked files, never treating symlinks as
+    // a different version to overwrite. Identical bytes remain idempotent.
     let old = crate::fsx::open_managed_optional(home, &target)?;
     let replace = if let Some(file) = &old {
         if file.read_bounded(crate::fsx::MAX_FILE_BYTES)? == bytes {
@@ -186,23 +189,26 @@ fn cleanup_self_tmp(
         Err(cleanup) => Error::io(
             tmp.as_str(),
             std::io::Error::other(format!(
-                "self操作失败：{original}；临时目录清理也失败：{cleanup}"
+                "self operation failed: {original}; temporary-directory cleanup also failed: {cleanup}"
             )),
         ),
     }
 }
 
-/// `self update`（存储合同 §9 六步）。`version` 为 `None` 时按 latest 固定出的版本更新。
+/// self update follows six storage §9 steps; None version resolves latest and pins that release.
 pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Result<UpdateOutcome> {
     let lock = home.acquire_lock()?;
-    // 步 1：解析发布身份，一次固定到 tag；清单与资产都从同一 tag 取，不混用两次解析。
+    // Step 1: resolve and pin one tag; obtain both manifest and assets from that identity.
     let tag = resolve_tag(source, version)?;
-    // 步 2：读该 tag 的清单，找当前平台的包与 sha256。
+    // Step 2: read the pinned manifest and locate the platform artifact and sha256.
     let manifest = read_manifest(source, &tag)?;
     let pinned = tag_version(&tag);
     if manifest.version != pinned {
         return Err(Error::UpdateUnavailable {
-            reason: format!("tag {tag} 的清单写着版本 {}，与 tag 不符", manifest.version),
+            reason: format!(
+                "Tag {tag} manifest declares version {}, which does not match the tag",
+                manifest.version
+            ),
         });
     }
     let current = env!("CARGO_PKG_VERSION");
@@ -216,12 +222,12 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
     let platform_str = platform();
     let Some(asset) = manifest.assets.iter().find(|a| a.platform == platform_str) else {
         return Err(Error::UpdateUnavailable {
-            reason: format!("发布清单里没有 {platform_str} 的包"),
+            reason: format!("Release manifest has no artifact for {platform_str}"),
         });
     };
-    // 资产名要能安全拼进 tmp/<uuid>/；伪造的清单不能把路径带出管理根。
+    // Asset names must join safely beneath tmp/<uuid>/; forged manifests cannot escape the management root.
     let name = checked_asset_name(&asset.name)?;
-    // 步 3：在受管 tmp 中下载、核对摘要，并安全读取压缩包候选。
+    // Step 3: download into managed tmp, verify digest, and safely read the archive candidate.
     crate::fsx::ensure_dirs_under(home, &lock, &home.tmp_dir())?;
     let tmp = home
         .tmp_dir()
@@ -236,7 +242,7 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
         let bytes = crate::fsx::open_managed_regular(home, &downloaded)?
             .read_bounded(crate::fsx::MAX_FILE_BYTES)
             .map_err(|error| Error::UpdateUnavailable {
-                reason: format!("读不了发布包 {name}：{error}"),
+                reason: format!("Cannot read release artifact {name}: {error}"),
             })?;
         let got = Sha256Hex::of_bytes(&bytes);
         if got.as_str() != asset.sha256 {
@@ -264,7 +270,7 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
         let displaced_prev = tmp.join_segment("previous-sheltie.prev");
         if current_binary.is_some() {
             if old_prev.is_some() {
-                // 原子交换后 current 已到 .prev；旧 .prev 暂留在 tmp，直到新 binary 到位。
+                // Atomic exchange moves current to .prev; keep old .prev in tmp until the new binary is installed.
                 crate::fsx::replace_managed_regular_file(
                     home,
                     &lock,
@@ -291,7 +297,7 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
                         Err(restore_error) => Error::RecoveryRequired {
                             path: target.to_string(),
                             detail: format!(
-                                "更新移动旧 .prev 失败：{error}；目标、prev 与临时备份状态未能恢复，均保留：{restore_error}"
+                                "Moving old .prev during update failed: {error}; destination, prev, and temporary backups could not be restored and are preserved: {restore_error}"
                             ),
                         },
                     });
@@ -306,7 +312,7 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
             }
         }
 
-        // 既有 crash test 在此验证：目标可缺失，但 .prev 是原当前 binary。
+        // Existing crash tests verify this point: destination may be absent, but .prev holds the original current binary.
         crate::failpoint::maybe_exit("update_between_renames");
         if let Err(error) = crate::fsx::rename_verified_managed_file(
             home,
@@ -329,7 +335,7 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
                     return Err(Error::RecoveryRequired {
                         path: target.to_string(),
                         detail: format!(
-                            "安装新binary失败：{error}；原binary端点未能确认恢复，保留prev与临时目录：{restore_error}"
+                            "New binary installation failed: {error}; original endpoint restoration could not be verified; preserve prev and temporary directories: {restore_error}"
                         ),
                     });
                 }
@@ -343,7 +349,7 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
                         return Err(Error::RecoveryRequired {
                             path: prev.to_string(),
                             detail: format!(
-                                "原binary已恢复；旧 .prev 位于 {displaced_prev}，保留临时目录：{restore_error}"
+                                "Original binary restored; old .prev is at {displaced_prev}; preserve temporary directory: {restore_error}"
                             ),
                         });
                     }
@@ -366,7 +372,7 @@ pub fn update(home: &Home, source: &ReleaseSource, version: Option<&str>) -> Res
     }
 }
 
-/// `self rollback`：`sheltie.prev` 换回来；`bin/sheltie` 缺失时直接挪回。没有 `.prev` 报 `NotFound`。
+/// self rollback restores sheltie.prev, moving directly if bin/sheltie is absent; no .prev yields NotFound.
 pub fn rollback(home: &Home) -> Result<()> {
     let lock = home.acquire_lock()?;
     let bin = home.bin_dir();
@@ -404,7 +410,7 @@ pub fn rollback(home: &Home) -> Result<()> {
                 Err(restore) => Err(Error::RecoveryRequired {
                     path: target.to_string(),
                     detail: format!(
-                        "rollback替换失败：{error}；当前binary位于 {saved_current}，恢复失败：{restore}"
+                        "Rollback replacement failed: {error}; current binary is at {saved_current}; restoration failed: {restore}"
                     ),
                 }),
             },
@@ -414,13 +420,13 @@ pub fn rollback(home: &Home) -> Result<()> {
     }
 }
 
-/// `self uninstall`：默认只删 `bin/`；`purge` 清理管理数据但保留管理根和同一 `.lock`。
-/// `confirmed` 为假时报 `InvalidRequest`。返回保留下来的用户数据路径；purge 成功时为空。
-/// 写动词持管理根写锁；等待者获锁后复核根与 `.lock` 身份。
+/// self uninstall removes only bin/ by default; purge clears managed data, preserving the root and the same .lock.
+/// Unconfirmed requests yield InvalidRequest; return retained user-data paths, empty after successful purge.
+/// Writes hold the root lock; waiting callers recheck root and .lock identity after acquisition.
 pub fn uninstall(home: &Home, purge: bool, confirmed: bool) -> Result<Vec<AbsPath>> {
     if purge && !confirmed {
         return Err(Error::InvalidRequest {
-            reason: "卸载并清空管理根需要确认（交互模式输入 yes，--json 模式给 --yes）".to_string(),
+            reason: "Uninstall and purge require confirmation (type yes interactively; use --yes with --json)".to_string(),
         });
     }
     let lock = home.acquire_lock()?;
@@ -442,11 +448,11 @@ pub fn uninstall(home: &Home, purge: bool, confirmed: bool) -> Result<Vec<AbsPat
     Ok(kept)
 }
 
-// ── 发布身份（存储合同 §9 步 1） ────────────────────────────────
+// ── Release identity (storage contract §9, step 1) ────────────────────────────────
 
-/// 解析发布身份，一次固定到 tag：给了 `--version` 就是 `v<version>`；没给则读
-/// `latest` 的清单学出版本号，再固定到 `v<版本>`。之后清单与资产都从这个 tag 取
-/// ——latest 是移动别名，两次解析之间可能已经换发布，混用会把新旧包拼在一起。
+/// Resolve release identity once: --version yields v<version>; otherwise read
+/// latest's manifest, extract the version, and pin v<version>. Fetch all subsequent manifest/assets from that tag,
+/// because latest may change between requests, causing inconsistent release assets.
 fn resolve_tag(source: &ReleaseSource, version: Option<&str>) -> Result<String> {
     match version {
         Some(want) => {
@@ -461,12 +467,12 @@ fn resolve_tag(source: &ReleaseSource, version: Option<&str>) -> Result<String> 
     }
 }
 
-/// tag `v<version>` 去掉 `v` 前缀就是版本号。
+/// Strip v from the v<version> tag to obtain the version.
 fn tag_version(tag: &str) -> String {
     tag.strip_prefix('v').unwrap_or(tag).to_string()
 }
 
-/// 版本号只允许一个路径段（无 `/`、`..`、`.`、NUL），防止伪造的版本把 URL/路径带出发布目录。
+/// Versions allow one path segment only, without /, .., ., or NUL, preventing URL/path escapes.
 fn checked_version(raw: &str) -> Result<String> {
     let v = raw.strip_prefix('v').unwrap_or(raw);
     if v.is_empty()
@@ -477,13 +483,13 @@ fn checked_version(raw: &str) -> Result<String> {
         || v.contains('\0')
     {
         return Err(Error::UpdateUnavailable {
-            reason: format!("版本 {raw} 不是合法的版本号"),
+            reason: format!("Version {raw} is not valid"),
         });
     }
     Ok(v.to_string())
 }
 
-/// 资产名同理：只接受单个文件名，`..`、分隔符一概拒绝（伪造路径不越界）。
+/// Similarly, accept only one asset filename; reject .. and separators to confine forged paths.
 fn checked_asset_name(raw: &str) -> Result<String> {
     if raw.is_empty()
         || raw == "."
@@ -493,15 +499,15 @@ fn checked_asset_name(raw: &str) -> Result<String> {
         || raw.contains('\0')
     {
         return Err(Error::UpdateUnavailable {
-            reason: format!("发布包名 {raw} 不是合法的文件名"),
+            reason: format!("Release artifact name {raw} is not a valid filename"),
         });
     }
     Ok(raw.to_string())
 }
 
-// ── 发布清单 ──────────────────────────────────────────────────
+// ── Release manifest ──────────────────────────────────────────────────
 
-/// 瘦格式清单（存储合同 §9）：本地发布目录与测试的合同。
+/// Compact manifest format (storage contract §9), used by local releases and tests.
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct SlimManifest {
@@ -517,30 +523,30 @@ struct SlimAsset {
     sha256: String,
 }
 
-/// 适配后的清单：两种来源都归到这个形状。
+/// Adapted manifest: both sources converge on this shape.
 struct ReleaseManifest {
     version: String,
     assets: Vec<SlimAsset>,
 }
 
-/// 读固定 tag 的发布清单。先按瘦格式解析；失败再按 cargo-dist 的完整 `dist-manifest.json` 适配。
-/// 完整格式的字段没有自动化测试，T25 真实升级时人工核对（D-30）。
+/// Read a pinned manifest; try compact format, then adapt cargo-dist's full dist-manifest.json.
+/// Full-format fields lack automated coverage; T25's actual update manually checked them (D-30).
 fn read_manifest(source: &ReleaseSource, tag: &str) -> Result<ReleaseManifest> {
     let url = source.manifest_url(tag);
     let text = if source.is_local() {
         let path = AbsPath::new(crate::request::lexical_abs(&url)?).map_err(Error::Core)?;
         let file = crate::fsx::ExternalReadFile::open_regular(&path).map_err(|error| {
             Error::UpdateUnavailable {
-                reason: format!("读不了发布清单 {url}：{error}"),
+                reason: format!("Cannot read release manifest {url}: {error}"),
             }
         })?;
         let bytes = file
             .read_bounded(crate::fsx::MAX_FILE_BYTES)
             .map_err(|error| Error::UpdateUnavailable {
-                reason: format!("发布清单 {url} 超过读取限额：{error}"),
+                reason: format!("Release manifest {url} exceeds the read limit: {error}"),
             })?;
         String::from_utf8(bytes).map_err(|error| Error::UpdateUnavailable {
-            reason: format!("发布清单 {url} 不是UTF-8：{error}"),
+            reason: format!("Release manifest {url} is not UTF-8: {error}"),
         })?
     } else {
         curl(&url).map_err(|reason| Error::UpdateUnavailable { reason })?
@@ -554,18 +560,19 @@ fn read_manifest(source: &ReleaseSource, tag: &str) -> Result<ReleaseManifest> {
     adapt_cargo_dist_manifest(&text)
 }
 
-/// cargo-dist 完整清单 → 瘦格式：版本取 `announcement_tag`（去 `v` 前缀），
-/// 资产取 `kind = executable-zip` 的压缩包，平台取 `target_triples` 的第一个。
-/// 0.32 的真实形态（T25 用 `dist build` 的产出核过）：`artifacts` 是按产物名索引的
-/// 对象（也容忍数组写法）；真哈希在 `checksums.sha256`；`checksum` 字段是同名的
-/// 校验文件**名**，不是哈希，裸串只在恰好是 64 位十六进制时才当哈希接受。
+/// Adapt cargo-dist to compact format: version from announcement_tag without v,
+/// executable-zip assets, and the first target_triples platform.
+/// Actual 0.32 shape, checked against T25 dist build: artifacts is a name-keyed
+/// object (arrays also accepted); the real digest is checksums.sha256, while checksum names the
+/// checksum file, not the hash. Accept bare strings as hashes only for exactly 64 hexadecimal digits.
 fn adapt_cargo_dist_manifest(text: &str) -> Result<ReleaseManifest> {
     let bad = || Error::UpdateUnavailable {
-        reason: "发布清单既不是瘦格式也解不出 cargo-dist 的字段".to_string(),
+        reason: "Release manifest is neither compact format nor valid cargo-dist fields"
+            .to_string(),
     };
     let value: serde_json::Value =
         serde_json::from_str(text).map_err(|e| Error::UpdateUnavailable {
-            reason: format!("发布清单不是合法 JSON：{e}"),
+            reason: format!("Release manifest is not valid JSON: {e}"),
         })?;
     let tag = value
         .get("announcement_tag")
@@ -626,7 +633,7 @@ fn adapt_cargo_dist_manifest(text: &str) -> Result<ReleaseManifest> {
     Ok(ReleaseManifest { version, assets })
 }
 
-/// 下载固定 tag 的发布包到 `tmp/<name>`。本地发布目录直接复制；远端用系统 `curl`。
+/// Download a pinned release artifact to tmp/<name>; copy local releases directly, use system curl remotely.
 fn download(
     home: &Home,
     lock: &crate::home::HomeLock,
@@ -641,12 +648,12 @@ fn download(
         let path = AbsPath::new(crate::request::lexical_abs(&url)?).map_err(Error::Core)?;
         let file = crate::fsx::ExternalReadFile::open_regular(&path).map_err(|error| {
             Error::UpdateUnavailable {
-                reason: format!("读不了发布包 {url}：{error}"),
+                reason: format!("Cannot read release artifact {url}: {error}"),
             }
         })?;
         file.read_bounded(crate::fsx::MAX_FILE_BYTES)
             .map_err(|error| Error::UpdateUnavailable {
-                reason: format!("发布包 {url} 超过读取限额：{error}"),
+                reason: format!("Release artifact {url} exceeds the read limit: {error}"),
             })?
     } else {
         let mut command = std::process::Command::new("curl");
@@ -654,14 +661,14 @@ fn download(
         let output = run_child_bounded(
             &mut command,
             None,
-            &format!("下载 {url}"),
+            &format!("Download {url}"),
             crate::fsx::MAX_FILE_BYTES,
             MAX_TOOL_STDERR_BYTES,
         )?;
         if !output.status.success() {
             return Err(Error::UpdateUnavailable {
                 reason: format!(
-                    "下载 {url} 失败（curl 退出 {}）：{}",
+                    "Download {url} failed (curl exit {}): {}",
                     output
                         .status
                         .code()
@@ -672,7 +679,7 @@ fn download(
         }
         if output.stdout.len() as u64 > crate::fsx::MAX_FILE_BYTES {
             return Err(Error::UpdateUnavailable {
-                reason: format!("发布包 {url} 超过读取限额"),
+                reason: format!("Release artifact {url} exceeds the read limit"),
             });
         }
         output.stdout
@@ -681,32 +688,32 @@ fn download(
     Ok(dst)
 }
 
-/// `curl -fsSL <url>` 取文本。
+/// Fetch text with curl -fsSL <url>.
 fn curl(url: &str) -> std::result::Result<String, String> {
     let mut command = std::process::Command::new("curl");
     command.args(["-fsSL", url]);
     let out = run_child_bounded(
         &mut command,
         None,
-        &format!("取清单 {url}"),
+        &format!("Fetch manifest {url}"),
         crate::fsx::MAX_FILE_BYTES,
         MAX_TOOL_STDERR_BYTES,
     )
     .map_err(|error| error.to_string())?;
     if !out.status.success() {
         return Err(format!(
-            "curl 退出 {}：{}",
+            "curl exit {}: {}",
             out.status
                 .code()
                 .map_or_else(|| "?".to_string(), |c| c.to_string()),
             String::from_utf8_lossy(&out.stderr)
         ));
     }
-    String::from_utf8(out.stdout).map_err(|e| format!("清单不是 UTF-8：{e}"))
+    String::from_utf8(out.stdout).map_err(|e| format!("Manifest is not UTF-8: {e}"))
 }
 
-/// `curl -fsSL <url> -o <dst>` 取文件。
-/// 读取压缩包索引并只把唯一普通 `sheltie` 成员写入受管 tmp；从不让 tar 在管理根解包。
+/// Fetch a file with curl -fsSL <url> -o <dst>.
+/// Inspect the archive index and write only the unique regular sheltie member into managed tmp; never extract tar into the root.
 fn unpack_if_archive(
     home: &Home,
     lock: &crate::home::HomeLock,
@@ -722,16 +729,16 @@ fn unpack_if_archive(
     let listed = run_tar_stdout(&["-tf", "-"], archive, crate::fsx::MAX_TOTAL_BYTES)?;
     let verbose = run_tar_stdout(&["-tvf", "-"], archive, crate::fsx::MAX_TOTAL_BYTES)?;
     let names = std::str::from_utf8(&listed).map_err(|error| Error::UpdateUnavailable {
-        reason: format!("压缩包 {name} 的索引不是UTF-8：{error}"),
+        reason: format!("Archive {name} index is not UTF-8: {error}"),
     })?;
     let details = std::str::from_utf8(&verbose).map_err(|error| Error::UpdateUnavailable {
-        reason: format!("压缩包 {name} 的详细索引不是UTF-8：{error}"),
+        reason: format!("Archive {name} detailed index is not UTF-8: {error}"),
     })?;
     let entries = names.lines().collect::<Vec<_>>();
     let detail_lines = details.lines().collect::<Vec<_>>();
     if entries.len() != detail_lines.len() {
         return Err(Error::UpdateUnavailable {
-            reason: format!("压缩包 {name} 的索引格式不一致"),
+            reason: format!("Archive {name} index formats do not match"),
         });
     }
     let mut binary = None;
@@ -739,25 +746,27 @@ fn unpack_if_archive(
         let kind = detail.as_bytes().first().copied();
         if !matches!(kind, Some(b'-' | b'd')) {
             return Err(Error::UpdateUnavailable {
-                reason: format!("压缩包 {name} 含链接或特殊对象，拒绝解包"),
+                reason: format!(
+                    "Archive {name} contains links or special objects; extraction rejected"
+                ),
             });
         }
         let entry = entry.trim_end_matches('/');
         let rel =
             ManagedRelPath::new(entry.to_string()).map_err(|error| Error::UpdateUnavailable {
-                reason: format!("压缩包成员路径 {entry:?} 不安全：{error}"),
+                reason: format!("Unsafe archive member path {entry:?}: {error}"),
             })?;
         if kind == Some(b'-')
             && entry.rsplit('/').next() == Some("sheltie")
             && binary.replace(rel).is_some()
         {
             return Err(Error::UpdateUnavailable {
-                reason: format!("解包 {name} 后找到多个 sheltie 二进制"),
+                reason: format!("Archive {name} contains multiple sheltie binaries"),
             });
         }
     }
     let binary = binary.ok_or_else(|| Error::UpdateUnavailable {
-        reason: format!("解包 {name} 后找不到普通 sheltie 二进制"),
+        reason: format!("Archive {name} contains no regular sheltie binary"),
     })?;
     let binary = run_tar_stdout(
         &["-xOf", "-", "--", binary.as_str()],
@@ -777,15 +786,15 @@ fn run_tar_stdout(args: &[&str], archive: &[u8], max_bytes: u64) -> Result<Vec<u
         .stderr(Stdio::piped())
         .spawn()
         .map_err(|error| Error::UpdateUnavailable {
-            reason: format!("启动tar失败：{error}"),
+            reason: format!("Failed to start tar: {error}"),
         })?;
     let output = wait_bounded_child(&mut child, Some(archive), max_bytes, MAX_TOOL_STDERR_BYTES)
         .map_err(|error| Error::UpdateUnavailable {
-            reason: format!("tar执行失败：{error}"),
+            reason: format!("tar execution failed: {error}"),
         })?;
     if !output.status.success() {
         return Err(Error::UpdateUnavailable {
-            reason: format!("tar失败：{}", String::from_utf8_lossy(&output.stderr)),
+            reason: format!("tar failed: {}", String::from_utf8_lossy(&output.stderr)),
         });
     }
     Ok(output.stdout)
@@ -807,11 +816,11 @@ fn run_child_bounded(
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
     let mut child = command.spawn().map_err(|error| Error::UpdateUnavailable {
-        reason: format!("启动{label}失败：{error}"),
+        reason: format!("Failed to start {label}: {error}"),
     })?;
     wait_bounded_child(&mut child, input, max_stdout, max_stderr).map_err(|error| {
         Error::UpdateUnavailable {
-            reason: format!("{label}失败：{error}"),
+            reason: format!("{label} failed: {error}"),
         }
     })
 }
@@ -892,7 +901,7 @@ fn wait_bounded_child(
                 wait_error = Some(match child.wait() {
                     Ok(_) => error,
                     Err(wait_error) => std::io::Error::other(format!(
-                        "child try_wait 失败：{error}；kill后wait也失败：{wait_error}"
+                        "child try_wait failed: {error}; wait after kill also failed: {wait_error}"
                     )),
                 });
                 break None;
@@ -936,10 +945,10 @@ fn wait_bounded_child(
     })
 }
 
-// ── 小件 ──────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────
 
 fn path_hint(home: &Home) -> String {
-    format!("把 {} 加进 PATH", home.bin_dir())
+    format!("Add {} to PATH", home.bin_dir())
 }
 
 #[cfg(test)]
@@ -1039,12 +1048,12 @@ mod tests {
     fn bounded_child_accepts_exact_stdout_limit_and_rejects_one_more() {
         let mut exact = std::process::Command::new("sh");
         exact.args(["-c", "printf 1234"]);
-        let output = run_child_bounded(&mut exact, None, "测试子进程", 4, 16).unwrap();
+        let output = run_child_bounded(&mut exact, None, "test subprocess", 4, 16).unwrap();
         assert_eq!(output.stdout, b"1234");
 
         let mut oversized = std::process::Command::new("sh");
         oversized.args(["-c", "printf 12345"]);
-        let error = run_child_bounded(&mut oversized, None, "测试子进程", 4, 16).unwrap_err();
+        let error = run_child_bounded(&mut oversized, None, "test subprocess", 4, 16).unwrap_err();
         assert!(error.to_string().contains("stdout"));
     }
 
@@ -1053,7 +1062,7 @@ mod tests {
     fn bounded_child_limits_stderr_as_well_as_stdout() {
         let mut oversized = std::process::Command::new("sh");
         oversized.args(["-c", "printf 1234 >&2"]);
-        let error = run_child_bounded(&mut oversized, None, "测试子进程", 16, 3).unwrap_err();
+        let error = run_child_bounded(&mut oversized, None, "test subprocess", 16, 3).unwrap_err();
         assert!(error.to_string().contains("stderr"));
     }
 }

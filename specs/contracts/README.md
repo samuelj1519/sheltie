@@ -1,13 +1,15 @@
-# 精确合同
+# Exact contracts
 
-本目录供方法作者、CLI 消费者和源码维护者查阅字段、格式、命令及拒绝条件。产品目标见[规格](../spec.md)，实现分层见[架构](../architecture.md)，统一术语见[CONTEXT](../../CONTEXT.md)。
+English | [简体中文](README.zh-CN.md)
 
-| 合同 | 查什么 | 主要消费者 |
+Method authors, CLI consumers, and source maintainers use this directory for fields, formats, commands, and rejection conditions. See the [specification](../spec.md) for product targets, [architecture](../architecture.md) for layers, and [CONTEXT](../../CONTEXT.md) for terminology.
+
+| Contract | Lookup | Main consumers |
 | --- | --- | --- |
-| [Workbook](workbook.md) | manifest、Flow、节点、显式边、输入来源、输出与成果声明、编译规则 | 方法作者、core 解析／编译、作者工具 |
-| [协议](protocol.md) | 命令、参数、JSON／文本响应、next、错误、raw 成果与导出 | 协调者、cli、skill、外围工具 |
-| [存储](storage.md) | schema、请求身份、事务、冻结文件、效果发布／恢复、只读与 self 管理 | runtime、持久数据和恢复测试 |
+| [Workbook](workbook.md) | Manifest, Flow, nodes, explicit edges, input sources, outputs/results, compilation | Method authors, core parser/compiler, author tool |
+| [Protocol](protocol.md) | Commands, arguments, JSON/text responses, next, errors, raw results, export | Coordinators, CLI, skill, external tools |
+| [Storage](storage.md) | Schema, request identity, transactions, frozen files, effect publication/recovery, read-only and self management | Runtime, persistent-data and recovery tests |
 
-当前源码使用 workbook/v1、flow/v1、cli-result/v4、work-result/v1、workbook-digest/v2 与 Store schema 4。开发线与已发布版本的区别见[文档地图](../README.md)；旧版本合同按发布 tag 读取。
+Current source uses workbook/v1, flow/v1, cli-result/v4, work-result/v1, workbook-digest/v2, and Store schema 4. See the [document map](../README.md) for development/release differences; read older contracts at their release tags.
 
-修改合同前先定位产品依据，再沿全部真实入口和消费者核影响。字段、错误、持久格式与恢复时点一起更新；不可用默认值、静默兼容或修改测试期望掩盖合同缺口。
+Before changing a contract, locate its product authority and assess every real entry point and consumer. Update fields, errors, persistent formats, and recovery observation points together. Defaults, silent compatibility, or changed test expectations must not conceal contract gaps.

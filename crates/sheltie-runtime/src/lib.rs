@@ -1,9 +1,9 @@
-//! Sheltie 引擎的 I/O 层。
+//! I/O layer of the Sheltie engine.
 //!
-//! 职责：管理根目录、文件观察、SQLite 存储、Workbook 仓库、Work 服务、二进制自管理。
-//! 不做业务判断：所有规则在 `sheltie-core`，这里只是「读状态 → 观察文件 → 调 core → 一个事务写回 → 执行效果」。
+//! Responsibilities: management root, file observation, SQLite storage, Workbook repository, Work service, and binary management.
+//! No business judgments: sheltie-core holds all rules; read state, observe files, call core, commit one transaction, execute effects.
 //!
-// 测试代码允许 unwrap；库代码不允许（workspace lints）。
+// Tests may unwrap; library code may not (workspace lints).
 #![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used))]
 
 pub mod effects;

@@ -1,7 +1,7 @@
 schema = "workbook/v1"
 id = "article-review"
-version = "1.0.0"
-name = "文章写作与审查"
-description = "写一篇文章，由独立 agent 审查，不通过则打回修改，通过后由人定稿。"
+version = "1.0.1"
+name = "Article writing and review"
+description = "Write an article, obtain independent review, revise rejected drafts, and let a person finalize."
 
 flows = ["flows/default.toml"]

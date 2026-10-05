@@ -3,9 +3,9 @@ files = ["specs/README.md", "specs/roadmap.md", "specs/changes/README.md", "spec
 test_files = []
 allow_test_changes = false
 
-# 人采用并移入 active/ 后生效；proposed 不执行任务。
-# T01 复杂模型完整准备和测试；T02 冻结边界由确切 files 路径控制。
-# T02 test_files 为空，不表示允许修改脚本、测试、fixtures、protocol 或 oracle。
+# Effective after human adoption into active/; proposed tasks are not executed.
+# T01 prepares complete foundations/tests; T02 frozen boundaries are defined by exact files paths.
+# An empty T02 test_files array does not authorize script, test, fixture, protocol, or oracle edits.
 
 [C008-T01]
 files = ["specs/changes/active/C008-dependency-readiness/design.md", "specs/changes/active/C008-dependency-readiness/experiment/protocol.md", "specs/changes/active/C008-dependency-readiness/experiment/host-rule.md", "specs/changes/active/C008-dependency-readiness/experiment/probe.toml", "specs/changes/active/C008-dependency-readiness/experiment/runbook.md", "specs/changes/active/C008-dependency-readiness/experiment/probe.py", "specs/changes/active/C008-dependency-readiness/experiment/evidence/target", "specs/changes/active/C008-dependency-readiness/experiment/evidence/mechanism", "specs/changes/active/C008-dependency-readiness/review.md", "specs/changes/active/C008-dependency-readiness/validation.md", "specs/changes/active/C008-dependency-readiness/progress.md"]

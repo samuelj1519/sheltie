@@ -1,4 +1,4 @@
-//! C002-T31：节点输入只能绑定声明来源的成功产物。
+//! C002-T31: node inputs bind only successful artifacts from declared sources.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 mod common;
 use common::*;

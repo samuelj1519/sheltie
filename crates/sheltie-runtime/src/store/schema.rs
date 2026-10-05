@@ -1,13 +1,13 @@
-//! 表结构。这里是唯一定义；改结构必须同时升 `SCHEMA_VERSION`。
+//! Sole table-structure authority; schema changes must increment SCHEMA_VERSION.
 //!
-//! schema 4（D-041）采用顺序号、替换状态与有界理由的完整载荷；表结构沿用 C002 的
-//! 请求意图、响应快照与效果登记，目录摘要仍为 `workbook-digest/v2`。
-//! 较早 schema 的原库保留并拒绝，不迁移、不清空。
+//! Schema 4 (D-041) uses complete sequence/replacement/bounded-reason payloads, retaining C002's
+//! request intents, response snapshots, and effect registration; directory digests remain workbook-digest/v2.
+//! Preserve and reject older databases without migrating or clearing them.
 
-/// `PRAGMA user_version` 的值。
+/// PRAGMA user_version value.
 pub const SCHEMA_VERSION: i64 = 4;
 
-/// 全部建表语句 `(表名, SQL)`。结构校验把 `sqlite_master.sql` 与这里逐表比对（去掉全部空白）。
+/// All table DDL (name, SQL); validation compares sqlite_master.sql table-by-table after removing whitespace.
 pub const TABLES: &[(&str, &str)] = &[
     (
         "workbooks",
@@ -64,8 +64,8 @@ pub const TABLES: &[(&str, &str)] = &[
     ),
 ];
 
-/// 建库脚本：DDL 与 `PRAGMA user_version` 在**同一个事务**里执行（存储合同 §1.1），
-/// 不留半结构库；首次并发建库由管理根写锁串行化。
+/// Initialize DDL and PRAGMA user_version within one transaction (storage §1.1),
+/// without partial schemas; the root lock serializes concurrent initial creation.
 pub fn create_script() -> String {
     let mut script = String::from("BEGIN;\n");
     for (_, sql) in TABLES {
@@ -77,7 +77,7 @@ pub fn create_script() -> String {
     script
 }
 
-/// 去掉全部空白，用于比对。
+/// Remove all whitespace for comparison.
 pub fn normalize_sql(sql: &str) -> String {
     sql.chars().filter(|c| !c.is_whitespace()).collect()
 }

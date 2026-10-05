@@ -1,15 +1,15 @@
-//! Sheltie 引擎的纯规则层。
+//! Pure rule layer of the Sheltie engine.
 //!
-//! 这个 crate 不做任何 I/O：没有文件、没有时钟、没有随机数、没有数据库。
-//! 时间、ID、对文件的观察都由调用方（`sheltie-runtime`）从参数传进来。
-//! 因此每条规则都能用手写输入与期望输出做单元测试。
+//! This crate performs no I/O: no filesystem, clocks, randomness, or databases.
+//! Callers (sheltie-runtime) pass timestamps, IDs, and file observations as arguments.
+//! Every rule can therefore be unit-tested with handwritten inputs and expectations.
 //!
-//! 模块对应 `specs/architecture.md` §2 的类型骨架：
-//! - [`ids`]、[`path`]、[`text`]、[`digest`]：构造即校验的基础类型。
-//! - [`workbook`]：`workbook.toml` 的解析。
-//! - [`flow`]：Flow 的解析与编译成图。
-//! - [`work`]：Work 状态机、合法下一步、任务书与状态卡的渲染。
-// 测试代码允许 unwrap；库代码不允许（workspace lints）。
+//! Modules follow the type skeleton in specs/architecture.md §2:
+//! - [`ids`], [`path`], [`text`], [`digest`]: primitive types validated on construction.
+//! - [`workbook`]: workbook.toml parsing.
+//! - [`flow`]: Flow parsing and graph compilation.
+//! - [`work`]: Work state machine, legal next actions, brief and status-card rendering.
+// Tests may unwrap; library code may not (workspace lints).
 #![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used))]
 
 pub mod digest;

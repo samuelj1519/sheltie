@@ -4,7 +4,7 @@ entry = "draft"
 
 [[nodes]]
 id = "draft"
-title = "写初稿"
+title = "Write a draft"
 executor = "agent"
 instruction = { file = "instructions/draft.md" }
 inputs  = [
@@ -16,7 +16,7 @@ max_visits = 3
 
 [[nodes]]
 id = "review"
-title = "审查初稿"
+title = "Review the draft"
 executor = "agent"
 instruction = { file = "instructions/review.md" }
 inputs  = [
@@ -28,9 +28,9 @@ max_visits = 3
 
 [[nodes]]
 id = "publish"
-title = "定稿"
+title = "Finalize"
 executor = "human"
-instruction = { text = "阅读审查通过的文章，确认可以发布。把最终版复制到 final.md。" }
+instruction = { text = "Read the accepted article, confirm publication, and copy the final version to final.md." }
 inputs  = [{ name = "article", from = "draft.article" }, { name = "review", from = "review.verdict" }]
 outputs = [{ name = "final", path = "final.md" }]
 

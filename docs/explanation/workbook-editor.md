@@ -1,33 +1,35 @@
-# 作者工具为什么独立于引擎
+# Why the authoring tool is separate from the engine
 
-Workbook 作者需要看清图、编辑说明和输入输出，并取得完整可运行的方法目录。作者工具为这些操作提供画布，以可信 `sheltie` 的公开 CLI 判断结构。它不运行 Work，也不维护另一套运行状态。
+English | [简体中文](workbook-editor.zh-CN.md)
 
-具体操作见[编辑 Workbook](../how-to/edit-workbook.md)；接口、限额和文件规则见[作者工具参考](../reference/workbook-editor.md)。
+Workbook authors need to see the graph, edit instructions and inputs/outputs, and obtain a complete runnable method directory. The authoring tool provides a canvas and uses a trusted `sheltie` public CLI to judge structure. It does not run Works or maintain another execution state.
 
-## 完整文件比表单投影更可靠
+See [edit a Workbook](../how-to/edit-workbook.md) for operations and [authoring reference](../reference/workbook-editor.md) for interfaces, limits, and file rules.
 
-`workbook show` 便于查询方法摘要，但不是可以重建整个方法目录的完整数据源。资源可能是二进制文件，说明有自己的原字节，TOML 也可能包含应当拒绝的未知字段。
+## Complete files are safer than form projections
 
-因此浏览器用文件 Map 保存原 bytes。表单只改实际编辑的字段，未编辑文件保留原 bytes，已编辑 TOML 保留完整对象。无法解析或表示的文件拒绝相应编辑，而不是用模板替换。这样结构检查能继续发现原有问题，避免表单渲染把非法定义变成另一份合法定义。
+`workbook show` is useful for a method summary, but cannot reconstruct the complete directory. Resources may be binary; instructions have original bytes; TOML may contain unknown fields that should be rejected.
 
-布局与定义同样分开。位置、搜索、折叠与连线显示模式不会修改 Node、Edge 或输入绑定。连线只表示显式流程；前置输入的来源必须另外选择，不能因图上相邻就猜文件传递关系。
+The browser therefore retains original bytes in a file Map. Forms modify only fields actually edited. Untouched files retain original bytes; edited TOML retains the complete object. Unparsable or unrepresentable files refuse the relevant edit instead of being replaced by templates. Structural checks can still find existing problems, without form rendering turning an invalid definition into a different valid one.
 
-## 结构判定必须来自实际引擎
+Layout and definitions are also separate. Position, search, folding, and connection display modes do not change Nodes, Edges, or input bindings. Lines represent explicit flow only. Sources for predecessor inputs are selected separately, without inferring file transfer from adjacent nodes.
 
-浏览器的基础检查能及时提示作者，却不能替代引擎编译规则。服务在自有新临时根中物化当前完整集合，再以启动时固定的可信引擎调用公开 `workbook add`。工具不直接读 Store，不通过内部模块绕过公开校验。
+## Structure must be judged by the real engine
 
-保存 ZIP 会重新验证收到的确切集合；上一次绿色标记不能给后续改动授予资格。下载保存的是作者草稿，不是某个正式 Work 的封存结果。新方法在装入与实际运行时仍须走各自的公开检查。
+Browser checks provide early feedback but cannot replace engine compilation rules. The service materializes the current complete set in a new temporary root it owns, then calls public `workbook add` with the trusted engine fixed at startup. It neither reads Store directly nor bypasses public validation through internal modules.
 
-## 为什么传逐项数组并整组前检
+Saving a ZIP revalidates the exact set received. A previous green indicator cannot qualify later edits. The download is an author draft, not sealed results from a formal Work. Installation and actual execution still use their respective public checks.
 
-如果用 JSON 对象或先解压 ZIP 接收同名文件，重复条目可能在检查前已被覆盖。逐项数组保留每个路径和 bytes，便于先拒绝重复、别名、目录冲突和超限，再物化整组。
+## Why arrays of entries and whole-set preflight
 
-文件系统还可能把不同拼写视作同一路径，所以前检与物化后的完整字节核对承担不同义务。只规范化路径并保留最后一项，会静默丢失资料。第一版只打开目录，下载 ZIP 后先解压再打开，避免引入另一条 ZIP 输入解析路径。
+Receiving same-named files as a JSON object or extracting a ZIP first can overwrite duplicates before validation. An entry array preserves every path and its bytes, allowing duplicate, alias, directory-conflict, and limit rejection before materializing the whole set.
 
-## 为什么只提供本地窄接口
+Filesystems can treat different spellings as one path, so preflight and post-materialization verification of the complete byte set have separate obligations. Normalizing paths and retaining the last entry silently loses data. The first version opens directories only: extract downloaded ZIPs before opening, avoiding a second ZIP input parser.
 
-服务只监听本地地址，并核实际 Host、Origin 与会话 token；接口只接受草稿字节，不接受任意宿主路径或命令。固定路由和文本显示让导入说明保持资料身份，避免变成可执行页面内容。
+## Why a narrow local interface
 
-工具可以核直接引擎 child 的退出，却不能证明整个宿主进程树已停止。清理须等直接 child 与流确实关闭；无法确认就保留根并报告。这个范围同时限制了工具的权限和它可以作出的成功承诺。
+The service listens locally and verifies the actual Host, Origin, and session token. Interfaces accept draft bytes, without arbitrary host paths or commands. Fixed routes and text rendering keep imported instructions as data rather than executable page content.
 
-实现入口为 [server.mjs](../../tools/workbook-editor/server.mjs)、[文件边界](../../tools/workbook-editor/lib/files.mjs)、[CLI 边界](../../tools/workbook-editor/lib/engine.mjs)和[浏览器模型](../../tools/workbook-editor/public/model.mjs)。测试与执行方式见[工具 README](../../tools/workbook-editor/README.md)，方法约束见[Workbook 合同](../../specs/contracts/workbook.md)。
+The tool can verify exit of its direct engine child, but cannot prove that the whole host process tree has stopped. Cleanup waits until that child and its streams have closed. If this cannot be confirmed, it retains the root and reports it. This scope limits both tool permissions and success guarantees.
+
+Implementation entry points are [server.mjs](../../tools/workbook-editor/server.mjs), [file boundary](../../tools/workbook-editor/lib/files.mjs), [CLI boundary](../../tools/workbook-editor/lib/engine.mjs), and [browser model](../../tools/workbook-editor/public/model.mjs). See the [tool README](../../tools/workbook-editor/README.md) for tests and execution, and the [Workbook contract](../../specs/contracts/workbook.md) for method rules.

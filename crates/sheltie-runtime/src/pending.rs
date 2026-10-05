@@ -99,7 +99,7 @@ impl PendingReferenceIndex {
                         if request.work_id.is_some() {
                             return Err(Error::StoreCorrupt {
                                 detail: format!(
-                                    "remove Workbook请求 {} 带有Work归属",
+                                    "remove Workbook request {} contains Work ownership",
                                     request.request_id
                                 ),
                             });
@@ -117,7 +117,7 @@ impl PendingReferenceIndex {
                 {
                     return Err(Error::StoreCorrupt {
                         detail: format!(
-                            "请求 {} 的pending引用有重复internal_id或无效digest",
+                            "Request {} pending references contain duplicate internal_id or invalid digest",
                             request.request_id
                         ),
                     });
@@ -142,7 +142,7 @@ impl PendingReferenceIndex {
             if references.len() != 1 {
                 return Err(Error::StoreCorrupt {
                     detail: format!(
-                        "pending/{internal_id} 被 {} 个requests效果引用",
+                        "pending/{internal_id} is referenced by {} requests effects",
                         references.len()
                     ),
                 });
@@ -239,7 +239,7 @@ pub(crate) fn locate_publish_dir(
         final_path,
         std::io::Error::new(
             std::io::ErrorKind::WouldBlock,
-            "发布目录在只读定位期间处于rename交错窗口",
+            "Publication directory is in a rename race during read-only location",
         ),
     ))
 }
@@ -277,7 +277,7 @@ pub(crate) fn read_publish_dir<T>(
         &location.final_path,
         std::io::Error::new(
             std::io::ErrorKind::WouldBlock,
-            "pending/final目录在只读读取期间持续rename交错",
+            "pending/final directories repeatedly race with rename during read-only reading",
         ),
     ))
 }
@@ -317,7 +317,7 @@ pub(crate) fn prepare_new_request(
         return Err(Error::io(
             home.pending_dir().as_str(),
             std::io::Error::other(format!(
-                "当前未提交请求 {request_id} 的原件未能安全清理，尚未登记新请求：{}",
+                "Current uncommitted request {request_id} original could not be cleaned safely; no new request registered: {}",
                 warnings.join("; ")
             )),
         ));
@@ -331,7 +331,7 @@ pub(crate) fn prepare_new_request(
         if selected.contains(id) {
             return Err(Error::StoreCorrupt {
                 detail: format!(
-                    "当前未提交请求 {request_id} 的残留 pending/{} 未清，不能登记新请求",
+                    "Current uncommitted request {request_id} pending/{} residue remains; cannot register a new request",
                     entry.name
                 ),
             });
@@ -364,7 +364,7 @@ fn cleanup_selected(
                         maintenance_warning(
                             &reference.request_id,
                             &format!("pending/{id}"),
-                            "未发布原件引用存在但pending根缺失",
+                            "Unpublished original reference exists but pending root is missing",
                         )
                     })
             })
@@ -391,7 +391,7 @@ fn cleanup_selected(
                 warnings.push(maintenance_warning(
                     "unknown",
                     &format!("pending/{}", entry.name),
-                    "侧车文件名不是合法internal_id，保留原件",
+                    "Sidecar filename is not a valid internal_id; preserve the original",
                 ));
             }
         } else if let Some(id) = entry.name.strip_suffix(".deleted") {
@@ -401,7 +401,7 @@ fn cleanup_selected(
                 warnings.push(maintenance_warning(
                     "unknown",
                     &format!("pending/{}", entry.name),
-                    "删除marker文件名不是合法internal_id，保留原件",
+                    "Deletion marker filename is not a valid internal_id; preserve the original",
                 ));
             }
         } else if valid_internal_id(&entry.name) {
@@ -410,7 +410,7 @@ fn cleanup_selected(
             warnings.push(maintenance_warning(
                 "unknown",
                 &format!("pending/{}", entry.name),
-                "未识别pending对象，保留原件",
+                "Unrecognized pending object; preserve the original",
             ));
         }
     }
@@ -428,7 +428,7 @@ fn cleanup_selected(
                             .map(|reference| reference.request_id.as_str())
                             .unwrap_or("unknown"),
                         &format!("pending/{id}.owner"),
-                        &format!("owner无法读取或校验，保留原件：{error}"),
+                        &format!("Cannot read or verify owner; preserve the original: {error}"),
                     ));
                     continue;
                 }
@@ -439,7 +439,7 @@ fn cleanup_selected(
                         .map(|reference| reference.request_id.as_str())
                         .unwrap_or("unknown"),
                     &format!("pending/{id}.owner"),
-                    "owner类型异常，保留原件",
+                    "Unexpected owner type; preserve the original",
                 ));
                 continue;
             }
@@ -464,7 +464,7 @@ fn cleanup_selected(
             warnings.push(maintenance_warning(
                 request_id,
                 &format!("pending/{id}"),
-                "owner与Store引用不一致或引用缺失，保留原件",
+                "owner differs from Store reference or reference is missing; preserve the original",
             ));
             continue;
         }
@@ -486,7 +486,7 @@ fn cleanup_selected(
                 warnings.push(maintenance_warning(
                     &reference.request_id,
                     &format!("pending/{id}.deleted"),
-                    "publish请求出现删除marker，保留原件",
+                    "publish request has a deletion marker; preserve the original",
                 ));
                 continue;
             }
@@ -495,7 +495,7 @@ fn cleanup_selected(
                     warnings.push(maintenance_warning(
                         &reference.request_id,
                         &format!("pending/{id}.deleted"),
-                        "删除marker类型异常，保留原件",
+                        "Unexpected deletion marker type; preserve the original",
                     ));
                     continue;
                 }
@@ -507,7 +507,7 @@ fn cleanup_selected(
                             warnings.push(maintenance_warning(
                                 &reference.request_id,
                                 &format!("pending/{id}.deleted"),
-                                &format!("删除marker校验失败，保留原件：{error}"),
+                                &format!("Deletion marker verification failed; preserve the original: {error}"),
                             ));
                             continue;
                         }
@@ -518,7 +518,7 @@ fn cleanup_selected(
             warnings.push(maintenance_warning(
                 "unknown",
                 &format!("pending/{id}.deleted"),
-                "marker不能证明孤儿归属，保留原件",
+                "Marker does not prove orphan ownership; preserve the original",
             ));
             continue;
         }
@@ -528,7 +528,7 @@ fn cleanup_selected(
                 warnings.push(maintenance_warning(
                     cleanup_request_id,
                     &format!("pending/{id}"),
-                    "container类型异常，保留owner和原件",
+                    "Unexpected container type; preserve owner and original",
                 ));
                 continue;
             }
@@ -539,7 +539,7 @@ fn cleanup_selected(
                     warnings.push(maintenance_warning(
                         cleanup_request_id,
                         &path,
-                        &format!("无法取得已核对象，保留owner：{error}"),
+                        &format!("Cannot obtain verified object; preserve owner: {error}"),
                     ));
                     continue;
                 }
@@ -551,7 +551,7 @@ fn cleanup_selected(
                         warnings.push(maintenance_warning(
                             cleanup_request_id,
                             &path,
-                            "已完成请求的container仍有内容，保留原件",
+                            "Completed request container still has contents; preserve the original",
                         ));
                         continue;
                     }
@@ -559,7 +559,9 @@ fn cleanup_selected(
                         warnings.push(maintenance_warning(
                             cleanup_request_id,
                             &path,
-                            &format!("container状态无法核验，保留原件：{error}"),
+                            &format!(
+                                "Cannot verify container state; preserve the original: {error}"
+                            ),
                         ));
                         continue;
                     }
@@ -571,7 +573,9 @@ fn cleanup_selected(
                     warnings.push(maintenance_warning(
                         cleanup_request_id,
                         &path,
-                        &format!("清理同步点失败，保留原件：{error}"),
+                        &format!(
+                            "Cleanup synchronization point failed; preserve the original: {error}"
+                        ),
                     ));
                     continue;
                 }
@@ -579,7 +583,7 @@ fn cleanup_selected(
                     warnings.push(maintenance_warning(
                         cleanup_request_id,
                         &path,
-                        &format!("清理失败，保留原件：{error}"),
+                        &format!("Cleanup failed; preserve the original: {error}"),
                     ));
                     continue;
                 }
@@ -587,7 +591,9 @@ fn cleanup_selected(
                     warnings.push(maintenance_warning(
                         cleanup_request_id,
                         &path,
-                        &format!("empty-container删除失败，保留变化对象：{error}"),
+                        &format!(
+                            "Empty-container deletion failed; preserve the changed object: {error}"
+                        ),
                     ));
                     continue;
                 }
@@ -596,7 +602,7 @@ fn cleanup_selected(
                     warnings.push(maintenance_warning(
                         cleanup_request_id,
                         &path,
-                        &format!("合法孤儿无法放开内部权限，保留原件：{error}"),
+                        &format!("Cannot relax valid orphan's internal permissions; preserve the original: {error}"),
                     ));
                     continue;
                 }
@@ -604,7 +610,7 @@ fn cleanup_selected(
                     warnings.push(maintenance_warning(
                         cleanup_request_id,
                         &path,
-                        &format!("清理失败，保留原件：{error}"),
+                        &format!("Cleanup failed; preserve the original: {error}"),
                     ));
                     continue;
                 }
@@ -614,7 +620,7 @@ fn cleanup_selected(
                     warnings.push(maintenance_warning(
                         cleanup_request_id,
                         &path,
-                        &format!("合法孤儿删除失败，保留原件：{error}"),
+                        &format!("Valid orphan deletion failed; preserve the original: {error}"),
                     ));
                     continue;
                 }
@@ -625,7 +631,7 @@ fn cleanup_selected(
                 warnings.push(maintenance_warning(
                     cleanup_request_id,
                     &format!("pending/{id}.owner"),
-                    &format!("侧车删除失败：{error}"),
+                    &format!("Sidecar deletion failed: {error}"),
                 ));
             } else {
                 let path = home.rel(&format!("pending/{id}.owner"))?;
@@ -635,7 +641,7 @@ fn cleanup_selected(
                     warnings.push(maintenance_warning(
                         cleanup_request_id,
                         &format!("pending/{id}.owner"),
-                        &format!("侧车删除失败：{error}"),
+                        &format!("Sidecar deletion failed: {error}"),
                     ));
                 }
             }
@@ -647,7 +653,7 @@ fn cleanup_selected(
                 warnings.push(maintenance_warning(
                     cleanup_request_id,
                     &format!("pending/{id}.deleted"),
-                    &format!("marker删除失败：{error}"),
+                    &format!("Marker deletion failed: {error}"),
                 ));
                 continue;
             }
@@ -659,7 +665,7 @@ fn cleanup_selected(
                         warnings.push(maintenance_warning(
                             cleanup_request_id,
                             &format!("pending/{id}.deleted"),
-                            &format!("marker删除失败：{error}"),
+                            &format!("Marker deletion failed: {error}"),
                         ));
                     }
                 }
@@ -667,7 +673,7 @@ fn cleanup_selected(
                 Err(error) => warnings.push(maintenance_warning(
                     cleanup_request_id,
                     &format!("pending/{id}.deleted"),
-                    &format!("marker读取失败：{error}"),
+                    &format!("Marker read failed: {error}"),
                 )),
             }
         }
@@ -711,16 +717,22 @@ fn validate_publish_request_work_id(
     if let Some(work) = owner.strip_prefix("work:") {
         let parsed =
             sheltie_core::ids::WorkId::parse(work).map_err(|error| Error::StoreCorrupt {
-                detail: format!("publish owner {owner:?} 的WorkId无效：{error}"),
+                detail: format!("Invalid publish owner {owner:?} WorkId: {error}"),
             })?;
         if request.work_id.as_deref() != Some(parsed.as_str()) {
             return Err(Error::StoreCorrupt {
-                detail: format!("publish请求 {} 的work_id与owner不一致", request.request_id),
+                detail: format!(
+                    "publish request {} work_id differs from owner",
+                    request.request_id
+                ),
             });
         }
     } else if request.work_id.is_some() {
         return Err(Error::StoreCorrupt {
-            detail: format!("Workbook publish请求 {} 带有Work归属", request.request_id),
+            detail: format!(
+                "Workbook publish request {} contains Work ownership",
+                request.request_id
+            ),
         });
     }
     Ok(())
@@ -733,17 +745,23 @@ fn validate_other_effect_paths(
     let validate_path = |path: &str, allow_ancestor: bool| -> Result<()> {
         let relative =
             ManagedRelPath::new(path.to_string()).map_err(|error| Error::StoreCorrupt {
-                detail: format!("请求 {} effects路径无效：{error}", request.request_id),
+                detail: format!(
+                    "Invalid request {} effects path: {error}",
+                    request.request_id
+                ),
             })?;
         let work = request
             .work_id
             .as_deref()
             .ok_or_else(|| Error::StoreCorrupt {
-                detail: format!("Workbook请求 {} 含Work效果路径", request.request_id),
+                detail: format!(
+                    "Workbook request {} contains a Work effect path",
+                    request.request_id
+                ),
             })?;
         let parsed =
             sheltie_core::ids::WorkId::parse(work).map_err(|error| Error::StoreCorrupt {
-                detail: format!("请求 {} 的work_id无效：{error}", request.request_id),
+                detail: format!("Invalid request {} work_id: {error}", request.request_id),
             })?;
         let prefix = format!("works/{parsed}/");
         let ancestor = allow_ancestor
@@ -751,7 +769,7 @@ fn validate_other_effect_paths(
         if !relative.as_str().starts_with(&prefix) && !ancestor {
             return Err(Error::StoreCorrupt {
                 detail: format!(
-                    "请求 {} effects路径 {} 不属于Work目录 {}",
+                    "Request {} effects path {} is outside Work directory {}",
                     request.request_id, path, parsed
                 ),
             });
@@ -763,7 +781,10 @@ fn validate_other_effect_paths(
         EffectOp::PrepareAttempt { work_id, dirs, .. } => {
             if request.work_id.as_deref() != Some(work_id.as_str()) {
                 return Err(Error::StoreCorrupt {
-                    detail: format!("请求 {} PrepareAttempt.work_id不一致", request.request_id),
+                    detail: format!(
+                        "Request {} PrepareAttempt.work_id does not match",
+                        request.request_id
+                    ),
                 });
             }
             for path in dirs {
@@ -773,7 +794,7 @@ fn validate_other_effect_paths(
         EffectOp::WriteFile { path, sha256, .. } => {
             if !valid_digest(sha256) {
                 return Err(Error::StoreCorrupt {
-                    detail: format!("请求 {} WriteFile摘要无效", request.request_id),
+                    detail: format!("Request {} WriteFile digest is invalid", request.request_id),
                 });
             }
             validate_path(path, false)?;
@@ -782,7 +803,10 @@ fn validate_other_effect_paths(
             for reference in refs {
                 if !valid_digest(&reference.sha256) {
                     return Err(Error::StoreCorrupt {
-                        detail: format!("请求 {} SealOutputs摘要无效", request.request_id),
+                        detail: format!(
+                            "Request {} SealOutputs digest is invalid",
+                            request.request_id
+                        ),
                     });
                 }
                 validate_path(&reference.path, false)?;
@@ -792,14 +816,14 @@ fn validate_other_effect_paths(
             let parsed =
                 sheltie_core::ids::WorkId::parse(work_id).map_err(|error| Error::StoreCorrupt {
                     detail: format!(
-                        "请求 {} RefreshStatusCard.work_id无效：{error}",
+                        "Invalid request {} RefreshStatusCard.work_id: {error}",
                         request.request_id
                     ),
                 })?;
             if request.work_id.as_deref() != Some(parsed.as_str()) {
                 return Err(Error::StoreCorrupt {
                     detail: format!(
-                        "请求 {} RefreshStatusCard.work_id与requests不一致",
+                        "Request {} RefreshStatusCard.work_id differs from requests",
                         request.request_id
                     ),
                 });
@@ -807,7 +831,10 @@ fn validate_other_effect_paths(
         }
         EffectOp::PublishDir { .. } | EffectOp::DeleteDir { .. } => {
             return Err(Error::StoreCorrupt {
-                detail: format!("请求 {} 目录效果进入非目录校验入口", request.request_id),
+                detail: format!(
+                    "Request {} directory effect entered a nondirectory validation entry point",
+                    request.request_id
+                ),
             });
         }
     }
@@ -821,12 +848,12 @@ fn validate_publish_reference(
     digest_root: &str,
 ) -> Result<()> {
     ManagedRelPath::new(final_path.to_string()).map_err(|error| Error::StoreCorrupt {
-        detail: format!("publish final路径无效：{error}"),
+        detail: format!("Invalid publish final path: {error}"),
     })?;
     if let Some(work) = owner.strip_prefix("work:") {
         let parsed =
             sheltie_core::ids::WorkId::parse(work).map_err(|error| Error::StoreCorrupt {
-                detail: format!("publish Work owner {owner:?} 无效：{error}"),
+                detail: format!("publish Work owner {owner:?} Invalid: {error}"),
             })?;
         if owner != format!("work:{parsed}")
             || final_path != format!("works/{parsed}")
@@ -834,7 +861,7 @@ fn validate_publish_reference(
             || !valid_digest(digest)
         {
             return Err(Error::StoreCorrupt {
-                detail: format!("publish Work {owner:?} 的final/digest闭包无效"),
+                detail: format!("publish Work {owner:?} final/digest closure is invalid"),
             });
         }
         return Ok(());
@@ -842,16 +869,16 @@ fn validate_publish_reference(
     let identity = owner
         .strip_prefix("workbook:")
         .ok_or_else(|| Error::StoreCorrupt {
-            detail: format!("publish owner {owner:?} 不属于Work或Workbook"),
+            detail: format!("publish owner {owner:?} is neither Work nor Workbook"),
         })?;
     let (id, version) = identity
         .split_once('@')
         .ok_or_else(|| Error::StoreCorrupt {
-            detail: format!("publish Workbook owner {owner:?} 缺version"),
+            detail: format!("publish Workbook owner {owner:?} lacks version"),
         })?;
     let parsed_id =
         sheltie_core::ids::WorkbookId::new(id).map_err(|error| Error::StoreCorrupt {
-            detail: format!("publish Workbook owner {owner:?} 的id无效：{error}"),
+            detail: format!("Invalid publish Workbook owner {owner:?} ID: {error}"),
         })?;
     if !crate::load::valid_workbook_version(version)
         || owner != format!("workbook:{}@{version}", parsed_id.as_str())
@@ -860,7 +887,7 @@ fn validate_publish_reference(
         || !valid_digest(digest)
     {
         return Err(Error::StoreCorrupt {
-            detail: format!("publish Workbook {owner:?} 的final/digest闭包无效"),
+            detail: format!("publish Workbook {owner:?} final/digest closure is invalid"),
         });
     }
     Ok(())
@@ -868,21 +895,21 @@ fn validate_publish_reference(
 
 fn validate_delete_reference(owner: &str, final_path: &str, digest: &str) -> Result<()> {
     ManagedRelPath::new(final_path.to_string()).map_err(|error| Error::StoreCorrupt {
-        detail: format!("delete final路径无效：{error}"),
+        detail: format!("Invalid delete final path: {error}"),
     })?;
     let identity = owner
         .strip_prefix("workbook:")
         .ok_or_else(|| Error::StoreCorrupt {
-            detail: format!("delete owner {owner:?} 不是Workbook"),
+            detail: format!("delete owner {owner:?} is not Workbook"),
         })?;
     let (id, version) = identity
         .split_once('@')
         .ok_or_else(|| Error::StoreCorrupt {
-            detail: format!("delete Workbook owner {owner:?} 缺version"),
+            detail: format!("delete Workbook owner {owner:?} lacks version"),
         })?;
     let parsed_id =
         sheltie_core::ids::WorkbookId::new(id).map_err(|error| Error::StoreCorrupt {
-            detail: format!("delete Workbook owner {owner:?} 的id无效：{error}"),
+            detail: format!("Invalid delete Workbook owner {owner:?} ID: {error}"),
         })?;
     if !crate::load::valid_workbook_version(version)
         || owner != format!("workbook:{}@{version}", parsed_id.as_str())
@@ -890,7 +917,7 @@ fn validate_delete_reference(owner: &str, final_path: &str, digest: &str) -> Res
         || !valid_digest(digest)
     {
         return Err(Error::StoreCorrupt {
-            detail: format!("delete Workbook {owner:?} 的final/digest闭包无效"),
+            detail: format!("delete Workbook {owner:?} final/digest closure is invalid"),
         });
     }
     Ok(())
@@ -909,23 +936,23 @@ pub(crate) fn read_owner_file(
     let file = crate::fsx::open_managed_regular(home, &absolute).map_err(|error| match error {
         error @ Error::Io { .. } => error,
         other => Error::StoreCorrupt {
-            detail: format!("pending/{internal_id}.owner缺失或无效：{other}"),
+            detail: format!("pending/{internal_id}.owner is missing or invalid: {other}"),
         },
     })?;
     let mut bytes = file.read_bounded(4096).map_err(|error| match error {
         error @ Error::Io { .. } => error,
         other => Error::StoreCorrupt {
-            detail: format!("pending/{internal_id}.owner不可读：{other}"),
+            detail: format!("pending/{internal_id}.owner is unreadable: {other}"),
         },
     })?;
     if bytes.pop() != Some(b'\n') {
         return Err(Error::StoreCorrupt {
-            detail: format!("pending/{internal_id}.owner缺少结尾换行"),
+            detail: format!("pending/{internal_id}.owner lacks a final newline"),
         });
     }
     let owner: PendingOwner =
         serde_json::from_slice(&bytes).map_err(|error| Error::StoreCorrupt {
-            detail: format!("pending/{internal_id}.owner JSON无效：{error}"),
+            detail: format!("pending/{internal_id}.owner JSONInvalid: {error}"),
         })?;
     if owner.format != "pending/v1"
         || owner.internal_id != internal_id
@@ -935,7 +962,7 @@ pub(crate) fn read_owner_file(
         )
     {
         return Err(Error::StoreCorrupt {
-            detail: format!("pending/{internal_id}.owner字段与路径不一致"),
+            detail: format!("pending/{internal_id}.owner fields differ from path"),
         });
     }
     Ok((owner, file))
@@ -950,7 +977,7 @@ pub(crate) fn verify_owner(
     let owner = read_owner(home, internal_id)?;
     if owner.request_id != request_id || owner.op != operation {
         return Err(Error::StoreCorrupt {
-            detail: format!("pending/{internal_id}.owner与Store请求归属不一致"),
+            detail: format!("pending/{internal_id}.owner differs from Store request ownership"),
         });
     }
     Ok(())
@@ -1008,8 +1035,14 @@ mod tests {
         assert_eq!(bytes, b"same-tree-bytes");
         assert!(pending_publish);
         assert_eq!(attempts, 2);
-        assert!(!home.lock_path().as_path().exists(), "只读定位不创建引擎锁");
-        assert!(!home.store_path().as_path().exists(), "只读定位不创建Store");
+        assert!(
+            !home.lock_path().as_path().exists(),
+            "Read-only location must not create the engine lock"
+        );
+        assert!(
+            !home.store_path().as_path().exists(),
+            "Read-only location must not create Store"
+        );
     }
 }
 
@@ -1385,7 +1418,7 @@ mod pending_qualification_contract_tests {
         let _serial = crate::failpoint::RENDEZVOUS_TEST_LOCK.lock().unwrap();
         let (_directory, home) = fixture();
         crate::WorkbookRepo::new(home.clone())
-            .remove("two-step", "1.0.0", Some("completed-delete".into()))
+            .remove("two-step", "1.0.1", Some("completed-delete".into()))
             .unwrap();
         let lock = home.acquire_lock().unwrap();
         let store = Store::open_for_home(&home, OpenMode::ReadWrite).unwrap();

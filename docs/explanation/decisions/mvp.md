@@ -1,127 +1,129 @@
-# MVP 设计理由
+# MVP design reasons
 
-本文提炼 v0.1.0 的 D-01–D-31，保留设计动机与被后续取代的边界。它是历史解释，当前行为以规格与合同为准；逐轮审查、修复流水和首次运行原件从[固定 Git 快照](../../how-to/maintain-docs.md#查阅历史原件)读取。
+English | [简体中文](mvp.zh-CN.md)
 
-## D-01 边显式声明，合法下一步就是出边
+This summarizes v0.1.0 D-01–D-31, retaining motivations and successor boundaries. It is historical explanation; current specifications/contracts govern behavior. Original reviews, repair logs, and first runs are in [fixed Git snapshots](../../how-to/maintain-docs.md#read-original-historical-records).
 
-边由方法作者声明，协调者只从 next 选路。避免根据输入引用推断流程，依赖和执行顺序各有明确来源。
+## D-01 Explicit edges define legal next actions
 
-## D-02 协调者选边，引擎不读内容
+Method authors declare edges; coordinators choose only from next. Do not infer flow from input references: dependencies and execution order each have explicit sources.
 
-自然语言结论由协调者解释；引擎只验证所选操作是否合法。内容审查属于普通 Node，避免把业务判断写入内核。
+## D-02 Coordinators choose edges; the engine does not read content
 
-## D-03 小 CLI 与每次响应的 next
+Coordinators interpret natural-language conclusions; the engine checks only legality. Content review is an ordinary Node, without business judgments in the kernel.
 
-MVP 使用少量明确动词，并随业务响应给出合法下一步。历史动词数量不限制后续接口，当前命令以协议合同为准。
+## D-03 Small CLI and next in every response
 
-## D-04 gate 与 executor 正交
+MVP used a few explicit verbs and returned legal next actions with business responses. Historical verb counts do not limit later interfaces; the protocol contract defines current commands.
 
-executor 决定谁执行节点；gate 决定成功后是否必须批准才能离开。人工执行不自动等于授权批准。
+## D-04 Gate and executor are orthogonal
 
-## D-05 状态 JSON 与乐观并发
+executor determines who executes; gate requires approval after success before leaving. Human execution does not automatically constitute authorized approval.
 
-整份 Work 状态存 JSON，revision 用于 CAS。SQLite 事务负责事实一致性，状态转换不分散在多张业务表。
+## D-05 State JSON and optimistic concurrency
 
-## D-06 Work ID 使用日期、序号和名字
+Store whole Work state as JSON; revision supports CAS. SQLite transactions ensure consistency instead of scattering state transitions across business tables.
 
-UTC 日期加当日序号便于人阅读。序号在短事务分配，不回收失败空号；完整身份来自 Store，目录名只是投影。
+## D-06 Work IDs contain date, sequence, and name
 
-## D-07 宿主写入是 INV-3 的边界
+UTC date and daily sequence aid reading. Allocate sequence numbers in short transactions without reclaiming failed gaps. Complete identity comes from Store; directory names are projections.
 
-Workbook 入库和 self 管理只写引擎管理根；宿主配置、skill 和命名 subagent 安装由获授权的独立工具处理。
+## D-07 Host writes are the INV-3 boundary
 
-## D-08 单二进制与 self 管理
+Workbook installation and self management write only within the management root. Authorized independent tools install host configuration, skills, and named subagents.
 
-引擎二进制承担 install／update／rollback 等自身管理。最初的 axoupdater 设想后来由 D-30 取代，避免安装链写宿主配置。
+## D-08 One binary and self management
 
-## D-09 每个 Work 持有冻结 Workbook
+The engine binary handles install/update/rollback. D-30 superseded the initial axoupdater idea, avoiding host-configuration writes in the installation chain.
 
-start 时复制方法，之后运行只读自己的副本。删除已装版本或手改原目录不改变旧 Work 定义。
+## D-09 Every Work holds a frozen Workbook
 
-## D-10 参考文件与宿主机制分层
+start copies the method; subsequent execution reads that copy. Deleting installed versions or manually editing source directories does not change old Work definitions.
 
-普通文件放 resources 并绑定输入；只有宿主机制才按 kind:name 声明 requires。宿主安装与去重部分属于未来工具，不是引擎当前能力。
+## D-10 Separate reference files from host mechanisms
 
-## D-11 执行失败与负面结论分开
+Place ordinary files in resources and bind them as inputs. Only host mechanisms use kind:name requires. Host installation/deduplication remains future tooling, not current engine capability.
 
-审查完成但结论不通过仍是执行成功，按显式边返工；崩溃或交不出输出才记 failed。C005 后续新增 superseded，当前状态以合同为准。
+## D-11 Execution failure differs from negative content verdicts
 
-## D-12 到达与失败重试两个上限
+A completed review with a negative verdict succeeds operationally; explicit edges route rework. Crashes or missing deliveries are failed. C005 later added superseded; current contracts define states.
 
-max_visits 控制回环到达，max_retries 控制同一次到达的业务失败重试。避免第三个语义重叠的修订次数。
+## D-12 Separate arrival and retry limits
 
-## D-13 从简单工作流开始
+max_visits limits loop arrivals; max_retries limits execution-failure retries within one arrival. Avoid a third semantically overlapping revision count.
 
-方法图固定，agent 在节点内部自主；复杂路由、动态展开与平台能力由真实需求另行采用。外部阅读线索见[设计来源](../design-sources.md)。
+## D-13 Start with simple workflows
 
-## D-14 Rust 三层与同步模型
+Method graphs are fixed; agents act autonomously within nodes. Complex routing, dynamic expansion, and platform capabilities require separately adopted real needs. See [design sources](../design-sources.md).
 
-core 纯决策，runtime 管 I/O，cli 管入口。同步 CLI 和 SQLite WAL 适合本地场景，不为 mock 建 I/O trait 或先引入 async 平台。
+## D-14 Three Rust layers and synchronous execution
 
-## D-15 MVP 使用 CLI，不先做 MCP
+core makes pure decisions, runtime handles I/O, and cli exposes entry points. Synchronous CLI/SQLite WAL suit local use. Do not add I/O traits for mocks or an async platform in advance.
 
-宿主能够调用 CLI，skill 只教操作循环。多宿主体验和独立真人身份属于另行立项能力。
+## D-15 CLI before MCP for MVP
 
-## D-16 可选的上游输出输入
+Hosts can invoke CLI; the skill teaches the operation loop. Multiple-host experience and independent human identity require separate adoption.
 
-首次到达可能没有审查反馈，允许上游输出 required=false；start 与 resource 来源不因此变成可选。
+## D-16 Optional inputs from upstream outputs
 
-## D-17 spec-dev 以方法表达开发阶段
+Review feedback may be absent on first arrival, so upstream output inputs may be required=false. start/resource sources do not become optional.
 
-规划、实现、审查和交付写在 Workbook。最初八节点形态已被 D-24 与后续方法版本演进取代，当前图读 workbooks/spec-dev。
+## D-17 spec-dev models development stages as a method
 
-## D-18 CI 与交付授权分别处理
+Planning, implementation, review, and delivery live in a Workbook. D-24 and later versions superseded the initial eight-node form. Read workbooks/spec-dev for the current graph.
 
-CI 留在方法执行之外；授权门槛由方法显式声明。最初 deliver gate 后移到 retro，见 D-24。
+## D-18 CI and delivery authorization are separate
 
-## D-19 人审旁支与进入来源
+CI stays outside method execution; methods explicitly declare authorization gates. The original deliver gate moved to retro under D-24.
 
-需要人的结论时用人工 Node 和显式旁支；任务书保留 entered_from，便于理解为何到达此节点。
+## D-19 Human-review branches and entry source
 
-## D-20 骨架与独立期望先准备
+Use a human Node and explicit branch when a person's conclusion is needed. Briefs retain entered_from to explain node arrival.
 
-MVP 先准备接口与禁用测试，再由实现者填充。该执行协议已关闭；后续按完整行为和实际风险准备，不复刻全仓填空计划。
+## D-20 Prepare interfaces and independent expectations first
 
-## D-21 tier 是协调者标签
+MVP prepared interfaces and disabled tests before implementation. That protocol is closed; later work prepares complete behavior according to actual risk rather than repeating a repository-wide fill-in plan.
 
-节点可以标 strong／standard，模型选择由协调者决定，引擎不据此调度。当前 spec-dev 以实际方法版本为准。
+## D-21 Tier is a coordinator label
 
-## D-22 稳定入口与提交可追溯
+Nodes may carry strong/standard. Coordinators select models; the engine does not schedule from tier. Current spec-dev follows its actual method version.
 
-入口记录长期规则，任务提交包含归属。把当前阶段写在 AGENTS.md 的旧做法及旧 trailer 规则已由 D-032 部分取代。
+## D-22 Stable entry points and traceable commits
 
-## D-23 ID 与错误字段精确一致
+Entry points retain lasting rules; task commits retain ownership. D-032 partially superseded current-stage content in AGENTS.md and old trailer rules.
 
-拒绝非法 ID 写法并保留解析回环；共用宏的错误字段也必须对应真实领域词，不能以类型名替代。
+## D-23 Exact IDs and error fields
 
-## D-24 反思在 Workbook，事实由引擎给出
+Reject invalid IDs and preserve parse round trips. Shared macro errors must name actual domain fields rather than substitute type names.
 
-retro 读取统计、总结方法教训，提出带证据与落点的改进；人决定新版本。引擎不自动调度、改图或读自然语言学习。
+## D-24 Reflection lives in the Workbook; the engine supplies facts
 
-## D-25 复核结论也需完整证据
+retro reads statistics, summarizes method lessons, and proposes evidence-backed improvements with locations. People decide new versions. The engine does not automatically schedule, change graphs, or learn from natural language.
 
-审查反驳逐条核实；完整 diff 与原始输出先于摘要。不能把局部观察推广成全部文件、全部检查或全部输入已核。
+## D-25 Review conclusions require complete evidence
 
-## D-26 输入展示名不等于路径 ID
+Verify rebuttals individually; complete diffs and raw output precede summaries. Partial observations do not establish that all files, checks, or inputs were verified.
 
-inputs.name 只要求节点内唯一，不强加输出 ID 字符规则。合同合法的输入不能靠改 fixture 名字迎合多余实现限制。
+## D-26 Input display names are not path IDs
 
-## D-27 测试名表达行为，归属放注释
+inputs.name requires uniqueness within a node only, without output-ID character restrictions. Do not rename legal fixtures to satisfy extra implementation limits.
 
-Task 注释供工具选组；名字不带排期编号。快照显式命名，避免函数重命名改变字节 oracle。
+## D-27 Test names describe behavior; comments identify ownership
 
-## D-28 requires 原声明与秒精度时间
+Task comments support grouping; names omit schedule IDs. Explicit snapshot names prevent function renames from changing byte oracles.
 
-回复保留资源声明字段；Timestamp 经校验，固定 UTC 秒格式。避免丢失身份字段或以解析失败默认 0。
+## D-28 Preserve requires declarations and second-precision timestamps
 
-## D-29 统计包括本次 Attempt
+Replies retain resource fields. Timestamp is validated with fixed UTC seconds, avoiding identity loss or parse errors defaulting to zero.
 
-begin 先推进状态再生成 stats，恢复按提交登记的精确历史字节发布，不按最新状态重算。反推提交前时间或同时存两份统计都会破坏冻结绑定。
+## D-29 Statistics include the current Attempt
 
-## D-30 直接读发布清单，受控更新
+begin advances state before generating stats. Recovery publishes exact historical bytes recorded at commit rather than recomputing from current state. Reverse-engineering pre-commit time or retaining duplicate stats breaks frozen bindings.
 
-不使用会调用安装脚本且无法核完整 checksum 的 axoupdater 入口。self 管理用 curl 取得清单，核字节并执行受控替换，避免宿主 shell 配置副作用。
+## D-30 Read release manifests directly for controlled updates
 
-## D-31 install 的幂等口径为字节相同
+Avoid axoupdater paths invoking installation scripts without full checksum verification. self management uses curl for manifests, verifies bytes, and performs controlled replacement without host shell-configuration effects.
 
-当前二进制能可靠比较的事实是内容。已装字节相同时不动，同版本不同字节不能当作同一实物。
+## D-31 Install idempotence means identical bytes
+
+The reliable binary comparison is content. Identical installed bytes remain untouched; the same version with different bytes is a different artifact.

@@ -1,0 +1,50 @@
+schema = "flow/v1"
+id = "default"
+entry = "implement"
+
+[[nodes]]
+id = "implement"
+title = "实现代码变更"
+executor = "agent"
+tier = "strong"
+instruction = { file = "instructions/implement.md" }
+inputs = [{ name = "task", from = "start.task" }, { name = "project", from = "start.project" }, { name = "previous-review", from = "review.review", required = false }]
+outputs = [{ name = "change", path = "change.md", max_bytes = 262144 }]
+max_visits = 3
+max_retries = 1
+
+[[nodes]]
+id = "review"
+title = "独立审查代码变更"
+executor = "agent"
+tier = "strong"
+instruction = { file = "instructions/review.md" }
+inputs = [{ name = "task", from = "start.task" }, { name = "project", from = "start.project" }, { name = "change", from = "implement.change" }]
+outputs = [{ name = "review", path = "review.md", max_bytes = 262144 }]
+max_visits = 3
+max_retries = 1
+
+[[nodes]]
+id = "deliver"
+title = "整理最终成果"
+executor = "agent"
+instruction = { file = "instructions/deliver.md" }
+inputs = [{ name = "task", from = "start.task" }, { name = "change", from = "implement.change", result = true }, { name = "review", from = "review.review", result = true }]
+outputs = [{ name = "delivery", path = "delivery.md", result = true, max_bytes = 262144 }]
+max_visits = 1
+max_retries = 1
+
+[[edges]]
+from = "implement"
+to = "review"
+kind = "main"
+
+[[edges]]
+from = "review"
+to = "implement"
+kind = "back"
+
+[[edges]]
+from = "review"
+to = "deliver"
+kind = "main"

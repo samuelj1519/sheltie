@@ -1,47 +1,49 @@
-# 产品路线图
+# Product roadmap
 
-本文定义未采用方向、需求条件和优先级。当前能力以[规格](spec.md)、[合同](contracts)与[发布记录](../docs/reference/releases/README.md)为准；具体候选由[change 索引](changes/README.md)进入。
+English | [简体中文](roadmap.zh-CN.md)
 
-## 1. 产品目标与首批用户
+This document defines unadopted directions, demand conditions, and priorities. Current behavior comes from [specification](spec.md), [contracts](contracts), and [releases](../docs/reference/releases/README.md); candidate entry points are in [changes](changes/README.md).
 
-Sheltie 将可复用的工作方法可靠地执行下去。它应减少重复解释、阶段衔接、产物传递、状态核对和中断重做，同时保持交付质量、产物来源及人工批准边界。
+## 1. Product goal and first users
 
-首批面向已有本地检查、反复执行代码变更方法的仓库维护者。代码任务易观察候选与最终质量，作为切入点；通用引擎仍围绕方法、状态、输入输出和合法操作，不围绕 Git、审查制度或特定模型分工组织。
+Reliably execute reusable methods. Reduce repeated explanation, stage handoffs, artifact transfer, state checks, and interruption rework while preserving quality/provenance/human approval.
 
-方法作者一次准备图、说明和稳定规则；任务使用者选择方法，填写本次需求/项目/验收输入。两种角色可以由同一人承担，成本分别计算。首次使用能否理解与多次复用是否值得都要实测，不假设每个用户愿意编写 Workbook 或已有模板市场。
+Initial users maintain repositories with local checks and repeated code-change methods. Code tasks provide observable candidates/final quality. The generic engine remains organized around methods/state/inputs/outputs/legal actions, not Git/review regimes/model assignments.
 
-## 2. 一条产品路径
+Authors prepare graphs/instructions/stable rules once; users choose methods and supply current requirements/project/acceptance inputs. One person may do both; account separately. Test first-use comprehension and repeated-use value rather than assume willingness to author Workbooks or an existing marketplace.
 
-选择方法 → 提供任务输入 → 协调者领取和执行 → 必要检查/返工与明确批准 → 取得成果。中断后从当前状态、任务书与冻结输入继续。
+## 2. Product path
 
-稳定阶段由图表达，阶段内部由 agent 自主调查和细分。内容审查是普通节点；普通修复不增加逐项审批。引擎不从报告判断通过，不把流程 succeeded 宣传成内容正确。
+Choose method → provide inputs → coordinator acquires/executes → necessary checking/rework/explicit approval → obtain results. Resume interruptions from current state/brief/frozen inputs.
 
-## 3. 已有基础与下一步判断
+Graphs express stable stages; agents independently investigate/subdivide within stages. Review is an ordinary node; ordinary repairs add no item-by-item approvals. Engine does not infer acceptance from reports or advertise succeeded as correct content.
 
-当前开发线已有明确成果、可靠接续、行政资格撤销、成果新副本和本地可视化作者工具。当前行为见规格与合同，设计与验证范围见[变更摘要](changes/README.md)；这些能力尚未整体发布为 v0.3.0。
+## 3. Foundations and next decisions
 
-下一步按实际摩擦和质量决定：方法首次使用与复用是否值得，撤销资格是否有真实事件，可编辑副本是否持续减少工作，以及方法编写是否成为主要成本。已有可用性事实不代替完整费用、公平对照或净收益，缺口见[当前限制](../docs/reference/limitations.md)，验证方法见[效果评估](../docs/how-to/evaluate-workflows.md)。
+The development line has explicit results, reliable resume, administrative revocation, exported copies, and local visual authoring. Specifications/contracts define behavior; [changes](changes/README.md) locate design/evidence. These are not collectively released as v0.3.0.
 
-宿主只读预检尚未采用。只有真正必需的 requires、固定宿主规则和重复核对成本成立时，才准备一个有界探针；无真实需求则继续人工核对，不建设资源平台。一次只执行一个 active package，由人决定采用。
+Choose next work from actual friction/quality: first-use/reuse value, real revocation incidents, sustained copy-editing savings, and authoring costs. Usability facts are not complete cost/fair-comparison/net-benefit evidence. See [limitations](../docs/reference/limitations.md) and [evaluation](../docs/how-to/evaluate-workflows.md).
 
-## 4. 产品判断
+Read-only host preflight is unadopted. Build one bounded probe only when genuine requires, stable host rules, and repetitive checking costs justify it. Otherwise retain manual checks rather than create a resource platform. People adopt one active package at a time.
 
-同时报告方法制作、首次任务和复用任务的人工活动、核对/返工/排障/接管、墙钟、可观测 usage/实际付费、独立最终质量及未完成项。Attempt 时长不能当模型用量，缺失 usage 记 null。
+## 4. Product assessment
 
-整体试用只判断所测组合和定位摩擦，不从一份样本分离推导模板、引擎、预检分别有效。需要独立增量判断时采用新等价任务和预注册条件，不能重做已解决任务冒充学习前后的净收益。最终结果不可接受的任务仍计成本；技术测试不代替用户接受。
+Report method preparation/first task/reuse: human actions, checks/rework/diagnosis/takeover, wall time, observable usage/actual charges, independent final quality, and unfinished items. Attempt duration is not model usage; missing usage is null.
 
-## 5. 条件方向
+Trials establish only tested combinations/friction. One sample cannot isolate template/engine/preflight benefits. Independent incremental claims require new equivalent tasks/preregistered conditions; replaying already-solved tasks cannot establish learning-adjusted net savings. Unacceptable results still incur costs. Technical tests do not replace user acceptance.
 
-- **原生候选检查。** 当可信工具记录成为明确产品承诺，或普通方法/外部工具无法以合理成本建立候选—检查关联时单独立项。选一个受约束调用，明确 checkout/cwd/argv/实际结果与未冻结环境；不承诺任意程序必然只读取候选。来源、并发、迟到结果拒绝、短事务、文件发布与 driver 消失后的停止材料同时交付。无需先建适配器或沙箱平台。
-- **方法编写。** 当前方法使用确有价值，且编写成为主要重复成本时，才比较模板填写和自由编写。固定图真正不能表达首批任务时再评估自由图；生成草稿不自动批准或安装。
-- **GF-20 安装与核心准入。** 单宿主外部预检反复证明有收益后，再决定执行目标绑定、权威观测和未知政策。安装由获授权的独立工具承担；引擎不写宿主配置。不预建 TTL、缓存、引用计数或多宿主资源平台。
-- **GF-21 方法版本延续。** 同一冻结方法的重开先用当前状态。真实需要跨方法版本继续旧产物时，另定准确引用、缺失和授权，不热改运行图。
-- **GF-22 隔离。** 真实权限约束需要时，选一个后端，核合法例、越权例、继承和失败停止。工作区分离不代表安全隔离，不自动降级选定保护。
-- **GF-23 MCP 与多宿主。** 只有实际 CLI 摩擦证明收益才封装同一组操作。逐宿主验证，不把宿主业务或状态塞进内核。
-- **GF-24 自动驱动与预算。** 等待成为主要成本后才立项。唯一 next 不等于授权；门槛不会自动批准；未知费用和错误来源保持未知。真实入口先于适配器农场。
-- **GF-25 并行草稿。** 顺序或宿主原生协作不足时先试独立草稿与普通选择节点，不先增加多个 current、消息总线或会话池。
-- **GF-26 动态展开。** 固定阶段内自主拆任务仍不足，且有重复真实样本时才设计有限展开；不以生成器解决说明不清的问题。
-- **可携带代码与大成果。** commit 引用不等于可搬离仓库的源码。真实分发需要时另定 bundle/patch/archive；大成果重复制成本高时再讨论续传。
-- **严格身份、多用户与审查账本。** 普通冻结报告和 OS 主体记录不能提供独立身份认证。真实协作或监管需要时再确定信任来源，不让普通用户承担一套发现处置制度。
+## 5. Conditional directions
 
-每项能力由明确需求、完整候选、人采用、上游同步、实现和验证成为当前产品。无兼容需求时只有一套目标合同；已有运行数据不自动清空或重写；完成执行材料按文档维护规则从固定快照追溯。
+- **Native candidate checks.** Adopt separately when trusted tool records become a product promise or ordinary methods/external tools cannot affordably bind checks to candidates. Choose one constrained invocation with checkout/cwd/argv/actual outcome/unfrozen environment. Do not promise arbitrary programs read candidates only. Deliver provenance/concurrency/late-result rejection/short transactions/publication/driver-loss stop materials together. No prerequisite adapter/sandbox platform.
+- **Method authoring.** Compare template filling/free authoring only after method use proves valuable and authoring dominates repeated costs. Evaluate free graphs only when fixed graphs cannot express actual initial tasks. Draft generation does not approve/install.
+- **GF-20 Installation/admission.** Repeated single-host external preflight benefit precedes execution binding/authoritative observation/unknown policy. Authorized independent tools install; engine never writes host config. No speculative TTL/cache/refcount/multihost platform.
+- **GF-21 Version continuation.** Resume the same frozen method through current state first. Real cross-version reuse needs exact references/missing-input/authorization rules; no running-graph mutation.
+- **GF-22 Isolation.** Real permission needs justify one backend with positive/overreach/inheritance/failure-stop checks. Workspace separation is not security isolation; never automatically downgrade selected protection.
+- **GF-23 MCP/multiple hosts.** Wrap the same operations only after CLI friction proves value. Verify per host; no host business/state in core.
+- **GF-24 Automatic driving/budgets.** Adopt when waiting dominates cost. Unique next is not authorization; gates never autoapprove; unknown charges/error sources stay unknown. Real entry points precede adapter farms.
+- **GF-25 Parallel drafts.** If sequencing/native collaboration falls short, try independent drafts plus ordinary selection before multiple currents/buses/session pools.
+- **GF-26 Dynamic expansion.** Design bounded expansion only after within-stage subdivision fails on repeated real samples. Generators do not fix unclear instructions.
+- **Portable code/large results.** Commit references are not portable source. Real distribution needs bundle/patch/archive rules; resume transfers only when large-copy cost warrants it.
+- **Strict identity/multiuser/review ledgers.** Frozen reports/OS-principal records do not provide independent authentication. Actual collaboration/regulation must determine trust sources before ordinary users bear detection/disposition systems.
+
+Each capability becomes current through explicit demand, complete candidate, human adoption, upstream updates, implementation, and validation. Without compatibility needs there is one target contract. Do not automatically clear/rewrite existing execution data. Completed evidence remains traceable from fixed snapshots under maintenance rules.

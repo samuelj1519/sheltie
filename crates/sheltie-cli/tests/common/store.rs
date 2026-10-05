@@ -4,7 +4,7 @@ use std::collections::BTreeMap;
 
 pub type StoreRows = BTreeMap<&'static str, Vec<Vec<Value>>>;
 
-/// 保留每列的 SQLite 类型与原始内容，不把 JSON 文本重新编码。
+/// Preserve each column's SQLite type and raw content, without reencoding JSON text.
 pub fn store_rows(env: &Env) -> StoreRows {
     let connection = Connection::open_with_flags(
         env.dir.path().join("store.db"),

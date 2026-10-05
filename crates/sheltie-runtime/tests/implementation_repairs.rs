@@ -1,4 +1,4 @@
-//! C002-T31：历史文件和Attempt目录落位后的同步恢复。
+//! C002-T31: sync recovery after historical-file and Attempt-directory placement.
 #![cfg(feature = "failpoint")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -37,7 +37,7 @@ fn assert_sync_pending(error: Error, request: &str) {
         ..
     } = error
     else {
-        panic!("同步失败必须保留已提交请求：{error:?}");
+        panic!("Sync failure must preserve the committed request: {error:?}");
     };
     assert!(committed);
     assert_eq!(request_id, request);

@@ -1,4 +1,4 @@
-//! T19：`attempt` 与 `gate` 组；两步样例从 CLI 走完。
+//! T19: attempt/gate commands, completing the two-step example through CLI.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod common;
@@ -23,19 +23,19 @@ fn two_step_via_cli_reaches_succeeded() {
         "topic=x",
     ]);
     let wid = started["data"]["work_id"].as_str().unwrap().to_string();
-    // 每一步只从上一步响应的 next 里取命令。
+    // Each step uses only the previous response's next actions.
     let b1 = env.follow_begin(&started, "outline");
     let brief = Path::new(b1["data"]["brief_path"].as_str().unwrap());
     assert!(brief.exists());
     assert!(
         std::fs::read_to_string(brief)
             .unwrap()
-            .starts_with("# 任务书：列提纲")
+            .starts_with("# Brief: Outline")
     );
     assert_eq!(b1["data"]["attempt"], "outline#1.0");
-    let s1 = env.submit_all(&wid, &b1, "提纲好了");
+    let s1 = env.submit_all(&wid, &b1, "Outline ready");
     let b2 = env.follow_begin(&s1, "summary");
-    let s2 = env.submit_all(&wid, &b2, "摘要好了");
+    let s2 = env.submit_all(&wid, &b2, "Summary ready");
     assert_eq!(s2["data"]["work_status"]["kind"], "succeeded");
     assert!(s2["next"].as_array().unwrap().is_empty());
 }
@@ -99,7 +99,7 @@ fn attempt_fail_then_begin_retries_same_occurrence() {
         "--attempt",
         "outline#1.0",
         "--reason",
-        "超时",
+        "Timed out",
     ]);
     assert_eq!(next_begin_nodes(&f), vec!["outline"]);
     let b = env.begin(&wid, "outline");

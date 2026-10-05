@@ -1,30 +1,30 @@
-# 审查清单
+# Review checklist
 
-只报影响正确性、安全、可维护性的问题。每条标「阻断」或「建议」。
+Report correctness/security/maintainability impact only; mark each Blocking or Suggestion.
 
-## 正确性
+## Correctness
 
-1. 每条验收标准有对应的测试或可运行的证据。
-2. 新增的分支、错误路径、边界值有测试覆盖。
-3. 测试断言的是行为结果，不是内部计数或 `is_ok()`。
-4. 没有被注释掉或标 `ignore` 的测试。
+1. Every criterion has a test or executable evidence.
+2. New branches/errors/boundaries covered.
+3. Behavior assertions, not internal counters/is_ok alone.
+4. No commented/ignored tests.
 
-## 安全
+## Security
 
-5. 外部输入（参数、文件、网络）在进入内部逻辑前有校验。
-6. 没有硬编码的密钥、密码、个人路径。
-7. 文件与命令操作的路径来自受控来源，输入拼不出越界路径。
+5. Validate external arguments/files/network inputs before internal logic.
+6. No hardcoded secrets/passwords/personal paths.
+7. Controlled command/file paths; inputs cannot escape boundaries.
 
-## 可维护性
+## Maintainability
 
-8. 新代码没有复制已有逻辑；有重复就复用。
-9. 公开接口只暴露有真实调用者的东西。
-10. 错误信息能让使用者知道下一步做什么。
-11. 没有为「以后可能用到」留的空实现、开关或兼容层。
-12. 注释只解释「为什么」，没有叙述「这里做了什么」。
+8. Reuse existing logic rather than duplicate.
+9. Public interfaces have actual callers.
+10. Errors explain next actions.
+11. No speculative empty implementations/switches/compatibility layers.
+12. Comments explain why, not obvious operations.
 
-## 交付
+## Delivery
 
-13. 每个提交独立可编译，提交信息带 `Task:` 行。
-14. 改了行为的地方，对应文档一起改了。
-15. 变更没有超出规格「范围」。超出的写「建议」，让人决定。
+13. Each commit independently compiles with Task trailer.
+14. Behavior changes update documentation.
+15. No expansion beyond specification Scope. Extra ideas are suggestions for humans.

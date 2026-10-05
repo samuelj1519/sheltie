@@ -1,4 +1,4 @@
-//! T22：门槛场景。
+//! T22: gate scenarios.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod common;
@@ -9,7 +9,7 @@ fn blocked_at_gate(env: &Env) -> (String, serde_json::Value) {
     env.add_example("gated-release");
     let wid = env.start("gated-release", &[("version", "1.2.0")]);
     let b = env.begin(&wid, "notes");
-    let s = env.submit_all(&wid, &b, "写好了");
+    let s = env.submit_all(&wid, &b, "Written");
     (wid, s)
 }
 
@@ -40,8 +40,8 @@ fn begin_next_node_before_approve_is_illegal_next() {
     );
 }
 
-// C002-T05 起主体取真实 OS 身份（D-036）：伪造 USER 也不改变批准人；期望值由系统
-// `id -un` 独立给出，不再读测试进程自己的 USER。
+// Since C002-T05, use actual OS identity (D-036); forged USER cannot change the approver. System
+// id -un independently supplies expectations, without reading the test process USER.
 // Task: T22
 #[test]
 fn approve_records_os_user_and_unblocks() {
@@ -53,7 +53,7 @@ fn approve_records_os_user_and_unblocks() {
     let out = cmd.output().unwrap();
     assert!(
         out.status.success(),
-        "gate approve 失败：{}",
+        "gate approve failed: {}",
         String::from_utf8_lossy(&out.stderr)
     );
     let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
@@ -83,7 +83,7 @@ fn approve_on_terminal_gate_node_succeeds_work() {
     env.ok(&["workbook", "add", src.to_str().unwrap()]);
     let wid = env.start("gated-release", &[("version", "1.2.0")]);
     let b = env.begin(&wid, "notes");
-    env.submit_all(&wid, &b, "写好了");
+    env.submit_all(&wid, &b, "Written");
     let v = env.ok(&["gate", "approve", &wid, "--node", "notes"]);
     assert_eq!(env.status(&wid)["data"]["status"]["kind"], "succeeded");
     assert!(v["next"].as_array().unwrap().is_empty());

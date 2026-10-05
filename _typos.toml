@@ -6,7 +6,7 @@ WRONLY = "WRONLY"
 
 [files]
 extend-exclude = [
-  # 按源摘要封存的导出载荷是原字节资料，不能由拼写自动修复改写。
+  # Export payloads sealed by source digest are original bytes; spelling fixes must not rewrite them.
   "specs/changes/*/*/evidence/*/final-report-copies/*/artifacts/*/*",
   "CHANGELOG.md",
   "notebooks/*",

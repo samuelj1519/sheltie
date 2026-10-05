@@ -55,7 +55,7 @@ fn exporter_rejects_a_nonfinal_work_before_creating_staging() {
             "--name",
             "active",
             "--input",
-            "task=未完成",
+            "task=unfinished",
         ],
     );
     let work = active["data"]["work_id"].as_str().unwrap();

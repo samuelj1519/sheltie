@@ -1,27 +1,27 @@
-# 任务清单：<一句话标题>
+# Tasks: <one-sentence title>
 
-按顺序做。每个任务是「启用测试、填占位体、过门禁、提交」。测试由骨架预写。
+In order: enable tests/fill placeholders/run gates/commit. Scaffold prewrites tests.
 
-原始基线: <与plan相同的整体原始基线>
-继承来源: <上一次验证报告和被审副本路径；首次写 无>
+Original baseline: <same overall baseline as plan>
+Inheritance source: <previous report/reviewed-copy paths; none initially>
 
-## 已验证任务
+## Verified tasks
 
-原样复制 plan 的累计行，首次为空。下一次 scaffold/implement 从该前缀之后选择任务，不能重做已验证任务。
+Copy plan cumulative rows verbatim, initially empty. Scaffold/implement choose after this prefix without redoing verified tasks.
 
-| 任务 | 任务基线 | 候选提交 | 审批来源 | 验证报告 | 原始证据 |
+| Task | Task baseline | Candidate commit | Approval source | Verification report | Raw evidence |
 | --- | --- | --- | --- | --- | --- |
 
-## T01 <标题>
+## T01 <title>
 
-- 只改哪些文件：`<路径>`、`<路径>`
-- 要变绿的测试：`<描述条件和行为的测试名>`、`<描述条件和行为的测试名>`
-- 实现要点：<一到三句，是提示不是设计>
-- 做完能观察到什么：<运行什么，看到什么>
+- Allowed files: `<path>`, `<path>`
+- Tests to enable: `<behavior-named-test>`, `<behavior-named-test>`
+- Implementation notes: <One to three hint sentences, not design.>
+- Observable outcome: <Command and observation.>
 
-## T02 <标题>
+## T02 <title>
 
-- 只改哪些文件：
-- 要变绿的测试：
-- 实现要点：
-- 做完能观察到什么：
+- Allowed files:
+- Tests to enable:
+- Implementation notes:
+- Observable outcome:

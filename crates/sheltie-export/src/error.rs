@@ -4,7 +4,7 @@ use std::path::PathBuf;
 pub enum Error {
     #[error("{message}")]
     Rejected { code: &'static str, message: String },
-    #[error("源进程失败：{message}，exit={exit_code:?}")]
+    #[error("Source process failed: {message}, exit={exit_code:?}")]
     Source {
         message: String,
         exit_code: Option<i32>,
@@ -16,9 +16,9 @@ pub enum Error {
         #[source]
         source: std::io::Error,
     },
-    #[error("完整性不符 {path:?}：{message}")]
+    #[error("Integrity mismatch {path:?}: {message}")]
     Integrity { path: PathBuf, message: String },
-    #[error("可能已发布，需核查：{message}")]
+    #[error("Publication may have occurred; verification required：{message}")]
     PublicationUnconfirmed {
         target_path: Option<PathBuf>,
         message: String,

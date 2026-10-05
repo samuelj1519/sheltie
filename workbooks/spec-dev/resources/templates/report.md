@@ -1,37 +1,38 @@
-<第一行：结论，按说明书规定的词>
+<First line: exact conclusion from instructions>
 
-以下定位字段由 verify 和整体 review 填写。整体 review 的任务写「整体」，基线与原始基线都取 plan 的整体基线，提交取当前 HEAD。
+Verify and overall review use these location fields. Overall uses Task=overall, plan's overall Baseline/Original baseline, and current HEAD Commit.
 
-任务: <Tnn；整体审查写 整体>
-修复轮次: <N>
-基线: <本任务基线>
-提交: <本轮候选提交>
-原始基线: <整体原始基线>
-以下交接字段和「已验证任务」表仅供 verify 使用。整体 review 省略这部分，不追加任务行。
+Task: <Tnn or overall>
+Repair round: <N>
+Baseline: <task baseline>
+Commit: <current candidate>
+Original baseline: <overall baseline>
 
-本轮变更: <实际检查的change/fix路径>
-继承来源: <本轮change/fix携带前缀的来源路径>
-被验规格: <spec输入路径>
-被验方案: <plan输入路径>
-被验任务: <tasks输入路径>
-审批来源: <decision路径；更正时为显式更正的escalation路径>
-原审批来源: <仅人工更正时填写原decision路径>
+The following handoff fields/table are verify-only. Overall review omits them and appends no task rows.
 
-## 已验证任务
+Current change: <actually checked change/fix path>
+Inheritance source: <current change/fix prefix source>
+Verified specification: <spec input path>
+Verified plan: <plan input path>
+Verified tasks file: <tasks input path>
+Approval source: <decision or explicitly qualified correction escalation>
+Original approval source: <original decision, correction only>
 
-所有旧行原样保留。本任务独立验证通过后才追加一行；失败不追加。只记录路径与哈希，报告不超过 32768 字节。
+## Verified tasks
 
-| 任务 | 任务基线 | 候选提交 | 审批来源 | 验证报告 | 原始证据 |
+Preserve all old rows verbatim. Append current row only after independent success; none on failure. Paths/hashes only; report ≤32768 bytes.
+
+| Task | Task baseline | Candidate commit | Approval source | Verification report | Raw evidence |
 | --- | --- | --- | --- | --- | --- |
 
-## 检查项
+## Checks
 
-| 项 | 结果 |
+| Item | Result |
 | --- | --- |
-| `<命令或观察项>` | 通过 / 失败 |
+| `<command or observation>` | PASS / FAIL |
 
-## 发现
+## Findings
 
-<没有就写「无」。每条按下面格式。>
+<None or items in this shape.>
 
-1. `<文件>:<位置>`。现象：<看到什么>。期望：<应该是什么>。<阻断 / 建议>
+1. `<file>:<location>`. Observed: <fact>. Expected: <requirement>. <Blocking / Suggestion>

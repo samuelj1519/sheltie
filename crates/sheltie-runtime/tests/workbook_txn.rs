@@ -1,4 +1,4 @@
-//! C002-T08：Workbook 事务、幂等与发布生命周期（N02/O08/§5.2）。
+//! C002-T08: Workbook transactions, idempotency, and publication lifecycles (N02/O08/§5.2).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod common;
@@ -23,18 +23,18 @@ fn make_writable(path: &Path) {
     }
 }
 
-/// remove 的引用检查在同一个事务里：有非终态 Work 时删行回滚（§5.2）。
+/// remove reference checks share its transaction; nonterminal Works roll back deletion (§5.2).
 // Task: C002-T08
 #[test]
 fn remove_rejects_active_reference_and_rolls_back_row() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&svc.start(two_step_args(&[("topic", "t")]), None).unwrap());
 
-    let registered = home.workbook_dir("two-step", "1.0.0");
+    let registered = home.workbook_dir("two-step", "1.0.1");
     let original =
         std::fs::read(registered.join_segment("instructions/outline.md").as_path()).unwrap();
     let err = WorkbookRepo::new(home.clone())
-        .remove("two-step", "1.0.0", None)
+        .remove("two-step", "1.0.1", None)
         .unwrap_err();
     assert_eq!(err.code(), ErrorCode::WorkbookInUse, "{err:?}");
     let Error::WorkbookInUse { works, .. } = err else {
@@ -46,35 +46,35 @@ fn remove_rejects_active_reference_and_rolls_back_row() {
         original
     );
 
-    // 行未删：只读库仍能列出，Work 仍可推进。
+    // The row remains visible read-only, and Work can still advance.
     assert_eq!(WorkbookRepo::new(home.clone()).list().unwrap().len(), 1);
     let (_, card) = svc.status(&wid).unwrap();
     assert_eq!(card.status, sheltie_core::work::WorkStatus::Active);
 }
 
-/// 损坏的 works 行让 remove 停止（STORE_CORRUPT），不得按冗余列预筛后跳过。
+/// Corrupt works rows stop remove with STORE_CORRUPT, without redundant-field prefiltering.
 // Task: C002-T08
 #[test]
 fn remove_stops_on_corrupt_reference_row() {
     let (_d, home) = temp_home();
     let repo = WorkbookRepo::new(home.clone());
     repo.add(&abs(&example_dir("two-step")), None).unwrap();
-    // 直写一行损坏的 state_json。
+    // Write a corrupt state_json row directly.
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     conn.execute(
         "INSERT INTO works (work_id, revision, status, state_json, created_at, updated_at)
-         VALUES ('2026-09-24-001-x', 1, 'active', '不是 JSON', '2026-09-24T00:00:00Z', '2026-09-24T00:00:00Z')",
+         VALUES ('2026-09-24-001-x', 1, 'active', 'Not JSON', '2026-09-24T00:00:00Z', '2026-09-24T00:00:00Z')",
         [],
     )
     .unwrap();
     drop(conn);
 
-    let err = repo.remove("two-step", "1.0.0", None).unwrap_err();
+    let err = repo.remove("two-step", "1.0.1", None).unwrap_err();
     assert_eq!(err.code(), ErrorCode::StoreCorrupt, "{err:?}");
     assert_eq!(WorkbookRepo::new(home.clone()).list().unwrap().len(), 1);
 }
 
-/// 并行 add 各自 staging：互不删除，两个都成功（N02 反面）。
+/// Parallel adds use independent staging, without cross-deletion, and both succeed (N02 rejection counterpart).
 // Task: C002-T08
 #[test]
 fn parallel_adds_do_not_delete_each_others_staging() {
@@ -100,10 +100,10 @@ fn parallel_adds_do_not_delete_each_others_staging() {
     a.join().unwrap().unwrap();
     b.join().unwrap().unwrap();
     let rows = WorkbookRepo::new(home.clone()).list().unwrap();
-    assert_eq!(rows.len(), 2, "两个 Workbook 都在：{rows:?}");
+    assert_eq!(rows.len(), 2, "Both Workbooks remain: {rows:?}");
     assert_eq!(
         std::fs::read(
-            home.workbook_dir("two-step", "1.0.0")
+            home.workbook_dir("two-step", "1.0.1")
                 .join_segment("workbook.toml")
                 .as_path()
         )
@@ -111,13 +111,13 @@ fn parallel_adds_do_not_delete_each_others_staging() {
         std::fs::read(example_dir("two-step").join("workbook.toml")).unwrap()
     );
     assert!(
-        home.workbook_dir("gated-release", "1.0.0")
+        home.workbook_dir("gated-release", "1.0.1")
             .as_path()
             .exists()
     );
 }
 
-/// add 的发布窗口：COMMIT 后、rename 前被杀——下一次写操作先恢复发布（N02）。
+/// add crash window after COMMIT/before rename; the next write recovers publication first (N02).
 // Task: C002-T08
 #[test]
 fn add_publish_window_recovered_by_next_write() {
@@ -125,8 +125,8 @@ fn add_publish_window_recovered_by_next_write() {
     let repo = WorkbookRepo::new(home.clone());
     repo.add(&abs(&example_dir("two-step")), Some("r-a".into()))
         .unwrap();
-    // 模拟发布前被杀：行已提交、published 置 0、最终目录撤回 pending。
-    let final_dir = home.workbook_dir("two-step", "1.0.0");
+    // Simulate prepublication termination: committed row, published 0, final directory moved back to pending.
+    let final_dir = home.workbook_dir("two-step", "1.0.1");
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     let effects: String = conn
         .query_row("SELECT effects_json FROM requests", [], |r| r.get(0))
@@ -138,7 +138,7 @@ fn add_publish_window_recovered_by_next_write() {
         .as_str()
         .unwrap()
         .to_string();
-    // 已发布的树是只读的（0555/0444）：模拟撤回先放开权限（同生产 delete_dir）。
+    // Published trees are read-only (0555/0444); relax permissions before simulated withdrawal, like production delete_dir.
     make_writable(std::path::Path::new(final_dir.as_str()));
     std::fs::rename(
         final_dir.as_path(),
@@ -147,11 +147,14 @@ fn add_publish_window_recovered_by_next_write() {
     .unwrap();
     assert!(!final_dir.as_path().exists());
 
-    // 下一个写操作先恢复：目录回到最终位置、只读、行 published。
+    // The next write first recovers: final placement, read-only tree, published row.
     WorkbookRepo::new(home.clone())
         .add(&abs(&example_dir("gated-release")), None)
         .unwrap();
-    assert!(final_dir.as_path().exists(), "恢复发布了原件");
+    assert!(
+        final_dir.as_path().exists(),
+        "Recovery published the original"
+    );
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     let published: i64 = conn
         .query_row(
@@ -162,9 +165,9 @@ fn add_publish_window_recovered_by_next_write() {
         .unwrap();
     assert_eq!(published, 1);
     drop(conn);
-    // 恢复后的目录可用（load 核摘要通过）。
+    // Recovered directories load with verified digests.
     let wb = WorkbookRepo::new(home.clone())
-        .load("two-step", Some("1.0.0"))
+        .load("two-step", Some("1.0.1"))
         .unwrap();
     assert_eq!(wb.manifest.id().as_str(), "two-step");
 }
@@ -202,7 +205,7 @@ fn workbook_publication_recovery_checks_owner_and_manifest_identity() {
             .as_path()
             .to_path_buf()
             .into_std_path_buf();
-        let final_dir = home.workbook_dir("two-step", "1.0.0");
+        let final_dir = home.workbook_dir("two-step", "1.0.1");
         if !final_only {
             make_writable(final_dir.as_path().parent().unwrap().as_std_path());
             std::fs::rename(final_dir.as_path(), &payload).unwrap();
@@ -274,7 +277,9 @@ fn workbook_publication_recovery_checks_owner_and_manifest_identity() {
             ..
         } = error
         else {
-            panic!("Workbook发布归属不符必须保留pending身份：{error:?}");
+            panic!(
+                "Workbook publication ownership mismatch must preserve pending identity: {error:?}"
+            );
         };
         assert!(!committed);
         assert_eq!(pending_request_id.as_deref(), Some(request_id.as_str()));
@@ -317,7 +322,7 @@ fn committed_pending_workbook_is_readable_without_recovery_and_is_marked_pending
         Some("t28-pending-wb".into()),
     )
     .unwrap();
-    let final_dir = home.workbook_dir("two-step", "1.0.0");
+    let final_dir = home.workbook_dir("two-step", "1.0.1");
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     let effects: String = conn
         .query_row(
@@ -341,15 +346,21 @@ fn committed_pending_workbook_is_readable_without_recovery_and_is_marked_pending
     let rows = repo.list().unwrap();
     assert_eq!(rows.len(), 1);
     assert!(rows[0].pending_publish);
-    let loaded = repo.load("two-step", Some("1.0.0")).unwrap();
+    let loaded = repo.load("two-step", Some("1.0.1")).unwrap();
     assert!(loaded.pending_publish);
     assert_eq!(loaded.manifest.id().as_str(), "two-step");
-    let verified = repo.verify(Some(("two-step", "1.0.0"))).unwrap();
+    let verified = repo.verify(Some(("two-step", "1.0.1"))).unwrap();
     assert_eq!(verified[0].status, sheltie_runtime::VerifyStatus::Ok);
     assert!(verified[0].pending_publish);
     assert!(repo.cleanup_pending().unwrap().is_empty());
-    assert!(payload.as_path().is_dir(), "published=0原件不能被清理");
-    assert!(!final_dir.as_path().exists(), "只读操作不恢复发布目录");
+    assert!(
+        payload.as_path().is_dir(),
+        "Must not clean up published=0 originals"
+    );
+    assert!(
+        !final_dir.as_path().exists(),
+        "Read-only operations must not recover publication directories"
+    );
     let started = sheltie_runtime::WorkService::new(home.clone())
         .start(
             two_step_args(&[("topic", "t")]),
@@ -360,7 +371,10 @@ fn committed_pending_workbook_is_readable_without_recovery_and_is_marked_pending
         started.reply,
         sheltie_core::work::Reply::Started { .. }
     ));
-    assert!(final_dir.as_path().is_dir(), "写锁内恢复后从final重新核验");
+    assert!(
+        final_dir.as_path().is_dir(),
+        "Reverify final after locked recovery"
+    );
 }
 
 // Task: C002-T28
@@ -435,7 +449,7 @@ fn cleanup_preserves_nonempty_payload_after_request_completion() {
     assert!(
         warnings
             .iter()
-            .any(|warning| warning.contains("container仍有内容"))
+            .any(|warning| warning.contains("container still has contents"))
     );
     assert_eq!(std::fs::read(extra).unwrap(), b"retain");
     assert!(payload.as_path().is_dir());
@@ -443,7 +457,7 @@ fn cleanup_preserves_nonempty_payload_after_request_completion() {
         std::fs::read(home.store_path().as_path()).unwrap(),
         store_before
     );
-    assert!(repo.load("two-step", Some("1.0.0")).is_ok());
+    assert!(repo.load("two-step", Some("1.0.1")).is_ok());
 }
 
 // Task: C002-T28
@@ -458,13 +472,13 @@ fn pending_workbook_with_missing_owner_does_not_fall_back_to_another_version() {
     let manifest = std::fs::read_to_string(newer_source.join("workbook.toml")).unwrap();
     std::fs::write(
         newer_source.join("workbook.toml"),
-        manifest.replace("version = \"1.0.0\"", "version = \"2.0.0\""),
+        manifest.replace("version = \"1.0.1\"", "version = \"2.0.0\""),
     )
     .unwrap();
     repo.add(&abs(&newer_source), Some("t28-v27-new".into()))
         .unwrap();
 
-    let old_final = home.workbook_dir("two-step", "1.0.0");
+    let old_final = home.workbook_dir("two-step", "1.0.1");
     let newer_final = home.workbook_dir("two-step", "2.0.0");
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     let effects: String = conn
@@ -492,12 +506,15 @@ fn pending_workbook_with_missing_owner_does_not_fall_back_to_another_version() {
     )
     .unwrap();
 
-    let error = match repo.load("two-step", Some("1.0.0")) {
-        Ok(_) => panic!("缺少owner的pending Workbook不能读取"),
+    let error = match repo.load("two-step", Some("1.0.1")) {
+        Ok(_) => panic!("Pending Workbook without owner must not be readable"),
         Err(error) => error,
     };
     assert_eq!(error.code(), ErrorCode::StoreCorrupt);
-    assert!(newer_final.as_path().is_dir(), "另一版本原件保持不变");
+    assert!(
+        newer_final.as_path().is_dir(),
+        "Preserve another version's original"
+    );
     assert_eq!(
         repo.load("two-step", Some("2.0.0"))
             .unwrap()
@@ -514,7 +531,7 @@ fn pending_cleanup_removes_only_completed_empty_metadata() {
     let repo = WorkbookRepo::new(home.clone());
     repo.add(&abs(&example_dir("two-step")), Some("t28-clean-wb".into()))
         .unwrap();
-    let final_dir = home.workbook_dir("two-step", "1.0.0");
+    let final_dir = home.workbook_dir("two-step", "1.0.1");
     let before = WorkbookRepo::digest_dir(&final_dir).unwrap();
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     let effects: String = conn
@@ -543,7 +560,7 @@ fn pending_cleanup_removes_only_completed_empty_metadata() {
             .as_path()
             .exists()
     );
-    assert_eq!(repo.load("two-step", Some("1.0.0")).unwrap().digest, before);
+    assert_eq!(repo.load("two-step", Some("1.0.1")).unwrap().digest, before);
 }
 
 // Task: C002-T28
@@ -581,7 +598,10 @@ fn malformed_request_effects_stop_cleanup_before_any_unreferenced_object_is_remo
         repo.cleanup_pending().unwrap_err().code(),
         ErrorCode::StoreCorrupt
     );
-    assert!(orphan.as_path().is_dir(), "坏引用索引不能触发任何清理");
+    assert!(
+        orphan.as_path().is_dir(),
+        "Corrupt reference index must not trigger cleanup"
+    );
     assert!(
         home.pending_dir()
             .join_segment(&format!("{orphan_id}.owner"))
@@ -626,7 +646,10 @@ fn work_status_loads_committed_pending_frozen_graph_without_locking_or_recovery(
     assert!(pending_publish);
     assert!(text.contains(wid.as_str()));
     assert_eq!(card.status, sheltie_core::work::WorkStatus::Active);
-    assert!(!final_dir.as_path().exists(), "只读status不能执行恢复");
+    assert!(
+        !final_dir.as_path().exists(),
+        "Read-only status must not recover"
+    );
     assert!(payload.as_path().join("workbook").is_dir());
 }
 
@@ -743,7 +766,7 @@ fn real_work_status_retries_after_start_publish_renames_post_location() {
     let reader_work = work.clone();
     let reader = std::thread::spawn(move || reader_service.status_with_publication(&reader_work));
     let mut worker = RendezvousWorker::single(reader, rendezvous.path());
-    worker.wait("Work只读装入没有到达定位后的同步点");
+    worker.wait("Read-only Work load did not reach the synchronization point after location");
     std::fs::rename(final_dir.as_path(), home.rel(pending).unwrap().as_path()).unwrap();
     sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
     std::fs::write(rendezvous.path().join("release"), b"release").unwrap();
@@ -793,7 +816,7 @@ fn completed_empty_container_that_changes_before_unlink_is_preserved() {
     let cleanup_repo = repo.clone();
     let cleanup = std::thread::spawn(move || cleanup_repo.cleanup_pending());
     let mut worker = RendezvousWorker::single(cleanup, rendezvous.path());
-    worker.wait("cleanup没有到达同一ManagedTree空容器检查后的同步点");
+    worker.wait("cleanup did not reach the synchronization point after the same ManagedTree empty-container check");
     let sentinel = container.as_path().join("late-content");
     std::fs::write(&sentinel, b"retain").unwrap();
     sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
@@ -807,7 +830,7 @@ fn completed_empty_container_that_changes_before_unlink_is_preserved() {
     }));
     assert_eq!(std::fs::read(sentinel).unwrap(), b"retain");
     assert!(container.as_path().is_dir());
-    assert!(home.workbook_dir("two-step", "1.0.0").as_path().is_dir());
+    assert!(home.workbook_dir("two-step", "1.0.1").as_path().is_dir());
 }
 
 // Task: C002-T27
@@ -828,9 +851,9 @@ fn remove_marker_cannot_be_borrowed_from_another_internal_id() {
         .unwrap();
         let request_a = "t27-marker-remove-a";
         let request_b = "t27-marker-remove-b";
-        repo.remove("two-step", "1.0.0", Some(request_a.into()))
+        repo.remove("two-step", "1.0.1", Some(request_a.into()))
             .unwrap();
-        repo.remove("gated-release", "1.0.0", Some(request_b.into()))
+        repo.remove("gated-release", "1.0.1", Some(request_b.into()))
             .unwrap();
         let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
         let effects_a: String = conn
@@ -884,7 +907,7 @@ fn remove_marker_cannot_be_borrowed_from_another_internal_id() {
         .unwrap();
 
         let error = repo
-            .remove("gated-release", "1.0.0", Some(request_b.to_string()))
+            .remove("gated-release", "1.0.1", Some(request_b.to_string()))
             .unwrap_err();
         let Error::EffectPending {
             committed,
@@ -894,7 +917,7 @@ fn remove_marker_cannot_be_borrowed_from_another_internal_id() {
             ..
         } = error
         else {
-            panic!("marker必须绑定自己的internal_id：{error:?}");
+            panic!("Marker must bind its own internal_id: {error:?}");
         };
         assert!(committed);
         assert_eq!(request_id, request_b);
@@ -912,7 +935,7 @@ fn remove_marker_cannot_be_borrowed_from_another_internal_id() {
         );
         assert!(
             !home
-                .workbook_dir("gated-release", "1.0.0")
+                .workbook_dir("gated-release", "1.0.1")
                 .as_path()
                 .exists()
         );
@@ -937,14 +960,14 @@ fn remove_refuses_missing_directory_or_digest_before_commit() {
             Some("t27-preflight-add".into()),
         )
         .unwrap();
-        let final_dir = home.workbook_dir("two-step", "1.0.0");
+        let final_dir = home.workbook_dir("two-step", "1.0.1");
         if corruption == "missing_directory" {
             make_writable(final_dir.as_path().as_std_path());
             std::fs::remove_dir_all(final_dir.as_path()).unwrap();
         } else {
             let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
             conn.execute(
-                "UPDATE workbooks SET digest = '' WHERE id = 'two-step' AND version = '1.0.0'",
+                "UPDATE workbooks SET digest = '' WHERE id = 'two-step' AND version = '1.0.1'",
                 [],
             )
             .unwrap();
@@ -952,7 +975,7 @@ fn remove_refuses_missing_directory_or_digest_before_commit() {
 
         let request_id = format!("t27-remove-preflight-{corruption}");
         let error = repo
-            .remove("two-step", "1.0.0", Some(request_id.clone()))
+            .remove("two-step", "1.0.1", Some(request_id.clone()))
             .unwrap_err();
         assert_eq!(
             error.code(),
@@ -993,7 +1016,10 @@ fn remove_refuses_missing_directory_or_digest_before_commit() {
 fn completed_old_remove_and_add_replays_preserve_new_lifecycle_bytes_and_row() {
     use std::os::unix::fs::MetadataExt as _;
 
-    for replacement in [None, Some("同身份的新生命周期必须由新请求管理。\n")] {
+    for replacement in [
+        None,
+        Some("A new lifecycle with the same identity requires a new request.\n"),
+    ] {
         let (dir, home) = temp_home();
         let source = copy_example("two-step", dir.path());
         let repo = WorkbookRepo::new(home.clone());
@@ -1003,7 +1029,7 @@ fn completed_old_remove_and_add_replays_preserve_new_lifecycle_bytes_and_row() {
             .add(&abs(&source), Some(request_add_old.to_string()))
             .unwrap();
         let old_remove = repo
-            .remove("two-step", "1.0.0", Some(request_remove_old.into()))
+            .remove("two-step", "1.0.1", Some(request_remove_old.into()))
             .unwrap();
 
         if let Some(bytes) = replacement {
@@ -1017,14 +1043,14 @@ fn completed_old_remove_and_add_replays_preserve_new_lifecycle_bytes_and_row() {
         } else {
             assert_eq!(old_add.data["digest"], new_add.data["digest"]);
         }
-        let final_dir = home.workbook_dir("two-step", "1.0.0");
+        let final_dir = home.workbook_dir("two-step", "1.0.1");
         let new_inode = std::fs::metadata(final_dir.as_path()).unwrap().ino();
         let new_bytes =
             std::fs::read(final_dir.join_segment("instructions/outline.md").as_path()).unwrap();
         let row_before: String = rusqlite::Connection::open(home.store_path().as_str())
             .unwrap()
             .query_row(
-                "SELECT digest FROM workbooks WHERE id = 'two-step' AND version = '1.0.0'",
+                "SELECT digest FROM workbooks WHERE id = 'two-step' AND version = '1.0.1'",
                 [],
                 |row| row.get(0),
             )
@@ -1046,7 +1072,7 @@ fn completed_old_remove_and_add_replays_preserve_new_lifecycle_bytes_and_row() {
             .unwrap();
 
         let replay_remove = repo
-            .remove("two-step", "1.0.0", Some(request_remove_old.into()))
+            .remove("two-step", "1.0.1", Some(request_remove_old.into()))
             .unwrap();
         assert!(replay_remove.replayed);
         assert_eq!(replay_remove.data, old_remove.data);
@@ -1066,7 +1092,7 @@ fn completed_old_remove_and_add_replays_preserve_new_lifecycle_bytes_and_row() {
         );
         assert_eq!(
             conn.query_row(
-                "SELECT digest FROM workbooks WHERE id = 'two-step' AND version = '1.0.0'",
+                "SELECT digest FROM workbooks WHERE id = 'two-step' AND version = '1.0.1'",
                 [],
                 |row| row.get::<_, String>(0),
             )
@@ -1126,11 +1152,11 @@ fn schema2_workbook_recovery_accepts_original_audit_command_bytes() {
     drop(conn);
 
     let remove_request = "schema2-remove-wire";
-    repo.remove("two-step", "1.0.0", Some(remove_request.to_string()))
+    repo.remove("two-step", "1.0.1", Some(remove_request.to_string()))
         .unwrap();
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     conn.execute(
-        "UPDATE audit SET command_json = '{\"intent\":\"remove_workbook\",\"target\":\"two-step@1.0.0\"}' WHERE request_id = ?1",
+        "UPDATE audit SET command_json = '{\"intent\":\"remove_workbook\",\"target\":\"two-step@1.0.1\"}' WHERE request_id = ?1",
         [remove_request],
     )
     .unwrap();
@@ -1145,7 +1171,7 @@ fn schema2_workbook_recovery_accepts_original_audit_command_bytes() {
         .add(&source, Some("schema2-readd-after-remove".to_string()))
         .unwrap();
     assert_eq!(readded.data["id"], "two-step");
-    assert!(home.workbook_dir("two-step", "1.0.0").as_path().is_dir());
+    assert!(home.workbook_dir("two-step", "1.0.1").as_path().is_dir());
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     for request in [add_request, remove_request] {
         let published: i64 = conn
@@ -1155,39 +1181,46 @@ fn schema2_workbook_recovery_accepts_original_audit_command_bytes() {
                 |row| row.get(0),
             )
             .unwrap();
-        assert_eq!(published, 1, "旧schema2效果请求 {request} 应被恢复");
+        assert_eq!(
+            published, 1,
+            "Old schema2 effect request {request} should be recovered"
+        );
     }
 }
 
-/// 删除完成标记：remove 完成后 `pending/<id>.deleted` 存在（§3.3）。
+/// Deletion completion marker: pending/<id>.deleted exists after remove (§3.3).
 // Task: C002-T08
 #[test]
 fn remove_writes_deleted_marker() {
     let (_d, home) = temp_home();
     let repo = WorkbookRepo::new(home.clone());
     repo.add(&abs(&example_dir("two-step")), None).unwrap();
-    repo.remove("two-step", "1.0.0", None).unwrap();
+    repo.remove("two-step", "1.0.1", None).unwrap();
     let pending = home.pending_dir();
     let markers: Vec<_> = std::fs::read_dir(pending.as_path())
         .unwrap()
         .map(|e| e.unwrap().file_name().to_string_lossy().into_owned())
         .filter(|n| n.ends_with(".deleted"))
         .collect();
-    assert_eq!(markers.len(), 1, "恰一个完成标记：{markers:?}");
+    assert_eq!(
+        markers.len(),
+        1,
+        "Exactly one completion marker: {markers:?}"
+    );
     let content = std::fs::read_to_string(Path::new(pending.as_str()).join(&markers[0])).unwrap();
     assert!(content.contains("delete-complete/v1"), "{content}");
 }
 
-/// 请求去重全局共用：同 request-id 用在 add 与 start 之间冲突（REQUEST_CONFLICT）。
+/// Global replay lookup: reusing request-id across add/start yields REQUEST_CONFLICT.
 // Task: C002-T08
 #[test]
 fn request_ids_share_one_global_namespace() {
     let (_d, home, svc) = home_with_example("two-step");
-    // 先用 r-x 完成一次 add（另一个 Workbook）。
+    // Complete an add of another Workbook with r-x first.
     WorkbookRepo::new(home.clone())
         .add(&abs(&example_dir("gated-release")), Some("r-x".into()))
         .unwrap();
-    // 同 id 的 start 意图不同 → 冲突，不产生 Work。
+    // Same-ID start has different intent, conflicts, and creates no Work.
     let err = svc
         .start(two_step_args(&[("topic", "t")]), Some("r-x".into()))
         .unwrap_err();
@@ -1195,7 +1228,7 @@ fn request_ids_share_one_global_namespace() {
     assert!(svc.list().unwrap().is_empty());
 }
 
-/// add/remove 重放返回原 snapshot（O08 正例，快照字段逐项比较）。
+/// add/remove replay returns the original snapshot (O08 acceptance, compared field-for-field).
 // Task: C002-T08
 #[test]
 fn add_and_remove_replay_return_original_snapshots() {
@@ -1212,10 +1245,10 @@ fn add_and_remove_replay_return_original_snapshots() {
     assert_eq!(add1.request_id, add2.request_id);
 
     let rm1 = repo
-        .remove("two-step", "1.0.0", Some("r-rm".into()))
+        .remove("two-step", "1.0.1", Some("r-rm".into()))
         .unwrap();
     let rm2 = repo
-        .remove("two-step", "1.0.0", Some("r-rm".into()))
+        .remove("two-step", "1.0.1", Some("r-rm".into()))
         .unwrap();
     assert!(rm2.replayed);
     assert_eq!(rm1.data, rm2.data);
@@ -1231,7 +1264,7 @@ fn workbook_replay_finishes_unpublished_effects() {
     let first = repo
         .add(&abs(&source), Some(add_request.to_string()))
         .unwrap();
-    let final_dir = home.workbook_dir("two-step", "1.0.0");
+    let final_dir = home.workbook_dir("two-step", "1.0.1");
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     let effects_json: String = conn
         .query_row(
@@ -1269,7 +1302,7 @@ fn workbook_replay_finishes_unpublished_effects() {
 
     let remove_request = "t25-remove-replay";
     let first_remove = repo
-        .remove("two-step", "1.0.0", Some(remove_request.to_string()))
+        .remove("two-step", "1.0.1", Some(remove_request.to_string()))
         .unwrap();
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     conn.execute(
@@ -1279,7 +1312,7 @@ fn workbook_replay_finishes_unpublished_effects() {
     .unwrap();
     drop(conn);
     let replayed_remove = repo
-        .remove("two-step", "1.0.0", Some(remove_request.to_string()))
+        .remove("two-step", "1.0.1", Some(remove_request.to_string()))
         .unwrap();
     assert!(replayed_remove.replayed);
     assert_eq!(first_remove.data, replayed_remove.data);
@@ -1294,7 +1327,10 @@ fn workbook_replay_finishes_unpublished_effects() {
                 |row| row.get(0),
             )
             .unwrap();
-        assert_eq!(published, 1, "重放必须先完成原效果：{request_id}");
+        assert_eq!(
+            published, 1,
+            "Replay must complete original effects first: {request_id}"
+        );
     }
 }
 
@@ -1331,7 +1367,7 @@ fn workbook_write_recovers_work_status_card() {
     assert_eq!(added.data["id"], "gated-release");
     assert_eq!(std::fs::read(&card).unwrap(), expected_card);
     assert!(
-        home.workbook_dir("gated-release", "1.0.0")
+        home.workbook_dir("gated-release", "1.0.1")
             .as_path()
             .is_dir()
     );
@@ -1344,7 +1380,10 @@ fn workbook_write_recovers_work_status_card() {
             |row| row.get(0),
         )
         .unwrap();
-    assert_eq!(published, 1, "Workbook写操作结束前必须完成Work卡效果");
+    assert_eq!(
+        published, 1,
+        "Finish Work-card effects before returning from Workbook writes"
+    );
 }
 
 // Task: C002-T25
@@ -1391,7 +1430,7 @@ fn workbook_remove_recovers_latest_work_status_card() {
     let removed = repo
         .remove(
             "gated-release",
-            "1.0.0",
+            "1.0.1",
             Some("t25-remove-after-work".into()),
         )
         .unwrap();
@@ -1399,7 +1438,7 @@ fn workbook_remove_recovers_latest_work_status_card() {
     assert_eq!(std::fs::read(&card).unwrap(), latest_card);
     assert!(
         !home
-            .workbook_dir("gated-release", "1.0.0")
+            .workbook_dir("gated-release", "1.0.1")
             .as_path()
             .exists()
     );
@@ -1423,7 +1462,7 @@ fn workbook_remove_recovers_latest_work_status_card() {
     assert_eq!(latest_published, 1);
     assert_eq!(
         begin_reply_after, begin_reply_before,
-        "旧start恢复不能改历史begin响应"
+        "Old-start recovery must not change historical begin responses"
     );
 }
 
@@ -1505,14 +1544,14 @@ fn completed_workbook_final_requires_its_current_successful_publisher() {
                 .unwrap();
         }
         drop(connection);
-        let error = repo.load("two-step", Some("1.0.0")).err().unwrap();
+        let error = repo.load("two-step", Some("1.0.1")).err().unwrap();
         assert_eq!(error.code(), ErrorCode::StoreCorrupt, "{mutation}: {error}");
         assert_eq!(repo.list().unwrap_err().code(), ErrorCode::StoreCorrupt);
         assert_eq!(
             repo.verify(None).unwrap_err().code(),
             ErrorCode::StoreCorrupt
         );
-        assert!(home.workbook_dir("two-step", "1.0.0").as_path().is_dir());
+        assert!(home.workbook_dir("two-step", "1.0.1").as_path().is_dir());
     }
 }
 
@@ -1583,14 +1622,14 @@ fn workbook_reader_accepts_publication_and_cleanup_after_its_reference_index() {
     let sync = tempfile::tempdir().unwrap();
     sheltie_runtime::failpoint::arm_rendezvous(
         "pending_after_reference_index",
-        "workbooks/two-step/1.0.0",
+        "workbooks/two-step/1.0.1",
         sync.path(),
     )
     .unwrap();
     let reader_repo = repo.clone();
-    let reader = std::thread::spawn(move || reader_repo.load("two-step", Some("1.0.0")));
+    let reader = std::thread::spawn(move || reader_repo.load("two-step", Some("1.0.1")));
     let mut worker = RendezvousWorker::single(reader, sync.path());
-    worker.wait("reader没有到达引用索引后的同步点");
+    worker.wait("reader did not reach the synchronization point after reference indexing");
     sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
     let replay = repo.add(&source, Some("t28-mark-race".into())).unwrap();
     assert!(replay.replayed);
@@ -1637,7 +1676,7 @@ fn cleanup_preserves_owner_for_a_valid_id_with_a_symlink_container() {
         warnings
             .iter()
             .any(|warning| warning.contains("request_id=t28-orphan-symlink")
-                && warning.contains("container类型异常"))
+                && warning.contains("Unexpected container type"))
     );
     assert!(
         std::fs::symlink_metadata(container.as_path())
@@ -1664,7 +1703,7 @@ fn current_workbook_never_uses_an_old_same_second_publisher_when_latest_audit_is
         let repo = WorkbookRepo::new(home.clone());
         let source = abs(&example_dir("two-step"));
         repo.add(&source, Some("t28-old-publisher".into())).unwrap();
-        repo.remove("two-step", "1.0.0", Some("t28-between-remove".into()))
+        repo.remove("two-step", "1.0.1", Some("t28-between-remove".into()))
             .unwrap();
         repo.add(&source, Some("t28-new-publisher".into())).unwrap();
         let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
@@ -1697,16 +1736,16 @@ fn current_workbook_never_uses_an_old_same_second_publisher_when_latest_audit_is
                 .execute(
                     "UPDATE audit SET command_json = ?1 WHERE request_id = 't28-new-publisher'",
                     [
-                        serde_json::json!({"intent":"remove_workbook", "target":"other@1.0.0"})
+                        serde_json::json!({"intent":"remove_workbook", "target":"other@1.0.1"})
                             .to_string(),
                     ],
                 )
                 .unwrap();
         }
         drop(connection);
-        let error = repo.load("two-step", Some("1.0.0")).err().unwrap();
+        let error = repo.load("two-step", Some("1.0.1")).err().unwrap();
         assert_eq!(error.code(), ErrorCode::StoreCorrupt, "{mutation}: {error}");
-        assert!(home.workbook_dir("two-step", "1.0.0").as_path().is_dir());
+        assert!(home.workbook_dir("two-step", "1.0.1").as_path().is_dir());
     }
 }
 
@@ -1757,7 +1796,7 @@ fn completed_final_views_ignore_preserved_abnormal_pending_metadata() {
     std::fs::remove_file(home.lock_path().as_path()).unwrap();
     assert!(
         !repo
-            .load("two-step", Some("1.0.0"))
+            .load("two-step", Some("1.0.1"))
             .unwrap()
             .pending_publish
     );
@@ -1825,7 +1864,7 @@ fn readers_accept_real_publication_after_their_old_owner_observation() {
             ))
         };
         if reader_kind == "workbook" {
-            repo.remove("two-step", "1.0.0", Some("owner-remove".into()))
+            repo.remove("two-step", "1.0.1", Some("owner-remove".into()))
                 .unwrap();
             repo.add(&source, Some(request.into())).unwrap();
         }
@@ -1854,7 +1893,7 @@ fn readers_accept_real_publication_after_their_old_owner_observation() {
                 [request],
             )
             .unwrap();
-        let expected_book = repo.load("two-step", Some("1.0.0")).unwrap();
+        let expected_book = repo.load("two-step", Some("1.0.1")).unwrap();
         let expected_book_identity = (
             expected_book.manifest.id().as_str().to_owned(),
             expected_book.manifest.version().to_string(),
@@ -1883,7 +1922,7 @@ fn readers_accept_real_publication_after_their_old_owner_observation() {
         let reader = std::thread::spawn(move || -> Result<(), Error> {
             match kind.as_str() {
                 "workbook" => {
-                    let loaded = reader_repo.load("two-step", Some("1.0.0"))?;
+                    let loaded = reader_repo.load("two-step", Some("1.0.1"))?;
                     assert!(!loaded.pending_publish);
                     assert_eq!(
                         (
@@ -2144,7 +2183,7 @@ fn workbook_reader_rejects_audit_drift_after_qualifying_the_publisher() {
         )
         .unwrap();
         let reader_repo = repo.clone();
-        let reader = std::thread::spawn(move || reader_repo.load("two-step", Some("1.0.0")));
+        let reader = std::thread::spawn(move || reader_repo.load("two-step", Some("1.0.1")));
         let mut worker = RendezvousWorker::single(reader, sync.path());
         worker.wait("reader did not qualify the original audit before owner observation");
         sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
@@ -2165,7 +2204,7 @@ fn workbook_reader_rejects_audit_drift_after_qualifying_the_publisher() {
         let error = worker.finish().unwrap().err().unwrap();
         assert_eq!(error.code(), ErrorCode::StoreCorrupt, "{field}: {error}");
         assert!(
-            error.to_string().contains("当前add审计不一致"),
+            error.to_string().contains("differs from current add audit"),
             "{field}: {error}"
         );
         assert_eq!(store_rows(&connection), rows);
@@ -2200,7 +2239,7 @@ fn readers_reject_start_and_workbook_effect_drift_after_their_reference_index() 
         let old_effects: serde_json::Value = serde_json::from_str(&old_raw).unwrap();
         let service = sheltie_runtime::WorkService::new(home.clone());
         let work = if field == "older_publisher" {
-            repo.remove("two-step", "1.0.0", Some("index-remove".into()))
+            repo.remove("two-step", "1.0.1", Some("index-remove".into()))
                 .unwrap();
             repo.add(&source, Some("index-current".into())).unwrap();
             None
@@ -2229,7 +2268,7 @@ fn readers_reject_start_and_workbook_effect_drift_after_their_reference_index() 
         let scope = work
             .as_ref()
             .map(|work| format!("works/{work}"))
-            .unwrap_or_else(|| "workbooks/two-step/1.0.0".into());
+            .unwrap_or_else(|| "workbooks/two-step/1.0.1".into());
         let sync = tempfile::tempdir().unwrap();
         sheltie_runtime::failpoint::arm_rendezvous(
             "pending_after_reference_index",
@@ -2244,7 +2283,7 @@ fn readers_reject_start_and_workbook_effect_drift_after_their_reference_index() 
             if let Some(work) = reader_work {
                 reader_service.stats(&work)?;
             } else {
-                reader_repo.load("two-step", Some("1.0.0"))?;
+                reader_repo.load("two-step", Some("1.0.1"))?;
             }
             Ok(())
         });
@@ -2296,11 +2335,11 @@ fn readers_reject_start_and_workbook_effect_drift_after_their_reference_index() 
         let error = worker.finish().unwrap().unwrap_err();
         assert_eq!(error.code(), ErrorCode::StoreCorrupt, "{field}: {error}");
         let detail = if field == "older_publisher" {
-            "pending引用索引不一致"
+            "differs from pending-reference index"
         } else if field.starts_with("pending_") {
-            "pending路径无效"
+            "pending path is invalid"
         } else {
-            "Start效果归属不一致"
+            "Start effect ownership does not match"
         };
         assert!(error.to_string().contains(detail), "{field}: {error}");
         assert_eq!(store_rows(&connection), rows);
@@ -2336,12 +2375,12 @@ fn workbook_reader_rejects_an_old_index_even_when_current_effects_are_restored()
     let sync = tempfile::tempdir().unwrap();
     sheltie_runtime::failpoint::arm_rendezvous(
         "pending_after_reference_index",
-        "workbooks/two-step/1.0.0",
+        "workbooks/two-step/1.0.1",
         sync.path(),
     )
     .unwrap();
     let reader_repo = repo.clone();
-    let reader = std::thread::spawn(move || reader_repo.load("two-step", Some("1.0.0")));
+    let reader = std::thread::spawn(move || reader_repo.load("two-step", Some("1.0.1")));
     let mut worker = RendezvousWorker::single(reader, sync.path());
     worker.wait("reader did not capture the independently altered index digest");
     sheltie_runtime::failpoint::disarm_rendezvous().unwrap();
@@ -2356,12 +2395,14 @@ fn workbook_reader_rejects_an_old_index_even_when_current_effects_are_restored()
     let error = worker.finish().unwrap().err().unwrap();
     assert_eq!(error.code(), ErrorCode::StoreCorrupt);
     assert!(
-        error.to_string().contains("pending引用索引不一致"),
+        error
+            .to_string()
+            .contains("differs from pending-reference index"),
         "{error}"
     );
     assert_eq!(store_rows(&connection), rows);
     assert_eq!(publication_tree(&home), files);
-    assert!(repo.load("two-step", Some("1.0.0")).is_ok());
+    assert!(repo.load("two-step", Some("1.0.1")).is_ok());
 }
 
 #[cfg(feature = "failpoint")]
@@ -2401,13 +2442,13 @@ fn installed_manifest_identity_is_bound_even_when_all_digest_records_match() {
                 Some("manifest-binding".into()),
             )
             .unwrap();
-        let installed = home.workbook_dir("two-step", "1.0.0");
+        let installed = home.workbook_dir("two-step", "1.0.1");
         assert_eq!(
             independent_workbook_digest(&home, installed.as_path().as_std_path()),
             response.data["digest"].as_str().unwrap()
         );
         assert_eq!(
-            repo.load("two-step", Some("1.0.0"))
+            repo.load("two-step", Some("1.0.1"))
                 .unwrap()
                 .manifest
                 .id()
@@ -2419,7 +2460,7 @@ fn installed_manifest_identity_is_bound_even_when_all_digest_records_match() {
         let changed = if field == "id" {
             original.replace("id = \"two-step\"", "id = \"other\"")
         } else {
-            original.replace("version = \"1.0.0\"", "version = \"2.0.0\"")
+            original.replace("version = \"1.0.1\"", "version = \"2.0.0\"")
         };
         assert_ne!(changed, original);
         make_writable(manifest.as_path().as_std_path());
@@ -2448,10 +2489,12 @@ fn installed_manifest_identity_is_bound_even_when_all_digest_records_match() {
             .unwrap();
         let rows = store_rows(&connection);
         let files = publication_tree(&home);
-        let error = repo.load("two-step", Some("1.0.0")).err().unwrap();
+        let error = repo.load("two-step", Some("1.0.1")).err().unwrap();
         assert_eq!(error.code(), ErrorCode::StoreCorrupt, "{field}: {error}");
         assert!(
-            error.to_string().contains("manifest身份与Store行不一致"),
+            error
+                .to_string()
+                .contains("manifest identity differs from Store row"),
             "{field}: {error}"
         );
         assert_eq!(store_rows(&connection), rows);
@@ -2508,9 +2551,9 @@ fn work_stats_distinguishes_a_missing_frozen_manifest_before_and_after_publicati
             "published={published}: {error}"
         );
         let detail = if published {
-            "已发布冻结副本文件缺失"
+            "published frozen-copy files are missing"
         } else {
-            "冻结副本缺失声明文件"
+            "frozen copy lacks a declared file"
         };
         assert!(
             error.to_string().contains(detail),
@@ -2532,7 +2575,7 @@ fn a_stale_workbook_row_still_requires_the_latest_removal_to_be_qualified() {
     let connection = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     let registered = store_rows(&connection)[0][0].clone();
     let removal = repo
-        .remove("two-step", "1.0.0", Some("stale-remove".into()))
+        .remove("two-step", "1.0.1", Some("stale-remove".into()))
         .unwrap();
     assert!(repo.list().unwrap().is_empty());
     assert_eq!(removal.data["id"], "two-step");
@@ -2559,12 +2602,12 @@ fn a_stale_workbook_row_still_requires_the_latest_removal_to_be_qualified() {
         .unwrap();
     let rows = store_rows(&connection);
     let files = publication_tree(&home);
-    let error = repo.load("two-step", Some("1.0.0")).err().unwrap();
+    let error = repo.load("two-step", Some("1.0.1")).err().unwrap();
     assert_eq!(error.code(), ErrorCode::StoreCorrupt);
     assert!(
         error
             .to_string()
-            .contains("Workbook remove请求 stale-remove snapshot身份无效"),
+            .contains("Workbook remove request stale-remove snapshot identity is invalid"),
         "{error}"
     );
     assert_eq!(store_rows(&connection), rows);
@@ -2579,14 +2622,14 @@ fn start_rechecks_manifest_identity_on_the_copy_it_will_freeze() {
     for field in ["id", "version"] {
         let (_directory, home, service) = home_with_example("two-step");
         let manifest = home
-            .workbook_dir("two-step", "1.0.0")
+            .workbook_dir("two-step", "1.0.1")
             .join_segment("workbook.toml");
         make_writable(manifest.as_path().as_std_path());
         let original = std::fs::read_to_string(manifest.as_path()).unwrap();
         let changed = if field == "id" {
             original.replace("id = \"two-step\"", "id = \"new-step\"")
         } else {
-            original.replace("version = \"1.0.0\"", "version = \"2.0.0\"")
+            original.replace("version = \"1.0.1\"", "version = \"2.0.0\"")
         };
         assert_ne!(changed, original);
         assert_eq!(changed.len(), original.len());
@@ -2629,7 +2672,7 @@ fn start_rechecks_manifest_identity_on_the_copy_it_will_freeze() {
         let error = worker.finish().unwrap().unwrap_err();
         assert_eq!(error.code(), ErrorCode::StoreCorrupt, "{field}: {error}");
         assert!(
-            error.to_string().contains("冻结副本的 manifest 身份"),
+            error.to_string().contains("Frozen-copy manifest identity"),
             "{field}: {error}"
         );
         assert_eq!(

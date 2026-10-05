@@ -1,4 +1,4 @@
-//! T12：管理根解析、路径约束、文件观察。
+//! T12: root resolution, path confinement, and file observation.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod common;
@@ -11,8 +11,8 @@ use sheltie_runtime::{Error, Home};
 // Task: T12
 #[test]
 fn home_prefers_cli_then_env_then_default() {
-    // T04 起根在入口规范化：对最深已存在祖先取真实形式（macOS 的 /tmp → /private/tmp），
-    // 余下段保持词法。期望用同一规则独立构造。
+    // Since T04, normalize the deepest existing ancestor on entry (macOS /tmp -> /private/tmp),
+    // retaining lexical suffixes; construct expectations independently under the same rule.
     let cli = Home::resolve(Some("/tmp/cli-home")).unwrap();
     let expected = format!(
         "{}/cli-home",
@@ -22,8 +22,8 @@ fn home_prefers_cli_then_env_then_default() {
             .into_owned()
     );
     assert_eq!(cli.root().as_str(), expected);
-    // 环境变量与默认值的分支由子进程测试覆盖（cli 层 `work_start_creates_work_and_prints_next` 用 --home）。
-    // 这里只再确认相对路径被转成绝对路径。
+    // Subprocess tests cover environment/default branches; CLI work_start_creates_work_and_prints_next uses --home.
+    // Here additionally verify relative-to-absolute conversion.
     let rel = Home::resolve(Some("rel-home")).unwrap();
     assert!(rel.root().as_str().starts_with('/'));
     assert!(rel.root().as_str().ends_with("/rel-home"));
@@ -109,9 +109,12 @@ fn confine_errors_on_unreadable_ancestor() {
     use std::os::unix::fs::PermissionsExt as _;
     std::fs::set_permissions(&locked, std::fs::Permissions::from_mode(0o000)).unwrap();
     let r = Home::confine(home.root(), "locked/x.md");
-    // 恢复权限再断言，否则 TempDir 收尾删不掉（fe7f5fe 的教训）。
+    // Restore permissions before asserting so TempDir cleanup can succeed (8b6654b lesson).
     std::fs::set_permissions(&locked, std::fs::Permissions::from_mode(0o755)).unwrap();
-    assert!(r.is_err(), "不可读祖先上的观察错误不得当成不存在放行");
+    assert!(
+        r.is_err(),
+        "Observation errors beneath unreadable ancestors must not be treated as absence"
+    );
 }
 
 // Task: C009-T02

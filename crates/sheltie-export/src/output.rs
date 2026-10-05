@@ -93,22 +93,27 @@ impl Report {
 
     pub fn readable(&self) -> String {
         let mut message = match self.status {
-            Status::Complete => "副本已完成".to_string(),
-            Status::Rejected => "导出被拒绝".to_string(),
-            Status::FailedBeforePublish => "发布前失败".to_string(),
-            Status::PublicationUnconfirmed => "可能已发布，需核查".to_string(),
+            Status::Complete => "Copy complete".to_string(),
+            Status::Rejected => "Export rejected".to_string(),
+            Status::FailedBeforePublish => "Failed before publication".to_string(),
+            Status::PublicationUnconfirmed => {
+                "Publication may have occurred; verification required".to_string()
+            }
         };
         if let Some(error) = &self.error {
             message.push_str(&format!("：{} ({})", error.message, error.code));
         }
         if let Some(path) = &self.target_path {
-            message.push_str(&format!("\n副本目录：{}", path.display()));
+            message.push_str(&format!("\nCopy directory: {}", path.display()));
         }
         if let Some(path) = &self.staging_path {
-            message.push_str(&format!("\n本次暂存目录：{}", path.display()));
+            message.push_str(&format!(
+                "\nStaging directory for this operation: {}",
+                path.display()
+            ));
         }
         if self.status != Status::Complete {
-            message.push_str("\n请核查保留现场；再次执行会建立另一份新副本。");
+            message.push_str("\nInspect preserved state; running again creates another new copy.");
         }
         message
     }
@@ -135,7 +140,7 @@ mod tests {
             (
                 Error::Rejected {
                     code: "INVALID_RESULT",
-                    message: "结果不合格".into(),
+                    message: "Invalid result".into(),
                 },
                 Status::Rejected,
                 2,
@@ -144,7 +149,7 @@ mod tests {
             ),
             (
                 Error::Source {
-                    message: "进程失败".into(),
+                    message: "Process failed".into(),
                     exit_code: Some(17),
                 },
                 Status::FailedBeforePublish,
@@ -156,7 +161,7 @@ mod tests {
                 Error::Io {
                     path: "/owned/partial".into(),
                     operation: "write",
-                    source: io::Error::other("实际写入失败"),
+                    source: io::Error::other("Actual write failure"),
                 },
                 Status::FailedBeforePublish,
                 1,
@@ -166,7 +171,7 @@ mod tests {
             (
                 Error::Integrity {
                     path: "/owned/partial".into(),
-                    message: "摘要不同".into(),
+                    message: "Digest differs".into(),
                 },
                 Status::FailedBeforePublish,
                 1,
@@ -196,14 +201,18 @@ mod tests {
                 Some("/owned/old-staging-name".into()),
                 Error::PublicationUnconfirmed {
                     target_path: target_path.clone(),
-                    message: "父目录同步失败".into(),
+                    message: "Parent-directory sync failed".into(),
                 },
             );
             assert_eq!(report.status, Status::PublicationUnconfirmed);
             assert_eq!(report.exit_code(), 3);
             assert_eq!(report.target_path, target_path);
             assert_eq!(report.staging_path, None);
-            assert!(report.readable().contains("可能已发布，需核查"));
+            assert!(
+                report
+                    .readable()
+                    .contains("Publication may have occurred; verification required")
+            );
         }
     }
 
@@ -225,6 +234,9 @@ mod tests {
         assert_eq!(value["target_path"], "/owned/副本");
         assert_eq!(value["staging_path"], serde_json::Value::Null);
         assert_eq!(value["error"], serde_json::Value::Null);
-        assert_eq!(report.readable(), "副本已完成\n副本目录：/owned/副本");
+        assert_eq!(
+            report.readable(),
+            "Copy complete\nCopy directory: /owned/副本"
+        );
     }
 }

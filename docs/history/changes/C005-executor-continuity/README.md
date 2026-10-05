@@ -1,25 +1,27 @@
-# C005：Attempt 资格撤销
+# C005: Attempt qualification revocation
 
-状态：`completed`
-目标版本：`v0.3.0`（开发目标，尚未发布）
-兼容性：`不保留格式兼容；旧 Store 保留并拒绝自动迁移`
-基线：`23932afc1577a0b20a6b1cf7ad23ab8ac6186571`
-Owner：`Codex /root`
-记录形式：`reference`
-历史快照：`f38954d543ff01eb5a798be48f29060b80d5952c`
+English | [简体中文](README.zh-CN.md)
 
-## 变化与理由
+Status: `completed`
+Target version: `v0.3.0 (development target, unreleased)`
+Compatibility: `no format compatibility; preserve old Stores and reject automatic migration`
+Baseline: `3f2387f0daf8fb4e6e5329044babff9aa47654dc`
+Owner: `Codex /root`
+Record form: `reference`
+Historical snapshot: `9d98bf8f15944b7bda4fbd4096e7771b09eab728`
 
-以 attempt replace 在一次写操作中将旧 running Attempt 标为 superseded，并开始新 Attempt。number 是创建顺序号，业务失败只统计 failed；每个 Occurrence 固定最多一次替换。非统计输入继承旧冻结绑定，统计输入按含新 Attempt 的状态重新生成。
+## Changes and rationale
 
-schema 4 与 cli-result/v4 整组切换；旧 Store 保留并拒绝自动迁移。
+attempt replace marks the old running Attempt superseded and starts a new Attempt in one write. number is the creation sequence; only failed counts as business failure. Each Occurrence permits at most one replacement. Non-statistical inputs inherit frozen bindings; statistics are regenerated from state including the new Attempt.
 
-## 验证与限制
+Switch schema 4 / cli-result/v4 together. Preserve old Stores without automatic migration.
 
-已完成原生／MSRV 技术验证与真实需求负前检。没有真实资格撤销事件时继续普通 resume，不制造事故。引擎不停止旧进程、不认证接手者、不隔离宿主，也不撤销已发生的外部副作用；真实撤销价值、真人成本与原 LEAK 因果仍无充分证据。
+## Validation and limits
 
-本页保留设计与结果摘要；当前行为以根规格和合同为准。历史验证不能直接复用为当前候选 PASS。
+Native/MSRV technical verification and real-demand negative preflight are complete. Without actual revocation events, use ordinary resume rather than manufacturing incidents. The engine does not stop old processes, authenticate successors, isolate hosts, or undo external side effects. Real revocation value, human cost, and original LEAK causality lack sufficient evidence.
 
-## 参考
+This page retains design/outcome summaries. Root specifications/contracts govern current behavior. Historical validation cannot directly qualify the current candidate as PASS.
 
-[接续与撤销](../../../how-to/resume-work.md)、[D-041](../../../explanation/decisions/D-041-attempt-number-and-replacement.md)、[当前限制](../../../reference/limitations.md)。完整任务、审查与运行原件按[历史查阅指南](../../../how-to/maintain-docs.md#查阅历史原件)从上述快照读取。
+## References
+
+[Resume and revocation](../../../how-to/resume-work.md), [D-041](../../../explanation/decisions/D-041-attempt-number-and-replacement.md), [Current limits](../../../reference/limitations.md). Read full tasks, reviews, and original runs from the snapshot above using the [historical lookup guide](../../../how-to/maintain-docs.md#read-original-historical-records).

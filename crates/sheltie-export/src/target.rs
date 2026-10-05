@@ -64,12 +64,14 @@ impl Directory {
     fn open(path: &Path) -> Result<Self> {
         let text = path
             .to_str()
-            .ok_or_else(|| reject("目标与管理根路径必须能用UTF-8表示"))?;
+            .ok_or_else(|| reject("Target and management-root paths must be UTF-8"))?;
         if !path.is_absolute()
             || text.as_bytes().contains(&0)
             || text.split('/').any(|part| part == "." || part == "..")
         {
-            return Err(reject("需要真实无链接的绝对目录路径"));
+            return Err(reject(
+                "Requires a real absolute directory path without links",
+            ));
         }
         let mut file = File::open("/").map_err(|error| io_error(path, "open_root", error))?;
         let mut ancestors = vec![identity(&file, Path::new("/"))?];
@@ -91,7 +93,10 @@ impl Directory {
         if current.ancestors != self.ancestors
             || identity(&self.file, &self.path)? != identity(&current.file, &self.path)?
         {
-            return Err(integrity(&self.path, "目录路径或祖先对象已改变"));
+            return Err(integrity(
+                &self.path,
+                "Directory path or ancestor object changed",
+            ));
         }
         Ok(())
     }
@@ -112,7 +117,9 @@ fn open_directory(parent: &File, name: &str, path: &Path) -> Result<File> {
     let before = statat(parent, name, AtFlags::SYMLINK_NOFOLLOW)
         .map_err(|error| io_error(path, "stat_directory", error.into()))?;
     if FileType::from_raw_mode(before.st_mode) != FileType::Directory {
-        return Err(reject(format!("{path:?} 不是无链接普通目录")));
+        return Err(reject(format!(
+            "{path:?} is not a regular directory without links"
+        )));
     }
     let fd = openat(
         parent,
@@ -129,7 +136,7 @@ fn open_directory(parent: &File, name: &str, path: &Path) -> Result<File> {
             inode: before.st_ino as u64,
         })
     {
-        return Err(integrity(path, "目录在打开时被替换"));
+        return Err(integrity(path, "Directory was replaced during opening"));
     }
     verify_entry(parent, name, &file, path, true)?;
     Ok(file)
@@ -166,7 +173,10 @@ fn verify_entry(
         || entry.st_ino != actual.st_ino
         || (!directory && actual.st_nlink != 1)
     {
-        return Err(integrity(path, "路径、类型或链接数不再对应持有对象"));
+        return Err(integrity(
+            path,
+            "Path, type, or link count no longer matches the held object",
+        ));
     }
     Ok(())
 }
@@ -181,12 +191,15 @@ fn inventory(directory: &File, path: &Path, expected: BTreeSet<String>) -> Resul
         if bytes == b"." || bytes == b".." {
             continue;
         }
-        let name =
-            std::str::from_utf8(bytes).map_err(|_| integrity(path, "出现不明非UTF-8目录项"))?;
+        let name = std::str::from_utf8(bytes)
+            .map_err(|_| integrity(path, "Unknown non-UTF-8 directory entry appeared"))?;
         found.insert(name.to_string());
     }
     if found != expected {
-        return Err(integrity(path, "目录项与本次创建清单不一致"));
+        return Err(integrity(
+            path,
+            "Directory entries differ from this operation's creation manifest",
+        ));
     }
     Ok(())
 }
@@ -194,7 +207,7 @@ fn inventory(directory: &File, path: &Path, expected: BTreeSet<String>) -> Resul
 fn verify_private_mode(file: &File, path: &Path, expected: u32) -> Result<()> {
     let stat = fstat(file).map_err(|error| io_error(path, "stat_permissions", error.into()))?;
     if stat.st_mode as u32 & 0o777 != expected {
-        return Err(integrity(path, "自有对象权限已改变"));
+        return Err(integrity(path, "Owned object permissions changed"));
     }
     Ok(())
 }
@@ -204,7 +217,7 @@ fn leaf(artifact: &Artifact) -> Result<String> {
         .path
         .as_path()
         .file_name()
-        .ok_or_else(|| reject("Artifact路径没有安全叶名"))?;
+        .ok_or_else(|| reject("Artifact path has no safe leaf name"))?;
     if name.is_empty()
         || name == "."
         || name == ".."
@@ -212,7 +225,7 @@ fn leaf(artifact: &Artifact) -> Result<String> {
         || name.contains('/')
         || name.contains('\\')
     {
-        return Err(reject("Artifact叶名不是单个安全文件段"));
+        return Err(reject("Artifact leaf name is not one safe file segment"));
     }
     Ok(name.to_string())
 }
@@ -230,7 +243,9 @@ impl Destination {
         let home_id = identity(&home.file, &home.path)?;
         let parent_id = identity(&parent.file, &parent.path)?;
         if home.ancestors.contains(&parent_id) || parent.ancestors.contains(&home_id) {
-            return Err(reject("目标父目录与管理根对象或祖先重叠"));
+            return Err(reject(
+                "Target parent overlaps a management-root object or ancestor",
+            ));
         }
         Ok(Self { home, parent })
     }
@@ -354,7 +369,7 @@ impl Write for ArtifactWriter {
         if bytes.len() as u64 > self.remaining {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidData,
-                "Artifact超过声明字节数",
+                "Artifact exceeds its declared byte count",
             ));
         }
         self.witness
@@ -392,7 +407,9 @@ impl Staging {
 
     fn verify(&self) -> Result<()> {
         if self.moved {
-            return Err(reject("本次暂存已移动，不能重新发布或接管"));
+            return Err(reject(
+                "This staging directory has moved; cannot republish or adopt it",
+            ));
         }
         self.destination.verify()?;
         verify_entry(
@@ -423,7 +440,7 @@ impl Staging {
                 .iter()
                 .any(|entry| entry.artifact.key == artifact.key)
         {
-            return Err(reject("Artifact大小、创建索引或key不合规"));
+            return Err(reject("Invalid Artifact size, creation index, or key"));
         }
         let total = self
             .entries
@@ -432,12 +449,12 @@ impl Staging {
                 total.checked_add(entry.artifact.bytes)
             });
         if total.is_none_or(|total| total > MAX_TOTAL_BYTES) {
-            return Err(reject("Artifact总量超过256MiB或溢出"));
+            return Err(reject("Artifact total exceeds 256 MiB or overflows"));
         }
         self.verify()?;
         let ordinal = index
             .checked_add(1)
-            .ok_or_else(|| reject("Artifact索引溢出"))?;
+            .ok_or_else(|| reject("Artifact index overflow"))?;
         let directory_name = format!("{ordinal:04}");
         let directory_path = self.path().join("artifacts").join(&directory_name);
         let directory = new_directory(&self.artifacts, &directory_name, &directory_path)?;
@@ -502,14 +519,18 @@ impl Staging {
     ) -> Result<CopiedFile> {
         self.verify()?;
         if writer.staging != identity(&self.root, &self.path())? {
-            return Err(reject("文件句柄不属于本次暂存"));
+            return Err(reject(
+                "File handle does not belong to this staging operation",
+            ));
         }
         let entry = self
             .entries
             .get(writer.index)
-            .ok_or_else(|| reject("未知文件句柄索引"))?;
+            .ok_or_else(|| reject("Unknown file-handle index"))?;
         if entry.finished || entry.artifact != *artifact {
-            return Err(reject("文件来源或完成资格与本次声明不符"));
+            return Err(reject(
+                "File source or completion qualification differs from this declaration",
+            ));
         }
         writer.flush().map_err(|error| {
             io_error(
@@ -588,11 +609,13 @@ impl Staging {
         checkpoint(TargetPoint::AfterReadback, &self.path())?;
         result.validate(&self.work)?;
         if files.len() != result.artifacts.len() || files.len() != self.entries.len() {
-            return Err(reject("副本集合与明确结果集合不一致"));
+            return Err(reject("Copy set differs from the explicit result set"));
         }
         for ((entry, expected), supplied) in self.entries.iter().zip(&result.artifacts).zip(files) {
             if !entry.finished || entry.artifact != *expected || copied(entry) != *supplied {
-                return Err(reject("副本映射、顺序或完成事实不符"));
+                return Err(reject(
+                    "Copy mapping, order, or completion facts do not match",
+                ));
             }
         }
         let manifest = Manifest {
@@ -697,7 +720,10 @@ fn read_back(file: &File, path: &Path, expected: &Sha256Hex, bytes: u64) -> Resu
         || before.st_size as u64 != bytes
         || bytes > MAX_FILE_BYTES
     {
-        return Err(integrity(path, "读回对象类型、链接或大小不符"));
+        return Err(integrity(
+            path,
+            "Read-back object type, links, or size do not match",
+        ));
     }
     let mut handle = file;
     handle
@@ -715,9 +741,9 @@ fn read_back(file: &File, path: &Path, expected: &Sha256Hex, bytes: u64) -> Resu
         }
         actual = actual
             .checked_add(count as u64)
-            .ok_or_else(|| integrity(path, "读回大小溢出"))?;
+            .ok_or_else(|| integrity(path, "Read-back size overflow"))?;
         if actual > bytes {
-            return Err(integrity(path, "读回文件增长"));
+            return Err(integrity(path, "Read-back file grew"));
         }
         hash.update(&buffer[..count]);
     }
@@ -730,7 +756,10 @@ fn read_back(file: &File, path: &Path, expected: &Sha256Hex, bytes: u64) -> Resu
         || after.st_nlink != 1
         || after.st_size != before.st_size
     {
-        return Err(integrity(path, "读回字节、摘要或身份不符"));
+        return Err(integrity(
+            path,
+            "Read-back bytes, digest, or identity do not match",
+        ));
     }
     Ok(())
 }
@@ -797,7 +826,7 @@ mod faults {
             Some((_, Fault::Sync)) => Err(io_error(
                 path,
                 "injected_fsync_error",
-                std::io::Error::other("受控fsync失败"),
+                std::io::Error::other("Controlled fsync failure"),
             )),
             Some((_, Fault::Rendezvous(directory))) => {
                 std::fs::write(directory.join("ready"), b"ready")
@@ -808,7 +837,10 @@ mod faults {
                         return Err(io_error(
                             &directory,
                             "rendezvous_timeout",
-                            std::io::Error::new(std::io::ErrorKind::TimedOut, "交错点超时"),
+                            std::io::Error::new(
+                                std::io::ErrorKind::TimedOut,
+                                "Interleaving point timed out",
+                            ),
                         ));
                     }
                     std::thread::sleep(std::time::Duration::from_millis(5));

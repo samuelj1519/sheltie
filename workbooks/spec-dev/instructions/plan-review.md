@@ -1,35 +1,35 @@
-这一步由人完成，判断规格和方案能否开工，并保存本次实际审核的方案与任务清单。实现、验证、审查和修复由 agent 按批准版本执行；升级和最终批准仍按流程交给人。
+A person decides whether requirements/plan may proceed and preserves the actually reviewed plan/task list. Agents implement/verify/review/repair approved versions; escalation/final approval remain human.
 
-## 读什么
+## Read
 
-1. `spec`：需求规格。先看「目标」和「验收标准」是不是你想要的；再看「开放问题」，每个问题你都要给答案。
-2. `plan`：技术方案。重点看「改法」有没有明显走偏，「门禁」命令对不对。
-3. `tasks`：任务清单。抽查两三个任务，看是不是够小（填几个函数体的量）、「要变绿的测试」名字是否能看出在验什么。
+1. Spec: Goal/Acceptance and every Open question, answering each.
+2. Plan: approach/direction and actual gate commands.
+3. Tasks: sample two or three for small body-filling scope and tests whose names reveal behavior.
 
-不需要逐字审。规格与方案的细节错误会在实现和审查阶段被 agent 自己发现。你把关的是方向。
+Review direction rather than every word; agents investigate detailed errors later.
 
-## 写什么
+## Decision
 
-写一份 `decision.md`。**第一行只写下面三个词之一**，协调者按它选下一步：
+First line of decision.md must be exactly one:
 
-- `通过`：开工。下一步是强模型搭骨架（类型、签名、禁用的测试），之后才是逐任务实现。
-- `修改规格`：回到写规格那一步。
-- `修改方案`：回到写方案那一步。
+- Accepted: begin strong-model scaffolding, then task implementation.
+- Revise specification: return to spec.
+- Revise plan: return to plan.
 
-第一行之后先写两行版本记录，把你的决定绑定到你看过的那一版（三个决定都写这两行，行名固定）：
+Every decision then records these exact fields:
 
+```text
+Approved specification: <sha256>
+Approved plan: <sha256>
 ```
-批准的规格: <sha256>
-批准的方案: <sha256>
-```
 
-对任务书输入表里 `spec`、`plan` 两个路径跑 `shasum -a 256`（Linux 是 `sha256sum`），把十六进制摘要抄在这里。选「通过」时这两行就是批准记录：之后 `scaffold`、`implement`、`verify` 每一步都会核对它们，方案在你批准后被修订过，旧批准就失效，agent 不会按没批过的版本继续。选「修改规格」「修改方案」时，它们记下你打回的那一版，改完回来重审时用来对账。
+Hash brief-bound spec/plan with shasum -a 256 (Linux sha256sum). Accepted binds approval; scaffold/implement/verify recheck, and later edits invalidate old approval. Revision decisions identify returned versions for reconciliation at next review.
 
-再往下写你的意见，每条一行，能定位到规格或方案的哪一节。开放问题的答案也写在这里。选「通过」时可以附带小意见（条件），实现阶段逐条照做，但不会再回来找你确认。
+Then one located comment per line, plus open-question answers. Accepted may include conditions enforced during implementation without asking again.
 
-## 保存被审副本并提交
+## Preserve reviewed copies and submit
 
-1. 把输入 plan 的原字节复制到输出 reviewed-plan，把输入 tasks 的原字节复制到输出 reviewed-tasks。所有决定，包括打回修改，都必须交这两份副本；不能重新排版、添备注或重新生成。
-2. 分别计算每个输入与对应输出的 sha256，确认原字节一致。两份镜像各自的输出限额为 65536 字节；意见写入 decision，不混入镜像。
-3. 把 decision.md 写到 decision 输出路径。版本记录仍取任务书输入 spec 和 plan 的摘要，三个决定都保留版本记录。
-4. 三份输出都存在且核对完成后，运行任务书末尾的 sheltie attempt submit。后续 planner 会从 reviewed-plan/reviewed-tasks 恢复本次被审版本，不能只在聊天中传旧方案。
+1. Byte-copy plan to reviewed-plan and tasks to reviewed-tasks for every decision, including rejection. No reformatting/annotations/regeneration.
+2. Compare each input/output sha256. Each copy ≤65536 bytes; comments belong only in decision.
+3. Write decision with version records from actual brief-bound spec/plan for every outcome.
+4. After all three outputs exist/validate, run the brief's submit. Planner inherits reviewed copies, not chat-only old plans.

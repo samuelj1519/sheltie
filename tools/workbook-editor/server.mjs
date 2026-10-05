@@ -30,21 +30,21 @@ async function body(request) {
     request.on('data', chunk => {
       if (finished) return;
       size += chunk.length;
-      if (size > MAX_BODY) { const error = new Error('HTTP 请求体超过 24 MiB。'); error.status = 413; fail(error); return; }
+      if (size > MAX_BODY) { const error = new Error('HTTP request body exceeds 24 MiB.'); error.status = 413; fail(error); return; }
       parts.push(chunk);
     });
     request.once('end', () => { if (!finished) { finished = true; resolve(Buffer.concat(parts)); } });
     request.once('error', fail);
-    request.once('aborted', () => fail(new Error('请求断开或取消')));
+    request.once('aborted', () => fail(new Error('Request disconnected or cancelled')));
   });
   try { return JSON.parse(buffer.toString('utf8')); }
-  catch { throw new Error('请求体不是完整 JSON。'); }
+  catch { throw new Error('Request body is not complete JSON.'); }
 }
 export async function createEditor({ binary, port = 4311, processOptions, onRoot } = {}) {
-  if (!binary || !isAbsolute(binary)) throw new Error('--sheltie 必须是可信引擎的绝对路径。');
+  if (!binary || !isAbsolute(binary)) throw new Error('--sheltie must be an absolute path to the trusted engine.');
   binary = await realpath(binary);
   await access(binary, constants.X_OK);
-  if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('端口必须为 0–65535。');
+  if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('Port must be 0–65535.');
   const token = randomBytes(32).toString('hex');
   let origin;
   const active = new Set();
@@ -57,7 +57,7 @@ export async function createEditor({ binary, port = 4311, processOptions, onRoot
     response.setHeader('Cache-Control', 'no-store');
     response.setHeader('X-Content-Type-Options', 'nosniff');
     response.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'");
-    if (request.headers.host !== new URL(origin).host) { send(response, 403, { ok: false, error: 'Host 不匹配本地监听地址。' }); return; }
+    if (request.headers.host !== new URL(origin).host) { send(response, 403, { ok: false, error: 'Host does not match the local listening address.' }); return; }
     const path = request.url;
     const controller = new AbortController();
     request.on('aborted', () => controller.abort());
@@ -76,9 +76,9 @@ export async function createEditor({ binary, port = 4311, processOptions, onRoot
         const files = await readTree(root);
         send(response, 200, [...files].map(([p, bytes]) => [p, bytes.toString('base64')])); return;
       }
-      if (request.method !== 'POST' || !['/api/check', '/api/export'].includes(path)) { send(response, 404, { ok: false, error: '没有此操作。' }); return; }
-      if (request.headers.origin !== origin || request.headers['x-editor-token'] !== token) { send(response, 403, { ok: false, error: 'Origin 或会话 token 不匹配。' }); return; }
-      if (request.headers['content-type'] !== 'application/json') { send(response, 415, { ok: false, error: 'Content-Type 必须为 application/json。' }); return; }
+      if (request.method !== 'POST' || !['/api/check', '/api/export'].includes(path)) { send(response, 404, { ok: false, error: 'Unknown operation.' }); return; }
+      if (request.headers.origin !== origin || request.headers['x-editor-token'] !== token) { send(response, 403, { ok: false, error: 'Origin or session token does not match.' }); return; }
+      if (request.headers['content-type'] !== 'application/json') { send(response, 415, { ok: false, error: 'Content-Type must be application/json.' }); return; }
       const entries = await body(request);
       const files = decodeEntries(entries);
       const operation = checkWorkbook(files, binary, { signal: controller.signal, processOptions, onRoot });
@@ -104,9 +104,9 @@ export async function createEditor({ binary, port = 4311, processOptions, onRoot
 if (process.argv[1] && await realpath(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
     const args = process.argv.slice(2);
-    if (args.length !== 4 || args[0] !== '--sheltie' || args[2] !== '--port') throw new Error('用法：node server.mjs --sheltie /absolute/path/sheltie --port 4311');
+    if (args.length !== 4 || args[0] !== '--sheltie' || args[2] !== '--port') throw new Error('Usage: node server.mjs --sheltie /absolute/path/sheltie --port 4311');
     const editor = await createEditor({ binary: args[1], port: Number(args[3]) });
-    console.log(`Workbook 编辑器：${editor.origin}`);
+    console.log(`Workbook editor: ${editor.origin}`);
     for (const event of ['SIGTERM', 'SIGINT']) process.once(event, async () => { await editor.close(); process.exit(0); });
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 }

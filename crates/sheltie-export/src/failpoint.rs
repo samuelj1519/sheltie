@@ -77,12 +77,16 @@ fn wait_at_boundary(name: &str) -> std::io::Result<()> {
 
     let directory = std::env::var_os("SHELTIE_EXPORT_TEST_DIRECTORY")
         .map(PathBuf::from)
-        .ok_or_else(|| std::io::Error::other("测试同步点缺少明确目录"))?;
+        .ok_or_else(|| {
+            std::io::Error::other("Test synchronization point lacks an explicit directory")
+        })?;
     if !directory.is_absolute()
         || !std::fs::symlink_metadata(&directory)?.is_dir()
         || directory.canonicalize()? != directory
     {
-        return Err(std::io::Error::other("测试同步点必须使用真实绝对目录"));
+        return Err(std::io::Error::other(
+            "Test synchronization point requires a real absolute directory",
+        ));
     }
     let mut reached = std::fs::OpenOptions::new()
         .write(true)
@@ -94,7 +98,7 @@ fn wait_at_boundary(name: &str) -> std::io::Result<()> {
         if Instant::now() >= deadline {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::TimedOut,
-                "测试同步点未释放",
+                "Test synchronization point was not released",
             ));
         }
         std::thread::sleep(Duration::from_millis(5));

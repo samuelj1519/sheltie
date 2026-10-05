@@ -1,4 +1,4 @@
-//! T18：`work` 组。
+//! T18: work commands.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod common;
@@ -102,7 +102,7 @@ fn work_status_json_matches_schema() {
         "last_attempt",
         "next",
     ] {
-        assert!(v["data"].get(key).is_some(), "缺 {key}");
+        assert!(v["data"].get(key).is_some(), "Missing {key}");
     }
     assert_eq!(v["data"]["current"], "outline#1");
 }
@@ -222,21 +222,24 @@ fn work_status_reports_pending_publication_while_reading_the_frozen_copy() {
     assert_eq!(status["data"]["pending_publish"], true);
     assert_eq!(status["data"]["status"]["kind"], "active");
     let text = env.cmd_text(&["work", "status", work]).output().unwrap();
-    assert!(String::from_utf8_lossy(&text.stdout).contains("待完成"));
+    assert!(String::from_utf8_lossy(&text.stdout).contains("pending"));
     assert_eq!(
         std::fs::read(env.dir.path().join("store.db")).unwrap(),
         store_before
     );
-    assert!(!lock_path.exists(), "只读status不能创建HomeLock");
+    assert!(
+        !lock_path.exists(),
+        "Read-only status must not create HomeLock"
+    );
     assert!(
         !env.work_dir(work).exists(),
         "read-only status does not recover"
     );
 }
 
-// ── C002-T02：start 的无副作用预检（GF-30） ─────────────────────
+// ── C002-T02: side-effect-free start preflight (GF-30) ─────────────────────
 
-/// 独立 oracle：递归列出管理根下的相对路径（跳过 SQLite 的 -wal/-shm，连接关闭时会回收）。
+/// Independent oracle: enumerate root-relative paths recursively, excluding SQLite -wal/-shm removed on connection closure.
 fn snapshot_tree(root: &std::path::Path) -> Vec<String> {
     fn walk(dir: &std::path::Path, prefix: &str, out: &mut Vec<String>) {
         let mut entries: Vec<_> = std::fs::read_dir(dir)
@@ -271,7 +274,7 @@ fn start_deterministic_rejections_leave_home_unchanged_and_do_not_burn_seq() {
     env.add_example("two-step");
     let before = snapshot_tree(std::path::Path::new(&env.home()));
 
-    // 缺 topic：INPUT_MISSING，detail 点名缺的键。
+    // Missing topic yields INPUT_MISSING; detail names the missing key.
     let (v, code) = env.fail(&[
         "work",
         "start",
@@ -288,7 +291,7 @@ fn start_deterministic_rejections_leave_home_unchanged_and_do_not_burn_seq() {
     );
     assert_eq!(snapshot_tree(std::path::Path::new(&env.home())), before);
 
-    // 多 key：INPUT_MISSING，detail 点名多的键。
+    // Extra key yields INPUT_MISSING; detail names the extra key.
     let (v, code) = env.fail(&[
         "work",
         "start",
@@ -306,7 +309,7 @@ fn start_deterministic_rejections_leave_home_unchanged_and_do_not_burn_seq() {
     assert_eq!(v["error"]["detail"]["extra"], serde_json::json!(["bonus"]));
     assert_eq!(snapshot_tree(std::path::Path::new(&env.home())), before);
 
-    // 非法名字：INVALID_REQUEST。
+    // Invalid name yields INVALID_REQUEST.
     let (v, code) = env.fail(&[
         "work",
         "start",
@@ -323,7 +326,7 @@ fn start_deterministic_rejections_leave_home_unchanged_and_do_not_burn_seq() {
     assert_eq!(v["error"]["code"], "INVALID_REQUEST");
     assert_eq!(snapshot_tree(std::path::Path::new(&env.home())), before);
 
-    // 缺 workbook：NOT_FOUND。
+    // Missing Workbook yields NOT_FOUND.
     let (v, code) = env.fail(&[
         "work",
         "start",
@@ -348,7 +351,7 @@ fn start_deterministic_rejections_leave_home_unchanged_and_do_not_burn_seq() {
     );
     assert_eq!(snapshot_tree(std::path::Path::new(&env.home())), before);
 
-    // 缺 flow：NOT_FOUND。
+    // Missing Flow yields NOT_FOUND.
     let (v, code) = env.fail(&[
         "work",
         "start",
@@ -363,7 +366,7 @@ fn start_deterministic_rejections_leave_home_unchanged_and_do_not_burn_seq() {
     assert_eq!(v["error"]["code"], "NOT_FOUND");
     assert_eq!(snapshot_tree(std::path::Path::new(&env.home())), before);
 
-    // 拒绝后只补缺条件即成功；当日序号没有被烧掉，仍是 001。
+    // Fix only the missing condition; succeed with unconsumed daily sequence 001.
     let wid = env.start("two-step", &[("topic", "x")]);
     assert!(wid.contains("-001-"), "{wid}");
 }
@@ -372,7 +375,7 @@ fn start_deterministic_rejections_leave_home_unchanged_and_do_not_burn_seq() {
 #[test]
 fn failed_start_on_new_home_creates_nothing() {
     let env = Env::new();
-    // 新管理根上没有任何已装 Workbook；失败的 start 不得建 store.db 或任何目录。
+    // No Workbook is installed in a new root; failed start must not create store.db or directories.
     let (v, code) = env.fail(&[
         "work",
         "start",
@@ -386,9 +389,12 @@ fn failed_start_on_new_home_creates_nothing() {
     assert_eq!(code, 1);
     assert_eq!(v["error"]["code"], "NOT_FOUND");
     let entries: Vec<_> = std::fs::read_dir(env.dir.path()).unwrap().collect();
-    assert!(entries.is_empty(), "管理根必须为空：{entries:?}");
+    assert!(
+        entries.is_empty(),
+        "Management root must remain empty: {entries:?}"
+    );
 
-    // 补上「安装 Workbook」这个条件后同参数成功。
+    // Install the Workbook, then the same arguments succeed.
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);
     assert!(wid.contains("-001-"), "{wid}");
@@ -399,7 +405,7 @@ fn failed_start_on_new_home_creates_nothing() {
 fn start_parameter_syntax_errors_precede_storage_and_bad_files_are_invalid_requests() {
     let env = Env::new();
 
-    // `--input` 的值不是 k=v：参数错误，退出码 2。
+    // Non-k=v --input is a parameter error, exit code 2.
     let (v, code) = env.fail(&[
         "work",
         "start",
@@ -413,7 +419,7 @@ fn start_parameter_syntax_errors_precede_storage_and_bad_files_are_invalid_reque
     assert_eq!(code, 2);
     assert_eq!(v["error"]["code"], "INVALID_REQUEST");
 
-    // 缺 `--workbook` 必填参数：clap 退出码 2。
+    // Missing required --workbook yields clap exit code 2.
     let out = env
         .cmd(&["work", "start", "--flow", "default", "--input", "topic=x"])
         .output()
@@ -448,7 +454,7 @@ fn invalid_new_input_file_is_runtime_invalid_request_with_path_and_reason() {
         response["error"]["detail"]["reason"]
             .as_str()
             .unwrap()
-            .contains("符号链接")
+            .contains("symlink")
     );
     assert_eq!(
         std::fs::read(external_file).unwrap(),
@@ -497,7 +503,10 @@ fn request_id_rejected_for_readonly_and_self_commands() {
         vec!["--request-id", "r-1", "self", "version"],
     ] {
         let (v, code) = env.fail(&args);
-        assert_eq!(code, 2, "{args:?}：只读与 self 不支持 request-id");
+        assert_eq!(
+            code, 2,
+            "{args:?}: read-only and self commands do not support request-id"
+        );
         assert_eq!(v["error"]["code"], "INVALID_REQUEST", "{args:?}");
     }
 }
@@ -513,7 +522,7 @@ fn resume_after_replay_reads_current_status_not_historical_next() {
     for (_, path) in begun["data"]["outputs"].as_object().unwrap() {
         let p = std::path::Path::new(path.as_str().unwrap());
         std::fs::create_dir_all(p.parent().unwrap()).unwrap();
-        std::fs::write(p, "输出内容\n").unwrap();
+        std::fs::write(p, "Output content\n").unwrap();
     }
     let first = env.ok(&[
         "attempt",
@@ -522,13 +531,13 @@ fn resume_after_replay_reads_current_status_not_historical_next() {
         "--attempt",
         "outline#1.0",
         "--summary",
-        "完成",
+        "Completed",
         "--request-id",
         rid,
     ]);
     env.ok(&["work", "cancel", &wid]);
-    // 同 id 重放：返回原快照（replayed=true），历史 next 保留；当前状态仍是 cancelled，
-    // 续接以 status 为准，不用历史 next。
+    // Same-ID replay returns the original snapshot/historical next (replayed=true), while current state remains cancelled;
+    // continue from current status, not historical next.
     let replay = env.ok(&[
         "attempt",
         "submit",
@@ -536,7 +545,7 @@ fn resume_after_replay_reads_current_status_not_historical_next() {
         "--attempt",
         "outline#1.0",
         "--summary",
-        "完成",
+        "Completed",
         "--request-id",
         rid,
     ]);

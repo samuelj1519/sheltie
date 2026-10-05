@@ -1,17 +1,19 @@
-# D-044：当前产品定位为 macOS／APFS 本地场景
+# D-044: Current product scope is local macOS/APFS use
 
-状态：`accepted`
-日期：2026-10-05
-关联 change：[C002](../../history/changes/C002-v0.2.0-reliability/README.md)、[C006](../../history/changes/C006-result-delivery/README.md)、[C008](../../history/changes/C008-dependency-readiness/README.md)
+English | [简体中文](D-044-macos-apfs-product-scope.zh-CN.md)
 
-## 背景与选择
+Status: `accepted`
+Date: 2026-10-05
+Related change: [C002](../../history/changes/C002-v0.2.0-reliability/README.md), [C006](../../history/changes/C006-result-delivery/README.md), [C008](../../history/changes/C008-dependency-readiness/README.md)
 
-用户明确确认「产品定位就是当前 macOS／APFS 使用场景」。此前剩余清单将不可在当前APFS构造的物理非UTF-8名称、外置物理盘专项验收列为待提供环境，容易与当前交付所需验收混淆。采用原话和原件保持范围见 [固定历史快照](../../how-to/maintain-docs.md#查阅历史原件)中的 C008 采用记录。
+## Context and decision
 
-产品环境的单一权威在 [产品规格](../../../specs/spec.md#当前产品环境)。现有macOS aarch64范围保持；非APFS、其他OS/架构和外置物理设备专项认证不属于当前交付的必需验收。E01/E02按当前范围记为无需执行，历史not_run/environment_blocked仍保留。以后出现真实应用需求时另行采用对应目标和载体。
+The user explicitly confirmed that the product targets the current macOS/APFS use case. Previous remaining-work lists treated physical non-UTF-8 names unconstructible on current APFS and dedicated external-physical-disk acceptance as missing environments, risking confusion with required delivery acceptance. The C008 adoption record in [fixed snapshots](../../how-to/maintain-docs.md#read-original-historical-records) preserves the original statement and original-evidence boundaries.
 
-## 后果与确认方式
+The [product specification](../../../specs/spec.md#current-product-environment) is the sole environment authority. Existing macOS aarch64 scope remains. Non-APFS, other OS/architectures, and dedicated external-device certification are not required for current delivery. E01/E02 are not required under current scope; historical not_run/environment_blocked remain. Adopt new targets/media separately when actual use requires them.
 
-当前APFS已在创建阶段拒绝物理异常名称；引擎非法名称/参数的准确拒绝合同和已有字节接口及实际argv测试保持。导出的完整性、权限、原子不覆盖、同步和错误状态义务仍适用于当前范围，原本断电持久性非承诺不扩大。
+## Consequences and verification
 
-本决定只限定支持承诺与验收范围。代码、CLI/Store/Workbook格式、历史Work和测试不改，不增加文件系统白名单；不由范围调整推出历史公平、费用、15%净收益或新release已通过。更新清单后通过独立事实审查与文档/规格门禁确认。
+Current APFS rejects physical anomalous names at creation. Accurate engine rejection contracts for invalid names/parameters, existing byte interfaces, and real argv tests remain. Export integrity, permissions, atomic non-overwrite, sync, and error-state obligations still apply; the lack of a power-loss durability promise is unchanged.
+
+This decision limits support commitments and acceptance scope only. It changes no code, CLI/Store/Workbook formats, historical Works, or tests, and adds no filesystem whitelist. Scope changes do not establish historical fairness, cost, 15% net benefit, or a new release. Independent factual review and documentation/specification gates verify updated lists.

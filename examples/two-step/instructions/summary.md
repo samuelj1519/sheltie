@@ -1,7 +1,7 @@
-读 `outline`，按它写一篇 300 到 500 字的摘要。
+Read outline and write a 300–500-word summary.
 
-- 顺序与提纲一致，每个一级要点一段。
-- 不新增提纲里没有的观点。
-- 用简体中文。
+- Follow outline order, one paragraph per top-level point.
+- Introduce no points absent from the outline.
+- Write English.
 
-把摘要写到 `summary` 对应的路径。回复协调者时说一句：字数与是否覆盖了全部要点。
+Write to the summary path. Tell the coordinator the word count and whether all points are covered.

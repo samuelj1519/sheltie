@@ -1,25 +1,27 @@
-# C007：完整任务体验实验
+# C007: Complete-task experience experiment
 
-状态：`completed`
-目标版本：`不进入产品 release`（实验结论供人决定后续范围）
-兼容性：不改产品代码、持久格式或公开接口；不建设兼容层
-基线：`6614e42ceed5b46ea7143a343441f6c3e5e33617`
-Owner：`Codex /root；任务作者与独立Reviewer`
-记录形式：`reference`
-历史快照：`f38954d543ff01eb5a798be48f29060b80d5952c`
+English | [简体中文](README.zh-CN.md)
 
-## 变化与理由
+Status: `completed`
+Target version: `outside the product release (people decide later scope from experiment conclusions)`
+Compatibility: `no product-code, persistent-format, or public-interface changes; no compatibility layer`
+Baseline: `e9f37d437398493c627f86ac7125d64bfae26442`
+Owner: Codex /root; task authors and independent Reviewer
+Record form: `reference`
+Historical snapshot: `9d98bf8f15944b7bda4fbd4096e7771b09eab728`
 
-研究同一方法的首次使用、复用、接续和交付是否值得。方法内容与质量标准必须等价，公共准备、组别配置、每次执行和测量成本分开计量；流程成功、独立质量和用户接受分别记录。
+## Changes and rationale
 
-有限返工的 implement → review → deliver 方法已成为 code-change 样例。实验资产不构成新的引擎机制。
+Investigate whether first use, reuse, resume, and delivery of one method are worthwhile. Method content/quality criteria must be equivalent. Measure common preparation, group configuration, each execution, and measurement separately. Record flow success, independent quality, and user acceptance separately.
 
-## 验证与限制
+The bounded-rework implement → review → deliver method became code-change. Experiment assets are not new engine mechanisms.
 
-已记录六次实际 agent 运行，其中 4 次质量通过、2 次交付阻断，并完成三份文档交付；这些观察不满足严格公平对照与 15% 改善条件。原代码／真人协议未执行。后续作者工具已获实际用户接受及同 Attempt 宿主重开事实，但仍不能由此计算历史成本或净收益。
+## Validation and limits
 
-本页保留设计与结果摘要；当前行为以根规格和合同为准。历史验证不能直接复用为当前候选 PASS。
+Six actual agent runs were recorded: 4 quality passes and 2 blocked deliveries, with three document deliveries. They do not satisfy strict fair comparison or 15% improvement. The original code/human protocol was not run. Later authoring-tool user acceptance and same-Attempt host reopening still cannot determine historical cost/net benefit.
 
-## 参考
+This page retains design/outcome summaries. Root specifications/contracts govern current behavior. Historical validation cannot directly qualify the current candidate as PASS.
 
-[code-change 样例](../../../../examples/code-change/README.md)、[效果评估方法](../../../how-to/evaluate-workflows.md)、[当前限制](../../../reference/limitations.md)。完整任务、审查与运行原件按[历史查阅指南](../../../how-to/maintain-docs.md#查阅历史原件)从上述快照读取。
+## References
+
+[code-change example](../../../../examples/code-change/README.md), [Workflow evaluation](../../../how-to/evaluate-workflows.md), [Current limits](../../../reference/limitations.md). Read full tasks, reviews, and original runs from the snapshot above using the [historical lookup guide](../../../how-to/maintain-docs.md#read-original-historical-records).

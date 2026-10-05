@@ -1,4 +1,4 @@
-//! 命令、上下文、效果与回复。`decide` 的输入输出类型。
+//! Commands, context, effects, and replies: input/output types for `decide`.
 
 use std::collections::BTreeMap;
 
@@ -10,9 +10,9 @@ use crate::ids::{AttemptId, FlowId, NodeId, WorkId, WorkName};
 use crate::path::AbsPath;
 use crate::workbook::HostRequire;
 
-/// runtime 对一个文件的只读观察。core 拿它对照合同，不自己读文件。
+/// Runtime's read-only file observation; core checks it against the contract without reading files.
 ///
-/// 生产观察由 runtime 的受管读取构造；这是 `INV-6` 的落点：摘要不由模型报。
+/// Runtime constructs production observations through managed reads (`INV-6`); models do not report digests.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ObservedFile {
@@ -22,7 +22,7 @@ pub struct ObservedFile {
 }
 
 impl ObservedFile {
-    /// 仅供 runtime 调用。
+    /// For runtime callers only.
     #[doc(hidden)]
     pub fn new(path: AbsPath, sha256: Sha256Hex, bytes: u64) -> Self {
         Self {
@@ -45,11 +45,11 @@ impl ObservedFile {
     }
 }
 
-/// 协调者能做的全部写操作。
+/// All coordinator write operations.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "command", deny_unknown_fields)]
 pub enum Command {
-    /// 创建 Work。`inputs` 已由 runtime 写成文件并算好摘要。
+    /// Create a Work; runtime has written inputs to files and calculated their digests.
     Start {
         work_id: WorkId,
         name: WorkName,
@@ -58,14 +58,14 @@ pub enum Command {
         work_dir: AbsPath,
         inputs: BTreeMap<String, ArtifactRef>,
     },
-    /// 进入节点并开始一次尝试。`observed_inputs` 由 runtime 按 `input_paths_for` 观察；
-    /// `instruction_text` 是说明书原文（`File` 由 runtime 从冻结副本读出，`Text` 直接取值），core 用它渲染任务书。
+    /// Enter a node and begin an Attempt; runtime observes inputs according to `input_paths_for`.
+    /// Core renders the brief from original instruction_text; runtime reads File instructions from the frozen copy, or passes Text directly.
     BeginAttempt {
         node: NodeId,
         observed_inputs: BTreeMap<String, Option<ObservedFile>>,
         instruction_text: String,
     },
-    /// 提交尝试。`observed_outputs` 由 runtime 按 `output_paths_for` 观察，缺文件为 `None`。
+    /// Submit an Attempt; runtime observes outputs via `output_paths_for`, using `None` for missing files.
     SubmitAttempt {
         attempt: AttemptId,
         summary: String,
@@ -88,7 +88,7 @@ pub enum Command {
 }
 
 impl Command {
-    /// 命令名，用于审计与错误信息。
+    /// Command name for auditing and diagnostics.
     pub fn name(&self) -> &'static str {
         match self {
             Self::Start { .. } => "start",
@@ -102,14 +102,14 @@ impl Command {
     }
 }
 
-/// 一次决定的不可变输入：时间与操作者。
+/// Immutable decision context: timestamp and principal.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Context {
     pub now: Timestamp,
     pub principal: Principal,
 }
 
-/// core 要求 runtime 在提交后做的事。全部幂等。
+/// Idempotent actions core requires runtime to perform after commit.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "effect")]
 pub enum Effect {
@@ -117,7 +117,7 @@ pub enum Effect {
         path: AbsPath,
         content: String,
     },
-    /// 引擎生成的输入文件（目前只有 `engine.stats` 的 `stats.json`）。内容在 core 里算好并已记摘要。
+    /// Engine-generated input file (currently engine.stats stats.json); core computes content and records its digest.
     WriteFile {
         path: AbsPath,
         content: String,
@@ -128,7 +128,7 @@ pub enum Effect {
     RefreshStatusCard,
 }
 
-/// 命令成功后的回复数据，对应协议 §3 各操作的返回。
+/// Successful command reply data, matching protocol §3 operation responses.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "reply", deny_unknown_fields)]
 pub enum Reply {
@@ -168,7 +168,7 @@ pub enum Reply {
     Cancelled,
 }
 
-/// `decide` 的输出。
+/// Output of `decide`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Decision {
     pub state: WorkState,

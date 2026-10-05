@@ -1,5 +1,5 @@
-//! 状态机的唯一入口 `decide`，以及每个命令一个私有函数。
-//! 细则按 `specs/contracts/protocol.md` §3 逐条对应。
+//! The state machine's sole entry `decide`, with one private function per command.
+//! Rules correspond to specs/contracts/protocol.md §3.
 
 use std::collections::BTreeMap;
 
@@ -18,10 +18,10 @@ use crate::path::AbsPath;
 use crate::text::Summary;
 use crate::workbook::HostRequire;
 
-/// 对一个 Work 应用一个命令。
+/// Apply one command to a Work.
 ///
-/// `state` 为 `None` 只在 `Command::Start` 时合法。其他命令先过 `guard_not_terminal`，
-/// 再分派到对应的私有函数。返回的 `Decision.state` 是完整的新状态。
+/// None state is legal only for Command::Start; other commands first pass guard_not_terminal,
+/// then dispatch to private handlers; Decision.state is the complete new state.
 pub fn decide(
     state: Option<&WorkState>,
     graph: &Graph,
@@ -31,15 +31,15 @@ pub fn decide(
     match (state, cmd) {
         (None, Command::Start { .. }) => decide_start(graph, cmd, ctx),
         (None, other) => Err(Error::InvalidRequest {
-            reason: format!("{} 要求 Work 已存在", other.name()),
+            reason: format!("{} requires an existing Work", other.name()),
         }),
         (Some(_), Command::Start { .. }) => Err(Error::InvalidRequest {
-            reason: "Work 已存在，不能再 start".to_string(),
+            reason: "Work already exists; cannot start again".to_string(),
         }),
         (Some(state), cmd) => {
             guard_not_terminal(state)?;
             match cmd {
-                Command::Start { .. } => unreachable!("上面已处理"),
+                Command::Start { .. } => unreachable!("Handled above"),
                 Command::BeginAttempt {
                     node,
                     observed_inputs,
@@ -74,7 +74,7 @@ pub fn decide(
     }
 }
 
-/// 终态 Work 拒绝一切命令：`Error::WorkTerminal`。
+/// Terminal Works reject all commands with Error::WorkTerminal.
 fn guard_not_terminal(state: &WorkState) -> Result<()> {
     if state.status.is_terminal() {
         return Err(Error::WorkTerminal {
@@ -90,14 +90,14 @@ fn increment_blocked_count(state: &mut WorkState) -> Result<()> {
             .blocked_count
             .checked_add(1)
             .ok_or_else(|| Error::InvalidRequest {
-                reason: "累计受阻次数超出可表示范围".to_string(),
+                reason: "Cumulative blocking count overflow".to_string(),
             })?;
     Ok(())
 }
 
-/// `work start` 第 2、6、7 步：核对起始输入键集合与图里全部 `start.<key>` 引用完全相等
-/// （缺与多都是 `Error::InputMissing`），建初始状态 `current = entry#1`、`visits[entry] = 1`、
-/// `status = Active`，回复 `Reply::Started`，效果 `RefreshStatusCard`。
+/// work start steps 2, 6, and 7: require exact equality of input keys and all graph start.<key> references
+/// (missing/extra keys yield InputMissing); initialize current = entry#1, visits[entry] = 1,
+/// status = Active, Reply::Started, and RefreshStatusCard.
 fn decide_start(graph: &Graph, cmd: &Command, ctx: &Context) -> Result<Decision> {
     let Command::Start {
         work_id,
@@ -109,20 +109,20 @@ fn decide_start(graph: &Graph, cmd: &Command, ctx: &Context) -> Result<Decision>
     } = cmd
     else {
         return Err(Error::InvalidRequest {
-            reason: "decide_start 只接受 work start".to_string(),
+            reason: "decide_start accepts only work start".to_string(),
         });
     };
 
-    // 图里全部 start.<key> 引用，必须与给出的键集合完全相等（GF-30 的共享校验，
-    // runtime preflight 与 workbook show 用同一份结果，不各自重算）。
+    // Require all start.<key> references to equal supplied keys (GF-30 shared validation);
+    // runtime preflight and workbook show share the result without independent recomputation.
     validate_start_inputs(graph, inputs.keys())?;
 
     let entry = graph.entry().clone();
     let mut visits = BTreeMap::new();
     visits.insert(entry.clone(), 1);
 
-    // 宿主资源清单：Workbook 声明的**全部** requires，按 manifest 声明顺序，原样带上
-    // version / digest / source（protocol.md work start 第 8 步；不止本图用到的那些）。
+    // Host resource list: all Workbook requires in manifest declaration order, preserving
+    // version/digest/source (protocol work start step 8), including resources unused by this graph.
     let requires = graph.requires().to_vec();
 
     let state = WorkState {
@@ -153,15 +153,15 @@ fn decide_start(graph: &Graph, cmd: &Command, ctx: &Context) -> Result<Decision>
     })
 }
 
-/// `attempt begin` 第 1 到 5 步。
+/// attempt begin steps 1-5.
 ///
-/// 1. `node` 必须出现在 `legal_next` 的某个 `BeginAttempt` 项里，否则 `Error::IllegalNext`
-///    （`next` 字段填每项 `to_command_line` 的结果）。
-/// 2. 若 `node != current.node`：`visits[node] += 1`，`current = node#n`，记下 `entered_from`。
-///    同节点重试：`number + 1`，沿用上次的 `entered_from`。
+/// 1. node must appear in a legal_next BeginAttempt item; otherwise IllegalNext
+///    (next contains each action's to_command_line result).
+/// 2. If node differs from current, increment visits, set current = node#n, and record entered_from.
+///    Same-node retry increments number and retains entered_from.
 /// 3. `bind_inputs`。
-/// 4. 新建 `Running` 的 Attempt，`started_at = ctx.now`。
-/// 5. 回复 `Reply::AttemptBegun`；效果 `WriteBrief`（内容用 `render_brief(.., instruction_text)`）与 `RefreshStatusCard`。
+/// 4. Create a Running Attempt with started_at = ctx.now.
+/// 5. Reply::AttemptBegun, WriteBrief via render_brief(.., instruction_text), and RefreshStatusCard.
 fn decide_begin(
     state: &WorkState,
     graph: &Graph,
@@ -182,7 +182,7 @@ fn decide_begin(
         return Err(illegal());
     }
     let def = graph.node(node).ok_or_else(|| Error::InvalidRequest {
-        reason: format!("节点 {node} 不在图里"),
+        reason: format!("Node {node} is absent from the graph"),
     })?;
 
     let mut new_state = state.clone();
@@ -248,7 +248,7 @@ fn next_attempt_number(previous: Option<&Attempt>) -> Result<u32> {
             .number
             .checked_add(1)
             .ok_or_else(|| Error::InvalidRequest {
-                reason: "Attempt 顺序号超出可表示范围".to_string(),
+                reason: "Attempt sequence overflow".to_string(),
             }),
     }
 }
@@ -288,11 +288,11 @@ pub fn replacement_input_paths_for(
     let node = graph
         .node(&attempt.node)
         .ok_or_else(|| Error::InvalidRequest {
-            reason: format!("节点 {} 不在图里", attempt.node),
+            reason: format!("Node {} is absent from the graph", attempt.node),
         })?;
     if record.inputs.len() != node.inputs().len() {
         return Err(Error::InvalidRequest {
-            reason: "原 Attempt 的输入键集合与声明不一致".to_string(),
+            reason: "Original Attempt input keys differ from declarations".to_string(),
         });
     }
     node.inputs()
@@ -303,7 +303,7 @@ pub fn replacement_input_paths_for(
                     .inputs
                     .get(declaration.name())
                     .ok_or_else(|| Error::InvalidRequest {
-                        reason: format!("原 Attempt 缺少输入 {}", declaration.name()),
+                        reason: format!("Original Attempt is missing input {}", declaration.name()),
                     })?;
             let path = if matches!(declaration.source(), InputSource::EngineStats) {
                 None
@@ -331,7 +331,7 @@ fn decide_replace(
     })?;
     if paths.keys().ne(observed_inputs.keys()) {
         return Err(Error::InvalidRequest {
-            reason: "替换的输入观察键集合与原声明不一致".to_string(),
+            reason: "Replacement observation keys differ from original declarations".to_string(),
         });
     }
     let old = state
@@ -342,7 +342,7 @@ fn decide_replace(
     let node = graph
         .node(&attempt.node)
         .ok_or_else(|| Error::InvalidRequest {
-            reason: format!("节点 {} 不在图里", attempt.node),
+            reason: format!("Node {} is absent from the graph", attempt.node),
         })?;
     let number = next_attempt_number(Some(old))?;
     let new_id = AttemptId::new(attempt.node.clone(), attempt.occurrence, number);
@@ -353,7 +353,8 @@ fn decide_replace(
         if matches!(declaration.source(), InputSource::EngineStats) {
             if observed.is_some() {
                 return Err(Error::InvalidRequest {
-                    reason: "替换不能提交 engine.stats 文件观察".to_string(),
+                    reason: "Replacement must not supply engine.stats file observations"
+                        .to_string(),
                 });
             }
         } else {
@@ -373,7 +374,10 @@ fn decide_replace(
                 None if observed.is_none() => {}
                 None => {
                     return Err(Error::InvalidRequest {
-                        reason: format!("未绑定输入 {} 不能在替换时重新绑定", declaration.name()),
+                        reason: format!(
+                            "Unbound input {} must not be rebound during replacement",
+                            declaration.name()
+                        ),
                     });
                 }
             }
@@ -441,7 +445,7 @@ fn prepare_attempt_delivery(
         .iter()
         .any(|input| matches!(input.source(), InputSource::EngineStats))
     {
-        // 统计包含刚创建的 Attempt；多个 stats 槽共享同一份精确字节。
+        // Statistics include the new Attempt; all stats slots share the same exact bytes.
         let (reference, content) = engine_stats_artifact(state, graph, attempt_id)?;
         for declaration in node
             .inputs()
@@ -488,7 +492,7 @@ fn prepare_attempt_delivery(
     let requires = graph
         .node_requires(node.id())
         .ok_or_else(|| Error::InvalidRequest {
-            reason: format!("节点 {} 不在图里", node.id()),
+            reason: format!("Node {} is absent from the graph", node.id()),
         })?;
     Ok(AttemptDelivery {
         effects,
@@ -500,17 +504,17 @@ fn prepare_attempt_delivery(
     })
 }
 
-/// 按节点的 `inputs[]` 逐条绑定。
+/// Bind node inputs[] in declaration order.
 ///
-/// - `Start { key }`：取 `state.inputs[key]`；观察摘要不符 `Error::ArtifactModified`。
-/// - `Resource { path }`：路径 `state.workbook_dir().join(path)`；观察必须存在且摘要是它的摘要（首次绑定时以观察为准记录）。
-/// - `EngineStats`：不看观察，先绑 `None`；创建 Attempt 后由
-///   `prepare_attempt_delivery` 按含本次 Attempt 的状态生成统计并回填。
-/// - `Node { node, output }`：取 `latest_succeeded_of(node)` 的 `outputs[output]`；
-///   没有时 `required` 为真报 `Error::InputUnavailable`，否则绑 `None`；
-///   有时观察摘要必须等于记录，否则 `Error::ArtifactModified`。
+/// - Start { key }: use state.inputs[key]; mismatched observed digest yields ArtifactModified.
+/// - Resource { path }: use workbook_dir().join(path); require an observation and record its digest on first binding.
+/// - EngineStats ignores observations and initially binds None; after creating the Attempt,
+///   prepare_attempt_delivery generates statistics including it and fills the binding.
+/// - Node { node, output }: use latest_succeeded_of(node).outputs[output];
+///   if absent, required inputs yield InputUnavailable, optional inputs bind None;
+///   if present, observed digest must match the record, otherwise ArtifactModified.
 ///
-/// 返回逐条绑定（`EngineStats` 条目为占位 `None`）。
+/// Return bindings, with None placeholders for EngineStats.
 type BoundInputs = BTreeMap<String, Option<ArtifactRef>>;
 
 fn bind_inputs(
@@ -520,7 +524,7 @@ fn bind_inputs(
     observed_inputs: &BTreeMap<String, Option<ObservedFile>>,
 ) -> Result<BoundInputs> {
     let def = graph.node(node).ok_or_else(|| Error::InvalidRequest {
-        reason: format!("节点 {node} 不在图里"),
+        reason: format!("Node {node} is absent from the graph"),
     })?;
     let mut bound = BTreeMap::new();
     for decl in &def.inputs {
@@ -581,14 +585,14 @@ fn bind_frozen_input(
     Ok(reference.clone())
 }
 
-/// `attempt submit` 第 1 到 6 步。
+/// attempt submit steps 1-6.
 ///
-/// 1. Attempt 必须 `Running`，否则 `Error::AttemptNotRunning`。
-/// 2. `summary` ≤ 4096 字节，否则 `Error::SummaryTooLong`。
-/// 3. `check_outputs`。任一失败整体 `Err`，状态不变。
-/// 4. 记录输出 `ArtifactRef`，`status = Succeeded`，`ended_at = ctx.now`。
-/// 5. `status_after_success` 定 Work 状态（含 `gate`）。
-/// 6. 回复 `Reply::AttemptSubmitted`；效果 `SealOutputs`、`RefreshStatusCard`。
+/// 1. Require Running, otherwise AttemptNotRunning.
+/// 2. summary is at most 4096 bytes, otherwise SummaryTooLong.
+/// 3. check_outputs; any failure rejects everything without changing state.
+/// 4. Record output ArtifactRefs, status = Succeeded, ended_at = ctx.now.
+/// 5. status_after_success sets Work status, including gate handling.
+/// 6. Reply::AttemptSubmitted, SealOutputs, and RefreshStatusCard.
 fn decide_submit(
     state: &WorkState,
     graph: &Graph,
@@ -604,7 +608,7 @@ fn decide_submit(
     if prev.status != AttemptStatus::Running {
         return Err(not_running());
     }
-    // 协议 attempt submit 第 2 步：超限报 `SUMMARY_TOO_LONG`，不是通用的 `TEXT_TOO_LONG`。
+    // Protocol attempt submit step 2: oversized summaries yield SUMMARY_TOO_LONG, not generic TEXT_TOO_LONG.
     let summary_text = Summary::new(summary, "summary").map_err(|_| Error::SummaryTooLong {
         max: Summary::max_bytes(),
         actual: summary.len(),
@@ -619,7 +623,7 @@ fn decide_submit(
         a.ended_at = Some(ctx.now.clone());
     }
     new_state.status = status_after_success(&new_state, graph, true);
-    // 累计受阻在发生时记录（GF-29）：gate 阻断与 no_legal_edge 各计一次。
+    // Record cumulative blocking at occurrence (GF-29): gate and no_legal_edge each count once.
     if matches!(
         new_state.status,
         WorkStatus::Blocked(BlockedReason::Gate | BlockedReason::NoLegalEdge)
@@ -643,8 +647,8 @@ fn decide_submit(
     })
 }
 
-/// 对照节点 `outputs[]` 校验观察：`required` 且缺 → `Error::OutputMissing`；
-/// 超 `max_bytes` → `Error::OutputTooLarge`；可选且缺 → 跳过。返回要封存的引用。
+/// Validate observations against outputs[]: missing required outputs yield OutputMissing;
+/// oversized outputs yield OutputTooLarge; skip absent optional outputs. Return references to seal.
 fn check_outputs(
     state: &WorkState,
     graph: &Graph,
@@ -654,7 +658,7 @@ fn check_outputs(
     let def = graph
         .node(&attempt.node)
         .ok_or_else(|| Error::InvalidRequest {
-            reason: format!("节点 {} 不在图里", attempt.node),
+            reason: format!("Node {} is absent from the graph", attempt.node),
         })?;
     let mut sealed = BTreeMap::new();
     for decl in &def.outputs {
@@ -684,9 +688,9 @@ fn check_outputs(
     Ok(sealed)
 }
 
-/// 节点 Attempt 成功（或门槛刚批准）后 Work 的状态，按协议 `attempt submit` 第 5 步的顺序：
-/// `consider_gate && node.gate` → `Blocked(Gate)`；无出边 → `Succeeded`；
-/// 每条出边目标都 `visits >= max_visits` → `Blocked(NoLegalEdge)`；否则 `Active`。
+/// Work status after Attempt success or gate approval, in protocol attempt submit step 5 order:
+/// consider_gate && node.gate -> Blocked(Gate); no outgoing edges -> Succeeded;
+/// all outgoing targets exhausted -> Blocked(NoLegalEdge); otherwise Active.
 fn success_status_at(
     graph: &Graph,
     node: &NodeId,
@@ -718,7 +722,7 @@ fn status_after_success(state: &WorkState, graph: &Graph, consider_gate: bool) -
     success_status_at(graph, &state.current.node, consider_gate, all_maxed)
 }
 
-/// 失败后的状态只依赖同一 Occurrence 的真实失败数与冻结的重试上限。
+/// Failure status depends only on actual failures in this Occurrence and the frozen retry limit.
 fn status_after_failure(failures: usize, max_retries: u32) -> WorkStatus {
     if failures > max_retries as usize {
         WorkStatus::Blocked(BlockedReason::RetriesExhausted)
@@ -727,7 +731,7 @@ fn status_after_failure(failures: usize, max_retries: u32) -> WorkStatus {
     }
 }
 
-/// 校验历史回复状态的必要条件；不以当前访问计数重建历史状态。
+/// Validate necessary historical-reply conditions without reconstructing history from current visits.
 pub fn reply_status_matches(
     reply: &Reply,
     status: WorkStatus,
@@ -773,8 +777,8 @@ pub fn reply_status_matches(
     }
 }
 
-/// `attempt fail`：Attempt 必须 `Running`；`status = Failed`，记 `fail_reason`（≤ 4096）；
-/// 真实失败数超过 `max_retries` 时 Work → `Blocked(RetriesExhausted)`。效果 `RefreshStatusCard`。
+/// attempt fail requires Running; set Failed and record fail_reason of at most 4096 bytes;
+/// actual failures above max_retries block Work with RetriesExhausted. Effect: RefreshStatusCard.
 fn decide_fail(
     state: &WorkState,
     graph: &Graph,
@@ -789,7 +793,7 @@ fn decide_fail(
     if prev.status != AttemptStatus::Running {
         return Err(not_running());
     }
-    // 同 submit 第 2 步：超限报 `SUMMARY_TOO_LONG`。
+    // Like submit step 2, oversized text yields SUMMARY_TOO_LONG.
     let reason_text = Summary::new(reason, "reason").map_err(|_| Error::SummaryTooLong {
         max: Summary::max_bytes(),
         actual: reason.len(),
@@ -821,8 +825,8 @@ fn decide_fail(
     })
 }
 
-/// `gate approve`：Work 必须 `Blocked(Gate)` 且 `node == current.node`，否则 `Error::IllegalNext`。
-/// 记 `Approval`，再用 `status_after_success(.., consider_gate = false)` 定状态。效果 `RefreshStatusCard`。
+/// gate approve requires Blocked(Gate) and node == current.node, otherwise IllegalNext.
+/// Record Approval, use status_after_success with consider_gate = false, and RefreshStatusCard.
 fn decide_approve(
     state: &WorkState,
     graph: &Graph,
@@ -867,7 +871,7 @@ fn decide_approve(
     })
 }
 
-/// `work cancel`：`status = Cancelled`，`Running` 的 Attempt 保持原样。效果 `RefreshStatusCard`。
+/// work cancel sets Cancelled, leaving Running Attempts unchanged; effect RefreshStatusCard.
 fn decide_cancel(state: &WorkState, ctx: &Context) -> Result<Decision> {
     let mut new_state = state.clone();
     new_state.status = WorkStatus::Cancelled;
@@ -880,16 +884,16 @@ fn decide_cancel(state: &WorkState, ctx: &Context) -> Result<Decision> {
     })
 }
 
-/// runtime 在 `attempt begin` 前调用：本节点每个输入当前应观察的路径。
-/// `None` 表示可选输入的上游尚无产出，或来源是 `engine.stats`（引擎自己生成，不观察）。
-/// 规则与 `bind_inputs` 相同，只是不比摘要。
+/// Called by runtime before attempt begin; current observation paths for this node's inputs.
+/// None means absent optional upstream output or engine.stats, generated by the engine without observation.
+/// Same rules as bind_inputs, without digest comparison.
 pub fn input_paths_for(
     state: &WorkState,
     graph: &Graph,
     node: &NodeId,
 ) -> Result<BTreeMap<String, Option<AbsPath>>> {
     let def = graph.node(node).ok_or_else(|| Error::InvalidRequest {
-        reason: format!("节点 {node} 不在图里"),
+        reason: format!("Node {node} is absent from the graph"),
     })?;
     let mut paths = BTreeMap::new();
     for decl in &def.inputs {
@@ -907,8 +911,8 @@ pub fn input_paths_for(
     Ok(paths)
 }
 
-/// `engine.stats` 绑定：`render_stats_json` 序列化成 JSON，写到 `attempt_dir/stats.json`。
-/// 序列化失败就报错，不造一份假 stats（core 没有存储类错误码，先归入 `InvalidRequest`）。
+/// Bind engine.stats by serializing render_stats_json to JSON at attempt_dir/engine/stats.json.
+/// Reject serialization failure without fabricated stats; core has no storage errors, so use InvalidRequest.
 fn engine_stats_artifact(
     state: &WorkState,
     graph: &Graph,
@@ -916,9 +920,9 @@ fn engine_stats_artifact(
 ) -> Result<(ArtifactRef, String)> {
     let stats = render_stats_json(state, graph);
     let content = serde_json::to_string(&stats).map_err(|e| Error::InvalidRequest {
-        reason: format!("engine.stats 序列化失败：{e}"),
+        reason: format!("engine.stats serialization failed: {e}"),
     })?;
-    // 引擎文件与 worker 输出分目录（workbook 合同 §3.2）：engine/stats.json。
+    // Engine files are separate from worker outputs (workbook contract §3.2): engine/stats.json.
     let path = crate::work::layout::engine_stats_path(&state.attempt_dir(attempt_id));
     let artifact = ArtifactRef {
         sha256: Sha256Hex::of_bytes(content.as_bytes()),
@@ -928,7 +932,7 @@ fn engine_stats_artifact(
     Ok((artifact, content))
 }
 
-/// runtime 在 `attempt submit` 前调用：本 Attempt 每个声明输出的目标路径 `attempt_dir/<path>`。
+/// Called by runtime before submit; each declared output's path at attempt_dir/outputs/<path>.
 pub fn output_paths_for(
     state: &WorkState,
     graph: &Graph,
@@ -937,7 +941,7 @@ pub fn output_paths_for(
     let def = graph
         .node(&attempt.node)
         .ok_or_else(|| Error::InvalidRequest {
-            reason: format!("节点 {} 不在图里", attempt.node),
+            reason: format!("Node {} is absent from the graph", attempt.node),
         })?;
     let dir = state.attempt_dir(attempt);
     let mut paths = BTreeMap::new();
@@ -980,7 +984,7 @@ mod tests {
         NodeId::new(s).unwrap()
     }
 
-    /// 用给定 manifest 与 flow 文本编图并起一个 Work（无起始输入），返回图与 start 的决策。
+    /// Compile supplied manifest/flow text and start a Work without inputs; return graph and start decision.
     fn start_texts(manifest_text: &str, flow_text: &str) -> (Graph, Decision) {
         let mut fx = Fixture::from_texts(manifest_text, flow_text, &[]);
         let decision = fx.start(&[]).unwrap();
@@ -1047,19 +1051,19 @@ mod tests {
         assert!(matches!(d.reply, Reply::Started { .. }));
     }
 
-    // ── M1 复核 O1：work start 回复 Workbook 全量 requires，按 manifest 声明顺序 ─────
+    // ── M1 review O1: work start returns all Workbook requires in manifest declaration order ─────
 
     // Task: T06
     #[test]
     fn start_requires_is_full_manifest_list_in_declaration_order() {
         let (_graph, d) = start_texts(
-            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"单节点\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"beta\"\n[[requires]]\nkind = \"mcp\"\nname = \"alpha\"\n",
-            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"做这一件事。\" }\nrequires = [\"mcp:alpha\"]\n",
+            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"Single node\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"beta\"\n[[requires]]\nkind = \"mcp\"\nname = \"alpha\"\n",
+            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"Only node\"\nexecutor = \"agent\"\ninstruction = { text = \"Do this task.\" }\nrequires = [\"mcp:alpha\"]\n",
         );
         let Reply::Started { requires, .. } = d.reply else {
-            panic!("应当是 Reply::Started");
+            panic!("Expected Reply::Started");
         };
-        // skill:beta 没有任何节点引用，也必须在清单里；顺序是 manifest 声明顺序（不是排序后的）。
+        // Include unused skill:beta; preserve manifest declaration order without sorting.
         let ids: Vec<_> = requires
             .iter()
             .map(|r| (r.kind.as_str(), r.name.as_str()))
@@ -1071,11 +1075,11 @@ mod tests {
     #[test]
     fn start_requires_carry_manifest_declaration_as_is() {
         let (_graph, d) = start_texts(
-            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"单节点\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"company-api\"\nversion = \"2.1.0\"\ndigest = \"sha256:abababababababababababababababababababababababababababababababab\"\nsource = \"https://example.com/company-api\"\n[[requires]]\nkind = \"mcp\"\nname = \"db\"\n",
-            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"做这一件事。\" }\n",
+            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"Single node\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"company-api\"\nversion = \"2.1.0\"\ndigest = \"sha256:abababababababababababababababababababababababababababababababab\"\nsource = \"https://example.com/company-api\"\n[[requires]]\nkind = \"mcp\"\nname = \"db\"\n",
+            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"Only node\"\nexecutor = \"agent\"\ninstruction = { text = \"Do this task.\" }\n",
         );
-        // 回复里的每一项就是 manifest 的那条声明：没声明的字段是 null，不省略、不拼成 `kind:name`。
-        // digest 和引擎其他回复一样是裸 64 位十六进制；`sha256:` 前缀只是 manifest 的书写格式。
+        // Replies carry manifest declarations; absent fields are null, without omission or flattening to kind:name.
+        // Reply digests are bare 64-digit hexadecimal; sha256: is only manifest notation.
         let reply = serde_json::to_value(&d.reply).unwrap();
         assert_eq!(
             reply["requires"],
@@ -1134,7 +1138,7 @@ mod tests {
     fn begin_via_edge_increments_visits_and_occurrence() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
-        fx.submit_ok("draft#1.0", "初稿完成").unwrap();
+        fx.submit_ok("draft#1.0", "Draft ready").unwrap();
         let d = fx.begin("review").unwrap();
         assert_eq!(d.state.current.to_string(), "review#1");
         assert_eq!(d.state.visits_of(&node("review")), 1);
@@ -1166,7 +1170,7 @@ mod tests {
         fx.begin("draft").unwrap();
         fx.submit_ok("draft#1.0", "ok").unwrap();
         fx.begin("review").unwrap();
-        fx.fail("review#1.0", "崩了").unwrap();
+        fx.fail("review#1.0", "Crashed").unwrap();
         let d = fx.begin("review").unwrap();
         let a = d.state.latest_attempt_of_current().unwrap();
         assert_eq!(a.id.to_string(), "review#1.1");
@@ -1179,7 +1183,7 @@ mod tests {
     // Task: T07
     #[test]
     fn begin_filters_edges_whose_target_hit_max_visits() {
-        // review.max_visits = 3；到第三次 review 成功后，back 边的目标 draft（max_visits 3）已满，main 边仍在。
+        // review.max_visits = 3; after the third review success draft is exhausted, while main remains legal.
         let mut fx = Fixture::article_review().started();
         for _ in 0..3 {
             fx.run_to_review_done_not_passing();
@@ -1187,7 +1191,7 @@ mod tests {
                 fx.begin("draft").unwrap();
                 fx.submit_ok(
                     &format!("draft#{}.0", fx.state().visits_of(&node("draft"))),
-                    "改了",
+                    "Revised",
                 )
                 .unwrap();
             }
@@ -1212,7 +1216,7 @@ mod tests {
     // Task: T07
     #[test]
     fn begin_rejects_upstream_without_succeeded_attempt() {
-        // 用一张自造的图：b 必需 a 的输出，但有边 a -> b 且 a 从未成功。构造方法见 testkit。
+        // Custom graph: b requires a output and has a -> b, but a never succeeded; see testkit.
         let mut fx = Fixture::two_step_with_required_input_but_edge_before_success();
         assert!(matches!(
             fx.begin("second"),
@@ -1234,7 +1238,7 @@ mod tests {
     #[test]
     fn begin_binds_optional_input_when_upstream_succeeded_later() {
         let mut fx = Fixture::spec_dev().started_with(&[("request", "r"), ("project", "/p")]);
-        fx.run_spec_dev_to_plan_review_returning("修改规格");
+        fx.run_spec_dev_to_plan_review_returning("Revise the specification");
         let d = fx.begin("spec").unwrap();
         let a = d.state.latest_attempt_of_current().unwrap();
         assert!(a.inputs["decision"].is_some());
@@ -1245,7 +1249,7 @@ mod tests {
     fn begin_after_failed_attempt_increments_retry_not_occurrence() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
-        fx.fail("draft#1.0", "崩").unwrap();
+        fx.fail("draft#1.0", "Crashed").unwrap();
         let d = fx.begin("draft").unwrap();
         assert_eq!(
             d.state.latest_attempt_of_current().unwrap().id.to_string(),
@@ -1283,7 +1287,7 @@ mod tests {
         let mut fx = Fixture::with_requires();
         let d = fx.begin("only").unwrap();
         let Reply::AttemptBegun { requires, .. } = d.reply else {
-            panic!("应当是 Reply::AttemptBegun");
+            panic!("Expected Reply::AttemptBegun");
         };
         assert_eq!(requires.len(), 1);
         assert_eq!(requires[0].kind.as_str(), "skill");
@@ -1307,28 +1311,28 @@ mod tests {
             Effect::WriteFile { path, content } if path == &stats.path => Some(content.clone()),
             _ => None,
         });
-        let content = written.expect("应有 WriteFile 效果");
+        let content = written.expect("Expected a WriteFile effect");
         assert_eq!(
             stats.sha256,
             crate::digest::Sha256Hex::of_bytes(content.as_bytes())
         );
         assert_eq!(stats.bytes, content.len() as u64);
         assert!(content.contains("\"nodes\""));
-        // stats.json 的口径含本次 Attempt（D-29）。
+        // stats.json includes the current Attempt (D-29).
         assert!(
             content.contains("\"attempts\":1"),
-            "本次 Attempt 已计入：{content}"
+            "Current Attempt is included: {content}"
         );
     }
 
-    // ── M1 复核 O6：多个 engine.stats 输入共享一份 stats.json，只算一次、只写一次 ─────
+    // ── M1 review O6: engine.stats inputs share one stats.json, computed and written once ─────
 
     // Task: T07
     #[test]
     fn begin_with_two_engine_stats_inputs_writes_one_stats_json() {
         let (graph, d0) = start_texts(
-            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"单节点\"\nflows = [\"flows/default.toml\"]\n",
-            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"做这一件事。\" }\ninputs = [{ name = \"s1\", from = \"engine.stats\" }, { name = \"s2\", from = \"engine.stats\" }]\noutputs = [{ name = \"out\", path = \"out.md\" }]\n",
+            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"Single node\"\nflows = [\"flows/default.toml\"]\n",
+            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"Only node\"\nexecutor = \"agent\"\ninstruction = { text = \"Do this task.\" }\ninputs = [{ name = \"s1\", from = \"engine.stats\" }, { name = \"s2\", from = \"engine.stats\" }]\noutputs = [{ name = \"out\", path = \"out.md\" }]\n",
         );
         let d = decide(
             Some(&d0.state),
@@ -1336,7 +1340,7 @@ mod tests {
             &Command::BeginAttempt {
                 node: node("only"),
                 observed_inputs: BTreeMap::new(),
-                instruction_text: "做这一件事。".to_string(),
+                instruction_text: "Do this task.".to_string(),
             },
             &testkit::ctx(),
         )
@@ -1359,22 +1363,22 @@ mod tests {
     fn begin_emits_write_brief_effect() {
         let mut fx = Fixture::article_review().started();
         let d = fx.begin("draft").unwrap();
-        assert!(d.effects.iter().any(|e| matches!(e, Effect::WriteBrief { path, content } if path.as_str().ends_with("attempts/draft/occurrence-001/attempt-000/brief.md") && content.contains("# 任务书"))));
+        assert!(d.effects.iter().any(|e| matches!(e, Effect::WriteBrief { path, content } if path.as_str().ends_with("attempts/draft/occurrence-001/attempt-000/brief.md") && content.contains("# Brief"))));
         assert!(d.effects.contains(&Effect::RefreshStatusCard));
     }
 
     // ── T08 Submit / Fail ─────────────────────────────────────
 
-    // ── M1 复审：begin 回复的 requires 在 kind 与 name 交叉时不许串 ─────
+    // ── M1 review: distinguish begin reply requires by both kind and name ─────
 
     // Task: T07
     #[test]
     fn begin_reply_requires_ignore_crossed_kind_name_pairs() {
-        // manifest 里 skill:company-api 与 mcp:db 都存在，节点只引用 mcp:db。
-        // 声明查找若把 && 写成 ||，回复会带上 kind 或 name 单边相同的那条。
+        // Manifest declares skill:company-api and mcp:db; the node references only mcp:db.
+        // Changing && to || would select a declaration matching only kind or name.
         let (graph, d0) = start_texts(
-            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"单节点\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"db\"\nversion = \"1.0\"\n[[requires]]\nkind = \"mcp\"\nname = \"company-api\"\nversion = \"2.0\"\n[[requires]]\nkind = \"mcp\"\nname = \"db\"\nversion = \"3.0\"\n",
-            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"做这一件事。\" }\nrequires = [\"mcp:db\"]\n",
+            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"Single node\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"db\"\nversion = \"1.0\"\n[[requires]]\nkind = \"mcp\"\nname = \"company-api\"\nversion = \"2.0\"\n[[requires]]\nkind = \"mcp\"\nname = \"db\"\nversion = \"3.0\"\n",
+            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"Only node\"\nexecutor = \"agent\"\ninstruction = { text = \"Do this task.\" }\nrequires = [\"mcp:db\"]\n",
         );
         let d = decide(
             Some(&d0.state),
@@ -1382,13 +1386,13 @@ mod tests {
             &Command::BeginAttempt {
                 node: node("only"),
                 observed_inputs: BTreeMap::new(),
-                instruction_text: "做这一件事。".to_string(),
+                instruction_text: "Do this task.".to_string(),
             },
             &testkit::ctx(),
         )
         .unwrap();
         let Reply::AttemptBegun { requires, .. } = d.reply else {
-            panic!("应当是 Reply::AttemptBegun");
+            panic!("Expected Reply::AttemptBegun");
         };
         assert_eq!(requires.len(), 1);
         assert_eq!(
@@ -1406,14 +1410,14 @@ mod tests {
     fn submit_marks_attempt_succeeded_and_records_outputs() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
-        let d = fx.submit_ok("draft#1.0", "初稿完成").unwrap();
+        let d = fx.submit_ok("draft#1.0", "Draft ready").unwrap();
         let a = d
             .state
             .attempt(&AttemptId::parse("draft#1.0").unwrap())
             .unwrap();
         assert_eq!(a.status, AttemptStatus::Succeeded);
         assert!(a.outputs.contains_key("article"));
-        assert_eq!(a.summary.as_ref().unwrap().as_str(), "初稿完成");
+        assert_eq!(a.summary.as_ref().unwrap().as_str(), "Draft ready");
         assert!(
             d.effects
                 .iter()
@@ -1508,7 +1512,7 @@ mod tests {
     fn submit_on_gate_node_blocks_work() {
         let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
         fx.begin("notes").unwrap();
-        let d = fx.submit_ok("notes#1.0", "写好了").unwrap();
+        let d = fx.submit_ok("notes#1.0", "Written").unwrap();
         assert_eq!(d.state.status, WorkStatus::Blocked(BlockedReason::Gate));
     }
 
@@ -1539,9 +1543,9 @@ mod tests {
         fx.begin("draft").unwrap();
         fx.submit_ok("draft#1.0", "ok").unwrap();
         fx.begin("review").unwrap();
-        fx.submit_ok("review#1.0", "不通过").unwrap();
+        fx.submit_ok("review#1.0", "Rejected").unwrap();
         fx.begin("draft").unwrap();
-        let d = fx.submit_ok("draft#2.0", "改了").unwrap();
+        let d = fx.submit_ok("draft#2.0", "Revised").unwrap();
         assert_eq!(
             d.state.status,
             WorkStatus::Blocked(BlockedReason::NoLegalEdge)
@@ -1553,7 +1557,7 @@ mod tests {
     fn fail_marks_attempt_failed_and_allows_retry() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
-        let d = fx.fail("draft#1.0", "超时").unwrap();
+        let d = fx.fail("draft#1.0", "Timed out").unwrap();
         assert_eq!(d.state.attempts[0].status, AttemptStatus::Failed);
         assert_eq!(d.state.status, WorkStatus::Active);
         assert!(
@@ -1568,9 +1572,9 @@ mod tests {
     fn fail_at_max_retries_blocks_work() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
-        fx.fail("draft#1.0", "一").unwrap();
+        fx.fail("draft#1.0", "First").unwrap();
         fx.begin("draft").unwrap();
-        let d = fx.fail("draft#1.1", "二").unwrap();
+        let d = fx.fail("draft#1.1", "Second").unwrap();
         assert_eq!(
             d.state.status,
             WorkStatus::Blocked(BlockedReason::RetriesExhausted)
@@ -1585,7 +1589,7 @@ mod tests {
         fx.begin("draft").unwrap();
         fx.submit_ok("draft#1.0", "ok").unwrap();
         fx.begin("review").unwrap();
-        fx.submit_ok("review#1.0", "看完了").unwrap();
+        fx.submit_ok("review#1.0", "Reviewed").unwrap();
         let next = legal_next(fx.state(), &fx.graph);
         assert!(
             matches!(&next[0], NextOp::BeginAttempt { node, edge: Some(EdgeKind::Main), .. } if node.as_str() == "publish")
@@ -1675,7 +1679,7 @@ mod tests {
         assert_eq!(
             d.state.attempts[0].status,
             AttemptStatus::Running,
-            "取消不伪造 Attempt 结束"
+            "Cancellation must not fabricate Attempt completion"
         );
 
         let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
@@ -1698,14 +1702,14 @@ mod tests {
         assert!(legal_next(fx.state(), &fx.graph).is_empty());
     }
 
-    // ── M1 补测（上限边界与重试路径） ─────────────────────────
+    // ── M1 additional limit boundaries and retry paths ─────────────────────────
 
     // Task: T07
     #[test]
     fn retry_binds_engine_stats_under_retry_dir() {
         let mut fx = Fixture::with_engine_stats_input();
         fx.begin("only").unwrap();
-        fx.fail("only#1.0", "再来").unwrap();
+        fx.fail("only#1.0", "Retry").unwrap();
         let d = fx.begin("only").unwrap();
         let stats = d.state.latest_attempt_of_current().unwrap().inputs["stats"]
             .clone()

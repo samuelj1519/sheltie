@@ -269,7 +269,7 @@ fn raw_reader_rechecks_identity_after_the_final_byte_was_proved() {
             )
         });
         let mut reader = RendezvousWorker::single(reader, rendezvous.path());
-        reader.wait("raw读取没有到达最终身份核验前同步点");
+        reader.wait("Raw read did not reach synchronization before final identity verification");
         if action == "leaf" {
             std::fs::rename(&path, path.with_file_name("retained.bin")).unwrap();
             std::fs::write(&path, b"replacement").unwrap();

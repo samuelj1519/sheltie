@@ -1,0 +1,21 @@
+name: Feature request
+description: Propose a concrete user need and observable outcome.
+title: "[Feature]: "
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: User need
+      description: What task is difficult, for whom, and under what conditions?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Proposed outcome
+      description: Describe observable behavior, alternatives, and relevant product boundaries.
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: "A feature request is a proposal. Implementation follows maintainer adoption and the change lifecycle."

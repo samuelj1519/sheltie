@@ -1,5 +1,5 @@
-//! Work 服务：每个写操作走「无锁预检 → 管理根写锁 → 恢复 → 决定 → 一个事务 →
-//! 发布效果」（架构 §4、存储合同 §2）。响应字段全部来自提交时快照（cli-result/v2）。
+//! Work service: writes follow unlocked preflight, root lock, recovery, decision, one transaction, then
+//! effect publication (architecture §4, storage contract §2). Responses use commit-time snapshots (cli-result/v2).
 
 use std::collections::BTreeMap;
 
@@ -24,8 +24,8 @@ use crate::request::{InputValue, RequestIntent};
 use crate::store::{CommitInput, CommitOutcome, Store};
 use crate::workbook_repo::WorkbookRepo;
 
-/// `work start` 的参数。输入值此时还只是字面量或 `@file` 路径；内容在无锁预检的
-/// 重放查重**之后**才读取（存储合同 §2.1）。
+/// work start arguments: values are literals or @file paths; read contents only after unlocked preflight's
+/// replay lookup (storage contract §2.1).
 #[derive(Debug, Clone)]
 pub struct StartArgs {
     pub workbook_id: String,
@@ -35,7 +35,7 @@ pub struct StartArgs {
     pub inputs: BTreeMap<String, InputValue>,
 }
 
-/// 提交时的完整响应快照（GF-15）。`data` 是协议的数据载荷；重放逐字段返回原值。
+/// Complete commit-time response (GF-15); data is the protocol payload, returned field-for-field on replay.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Response {
@@ -62,7 +62,7 @@ impl From<crate::snapshot::PersistedResponse> for Response {
     }
 }
 
-/// `work list` 一行。
+/// One work list row.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct WorkSummary {
     pub work_id: WorkId,
@@ -72,14 +72,14 @@ pub struct WorkSummary {
     pub updated_at: String,
 }
 
-/// 服务句柄。不持长连接。
+/// Service handle; holds no long-lived connection.
 #[derive(Debug, Clone)]
 pub struct WorkService {
     home: Home,
     store: Store,
 }
 
-/// 加载好的 Work：状态、revision、图。
+/// Loaded Work: state, revision, and graph.
 struct Loaded {
     state: WorkState,
     revision: u64,
@@ -110,8 +110,8 @@ impl PreparedCommand {
     }
 }
 
-/// pending 侧车与暂存容器的创建（存储合同 §3.3）。start/add再建立payload；remove只
-/// 建容器，提交后核验final身份才把它移入payload。
+/// Create pending sidecars/staging containers (storage contract §3.3). start/add also create payload; remove creates
+/// only the container, moving verified final into payload after commit.
 pub(crate) fn stage_pending(
     home: &Home,
     lock: &crate::home::HomeLock,
@@ -124,7 +124,7 @@ pub(crate) fn stage_pending(
         "remove_workbook" => false,
         _ => {
             return Err(Error::StoreCorrupt {
-                detail: format!("未知pending操作 {op}"),
+                detail: format!("Unknown pending operation {op}"),
             });
         }
     };
@@ -138,7 +138,7 @@ pub(crate) fn stage_pending(
         op: op.to_string(),
     };
     let mut content = serde_json::to_vec(&owner).map_err(|error| Error::StoreCorrupt {
-        detail: format!("pending owner序列化失败：{error}"),
+        detail: format!("pending owner serialization failed: {error}"),
     })?;
     content.push(b'\n');
     let fs = crate::fsx::ManagedFs::open_existing(home)?;
@@ -173,11 +173,11 @@ impl WorkService {
         Self { home, store }
     }
 
-    /// `work start`（协议 §3）。无副作用预检（GF-30，T02）之后进入写路径：
-    /// 锁内 staging → 复制核验 → 序号 → decide → 事务 → 发布。
+    /// work start (protocol §3): after side-effect-free preflight (GF-30, T02), enter the write path:
+    /// locked staging, copy verification, sequence, decide, transaction, publication.
     pub fn start(&self, args: StartArgs, request_id: Option<String>) -> Result<Response> {
         let request_id = request_id.unwrap_or_else(|| uuid::Uuid::now_v7().to_string());
-        // 意图构造先于任何目标解析或来源文件读取；省略状态与原参数保持固定。
+        // Construct intent before resolving targets or reading source files; omitted states and original arguments stay fixed.
         let intent = RequestIntent::StartWork {
             workbook: args.workbook_id.clone(),
             version: args.version.clone(),
@@ -187,7 +187,7 @@ impl WorkService {
         };
         let intent_hash = intent.hash();
 
-        // ── 无锁预检：只读识别已有 Store，查可重放请求 ──
+        // ── Unlocked preflight: identify existing Store read-only and look up replayable requests ──
         let mut inputs: Option<BTreeMap<String, String>> = None;
         let mut replay_hit = false;
         let preflight_store =
@@ -199,7 +199,7 @@ impl WorkService {
                                 request_id: request_id.clone(),
                             });
                         }
-                        // 命中：不读取当前 Workbook / @file（O04），效果核对在写锁内做。
+                        // Replay hit: do not read current Workbook/@file (O04); verify effects under the write lock.
                         replay_hit = true;
                     }
                     ro
@@ -214,7 +214,7 @@ impl WorkService {
 
         if !replay_hit {
             WorkName::normalize(args.name.as_deref().unwrap_or(&args.flow))?;
-            // 预检继续：装入 Workbook（含登记摘要核对）与 Flow，校验起始输入键。
+            // Continue preflight: load Workbook/Flow, verify registered digest, and validate start keys.
             let ro_store = WorkService::with_store(self.home.clone(), preflight_store);
             let wb = ro_store
                 .repo()
@@ -223,17 +223,17 @@ impl WorkService {
                 what: format!("Flow {}", args.flow),
             })?;
             sheltie_core::work::validate_start_inputs(&flow.1, args.inputs.keys())?;
-            // @file 内容在重放查重之后读取（协议 work start 第 3 步），写路径复用
-            // 同一份观察，不读第二次。
+            // Read @file after replay lookup (work start step 3); the write path reuses
+            // the same observation without rereading.
             let values = materialize_inputs(&args.inputs)?;
             inputs = Some(values);
         }
 
-        // ── 写路径：锁 → 恢复 → 重核 → staging → 决定 → 事务 → 发布 ──
+        // ── Write path: lock, recovery, recheck, staging, decision, transaction, publication ──
         let session = crate::session::WriteSession::open_existing(&self.home)?;
         let svc = Self::with_store(self.home.clone(), session.store.clone());
         svc.recover_before_write(&session.lock, &request_id, intent_hash.as_str())?;
-        // 锁内重核请求表（预检后可能有并发写者）。
+        // Recheck requests under the lock; a writer may have committed after preflight.
         if let Some(row) = svc.store.inspect_request(&request_id)? {
             if row.intent_hash != intent_hash.as_str() {
                 return Err(Error::RequestConflict {
@@ -248,7 +248,7 @@ impl WorkService {
         let flow = wb.flow(&args.flow).ok_or_else(|| Error::NotFound {
             what: format!("Flow {}", args.flow),
         })?;
-        // 锁内再次核输入键，避免预检后的定义被替换。
+        // Recheck input keys under the lock against definitions replaced after preflight.
         sheltie_core::work::validate_start_inputs(&flow.1, args.inputs.keys())?;
         let inputs = match inputs {
             Some(values) => values,
@@ -259,8 +259,8 @@ impl WorkService {
             now: now(),
             principal: principal(),
         };
-        // works/ 的祖先软链在序号分配与任何物化之前核对（O01）：软链把根重定义到
-        // 根外时，这里拒绝而不是等到发布效果。
+        // Verify works/ ancestor symlinks before sequence allocation or materialization (O01); reject escapes
+        // outside the root here, before effect publication.
         crate::fsx::ensure_dirs_under(&self.home, &session.lock, &self.home.works_dir())?;
         let internal_id = uuid::Uuid::now_v7().simple().to_string();
         let payload = stage_pending(
@@ -277,8 +277,8 @@ impl WorkService {
         let work_id = WorkId::new(&day, seq, &name)?;
         let work_dir = self.home.work_dir(&work_id);
 
-        // payload/workbook：本 Work 的冻结定义。复制后对最终副本重新 parse/compile
-        // 并核对身份与摘要（GF-17；存储合同 §5.4）。
+        // payload/workbook freezes this Work's definitions; reparse/recompile the final copy
+        // and verify identity/digest after copying (GF-17, storage contract §5.4).
         let frozen = payload.join_segment("workbook");
         WorkbookRepo::copy_confined(&self.home, &session.lock, &wb.dir, &frozen)?;
         let copied = svc.repo().load_dir(&frozen)?;
@@ -287,7 +287,7 @@ impl WorkService {
         {
             return Err(Error::StoreCorrupt {
                 detail: format!(
-                    "冻结副本的 manifest 身份 {}@{} 与登记 {}@{} 不符",
+                    "Frozen-copy manifest identity {}@{} differs from registered {}@{}",
                     copied.manifest.id(),
                     copied.manifest.version(),
                     wb.manifest.id(),
@@ -297,7 +297,9 @@ impl WorkService {
         }
         if copied.digest != wb.digest {
             return Err(Error::StoreCorrupt {
-                detail: "冻结副本摘要与登记不符（复制期间源目录变化）".to_string(),
+                detail:
+                    "Frozen-copy digest differs from registration (source changed during copying)"
+                        .to_string(),
             });
         }
         let frozen_flow = copied
@@ -307,7 +309,7 @@ impl WorkService {
             })?;
         crate::fsx::set_tree_readonly_confined(&self.home, &session.lock, &frozen)?;
 
-        // payload/start-inputs/<key>：物化在 pending，**记录最终路径**（发布后生效）。
+        // payload/start-inputs/<key>: materialize in pending, recording final paths effective after publication.
         let inputs_dir = payload.join_segment("start-inputs");
         crate::fsx::ensure_dirs_under(&self.home, &session.lock, &inputs_dir)?;
         let mut input_refs = BTreeMap::new();
@@ -361,7 +363,7 @@ impl WorkService {
             &cmd,
             &session.lock,
         )?;
-        // COMMIT 后由统一入口执行整组效果并记录完成状态。
+        // After COMMIT, the unified entry executes the whole effect closure and records completion.
         svc.recover_finish_request(&session.lock, &request_id, None, false)?;
         Ok(resp)
     }
@@ -534,13 +536,13 @@ impl WorkService {
         })
     }
 
-    /// 只读：状态卡文本与结构化形式。
+    /// Read-only: text and structured status cards.
     pub fn status(&self, work: &WorkId) -> Result<(String, StatusCardJson)> {
         let (text, view) = self.status_projection(work)?;
         Ok((text, view.card))
     }
 
-    /// 返回状态卡和本次装入的发布状态事实。
+    /// Return the status card and publication facts from this load.
     pub fn status_with_publication(&self, work: &WorkId) -> Result<(String, StatusCardJson, bool)> {
         let (text, view) = self.status_projection(work)?;
         Ok((text, view.card, view.pending_publish))
@@ -576,7 +578,7 @@ impl WorkService {
             effects_pending,
         )
         .map_err(|detail| Error::StoreCorrupt {
-            detail: format!("Work {work} 的结果投影不合法：{detail}"),
+            detail: format!("Work {work} result projection is invalid: {detail}"),
         })?;
         Ok((view, legal_next(&loaded.state, &loaded.graph)))
     }
@@ -597,7 +599,7 @@ impl WorkService {
         }
         if !view.r#final || view.effects_pending {
             return Err(Error::InvalidRequest {
-                reason: "该Work的最终成果尚不可读取".into(),
+                reason: "Final results for this Work are not readable yet".into(),
             });
         }
         let artifact = view
@@ -605,7 +607,7 @@ impl WorkService {
             .iter()
             .find(|artifact| artifact.key == key)
             .ok_or_else(|| Error::NotFound {
-                what: format!("最终成果槽 {key:?}"),
+                what: format!("Final result slot {key:?}"),
             })?;
         crate::result::write_artifact(
             &self.home,
@@ -618,7 +620,7 @@ impl WorkService {
         )
     }
 
-    /// 只读：事实视图与next均来自同一次装入的state/revision。
+    /// Read-only: facts and next share one loaded state/revision.
     pub fn stats(&self, work: &WorkId) -> Result<(String, StatsJson, Vec<serde_json::Value>)> {
         let loaded = self.load(work)?;
         crate::failpoint::rendezvous("stats_after_load", work.as_str())
@@ -634,7 +636,7 @@ impl WorkService {
         ))
     }
 
-    /// 只读：全部 Work 摘要。
+    /// Read-only: summaries of all Works.
     pub fn list(&self) -> Result<Vec<WorkSummary>> {
         self.store
             .list_works()?
@@ -653,7 +655,7 @@ impl WorkService {
             .collect()
     }
 
-    /// 只读：按完整 id 或唯一前缀解析。多个匹配报 `InvalidRequest` 并列出候选。
+    /// Read-only: resolve a full ID or unique prefix; multiple matches yield InvalidRequest with candidates.
     pub fn resolve_work(&self, prefix: &str) -> Result<WorkId> {
         let matches = self.store.find_works_by_prefix(prefix)?;
         match matches.len() {
@@ -663,10 +665,10 @@ impl WorkService {
             1 => Ok(matches
                 .into_iter()
                 .next()
-                .unwrap_or_else(|| unreachable!("长度为 1 的匹配向量必有元素"))),
+                .unwrap_or_else(|| unreachable!("A single-match vector must contain one element"))),
             _ => Err(Error::InvalidRequest {
                 reason: format!(
-                    "前缀 {prefix} 匹配多个 Work：{}",
+                    "Prefix {prefix} matches multiple Works: {}",
                     matches
                         .iter()
                         .map(|w| w.to_string())
@@ -677,7 +679,7 @@ impl WorkService {
         }
     }
 
-    /// 请求已存在时以 requests.work_id 为目标权威；只有不匹配历史 Work 的前缀才冲突。
+    /// Existing requests use requests.work_id as target authority; conflict only if the prefix does not match the historical Work.
     pub fn resolve_work_for_request(
         &self,
         prefix: &str,
@@ -691,7 +693,7 @@ impl WorkService {
                     });
                 };
                 let work = WorkId::parse(&stored_work).map_err(|error| Error::StoreCorrupt {
-                    detail: format!("requests.work_id {stored_work:?} 无效：{error}"),
+                    detail: format!("Invalid requests.work_id {stored_work:?}: {error}"),
                 })?;
                 if !work.as_str().starts_with(prefix) {
                     return Err(Error::RequestConflict {
@@ -708,8 +710,8 @@ impl WorkService {
         WorkbookRepo::with_store(self.home.clone(), self.store.clone())
     }
 
-    /// 从冻结副本加载状态与图。副本缺失或摘要不符报 `StoreCorrupt`；未发布的 Work
-    /// 从受 Store 保护的 pending 原件读取（存储合同 §3.3）。
+    /// Load state/graph from the frozen copy; missing/mismatched copies yield StoreCorrupt. Unpublished Works
+    /// read Store-protected pending originals (storage contract §3.3).
     fn load(&self, work: &WorkId) -> Result<Loaded> {
         let row = self.store.load_work(work)?;
         self.load_row(work, row)
@@ -725,7 +727,7 @@ impl WorkService {
                 .map(|request| decode_read_request(request, work))
                 .collect::<Result<Vec<_>>>()?;
             let start = bundle.requests.first().ok_or_else(|| Error::StoreCorrupt {
-                detail: format!("Work {work} 缺少Start请求"),
+                detail: format!("Work {work} has no Start request"),
             })?;
             let ReadRequestPayload {
                 command,
@@ -733,13 +735,13 @@ impl WorkService {
                 effects: ops,
                 data,
             } = decoded.first().ok_or_else(|| Error::StoreCorrupt {
-                detail: format!("Work {work} 缺少已解码的Start请求"),
+                detail: format!("Work {work} has no decoded Start request"),
             })?;
             if !crate::snapshot::start_matches(&bundle.work.state, command, &snapshot.reply, data)
                 || start.row.at != bundle.work.state.created_at.as_str()
             {
                 return Err(Error::StoreCorrupt {
-                    detail: format!("Work {work} 的Start快照与冻结身份不一致"),
+                    detail: format!("Work {work} Start snapshot differs from frozen identity"),
                 });
             }
             let [
@@ -754,7 +756,7 @@ impl WorkService {
             ] = ops.as_slice()
             else {
                 return Err(Error::StoreCorrupt {
-                    detail: format!("Work {work} 的Start发布效果不完整"),
+                    detail: format!("Work {work} Start publication effects are incomplete"),
                 });
             };
             let segments = pending.split('/').collect::<Vec<_>>();
@@ -769,7 +771,7 @@ impl WorkService {
                 || work_id != work.as_str()
             {
                 return Err(Error::StoreCorrupt {
-                    detail: format!("Work {work} 的Start发布归属不一致"),
+                    detail: format!("Work {work} Start publication ownership does not match"),
                 });
             }
             if !start.row.published {
@@ -829,7 +831,9 @@ impl WorkService {
             return Ok((loaded, effects_pending));
         }
         Err(Error::StoreCorrupt {
-            detail: format!("Work {work} 的Start归属无法从完整读快照核实"),
+            detail: format!(
+                "Work {work} Start ownership cannot be verified from the complete read snapshot"
+            ),
         })
     }
 
@@ -851,18 +855,23 @@ impl WorkService {
                 if !crate::fsx::managed_directory_exists_readonly(&self.home, &relative)? {
                     if !location.pending_publish {
                         return Err(Error::StoreCorrupt {
-                            detail: format!("Work {work} 的已发布冻结副本 {} 缺失", frozen),
+                            detail: format!(
+                                "Work {work} published frozen copy {} is missing",
+                                frozen
+                            ),
                         });
                     }
                     return Err(Error::NotFound {
-                        what: format!("Work {work} 的冻结副本 {}", frozen),
+                        what: format!("Work {work} frozen copy {}", frozen),
                     });
                 }
                 crate::load::compile_frozen_workbook(&self.home, &frozen, &row.state).map_err(
                     |error| match error {
                         Error::NotFound { .. } if !location.pending_publish => {
                             Error::StoreCorrupt {
-                                detail: format!("Work {work} 的已发布冻结副本文件缺失"),
+                                detail: format!(
+                                    "Work {work} published frozen-copy files are missing"
+                                ),
                             }
                         }
                         other => other,
@@ -871,14 +880,14 @@ impl WorkService {
             })
             .map_err(|error| match error {
                 Error::NotFound { .. } => Error::StoreCorrupt {
-                    detail: format!("Work {work} 的冻结副本缺失声明文件"),
+                    detail: format!("Work {work} frozen copy lacks a declared file"),
                 },
                 other => other,
             })?;
         if workbook.digest != row.state.workbook.digest {
             return Err(Error::StoreCorrupt {
                 detail: format!(
-                    "冻结副本 {} 的摘要 {} 与记录不符",
+                    "Frozen copy {} digest {} differs from its record",
                     workbook.dir,
                     workbook.digest.as_str()
                 ),
@@ -888,7 +897,7 @@ impl WorkService {
             .flow(row.state.flow.as_str())
             .map(|(_, graph)| graph.clone())
             .ok_or_else(|| Error::StoreCorrupt {
-                detail: format!("冻结副本里没有Flow {}", row.state.flow),
+                detail: format!("Frozen copy has no Flow {}", row.state.flow),
             })?;
         crate::load::validate_work_paths(&self.home, &row.state, &graph, &workbook.resource_files)?;
         Ok(Loaded {
@@ -901,7 +910,7 @@ impl WorkService {
         })
     }
 
-    /// 从Start请求与effects闭包定位本Work唯一冻结副本。
+    /// Locate this Work's unique frozen copy from its Start request and effect closure.
     fn workbook_publication(
         &self,
         work: &WorkId,
@@ -914,7 +923,7 @@ impl WorkService {
         let [reference] = work_references.as_slice() else {
             return Err(Error::StoreCorrupt {
                 detail: format!(
-                    "Work {work} 应有唯一Start publish引用，实际{}个",
+                    "Work {work} requires one Start publish reference; actual {}",
                     work_references.len()
                 ),
             });
@@ -924,11 +933,11 @@ impl WorkService {
             self.store
                 .inspect_request(request_id)?
                 .ok_or_else(|| Error::StoreCorrupt {
-                    detail: format!("Start {request_id} 缺少requests行"),
+                    detail: format!("Start {request_id} has no requests row"),
                 })?;
         if reference.published && !request.published {
             return Err(Error::StoreCorrupt {
-                detail: format!("Start {request_id} 的published在索引读取后回退"),
+                detail: format!("Start {request_id} published flag regressed after index reading"),
             });
         }
         let ops = decode_effects(&request.effects_json)?;
@@ -946,7 +955,7 @@ impl WorkService {
         });
         let Some((pending, final_path, owner, digest, digest_root)) = publish else {
             return Err(Error::StoreCorrupt {
-                detail: format!("Work {work} 的引用索引与Start效果不一致"),
+                detail: format!("Work {work} reference index differs from Start effects"),
             });
         };
         if ops.len() != 2
@@ -966,7 +975,7 @@ impl WorkService {
             || digest_root != "workbook"
         {
             return Err(Error::StoreCorrupt {
-                detail: format!("Work {work} 的未发布Start效果归属不一致"),
+                detail: format!("Work {work} unpublished Start effect ownership does not match"),
             });
         }
         let segments = pending.split('/').collect::<Vec<_>>();
@@ -976,35 +985,37 @@ impl WorkService {
             || uuid::Uuid::parse_str(segments[1]).is_err()
         {
             return Err(Error::StoreCorrupt {
-                detail: format!("Work {work} 的pending路径无效"),
+                detail: format!("Work {work} pending path is invalid"),
             });
         }
         if request.work_id.as_deref() != Some(work.as_str()) {
             return Err(Error::StoreCorrupt {
-                detail: format!("未发布Start {request_id} 的Work归属不一致"),
+                detail: format!("Unpublished Start {request_id} Work ownership does not match"),
             });
         }
         if request.at != state.created_at.as_str() {
             return Err(Error::StoreCorrupt {
-                detail: format!("Start {request_id} 时间与WorkState.created_at不一致"),
+                detail: format!("Start {request_id} timestamp differs from WorkState.created_at"),
             });
         }
         Sha256Hex::new(request.intent_hash.clone()).map_err(|error| Error::StoreCorrupt {
-            detail: format!("未发布Start {request_id} 的intent_hash无效：{error}"),
+            detail: format!("Unpublished Start {request_id} intent_hash is invalid: {error}"),
         })?;
         let audits = self.store.audit_rows(request_id)?;
         let [audit] = audits.as_slice() else {
             return Err(Error::StoreCorrupt {
-                detail: format!("未发布Start {request_id} 应有且仅有一条audit"),
+                detail: format!("Unpublished Start {request_id} requires exactly one audit row"),
             });
         };
         let response: crate::snapshot::PersistedResponse =
             serde_json::from_str(&request.reply_json).map_err(|error| Error::StoreCorrupt {
-                detail: format!("未发布Start {request_id} 的snapshot解不开：{error}"),
+                detail: format!("Cannot decode unpublished Start {request_id} snapshot: {error}"),
             })?;
         let command: Command =
             serde_json::from_str(&audit.command_json).map_err(|error| Error::StoreCorrupt {
-                detail: format!("未发布Start {request_id} 的audit命令解不开：{error}"),
+                detail: format!(
+                    "Cannot decode unpublished Start {request_id} audit command: {error}"
+                ),
             })?;
         let data = crate::snapshot::check_data(&response.reply, &response.data, work)?;
         let valid_start = crate::snapshot::start_matches(state, &command, &response.reply, &data)
@@ -1016,7 +1027,9 @@ impl WorkService {
             && audit.at == request.at;
         if !valid_start {
             return Err(Error::StoreCorrupt {
-                detail: format!("未发布Start {request_id} 的Command、snapshot与Work不一致"),
+                detail: format!(
+                    "Unpublished Start {request_id} Command, snapshot, and Work do not match"
+                ),
             });
         }
         if !request.published {
@@ -1047,8 +1060,8 @@ impl WorkService {
         })
     }
 
-    /// Work 写操作的公共流程：无锁预检查重 → 锁 → 恢复 → 锁内重核 → load → 观察 →
-    /// decide → 事务 → 发布。重放命中先于 load/observe（协议 §2）。
+    /// Shared Work write path: unlocked replay preflight, lock, recovery, locked recheck, load, observe,
+    /// decide, transaction, publication. Replay lookup precedes load/observe (protocol §2).
     fn run_command(
         &self,
         work: &WorkId,
@@ -1057,8 +1070,8 @@ impl WorkService {
         build: &dyn Fn(&Loaded, &crate::home::HomeLock) -> Result<PreparedCommand>,
     ) -> Result<Response> {
         let intent_hash = intent.hash();
-        // ── 无锁预检：只读查重。命中的历史请求绑定完整 WorkId（§2.1），不重解析
-        // 前缀；效果未完成的请求不在这里恢复，交给写路径。
+        // ── Unlocked read-only replay preflight: historical requests bind complete WorkId (§2.1), without resolving
+        // prefixes again; the write path recovers incomplete effects.
         {
             let ro = Store::open_for_home(&self.home, crate::store::OpenMode::ReadOnly)?;
             if let Some(hash) = ro.lookup_request_hash(&request_id)? {
@@ -1067,11 +1080,11 @@ impl WorkService {
                         request_id: request_id.clone(),
                     });
                 }
-                // 效果核对（含 write_file 的缺失补齐）在写锁内做，不在这里早退。
+                // Verify effects, including missing write_file restoration, under the lock; do not return early here.
             }
         }
 
-        // ── 写路径：锁 → 恢复 → 锁内重核 → load → 观察 → decide → 事务 → 发布 ──
+        // ── Write path: lock, recovery, locked recheck, load, observe, decide, transaction, publication ──
         let session = crate::session::WriteSession::open_existing(&self.home)?;
         let svc = Self::with_store(self.home.clone(), session.store.clone());
         svc.recover_before_write(&session.lock, &request_id, intent_hash.as_str())?;
@@ -1112,9 +1125,9 @@ impl WorkService {
         Ok(resp)
     }
 
-    /// 恢复未完成效果（锁内，先于一切新命令）：按提交先后逐个执行；失败即阻断新
-    /// 请求并返回 `EFFECT_PENDING`（committed=false，指向旧请求）。
-    /// 效果涉及的状态卡从**最新**状态重生成（不回退历史版本，§6）。
+    /// Recover incomplete effects under the lock before new commands, in commit order; failure blocks new
+    /// requests with EFFECT_PENDING (committed=false, referencing the old request).
+    /// Regenerate affected status cards from latest state, without historical regression (§6).
     pub(crate) fn refresh_cards_of(
         &self,
         ops: &CheckedEffects,
@@ -1168,13 +1181,13 @@ impl WorkService {
     ) -> crate::recovery::RequestLoadResult<(crate::recovery::CheckedRequest, Response)> {
         let row = metadata;
         Sha256Hex::new(row.intent_hash.clone()).map_err(|error| Error::StoreCorrupt {
-            detail: format!("请求 {request_id} 的intent_hash不合法：{error}"),
+            detail: format!("Request {request_id} intent_hash is invalid: {error}"),
         })?;
         let audits = self.store.audit_rows(request_id)?;
         let [audit] = audits.as_slice() else {
             return Err(Error::StoreCorrupt {
                 detail: format!(
-                    "请求 {request_id} 应有且仅有一条audit，实际 {} 条",
+                    "Request {request_id} requires exactly one audit row; actual {}",
                     audits.len()
                 ),
             }
@@ -1184,16 +1197,18 @@ impl WorkService {
             .work_id
             .as_deref()
             .ok_or_else(|| Error::StoreCorrupt {
-                detail: format!("Work请求 {request_id} 缺少requests.work_id"),
+                detail: format!("Work request {request_id} has no requests.work_id"),
             })
             .and_then(|value| {
                 WorkId::parse(value).map_err(|error| Error::StoreCorrupt {
-                    detail: format!("请求 {request_id} 的work_id不合法：{error}"),
+                    detail: format!("Request {request_id} work_id is invalid: {error}"),
                 })
             })?;
         if audit.work_id != work.as_str() || row.at != audit.at {
             return Err(Error::StoreCorrupt {
-                detail: format!("请求 {request_id} 的audit归属/时间与requests行不一致"),
+                detail: format!(
+                    "Request {request_id} audit ownership/time differs from requests row"
+                ),
             }
             .into());
         }
@@ -1201,32 +1216,36 @@ impl WorkService {
             .ok()
             .filter(|revision| *revision > 0)
             .ok_or_else(|| Error::StoreCorrupt {
-                detail: format!("请求 {request_id} 的audit.revision无效"),
+                detail: format!("Request {request_id} audit.revision is invalid"),
             })?;
         let persisted: crate::snapshot::PersistedResponse =
             serde_json::from_str(&row.reply_json).map_err(|error| Error::StoreCorrupt {
-                detail: format!("请求 {request_id} 的reply_json解不开：{error}"),
+                detail: format!("Cannot decode request {request_id} reply_json: {error}"),
             })?;
         if persisted.request_id != request_id
             || persisted.revision != audit_revision
             || persisted.replayed
         {
             return Err(Error::StoreCorrupt {
-                detail: format!("请求 {request_id} 的snapshot身份/revision与audit不一致"),
+                detail: format!(
+                    "Request {request_id} snapshot identity/revision differs from audit"
+                ),
             }
             .into());
         }
         let snapshot = Response::from(persisted);
         let command: Command =
             serde_json::from_str(&audit.command_json).map_err(|error| Error::StoreCorrupt {
-                detail: format!("请求 {request_id} 的audit.command_json解不开：{error}"),
+                detail: format!("Cannot decode request {request_id} audit.command_json: {error}"),
             })?;
         let data = crate::snapshot::check_data(&snapshot.reply, &snapshot.data, &work)?;
         validate_audit_snapshot(request_id, audit, &data)?;
         let state = self.load(&work)?;
         if state.revision < audit_revision {
             return Err(Error::StoreCorrupt {
-                detail: format!("请求 {request_id} 的audit revision超出Work当前revision"),
+                detail: format!(
+                    "Request {request_id} audit revision exceeds current Work revision"
+                ),
             }
             .into());
         }
@@ -1246,7 +1265,7 @@ impl WorkService {
                 self.store
                     .inspect_request(request_id)?
                     .ok_or_else(|| Error::StoreCorrupt {
-                        detail: format!("缺少请求 {request_id} 的效果记录"),
+                        detail: format!("Missing effect record for request {request_id}"),
                     })?;
             metadata.check_row(request_id, &row)?;
             let ops = decode_effects(&row.effects_json)?;
@@ -1267,7 +1286,9 @@ impl WorkService {
                                 .split('/')
                                 .nth(1)
                                 .ok_or_else(|| Error::StoreCorrupt {
-                                    detail: format!("请求 {request_id} 的pending owner路径无效"),
+                                    detail: format!(
+                                        "Request {request_id} pending owner path is invalid"
+                                    ),
                                 })?;
                         verify_pending_owner(&self.home, internal_id, request_id, "start_work")?;
                     }
@@ -1288,7 +1309,7 @@ impl WorkService {
         ))
     }
 
-    /// `decide` + 单事务提交 + 快照。`data` 在提交前组装，重放原样返回（GF-15）。
+    /// decide, one transaction, and snapshot; assemble data before commit and return unchanged on replay (GF-15).
     #[allow(clippy::too_many_arguments)]
     fn commit(
         &self,
@@ -1314,7 +1335,7 @@ impl WorkService {
             next: next.clone(),
         };
         let reply_json = serde_json::to_string(&snapshot).map_err(|e| Error::StoreCorrupt {
-            detail: format!("序列化响应失败：{e}"),
+            detail: format!("Response serialization failed: {e}"),
         })?;
         let input = CommitInput {
             work_id: Some(decision.state.work_id.clone()),
@@ -1333,7 +1354,7 @@ impl WorkService {
         };
         match self.store.commit(input)? {
             CommitOutcome::Committed { revision: rev } => {
-                // 崩溃窗口：COMMIT 之后、效果发布之前（存储合同 §3 第四行）。
+                // Crash window: after COMMIT, before effect publication (storage contract §3, fourth row).
                 crate::failpoint::maybe_exit("after_commit_before_effects");
                 Ok(Response {
                     request_id: request_id.to_string(),
@@ -1350,8 +1371,8 @@ impl WorkService {
         }
     }
 
-    /// 重放：返回原快照（`replayed = true`），先完成未发布效果；历史 `next` 是历史
-    /// 事实，续接一律查当前状态。
+    /// Replay returns the original snapshot (replayed = true), first finishing unpublished effects. Historical next is historical
+    /// fact; always inspect current state to continue.
     fn replay(
         &self,
         request_id: String,
@@ -1367,7 +1388,7 @@ impl WorkService {
                     &request_id,
                     None,
                     Error::StoreCorrupt {
-                        detail: format!("重放请求 {request_id} 在requests中消失"),
+                        detail: format!("Replay request {request_id} disappeared from requests"),
                     },
                 )
             })?;
@@ -1377,7 +1398,9 @@ impl WorkService {
         let row = &checked.row;
         if row.reply_json != reply_json {
             let cause = Error::StoreCorrupt {
-                detail: format!("请求 {request_id} 的历史响应与requests记录不一致"),
+                detail: format!(
+                    "Request {request_id} historical response differs from requests record"
+                ),
             };
             return Err(crate::recovery::own_pending(
                 &request_id,
@@ -1429,31 +1452,33 @@ fn decode_read_request(
 ) -> Result<ReadRequestPayload> {
     let id = &request.request_id;
     Sha256Hex::new(request.row.intent_hash.clone()).map_err(|error| Error::StoreCorrupt {
-        detail: format!("请求 {id} 的intent_hash无效：{error}"),
+        detail: format!("Request {id} intent_hash is invalid: {error}"),
     })?;
     sheltie_core::work::Timestamp::parse(&request.row.at).map_err(|error| Error::StoreCorrupt {
-        detail: format!("请求 {id} 的时间无效：{error}"),
+        detail: format!("Request {id} timestamp is invalid: {error}"),
     })?;
     let persisted: crate::snapshot::PersistedResponse =
         serde_json::from_str(&request.row.reply_json).map_err(|error| Error::StoreCorrupt {
-            detail: format!("请求 {id} 的响应快照解不开：{error}"),
+            detail: format!("Cannot decode request {id} response snapshot: {error}"),
         })?;
     if persisted.request_id != *id
         || persisted.replayed
         || i64::try_from(persisted.revision).ok() != Some(request.audit.revision)
     {
         return Err(Error::StoreCorrupt {
-            detail: format!("请求 {id} 的响应身份/revision与audit不一致"),
+            detail: format!("Request {id} response identity/revision differs from audit"),
         });
     }
     let command =
         serde_json::from_str(&request.audit.command_json).map_err(|error| Error::StoreCorrupt {
-            detail: format!("请求 {id} 的audit命令解不开：{error}"),
+            detail: format!("Cannot decode request {id} audit command: {error}"),
         })?;
     if let Command::ReplaceAttempt { reason, .. } = &command {
         sheltie_core::text::Summary::new(reason, "reason").map_err(|error| {
             Error::StoreCorrupt {
-                detail: format!("请求 {id} 的替换理由不是合法有界文本：{error}"),
+                detail: format!(
+                    "Request {id} replacement reason is not valid bounded text: {error}"
+                ),
             }
         })?;
     }
@@ -1474,13 +1499,15 @@ fn validate_audit_snapshot(
     data: &crate::snapshot::CheckedData,
 ) -> Result<()> {
     sheltie_core::work::Timestamp::parse(&audit.at).map_err(|error| Error::StoreCorrupt {
-        detail: format!("请求 {request_id} 的audit时间格式无效：{error}"),
+        detail: format!("Request {request_id} audit timestamp format is invalid: {error}"),
     })?;
     let approval_mismatch = matches!(data, crate::snapshot::CheckedData::Approved(approval)
         if approval.by.0 != audit.principal || approval.at.as_str() != audit.at);
     if audit.principal.is_empty() || approval_mismatch {
         return Err(Error::StoreCorrupt {
-            detail: format!("请求 {request_id} 的audit主体/时间与响应快照不一致"),
+            detail: format!(
+                "Request {request_id} audit principal/time differs from response snapshot"
+            ),
         });
     }
     Ok(())
@@ -1524,7 +1551,9 @@ fn validate_audit_execution(
     };
     if audit.principal.is_empty() || !time_matches {
         return Err(Error::StoreCorrupt {
-            detail: format!("请求 {request_id} 的audit主体/时间与原执行事实不一致"),
+            detail: format!(
+                "Request {request_id} audit principal/time differs from original execution facts"
+            ),
         });
     }
     Ok(())
@@ -1550,7 +1579,7 @@ fn validate_command_owner_data(
         !sheltie_core::work::reply_status_matches(&snapshot.reply, status, state, graph)
     }) {
         return Err(Error::StoreCorrupt {
-            detail: format!("请求 {request_id} 的snapshot状态与原操作不一致"),
+            detail: format!("Request {request_id} snapshot status differs from original operation"),
         });
     }
 
@@ -1573,11 +1602,15 @@ fn validate_command_owner_data(
             CheckedData::Begun,
         ) => {
             let record = state.attempt(attempt).ok_or_else(|| Error::StoreCorrupt {
-                detail: format!("请求 {request_id} 的snapshot引用未知Attempt {attempt}"),
+                detail: format!(
+                    "Request {request_id} snapshot references unknown Attempt {attempt}"
+                ),
             })?;
             let expected_outputs = sheltie_core::work::output_paths_for(state, graph, attempt)
                 .map_err(|error| Error::StoreCorrupt {
-                    detail: format!("Work {work_id} 的冻结输出定义无效：{error}"),
+                    detail: format!(
+                        "Work {work_id} frozen output definitions are invalid: {error}"
+                    ),
                 })?;
             let expected_inputs = record
                 .inputs
@@ -1618,15 +1651,19 @@ fn validate_command_owner_data(
             let old = state
                 .attempt(replaced_attempt)
                 .ok_or_else(|| Error::StoreCorrupt {
-                    detail: format!("请求 {request_id} 引用未知旧Attempt {replaced_attempt}"),
+                    detail: format!(
+                        "Request {request_id} references unknown old Attempt {replaced_attempt}"
+                    ),
                 })?;
             let new = state.attempt(attempt).ok_or_else(|| Error::StoreCorrupt {
-                detail: format!("请求 {request_id} 引用未知新Attempt {attempt}"),
+                detail: format!("Request {request_id} references unknown new Attempt {attempt}"),
             })?;
             let node = graph
                 .node(&attempt.node)
                 .ok_or_else(|| Error::StoreCorrupt {
-                    detail: format!("请求 {request_id} 的替换节点不在冻结图中"),
+                    detail: format!(
+                        "Request {request_id} replacement node is absent from the frozen graph"
+                    ),
                 })?;
             let input_paths = new
                 .inputs
@@ -1724,13 +1761,13 @@ fn validate_command_owner_data(
     };
     if !valid {
         return Err(Error::StoreCorrupt {
-            detail: format!("请求 {request_id} 的audit命令与Work {work_id}状态不一致"),
+            detail: format!("Request {request_id} audit command differs from Work {work_id} state"),
         });
     }
     Ok(())
 }
 
-/// `@file` 的内容读取。意图只记路径；内容是首次执行时的观察结果。
+/// Read @file content; intent records only the path, contents are observations from first execution.
 fn materialize_inputs(inputs: &BTreeMap<String, InputValue>) -> Result<BTreeMap<String, String>> {
     let mut out = BTreeMap::new();
     for (key, value) in inputs {
@@ -1758,17 +1795,17 @@ fn materialize_summary(value: &InputValue) -> Result<String> {
                 })?;
             String::from_utf8(bytes).map_err(|_| Error::InputFileInvalid {
                 path: path.clone(),
-                reason: "不是 UTF-8".to_string(),
+                reason: "Not UTF-8".to_string(),
             })
         }
     }
 }
 
-/// core 的效果转换成持久效果登记（路径相对管理根；write_file 携带精确字节）。
+/// Convert core effects to persistent records; paths are root-relative, write_file carries exact bytes.
 fn core_effects_to_ops(home: &Home, decision: &Decision) -> Result<Vec<EffectOp>> {
     let state = &decision.state;
     let mut ops = Vec::new();
-    // begin 的目录骨架：Attempt 目录、engine/、outputs/ 与声明输出的父目录，父先于子。
+    // begin directory skeleton: Attempt root, engine/, outputs/, and declared output parents, parents before children.
     if let Reply::AttemptBegun {
         attempt,
         output_dir,
@@ -1808,7 +1845,7 @@ fn core_effects_to_ops(home: &Home, decision: &Decision) -> Result<Vec<EffectOp>
                 )?;
             }
         }
-        // 引擎生成文件（brief.md、engine/stats.json）的父目录也在骨架里。
+        // Include parents of engine-generated brief.md and engine/stats.json in the skeleton.
         for effect in &decision.effects {
             if let Effect::WriteBrief { path, .. } | Effect::WriteFile { path, .. } = effect {
                 if let Some(parent) = path.as_path().parent() {
@@ -1837,9 +1874,9 @@ fn core_effects_to_ops(home: &Home, decision: &Decision) -> Result<Vec<EffectOp>
                 });
             }
             Effect::SealOutputs { .. } => {
-                // refs 从提交后的状态取（含精确 ArtifactRef）。
+                // Read refs from committed state, including exact ArtifactRef values.
                 let attempt = state.attempts.last().ok_or_else(|| Error::StoreCorrupt {
-                    detail: "封存效果没有对应 Attempt".to_string(),
+                    detail: "Sealing effect has no corresponding Attempt".to_string(),
                 })?;
                 let mut refs = Vec::new();
                 for r in attempt.outputs.values() {
@@ -1861,7 +1898,7 @@ fn core_effects_to_ops(home: &Home, decision: &Decision) -> Result<Vec<EffectOp>
     Ok(ops)
 }
 
-/// 提交时快照的数据载荷（协议 §3 各操作返回；重放逐字段原样）。
+/// Commit-time snapshot payload (protocol §3 returns), replayed unchanged field-for-field.
 fn snapshot_data(decision: &Decision) -> serde_json::Value {
     let state = &decision.state;
     match &decision.reply {
@@ -1960,7 +1997,7 @@ fn snapshot_data(decision: &Decision) -> serde_json::Value {
                 .approvals
                 .last()
                 .cloned()
-                .unwrap_or_else(|| unreachable!("批准回复必有批准记录"));
+                .unwrap_or_else(|| unreachable!("Approval reply must have an approval record"));
             serde_json::json!({
                 "node": node.as_str(),
                 "occurrence": occurrence,
@@ -1976,10 +2013,10 @@ fn snapshot_data(decision: &Decision) -> serde_json::Value {
     }
 }
 
-/// 说明书原文：`File` 从冻结副本读，`Text` 直接取值。
+/// Original instruction text: read File from the frozen copy; use Text directly.
 fn instruction_text_of(loaded: &Loaded, node: &NodeId) -> Result<String> {
     let def = loaded.graph.node(node).ok_or_else(|| Error::NotFound {
-        what: format!("节点 {node}"),
+        what: format!("Node {node}"),
     })?;
     match def.instruction() {
         sheltie_core::flow::Instruction::Text(t) => Ok(t.clone()),
@@ -1988,7 +2025,7 @@ fn instruction_text_of(loaded: &Loaded, node: &NodeId) -> Result<String> {
             .get(rel)
             .cloned()
             .ok_or_else(|| Error::StoreCorrupt {
-                detail: format!("冻结副本装入时缺少节点 {node} 的说明书 {rel}"),
+                detail: format!("Frozen-copy load lacks Node {node} instruction file {rel}"),
             }),
     }
 }
@@ -2010,12 +2047,12 @@ fn observe_loaded_input(
                 .find(|input| input.name() == name)
         })
         .ok_or_else(|| Error::StoreCorrupt {
-            detail: format!("冻结Flow缺少节点 {node} 的输入声明 {name}"),
+            detail: format!("Frozen Flow lacks Node {node} input declaration {name}"),
         })?;
     if let sheltie_core::flow::InputSource::Resource { path: relative } = declaration.source() {
         if path != &loaded.state.workbook_dir().join(relative) {
             return Err(Error::StoreCorrupt {
-                detail: format!("资源输入 {name} 的路径与冻结Workbook不一致"),
+                detail: format!("Resource input {name} path differs from frozen Workbook"),
             });
         }
         return loaded
@@ -2024,12 +2061,12 @@ fn observe_loaded_input(
             .cloned()
             .map(Some)
             .ok_or_else(|| Error::StoreCorrupt {
-                detail: format!("冻结副本装入时缺少资源 {relative}"),
+                detail: format!("Frozen-copy load lacks resource {relative}"),
             });
     }
     if !path.as_path().starts_with(home.root().as_path()) {
         return Err(Error::StoreCorrupt {
-            detail: format!("输入 {name} 的路径不属于管理根"),
+            detail: format!("Input {name} path is outside the management root"),
         });
     }
     let Some(file) = crate::fsx::open_managed_optional(home, path)? else {
@@ -2039,9 +2076,9 @@ fn observe_loaded_input(
     Ok(Some(ObservedFile::new(path.clone(), sha256, bytes)))
 }
 
-/// 观察一个声明输出：句柄核对身份后在句柄上算摘要。超过任何输出合同都不可能满足的
-/// 32 MiB 硬上限（workbook 合同 §3.2 `max_bytes` 上限）时，在读取全部内容**之前**按
-/// `OUTPUT_TOO_LARGE` 拒绝；对声明上限的精确比较仍由 core 在 decide 里做。
+/// Observe a declared output: verify handle identity, then hash through that handle. Before reading all contents,
+/// reject files above the absolute 32 MiB output ceiling (workbook §3.2 max_bytes) with
+/// OUTPUT_TOO_LARGE; core decide still compares the precise declared limit.
 fn observe_output(
     home: &Home,
     name: &str,
@@ -2065,10 +2102,10 @@ fn observe_output(
     ))
 }
 
-/// 审计用的 Command JSON：把 `instruction_text` 这类大字段换成长度（CommitInput 的约定）。
+/// Audit Command JSON replaces large fields such as instruction_text with length (CommitInput convention).
 fn audit_json(cmd: &Command) -> Result<String> {
     let mut value = serde_json::to_value(cmd).map_err(|e| Error::StoreCorrupt {
-        detail: format!("序列化命令失败：{e}"),
+        detail: format!("Command serialization failed: {e}"),
     })?;
     if let serde_json::Value::Object(map) = &mut value {
         for field in ["instruction_text", "summary", "reason"] {
@@ -2078,13 +2115,14 @@ fn audit_json(cmd: &Command) -> Result<String> {
             if let Some(text) = map.get(field).and_then(|value| value.as_str()) {
                 map.insert(
                     field.to_string(),
+                    // Preserve this persisted audit marker: historical equality uses its exact bytes.
                     serde_json::Value::String(format!("<{} 字节>", text.len())),
                 );
             }
         }
     }
     serde_json::to_string(&value).map_err(|e| Error::StoreCorrupt {
-        detail: format!("序列化命令失败：{e}"),
+        detail: format!("Command serialization failed: {e}"),
     })
 }
 

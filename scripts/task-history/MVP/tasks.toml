@@ -1,10 +1,10 @@
-# MVP legacy 任务表，与同目录已关闭的 plan.md §2 同源。保留 T01–T26 的检查依据，不再追加后续 change；新任务在 active package 的 tasks.toml 登记。
-# 测试归属不在这里：看测试上方的 `// Task: Tnn` 注释（plan.md §0.5）。
-# files：本任务允许修改的源码文件（白名单）。
-# test_files：测试所在文件，改动只许删 #[ignore 行；与 files 重叠的是混合源文件，改查 #[cfg(test)] 起的测试模块。
-# allow_test_changes：为 true 时放开 test_files 的改动限制（只用于场景任务修 bug）。
+# MVP legacy allowlists share the original closed plan section 2 source. Preserve T01–T26 checks; register later tasks only in their active package.
+# Ownership comes from adjacent // Task: Tnn comments (original plan section 0.5).
+# files: source paths this task may change.
+# test_files: only ignore removal is allowed; mixed files compare from #[cfg(test)].
+# allow_test_changes: true allows test edits, historically for scenario bug fixes only.
 #
-# [T01] 是工具与骨架修复提交的白名单（plan.md 规则 9 的例外）：只准动脚本、计划、配置，不准动 crates/。
+# [T01] permits tooling/skeleton repair (original rule 9 exception): scripts/plans/configuration only, without crates/.
 
 [T01]
 files = ["scripts", "tasks.toml", "specs", ".config", ".github", ".pre-commit-config.yaml", "Cargo.toml", "Cargo.lock"]

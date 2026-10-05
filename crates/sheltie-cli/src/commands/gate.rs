@@ -8,8 +8,8 @@ use crate::commands::Ctx;
 use crate::commands::work::{next_lines, reply_mismatch, resolve, service};
 use crate::output::{self, Outcome};
 
-/// `gate approve`：记录 `{ node, occurrence, by, at }` 后按协议决定 Work 状态。
-/// 批准人与时间来自提交时快照（INV-6：身份与时间是系统事实，不取自参数）。
+/// `gate approve`: record `{ node, occurrence, by, at }`, then determine Work status under the protocol.
+/// Approver and time come from the commit-time snapshot (INV-6: system facts, not arguments).
 pub fn run(ctx: &Ctx, cmd: GateCmd) -> Outcome {
     let GateCmd::Approve { work, node } = cmd;
     let node = match NodeId::new(&node) {
@@ -29,9 +29,9 @@ pub fn run(ctx: &Ctx, cmd: GateCmd) -> Outcome {
         Reply::GateApproved { node, occurrence } => (node.clone(), *occurrence),
         other => return reply_mismatch("GateApproved", other),
     };
-    // 数据（含 by/at 与 work_status）来自提交时快照，不回读 Store（cli-result/v2）。
+    // Data, including by/at and work_status, comes from the commit-time snapshot without rereading Store (cli-result/v2).
     let text = next_lines(
-        format!("已批准 {node} 的门槛（第 {occurrence} 次到达）\n"),
+        format!("Approved gate for {node} (occurrence {occurrence})\n"),
         &resp,
         &wid,
     );

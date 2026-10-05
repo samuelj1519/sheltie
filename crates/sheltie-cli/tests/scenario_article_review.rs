@@ -1,4 +1,4 @@
-//! T21：审查回环场景。
+//! T21: review-loop scenarios.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod common;
@@ -9,15 +9,15 @@ use common::*;
 
 fn start_review(env: &Env) -> String {
     env.add_example("article-review");
-    env.start("article-review", &[("topic", "为什么要写测试")])
+    env.start("article-review", &[("topic", "Why write tests")])
 }
 
-/// draft#n → review#n 不通过，返回 review 提交后的响应。
+/// draft#n -> review#n with rejection; return the review-submission response.
 fn draft_then_review_fail(env: &Env, wid: &str) -> serde_json::Value {
     let b = env.begin(wid, "draft");
-    let s = env.submit_all(wid, &b, "初稿");
+    let s = env.submit_all(wid, &b, "Draft");
     let r = env.follow_begin(&s, "review");
-    env.submit_all(wid, &r, "不通过。第二段论据不足。")
+    env.submit_all(wid, &r, "Rejected. Paragraph two lacks evidence.")
 }
 
 // Task: T21
@@ -29,10 +29,10 @@ fn review_back_edge_creates_second_draft_occurrence() {
     let b2 = env.follow_begin(&after_review, "draft");
     assert_eq!(b2["data"]["attempt"], "draft#2.0");
     assert_eq!(b2["data"]["occurrence"], 2);
-    let s2 = env.submit_all(&wid, &b2, "改了");
+    let s2 = env.submit_all(&wid, &b2, "Revised");
     let r2 = env.follow_begin(&s2, "review");
     assert_eq!(r2["data"]["attempt"], "review#2.0");
-    let s3 = env.submit_all(&wid, &r2, "通过");
+    let s3 = env.submit_all(&wid, &r2, "Approved");
     let p = env.follow_begin(&s3, "publish");
     assert_eq!(p["data"]["attempt"], "publish#1.0");
     let article = p["data"]["inputs"]["article"].as_str().unwrap();
@@ -77,7 +77,7 @@ fn max_visits_exhaustion_blocks_with_no_legal_edge() {
     let wid = env.start("article-review", &[("topic", "x")]);
     let after_review = draft_then_review_fail(&env, &wid);
     let b2 = env.follow_begin(&after_review, "draft");
-    let s2 = env.submit_all(&wid, &b2, "改了");
+    let s2 = env.submit_all(&wid, &b2, "Revised");
     assert!(!next_begin_nodes(&s2).contains(&"review".to_string()));
     assert_eq!(s2["data"]["work_status"]["kind"], "blocked");
     assert_eq!(s2["data"]["work_status"]["reason"], "no_legal_edge");
@@ -89,16 +89,16 @@ fn human_executor_node_is_begun_and_submitted_like_agent() {
     let env = Env::new();
     let wid = start_review(&env);
     let b = env.begin(&wid, "draft");
-    let s = env.submit_all(&wid, &b, "初稿");
+    let s = env.submit_all(&wid, &b, "Draft");
     let r = env.follow_begin(&s, "review");
-    let s2 = env.submit_all(&wid, &r, "通过");
+    let s2 = env.submit_all(&wid, &r, "Approved");
     let p = env.follow_begin(&s2, "publish");
     let brief = std::fs::read_to_string(p["data"]["brief_path"].as_str().unwrap()).unwrap();
-    assert!(brief.contains("执行者: human"));
+    assert!(brief.contains("Executor: human"));
     assert!(brief.contains(&format!(
         "sheltie attempt submit {wid} --attempt publish#1.0"
     )));
-    let done = env.submit_all(&wid, &p, "定稿");
+    let done = env.submit_all(&wid, &p, "Finalized");
     assert_eq!(done["data"]["work_status"]["kind"], "succeeded");
 }
 
@@ -108,18 +108,18 @@ fn review_brief_lists_checklist_resource_with_frozen_path() {
     let env = Env::new();
     let wid = start_review(&env);
     let b = env.begin(&wid, "draft");
-    let s = env.submit_all(&wid, &b, "初稿");
+    let s = env.submit_all(&wid, &b, "Draft");
     let r = env.follow_begin(&s, "review");
     let checklist = r["data"]["inputs"]["checklist"].as_str().unwrap();
-    // T04 起管理根在入口规范化：macOS 的 /var 是 /private/var 的软链，记录的路径
-    // 是真实形式，期望值同样 canonicalize（cwd/tmp 目录由此经过软链解析）。
+    // Since T04, normalize the root on entry; macOS /var links to /private/var, so recorded paths
+    // are canonical, as are expectations; cwd/tmp ancestors resolve symlinks.
     let frozen = env
         .work_dir(&wid)
         .join("workbook/resources/review-checklist.md");
     let frozen = std::fs::canonicalize(&frozen).unwrap();
     assert_eq!(Path::new(checklist), frozen);
     let repo_copy = env
-        .workbook_dir("article-review", "1.0.0")
+        .workbook_dir("article-review", "1.0.1")
         .join("resources/review-checklist.md");
     assert_eq!(
         std::fs::read(&frozen).unwrap(),
@@ -134,18 +134,20 @@ fn first_draft_marks_review_input_absent_without_body() {
     let wid = start_review(&env);
     let b = env.begin(&wid, "draft");
     assert_eq!(b["data"]["attempt"], "draft#1.0");
-    // 未绑定的可选输入在 inputs 里占一行、值是 null（协议 §3 attempt begin 的返回说明）。
-    // 用 get 断言：Index 对缺失键同样给 Null，固定不了 key 的存在性。
+    // Unbound optional inputs retain a null slot in inputs (protocol §3 attempt begin).
+    // Use get assertions; Index returns Null for missing keys too, failing to prove key presence.
     assert_eq!(
         b["data"]["inputs"].as_object().unwrap().get("review"),
         Some(&serde_json::Value::Null)
     );
     let brief = std::fs::read_to_string(b["data"]["brief_path"].as_str().unwrap()).unwrap();
-    // 合同 §4 模板：可选且未绑定写「尚无（上游 <node> 还没有产出）」。
-    assert!(brief.contains("| review | 尚无（上游 review 还没有产出） | |"));
-    assert!(brief.contains("来自: 入口"));
-    // 说明书讲清首次没有意见（合同 §3.2 回环标准写法）。
-    assert!(brief.contains("首次开工它标「尚无」"));
+    // Protocol §4: unbound optional inputs name the upstream node without claiming output availability.
+    assert!(
+        brief.contains("| review | Not available (upstream review has not produced output) | |")
+    );
+    assert!(brief.contains("From: entry"));
+    // Instructions explain absent first-visit feedback (contract §3.2 standard loop).
+    assert!(brief.contains("On first arrival it is unavailable"));
     assert!(!brief.contains("attempts/review/"));
 }
 
@@ -158,21 +160,21 @@ fn back_to_draft_binds_review_verdict_path_with_source_occurrence() {
     let b2 = env.follow_begin(&after_review, "draft");
     assert_eq!(b2["data"]["attempt"], "draft#2.0");
     let review = b2["data"]["inputs"]["review"].as_str().unwrap().to_string();
-    // 期望路径手写，不从引擎的布局 helper 生成。
+    // Handwrite expected paths without engine layout helpers.
     assert!(
         review.ends_with("/attempts/review/occurrence-001/attempt-000/outputs/review.md"),
         "{review}"
     );
     let brief = std::fs::read_to_string(b2["data"]["brief_path"].as_str().unwrap()).unwrap();
-    // 来源 Occurrence 在「来自」行，产物路径在输入表。
-    assert!(brief.contains("来自: review#1（back 边）"));
+    // The From line carries the incoming Occurrence; input tables carry artifact paths.
+    assert!(brief.contains("From: review#1 (back edge)"));
     assert!(brief.contains(&format!("| review | {review} | ")));
-    assert!(brief.contains("逐条回应审查意见再改"));
-    // 只传文件路径、不内联历史正文：意见正文只在绑定的文档里。
+    assert!(brief.contains("address each finding rather than rewording alone"));
+    // Pass file paths without inline historical bodies; feedback content remains only in the bound document.
     let body = std::fs::read_to_string(&review).unwrap();
     assert_eq!(body, "output for review#1.0\n");
     assert!(!brief.contains("output for review#1.0"));
-    assert!(!brief.contains("不通过。第二段论据不足。"));
+    assert!(!brief.contains("Rejected. Paragraph two lacks evidence."));
 }
 
 // Task: C002-T11
@@ -182,19 +184,19 @@ fn later_back_to_draft_binds_latest_review_occurrence() {
     let wid = start_review(&env);
     let after_review = draft_then_review_fail(&env, &wid);
     let b2 = env.follow_begin(&after_review, "draft");
-    let s2 = env.submit_all(&wid, &b2, "改了");
+    let s2 = env.submit_all(&wid, &b2, "Revised");
     let r2 = env.follow_begin(&s2, "review");
-    let s3 = env.submit_all(&wid, &r2, "不通过。结论段还要再看。");
+    let s3 = env.submit_all(&wid, &r2, "Rejected. Review the conclusion again.");
     let b3 = env.follow_begin(&s3, "draft");
     assert_eq!(b3["data"]["attempt"], "draft#3.0");
-    // 只改轮次这一个条件：绑定的是最近一次成功 review 的产物，不是第一轮的。
+    // Change only the round; bind the latest successful review output rather than the first round.
     let review = b3["data"]["inputs"]["review"].as_str().unwrap().to_string();
     assert!(
         review.ends_with("/attempts/review/occurrence-002/attempt-000/outputs/review.md"),
         "{review}"
     );
     let brief = std::fs::read_to_string(b3["data"]["brief_path"].as_str().unwrap()).unwrap();
-    assert!(brief.contains("来自: review#2（back 边）"));
+    assert!(brief.contains("From: review#2 (back edge)"));
     let body = std::fs::read_to_string(&review).unwrap();
     assert_eq!(body, "output for review#2.0\n");
 }
@@ -206,7 +208,7 @@ fn required_review_verdict_blocks_first_draft_begin() {
     let src = env.dir.path().join("ar-required");
     copy_dir(&example_dir("article-review"), &src);
     let flow = src.join("flows/default.toml");
-    // 只去掉 required = false 这一个条件，其余与样例相同。
+    // Change only required = false; preserve the rest of the example.
     let text = std::fs::read_to_string(&flow).unwrap().replacen(
         "{ name = \"review\", from = \"review.verdict\", required = false }",
         "{ name = \"review\", from = \"review.verdict\" }",

@@ -1,0 +1,282 @@
+[
+  {
+    "path": "scripts/check-specs.sh",
+    "text": "grep -Eq '^(Status: |状态：)`completed`' \"$qualification/README.md\" || fail \"$package snapshot is not completed\"",
+    "purpose": "Exact field patterns for unchanged original Chinese historical qualification records."
+  },
+  {
+    "path": "scripts/check-specs.sh",
+    "text": "if grep -Eq '^(Record form: |记录形式：)`reference`$' \"$qualification/README.md\"; then",
+    "purpose": "Exact field patterns for unchanged original Chinese historical qualification records."
+  },
+  {
+    "path": "scripts/check-specs.sh",
+    "text": "grep -Eq '^(Conclusion: |结论：)`PASS`' \"$qualification/review.md\" || fail \"$package/review.md has no final PASS\"",
+    "purpose": "Exact field patterns for unchanged original Chinese historical qualification records."
+  },
+  {
+    "path": "scripts/check-docs.sh",
+    "text": "blacklist='沿现有|复用现有|保留现有|沿当前|旧代码|历史代码|双 reader|along existing|reuse existing|retain existing|along current|old code|historical code|dual reader'",
+    "purpose": "Prohibited-word patterns govern both maintained documentation languages."
+  },
+  {
+    "path": "specs/contracts/storage.md",
+    "text": "Persisted audit instruction-text summaries retain the exact machine marker `<n 字节>` (where n is the UTF-8 byte length). This marker participates in historical command qualification; translating it would invalidate existing request/audit bindings. It is a persistent format literal, not user-facing prose.",
+    "purpose": "Exact persisted audit length marker; changing it invalidates historical identity qualification."
+  },
+  {
+    "path": "crates/sheltie-cli/tests/result_artifact.rs",
+    "text": "(\"task\", \"原目标\".as_bytes()),",
+    "purpose": "Unicode and shell-sensitive artifact keys travel literally through argv and result retrieval."
+  },
+  {
+    "path": "crates/sheltie-cli/tests/result_artifact.rs",
+    "text": "let keys = [\"\", \"-name\", \"--json\", \"中文\", \"a$(echo literal)\"];",
+    "purpose": "Unicode and shell-sensitive artifact keys travel literally through argv and result retrieval."
+  },
+  {
+    "path": "crates/sheltie-cli/tests/language_default.rs",
+    "text": "let topic = \"用户原文：中文内容与 emoji 🐕\\n\";",
+    "purpose": "Independent end-to-end proof that English briefs/status preserve original Chinese user input bytes and summaries, including emoji."
+  },
+  {
+    "path": "crates/sheltie-cli/tests/language_default.rs",
+    "text": "let summary = \"用户摘要：保留原文，不自动翻译。\";",
+    "purpose": "Independent end-to-end proof that English briefs/status preserve original Chinese user input bytes and summaries, including emoji."
+  },
+  {
+    "path": "crates/sheltie-cli/tests/work.rs",
+    "text": "\"文章 初稿\",",
+    "purpose": "Han Work-name whitespace normalization and real CLI WorkId roundtrip."
+  },
+  {
+    "path": "crates/sheltie-cli/tests/work.rs",
+    "text": "assert!(wid.ends_with(\"-文章-初稿\"), \"{wid}\");",
+    "purpose": "Han Work-name whitespace normalization and real CLI WorkId roundtrip."
+  },
+  {
+    "path": "crates/sheltie-core/src/ids.rs",
+    "text": "let id = WorkId::new(\"2026-09-24\", 3, &name(\"文章-初稿\")).unwrap();",
+    "purpose": "Han WorkName normalization, canonical deserialization, WorkId roundtrip, and a 51-byte UTF-8 rejection boundary."
+  },
+  {
+    "path": "crates/sheltie-core/src/ids.rs",
+    "text": "assert_eq!(id.as_str(), \"2026-09-24-003-文章-初稿\");",
+    "purpose": "Han WorkName normalization, canonical deserialization, WorkId roundtrip, and a 51-byte UTF-8 rejection boundary."
+  },
+  {
+    "path": "crates/sheltie-core/src/ids.rs",
+    "text": "assert_eq!(WorkId::parse(\"2026-09-24-003-文章-初稿\").unwrap(), id);",
+    "purpose": "Han WorkName normalization, canonical deserialization, WorkId roundtrip, and a 51-byte UTF-8 rejection boundary."
+  },
+  {
+    "path": "crates/sheltie-core/src/ids.rs",
+    "text": "assert_eq!(name(\"  文章  初稿 \").as_str(), \"文章-初稿\");",
+    "purpose": "Han WorkName normalization, canonical deserialization, WorkId roundtrip, and a 51-byte UTF-8 rejection boundary."
+  },
+  {
+    "path": "crates/sheltie-core/src/ids.rs",
+    "text": "assert!(WorkName::normalize(&\"文\".repeat(17)).is_err(), \"51 bytes\");",
+    "purpose": "Han WorkName normalization, canonical deserialization, WorkId roundtrip, and a 51-byte UTF-8 rejection boundary."
+  },
+  {
+    "path": "crates/sheltie-core/src/ids.rs",
+    "text": "assert_eq!(String::from(name(\"文章-初稿\")), \"文章-初稿\");",
+    "purpose": "Han WorkName normalization, canonical deserialization, WorkId roundtrip, and a 51-byte UTF-8 rejection boundary."
+  },
+  {
+    "path": "crates/sheltie-core/src/ids.rs",
+    "text": "assert!(WorkName::try_from(\"文章-初稿\".to_string()).is_ok());",
+    "purpose": "Han WorkName normalization, canonical deserialization, WorkId roundtrip, and a 51-byte UTF-8 rejection boundary."
+  },
+  {
+    "path": "crates/sheltie-core/src/ids.rs",
+    "text": "assert!(serde_json::from_str::<WorkName>(\"\\\"文章 初稿\\\"\").is_err());",
+    "purpose": "Han WorkName normalization, canonical deserialization, WorkId roundtrip, and a 51-byte UTF-8 rejection boundary."
+  },
+  {
+    "path": "crates/sheltie-core/src/ids.rs",
+    "text": "assert!(serde_json::from_str::<WorkName>(\"\\\"文章-初稿\\\"\").is_ok());",
+    "purpose": "Han WorkName normalization, canonical deserialization, WorkId roundtrip, and a 51-byte UTF-8 rejection boundary."
+  },
+  {
+    "path": "crates/sheltie-core/src/text.rs",
+    "text": "assert!(BoundedText::<5>::new(\"汉字\", \"x\").is_err());",
+    "purpose": "Two Han characters are exactly six UTF-8 bytes: reject limit5, accept limit6."
+  },
+  {
+    "path": "crates/sheltie-core/src/text.rs",
+    "text": "assert!(BoundedText::<6>::new(\"汉字\", \"x\").is_ok());",
+    "purpose": "Two Han characters are exactly six UTF-8 bytes: reject limit5, accept limit6."
+  },
+  {
+    "path": "crates/sheltie-core/src/flow/parse.rs",
+    "text": "for bad in [\"说明.md\", \"out／x.md\", \"a b.md\", \"a+b.md\"] {",
+    "purpose": "Non-ASCII output-path rejection, paired with ASCII/full-width/separator rejection controls."
+  },
+  {
+    "path": "crates/sheltie-export/tests/export.rs",
+    "text": "\"原目标\".as_bytes()",
+    "purpose": "Independent byte-preserving export oracle for original Unicode user input shared by Fixture::complete."
+  },
+  {
+    "path": "crates/sheltie-export/tests/crash.rs",
+    "text": "(\"0003\", \"task\", \"原目标\".as_bytes()),",
+    "purpose": "Independent byte-preserving crash/export oracle for original Unicode user input shared by Fixture::complete."
+  },
+  {
+    "path": "crates/sheltie-export/tests/source.rs",
+    "text": "unicode_leaf[\"data\"][\"artifacts\"][0][\"path\"] = json!(\"/original/成果.bin\");",
+    "purpose": "Unicode source artifact leaf acceptance, non-ASCII Workbook-version rejection, and literal shell-sensitive Unicode keys."
+  },
+  {
+    "path": "crates/sheltie-export/tests/source.rs",
+    "text": "\"版本\".into(),",
+    "purpose": "Unicode source artifact leaf acceptance, non-ASCII Workbook-version rejection, and literal shell-sensitive Unicode keys."
+  },
+  {
+    "path": "crates/sheltie-export/tests/source.rs",
+    "text": "for key in [\"\", \"-name\", \"--json\", \"中文 $() `literal`\"] {",
+    "purpose": "Unicode source artifact leaf acceptance, non-ASCII Workbook-version rejection, and literal shell-sensitive Unicode keys."
+  },
+  {
+    "path": "crates/sheltie-export/tests/target.rs",
+    "text": "let selected = result(vec![artifact(\"\", \"same.txt\"), artifact(\"中文\", \"same.txt\")]);",
+    "purpose": "Unicode result keys and duplicate artifact filenames remain distinguishable in exported manifest mappings."
+  },
+  {
+    "path": "crates/sheltie-export/tests/target.rs",
+    "text": "assert_eq!(manifest[\"files\"][1][\"key\"], \"中文\");",
+    "purpose": "Unicode result keys and duplicate artifact filenames remain distinguishable in exported manifest mappings."
+  },
+  {
+    "path": "crates/sheltie-export/src/output.rs",
+    "text": "let report = Report::complete(work.clone(), 7, \"/owned/副本\".into());",
+    "purpose": "Unicode user destination path is preserved in structured and readable English export responses."
+  },
+  {
+    "path": "crates/sheltie-export/src/output.rs",
+    "text": "assert_eq!(value[\"target_path\"], \"/owned/副本\");",
+    "purpose": "Unicode user destination path is preserved in structured and readable English export responses."
+  },
+  {
+    "path": "crates/sheltie-export/src/output.rs",
+    "text": "\"Copy complete\\nCopy directory: /owned/副本\"",
+    "purpose": "Unicode user destination path is preserved in structured and readable English export responses."
+  },
+  {
+    "path": "crates/sheltie-export/tests/common/mod.rs",
+    "text": "\"task=原目标\",",
+    "purpose": "Original Unicode user task becomes a selected frozen result input and must export without translation."
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/crash.rs",
+    "text": "name: Some(\"卡片恢复\".into()),",
+    "purpose": "Unicode Work name and original 23-byte topic occur in an independently handwritten complete status-card byte oracle."
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/crash.rs",
+    "text": "..two_step_args(&[(\"topic\", \"给新人介绍 Sheltie\")])",
+    "purpose": "Unicode Work name and original 23-byte topic occur in an independently handwritten complete status-card byte oracle."
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/crash.rs",
+    "text": "\"# Work {wid} (卡片恢复)\\n\\n\\",
+    "purpose": "Unicode Work name and original 23-byte topic occur in an independently handwritten complete status-card byte oracle."
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/service.rs",
+    "text": "two_step_args(&[(\"topic\", \"给新人介绍 Sheltie\")]),",
+    "purpose": "Original 23-byte Unicode topic and one-character same-length mutation preserve independently handwritten digest/size, integrity/recovery and exact-byte oracles; 字节 asserts the persisted audit marker."
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/service.rs",
+    "text": "json.contains(\"字节\"),",
+    "purpose": "Original 23-byte Unicode topic and one-character same-length mutation preserve independently handwritten digest/size, integrity/recovery and exact-byte oracles; 字节 asserts the persisted audit marker."
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/service.rs",
+    "text": "let args = two_step_args(&[(\"topic\", \"给新人介绍 Sheltie\")]);",
+    "purpose": "Original 23-byte Unicode topic and one-character same-length mutation preserve independently handwritten digest/size, integrity/recovery and exact-byte oracles; 字节 asserts the persisted audit marker."
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/service.rs",
+    "text": "std::fs::write(input, \"搁新人介绍 Sheltie\".as_bytes()).unwrap();",
+    "purpose": "Original 23-byte Unicode topic and one-character same-length mutation preserve independently handwritten digest/size, integrity/recovery and exact-byte oracles; 字节 asserts the persisted audit marker."
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/service.rs",
+    "text": "\"搁新人介绍 Sheltie\".len()",
+    "purpose": "Original 23-byte Unicode topic and one-character same-length mutation preserve independently handwritten digest/size, integrity/recovery and exact-byte oracles; 字节 asserts the persisted audit marker."
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/service.rs",
+    "text": "std::fs::write(&input, \"搁新人介绍 Sheltie\".as_bytes()).unwrap();",
+    "purpose": "Original 23-byte Unicode topic and one-character same-length mutation preserve independently handwritten digest/size, integrity/recovery and exact-byte oracles; 字节 asserts the persisted audit marker."
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/service.rs",
+    "text": "\"给新人介绍 Sheltie\".as_bytes()",
+    "purpose": "Original 23-byte Unicode topic and one-character same-length mutation preserve independently handwritten digest/size, integrity/recovery and exact-byte oracles; 字节 asserts the persisted audit marker."
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/start_preflight.rs",
+    "text": "args.name = Some(\"合法 名字\".into());",
+    "purpose": "Han Work-name normalization after failed preflight preserves the daily sequence and exact normalized WorkId suffix."
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/start_preflight.rs",
+    "text": "if work_id.as_str().ends_with(\"-001-合法-名字\"))",
+    "purpose": "Han Work-name normalization after failed preflight preserves the daily sequence and exact normalized WorkId suffix."
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/result.rs",
+    "text": "\"给新人介绍 Sheltie\".len() as u64",
+    "purpose": "Original Unicode start-input byte size matches the result metadata reference."
+  },
+  {
+    "path": "crates/sheltie-runtime/src/service.rs",
+    "text": "serde_json::Value::String(format!(\"<{} 字节>\", text.len())),",
+    "purpose": "Exact <n 字节> persisted audit.command_json marker; changing it would break historical Command/audit equality without a persistence-format migration."
+  },
+  {
+    "path": "crates/sheltie-runtime/src/selfmgmt.rs",
+    "text": "\"结果.tar\",",
+    "purpose": "Valid Unicode asset filename acceptance; only unsafe path segments are rejected."
+  },
+  {
+    "path": "crates/sheltie-runtime/tests/common/mod.rs",
+    "text": "svc.start(two_step_args(&[(\"topic\", \"给新人介绍 Sheltie\")]), None)",
+    "purpose": "Shared original 23-byte Unicode topic supports independently handwritten digest/size and same-length integrity mutation oracles."
+  },
+  {
+    "path": "tools/workbook-editor/test/clear-graph.test.mjs",
+    "text": "assert.deepEqual(planInputRows([], [{ name: '中文_方案', from: 'start.task' }]), { additions: [{ name: '中文_方案', from: 'start.task' }], skipped: [], conflicts: [] });",
+    "purpose": "Unicode/underscore input names, alias conflicts, renaming and unchanged owned reference bytes."
+  },
+  {
+    "path": "tools/workbook-editor/test/clear-graph.test.mjs",
+    "text": "assert.equal(suggestedInputName('中文_方案', 'start.task', []), '中文_方案');",
+    "purpose": "Unicode/underscore input names, alias conflicts, renaming and unchanged owned reference bytes."
+  },
+  {
+    "path": "tools/workbook-editor/test/clear-graph.test.mjs",
+    "text": "const existing = [{ name: '计划_模板', from: 'start.task', required: false, result: true, extra: 9n }], before = structuredClone(existing);",
+    "purpose": "Unicode/underscore input names, alias conflicts, renaming and unchanged owned reference bytes."
+  },
+  {
+    "path": "tools/workbook-editor/test/clear-graph.test.mjs",
+    "text": "assert.equal(suggestedInputName('计划_模板', 'engine.stats', existing), '计划_模板-2');",
+    "purpose": "Unicode/underscore input names, alias conflicts, renaming and unchanged owned reference bytes."
+  },
+  {
+    "path": "tools/workbook-editor/test/clear-graph.test.mjs",
+    "text": "assert.deepEqual(planInputRows(existing, [{ name: '计划_模板', from: 'start.task' }, { name: '计划_模板', from: 'engine.stats' }]), { additions: [], skipped: [{ name: '计划_模板', from: 'start.task' }], conflicts: [{ name: '计划_模板', reason: 'This name is already used by another item; choose a different name.' }] });",
+    "purpose": "Unicode/underscore input names, alias conflicts, renaming and unchanged owned reference bytes."
+  },
+  {
+    "path": "tools/workbook-editor/test/clear-graph.test.mjs",
+    "text": "result.model.edit(path, rows[0], 'name', '中文新名称'); assert.deepEqual(Buffer.from(result.model.files.get(resource)), resourceBytes);",
+    "purpose": "Unicode/underscore input names, alias conflicts, renaming and unchanged owned reference bytes."
+  }
+]

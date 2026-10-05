@@ -1,4 +1,4 @@
-//! 命令分派。每个命令组一个文件，函数签名由骨架定死。
+//! Command dispatch. Each command group has a file; function signatures are fixed by the skeleton.
 
 pub mod attempt;
 pub mod gate;
@@ -11,14 +11,14 @@ use sheltie_runtime::Home;
 use crate::cli::{Cli, Group, SelfCmd, WorkCmd, WorkbookCmd};
 use crate::output::{self, Outcome};
 
-/// 一次调用共享的东西。
+/// Context shared by a single invocation.
 pub struct Ctx {
     pub home: Home,
     pub json: bool,
     pub request_id: Option<String>,
 }
 
-/// 解析管理根、分派到命令组、打印、返回退出码。
+/// Resolve the management root, dispatch, print, and return the exit code.
 pub fn dispatch(cli: Cli) -> i32 {
     let raw = matches!(
         &cli.group,
@@ -26,7 +26,7 @@ pub fn dispatch(cli: Cli) -> i32 {
             if artifact.is_some() || revision.is_some()
     );
     if raw && (cli.json || cli.request_id.is_some()) {
-        return output::raw_param_error("原字节模式不支持 --json 或 --request-id");
+        return output::raw_param_error("Raw-byte mode does not support --json or --request-id");
     }
     if raw
         && !matches!(
@@ -34,7 +34,9 @@ pub fn dispatch(cli: Cli) -> i32 {
             Group::Work(WorkCmd::Result { artifact: Some(_), revision: Some(revision), .. }) if *revision > 0
         )
     {
-        return output::raw_param_error("--artifact 与正整数 --revision 必须同时出现");
+        return output::raw_param_error(
+            "--artifact and a positive --revision must be supplied together",
+        );
     }
     let home = match Home::resolve(cli.home.as_deref()) {
         Ok(h) => h,
@@ -47,7 +49,7 @@ pub fn dispatch(cli: Cli) -> i32 {
             return out.exit_code;
         }
     };
-    // 只读操作与整个 self 组不支持 --request-id：给出即参数错误（协议 §1）。
+    // Read-only and self commands reject --request-id as a parameter error (protocol §1).
     let read_only = matches!(
         cli.group,
         Group::SelfCmd(_)
@@ -74,7 +76,7 @@ pub fn dispatch(cli: Cli) -> i32 {
     };
     if cli.request_id.is_some() && read_only {
         let out = crate::output::param_error(
-            "--request-id 只用于 Work 与 Workbook 写操作；只读与 self 命令不支持".to_string(),
+            "--request-id is only for Work and Workbook writes; read-only and self commands do not support it".to_string(),
         );
         output::print(&out, cli.json);
         return out.exit_code;
@@ -102,17 +104,17 @@ pub fn dispatch(cli: Cli) -> i32 {
     output::print(&outcome, ctx.json);
     if outcome.exit_code == 0 && cleanup_tmp_after_success {
         if let Err(error) = ctx.home.cleanup_tmp() {
-            eprintln!("warning: tmp维护未完成：{error}");
+            eprintln!("warning: tmp maintenance incomplete: {error}");
         }
     }
     if outcome.exit_code == 0 && cleanup_after_success {
         match sheltie_runtime::WorkbookRepo::new(ctx.home.clone()).cleanup_pending() {
             Ok(warnings) => {
                 for warning in warnings {
-                    eprintln!("warning: pending维护：{warning}");
+                    eprintln!("warning: pending maintenance: {warning}");
                 }
             }
-            Err(error) => eprintln!("warning: pending维护未完成：{error}"),
+            Err(error) => eprintln!("warning: pending maintenance incomplete: {error}"),
         }
     }
     outcome.exit_code

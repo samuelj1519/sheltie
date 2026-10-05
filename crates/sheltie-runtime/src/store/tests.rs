@@ -1,4 +1,4 @@
-//! T13：SQLite 存储的结构校验、事务、去重、CAS、序号。
+//! T13: SQLite schema validation, transactions, replay, CAS, and sequence allocation.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use super::Store;
@@ -45,7 +45,7 @@ fn input(
     }
 }
 
-// 手写当前 schema 4 合同；不使用生产建表脚本生成期望。
+// Handwritten schema 4 contract, independent of production DDL.
 const HANDWRITTEN_WORKS: &str = "CREATE TABLE works (
   work_id     TEXT PRIMARY KEY,
   revision    INTEGER NOT NULL,
@@ -93,9 +93,9 @@ fn assert_current_schema_shape_rejected(works: String) {
     for mode in [OpenMode::ReadOnly, OpenMode::ReadWrite] {
         let error = Store::open(&home.store_path(), mode).unwrap_err();
         let Error::StoreSchemaMismatch { detail } = error else {
-            panic!("same-version形状错误须准确定位：{error:?}");
+            panic!("Locate same-version schema errors precisely: {error:?}");
         };
-        assert_eq!(detail, "表 works 的建表语句与 SCHEMA_VERSION 不符");
+        assert_eq!(detail, "Table works DDL does not match SCHEMA_VERSION");
         assert_eq!(
             std::fs::read(home.store_path().as_path()).unwrap(),
             main_before
@@ -154,7 +154,7 @@ fn open_rejects_wrong_user_version() {
     let (_d, home) = temp_home();
     open_rw(&home);
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
-    // 模拟 schema 1 旧库，确认当前 Store 拒绝打开。
+    // Simulate an old schema 1 database and verify current Store rejects it.
     conn.pragma_update(None, "user_version", 1).unwrap();
     drop(conn);
     assert!(matches!(
@@ -303,7 +303,7 @@ fn commit_workbook_on_readonly_store_preserves_sqlite_error_and_rows() {
     });
     let error = readonly.commit(request).unwrap_err();
     let Error::Io { source, .. } = &error else {
-        panic!("只读 SQLite 错误不得被归为 WorkbookExists：{error}");
+        panic!("Read-only SQLite errors must not be classified as WorkbookExists: {error}");
     };
     let sqlite = source
         .get_ref()
@@ -357,7 +357,7 @@ fn commit_replays_same_request_id_and_payload() {
     assert_eq!(
         store.load_work(&st.work_id).unwrap().revision,
         1,
-        "重放不推进 revision"
+        "Replay must not advance revision"
     );
 }
 
@@ -424,7 +424,7 @@ fn allocate_seq_starts_at_1_per_day_and_increments() {
 fn allocate_seq_rejects_1000th_of_day() {
     let (_d, home) = temp_home();
     let store = open_rw(&home);
-    // Replacement: C002-T31；历史T13完成事实保留，合法边界夹具加强接受与回滚oracle。
+    // Replacement: C002-T31; preserve historical T13 completion, strengthening acceptance and rollback boundary oracles.
     let connection = rusqlite::Connection::open(store.path().as_str()).unwrap();
     connection
         .execute(
@@ -546,7 +546,11 @@ fn load_rejects_invalid_state_combination() {
     .unwrap();
     let error = store.load_work(&state.work_id).unwrap_err();
     assert!(matches!(&error, Error::StoreCorrupt { .. }), "{error}");
-    assert!(error.to_string().contains("status 与当前 Attempt"));
+    assert!(
+        error
+            .to_string()
+            .contains("Work status and current Attempt do not match")
+    );
 }
 
 // Task: C002-T14
@@ -581,7 +585,9 @@ fn load_rejects_running_attempt_on_different_current_occurrence() {
     let store = open_rw(&home);
     let mut fixture = Fixture::two_step().started_with(&[("topic", "t")]);
     fixture.begin("outline").unwrap();
-    fixture.submit_ok("outline#1.0", "完成提纲").unwrap();
+    fixture
+        .submit_ok("outline#1.0", "Outline complete")
+        .unwrap();
     fixture.begin("summary").unwrap();
     let state = fixture.state();
     assert!(state.validate_persisted().is_ok());
@@ -602,7 +608,11 @@ fn load_rejects_running_attempt_on_different_current_occurrence() {
     .unwrap();
     let error = store.load_work(&state.work_id).unwrap_err();
     assert!(matches!(&error, Error::StoreCorrupt { .. }), "{error}");
-    assert!(error.to_string().contains("running Attempt 与 current"));
+    assert!(
+        error
+            .to_string()
+            .contains("Running Attempt and current do not match")
+    );
 }
 
 // Task: C002-T14
@@ -682,7 +692,9 @@ fn store_accepts_real_running_and_failed_attempt_states() {
         2
     );
 
-    fixture.fail(&format!("{node}#1.0"), "需要重试").unwrap();
+    fixture
+        .fail(&format!("{node}#1.0"), "Retry needed")
+        .unwrap();
     store
         .commit(input(fixture.state(), "r3", "fail", Some(2)))
         .unwrap();

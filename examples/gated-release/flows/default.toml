@@ -4,7 +4,7 @@ entry = "notes"
 
 [[nodes]]
 id = "notes"
-title = "生成发布说明"
+title = "Generate release notes"
 executor = "agent"
 instruction = { file = "instructions/notes.md" }
 inputs  = [{ name = "version", from = "start.version" }]
@@ -13,7 +13,7 @@ gate = true
 
 [[nodes]]
 id = "archive"
-title = "归档"
+title = "Archive"
 executor = "agent"
 instruction = { file = "instructions/archive.md" }
 inputs  = [{ name = "notes", from = "notes.notes" }]

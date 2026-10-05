@@ -8,7 +8,7 @@ use crate::commands::Ctx;
 use crate::commands::work::{next_lines, reply_mismatch, resolve, service};
 use crate::output::{self, Outcome};
 
-/// `--summary` 与 `--reason` 经 `cli::parse_text_arg`；`--attempt` 经 `AttemptId::parse`。
+/// Parse `--summary` and `--reason` with `cli::parse_text_arg`; parse `--attempt` with `AttemptId::parse`.
 pub fn run(ctx: &Ctx, cmd: AttemptCmd) -> Outcome {
     match cmd {
         AttemptCmd::Begin { work, node } => begin(ctx, &work, &node),
@@ -30,7 +30,7 @@ pub fn run(ctx: &Ctx, cmd: AttemptCmd) -> Outcome {
     }
 }
 
-/// `attempt begin`（协议 §3 第 5 步的返回）。
+/// `attempt begin` (protocol §3, step 5 response).
 fn begin(ctx: &Ctx, work: &str, node: &str) -> Outcome {
     let node = match NodeId::new(node) {
         Ok(n) => n,
@@ -45,7 +45,7 @@ fn begin(ctx: &Ctx, work: &str, node: &str) -> Outcome {
         Ok(r) => r,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    // 数据来自提交时快照（cli-result/v4），不回读 Store（O04）。
+    // Data comes from the commit-time snapshot (cli-result/v4), without rereading Store (O04).
     let (attempt, brief_path, output_dir) = match &resp.reply {
         Reply::AttemptBegun {
             attempt,
@@ -56,14 +56,14 @@ fn begin(ctx: &Ctx, work: &str, node: &str) -> Outcome {
         other => return reply_mismatch("AttemptBegun", other),
     };
     let text = next_lines(
-        format!("已开始 {attempt}\n任务书：{brief_path}\n输出目录：{output_dir}\n"),
+        format!("Started {attempt}\nBrief: {brief_path}\nOutput directory: {output_dir}\n"),
         &resp,
         &wid,
     );
     output::ok_response(text, resp, &wid)
 }
 
-/// `attempt submit`（协议 §3 第 6 步的返回）。
+/// `attempt submit` (protocol §3, step 6 response).
 fn submit(ctx: &Ctx, work: &str, attempt: &str, summary: &str) -> Outcome {
     let summary = match crate::cli::parse_text_arg(summary) {
         Ok(s) => s,
@@ -86,7 +86,7 @@ fn submit(ctx: &Ctx, work: &str, attempt: &str, summary: &str) -> Outcome {
         Reply::AttemptSubmitted { attempt, outputs } => (attempt, outputs),
         other => return reply_mismatch("AttemptSubmitted", other),
     };
-    let mut text = format!("已提交 {attempt}\n");
+    let mut text = format!("Submitted {attempt}\n");
     for (name, r) in outputs {
         text.push_str(&format!(
             "  {name} → {} (sha256 {})\n",
@@ -121,7 +121,7 @@ fn fail(ctx: &Ctx, work: &str, attempt: &str, reason: &str) -> Outcome {
         Reply::AttemptFailed { attempt } => attempt,
         other => return reply_mismatch("AttemptFailed", other),
     };
-    let text = next_lines(format!("已标记 {attempt} 失败\n"), &resp, &wid);
+    let text = next_lines(format!("Marked {attempt} as failed\n"), &resp, &wid);
     output::ok_response(text, resp, &wid)
 }
 
@@ -155,7 +155,7 @@ fn replace(ctx: &Ctx, work: &str, attempt: &str, reason: &str) -> Outcome {
     };
     let text = next_lines(
         format!(
-            "已替换 {replaced_attempt}，新尝试：{attempt}\n任务书：{brief_path}\n输出目录：{output_dir}\n"
+            "Replaced {replaced_attempt}; new Attempt: {attempt}\nBrief: {brief_path}\nOutput directory: {output_dir}\n"
         ),
         &resp,
         &wid,

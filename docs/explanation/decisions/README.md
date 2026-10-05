@@ -1,42 +1,44 @@
-# 设计决定
+# Architecture decisions
 
-本目录保存重要设计选择的背景、备选方案和后果，帮助维护者理解当前系统为什么这样工作。当前字段和行为以[规格与合同](../../../specs/README.md)为准；按迭代追溯结果见[历史档案](../../history/README.md)。
+English | [简体中文](README.zh-CN.md)
 
-按下面的主题选择记录，无需按编号通读。`accepted` 表示曾被采用；具体选择的当前适用范围见表格和各记录，不能由该状态推断所有历史格式仍有效。
+These records preserve context, alternatives, and consequences of important choices, explaining why the current system works this way. [Specifications/contracts](../../../specs/README.md) define current behavior and fields. Use the [historical archive](../../history/README.md) for outcomes by iteration.
 
-## 存储、格式与恢复
+Choose a topic below rather than reading every ID. `accepted` means the decision was adopted; current applicability is stated per record and in the table. It does not imply all historical formats remain valid.
 
-| 决定 | 状态 | 当前适用范围 |
+## Storage, formats, and recovery
+
+| Decision | Status | Current applicability |
 | --- | --- | --- |
-| [D-033：Store schema 2 明确拒旧](D-033-store-schema-2.md) | accepted | 单一格式、保留旧数据并明确拒绝的原则继续适用；schema 2／cli-result/v2 已由 D-040、D-041 的格式选择替代 |
-| [D-034：目录摘要的带长度编码](D-034-workbook-digest-v2.md) | accepted | workbook-digest/v2 与输出路径别名约束 |
-| [D-035：管理根写锁](D-035-root-write-lock-fs4.md) | accepted | 写操作串行化、锁对象身份与 revision 校验 |
-| [D-037：受管文件与安全 API](D-037-managed-file-handles.md) | accepted | 目录句柄、文件对象与字节核验；平台范围见 D-044 |
-| [D-038：purge 保留根锁](D-038-purge-lock-lifecycle.md) | accepted | 清空数据时保留根与原锁，准确报告部分清理 |
-| [D-039：只读 SQLite 控制文件边界](D-039-sqlite-read-control-files.md) | accepted | 业务只读与 SQLite 控制文件允许变化的区别 |
-| [D-040：成果与接续的单一格式](D-040-result-resume-format.md) | accepted | 冻结结果与同快照接续原则继续适用；schema 3／cli-result/v3 已由 D-041 替代 |
-| [D-041：创建顺序号与行政替换](D-041-attempt-number-and-replacement.md) | accepted | 当前 schema 4／cli-result/v4、number 与一次替换资格 |
+| [D-033: Store schema 2 rejection](D-033-store-schema-2.md) | `accepted` | One format, preserved/rejected old data; D-040/D-041 supersede schema 2 / cli-result/v2 |
+| [D-034: Length-framed digest](D-034-workbook-digest-v2.md) | `accepted` | workbook-digest/v2 and output-path aliases |
+| [D-035: Root write lock](D-035-root-write-lock-fs4.md) | `accepted` | Serialized writes, lock identity, revision checks |
+| [D-037: Managed files and safe APIs](D-037-managed-file-handles.md) | `accepted` | Directory handles, object/byte checks; D-044 limits platform scope |
+| [D-038: Retain root lock during purge](D-038-purge-lock-lifecycle.md) | `accepted` | Stable root/lock, accurate partial cleanup |
+| [D-039: Read-only SQLite controls](D-039-sqlite-read-control-files.md) | `accepted` | Business reads versus permitted control-file changes |
+| [D-040: One result/resume format](D-040-result-resume-format.md) | `accepted` | Frozen results/same-snapshot resume; D-041 supersedes schema 3 / cli-result/v3 |
+| [D-041: Creation number and replacement](D-041-attempt-number-and-replacement.md) | `accepted` | schema 4 / cli-result/v4, number, one replacement |
 
-## 身份、授权与成果交付
+## Identity, authorization, and delivery
 
-| 决定 | 状态 | 当前适用范围 |
+| Decision | Status | Current applicability |
 | --- | --- | --- |
-| [D-036：真实 OS 操作主体](D-036-os-principal-from-uid.md) | accepted | 审计与批准的账户记账，不提供独立真人认证 |
-| [D-042：原字节与外围副本](D-042-final-artifact-copy.md) | accepted | 公开成果读取、独立导出、不覆盖发布与失败边界 |
-| [D-044：macOS／APFS 产品范围](D-044-macos-apfs-product-scope.md) | accepted | 当前支持与验收范围；不追溯补证历史覆盖或收益 |
+| [D-036: Actual OS principal](D-036-os-principal-from-uid.md) | `accepted` | Audit/approval account accounting, without independent human authentication |
+| [D-042: Raw bytes and external copies](D-042-final-artifact-copy.md) | `accepted` | Public results, independent export, non-overwrite, failure boundaries |
+| [D-044: macOS/APFS scope](D-044-macos-apfs-product-scope.md) | `accepted` | Current support/acceptance scope, without retrospective evidence of coverage/benefit |
 
-## 工程与文档治理
+## Engineering and documentation governance
 
-| 决定 | 状态 | 当前适用范围 |
+| Decision | Status | Current applicability |
 | --- | --- | --- |
-| [D-032：change package](D-032-use-change-packages.md) | accepted | 采用范围、active plan、提交归属和完成资格；文档分类由 D-045 细化 |
-| [D-043：开发目标权威](D-043-development-target-authority.md) | accepted | 未发布候选的基础版本与实施进度、发布身份分别管理 |
-| [D-045：规范与技术文档分工](D-045-specs-and-diataxis.md) | accepted | specs 保存规范，docs 按读者用途组织，闭合变更归历史档案 |
+| [D-032: Change packages](D-032-use-change-packages.md) | `accepted` | Adopted scope, active plans, commit ownership, closure qualification; D-045 refines document types |
+| [D-043: Development target](D-043-development-target-authority.md) | `accepted` | Separate candidate base version, implementation progress, and release identity |
+| [D-045: Specifications and documentation](D-045-specs-and-diataxis.md) | `accepted` | specs authority, reader-oriented docs, closed-change archives |
 
-## 阅读和维护记录
+## Reading and maintaining records
 
-MVP 的 D-01–D-31 设计理由见[MVP 摘要](mvp.md)，其中已标出部分后续替代关系。里程碑复核、首次运行和逐轮审查的完整原件从[固定历史快照](../../how-to/maintain-docs.md#查阅历史原件)读取。
+[MVP summary](mvp.md) preserves D-01–D-31 reasons and partial successor relationships. Full milestone reviews, first runs, and repeated reviews are in [fixed snapshots](../../how-to/maintain-docs.md#read-original-historical-records).
 
-一个重要决定使用一个 Markdown 文件，保存状态、采用日期、关联 change、背景、选择、备选方案、后果和确认方式。编号与原采用理由保留，当前适用范围在首屏说明。
+One important decision per Markdown file: status, adoption date, related change, context, decision, alternatives, consequences, and verification. Retain IDs/original reasons and state current applicability on the first screen.
 
-决定整体被替代时，状态改为 `superseded by D-nnn` 并双向链接。只有部分选择被替代时，保留原采用状态，逐项说明失效部分、仍有效原则和后续决定，不将整份记录判作失效。历史格式与当前规范之间的差异应明确，不能悄悄改写原采用事实。
+When wholly superseded, use `superseded by D-nnn` and bidirectional links. For partial supersession, retain adopted status and identify invalidated choices, remaining principles, and successors. Historical/current differences must be explicit; do not silently rewrite adoption facts.

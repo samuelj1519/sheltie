@@ -1,4 +1,4 @@
-//! 临时目录持有原根fd；收尾只放开目录权限，不跟随链接、不修改文件权限。
+//! Temporary directory holds its original root fd; cleanup relaxes only directory permissions without following links or changing file permissions.
 use rustix::fs::{AtFlags, Dir, FileType, Mode, OFlags, fchmod, open, openat, statat};
 use std::fs::File;
 use std::ops::Deref;

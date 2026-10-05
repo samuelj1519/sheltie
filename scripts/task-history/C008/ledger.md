@@ -1,6 +1,6 @@
-# C008 历史任务映射
+# C008 historical task mapping
 
-仅供工具核任务完成状态与测试归属；原任务正文从固定 Git 快照读取。
+Tooling only: verify task completion states and test ownership. Read original task bodies from the fixed Git snapshot.
 
 | C008-T00 | done |
 
@@ -16,9 +16,9 @@
 
 | C008-M2 | done |
 
-### C008-T00：采用前提盘点与原条件机制延期交接
+### C008-T00: Adopt prerequisite inventory and hand off deferred conditional mechanisms
 
-### C008-T04：保真归档与本轮关闭
+### C008-T04: Archive faithfully and close this iteration
 
 | C008-T05 | done |
 

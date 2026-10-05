@@ -1,5 +1,5 @@
-//! C002-T09：`workbook-digest/v2` 目录摘要的独立向量与拒绝例。
-//! 全部期望摘要值由 python3 hashlib 对手工拼出的字节流独立算出，不用生产 helper 生成。
+//! C002-T09: independent workbook-digest/v2 directory vectors and rejection cases.
+//! All expected digests use Python hashlib over handwritten byte streams, independent of production helpers.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::path::Path;
@@ -28,12 +28,12 @@ fn digest_of(setup: impl FnOnce(&Path)) -> (TempDir, Sha256Hex) {
 
 // python3: sha256(b"sheltie-workbook-digest/v2\0" + be64(0)).hexdigest()
 const EMPTY: &str = "fcf10ccb454182a0fff58fbc01f0920bd084cf3367c59c2a18aa27d2712a9f36";
-// 单文件 a.txt = "hello"
+// Single file a.txt = "hello"
 const SINGLE: &str = "c760ce85310cbd4e93450c0133c6d7141fa4216e63194dcf0a920af16b8ab583";
-// O07 的旧碰撞对（旧算法摘要相同）：
+// O07 old collision pair, identical under the old algorithm:
 const ONE_FILE_ZB: &str = "3947b322dce3c579c952a2db5e37ab0c9fb368616f29e232c17b2125b58e0594";
 const TWO_FILES_EDGE: &str = "e850aeabe439c8901e0043c289834ecb612b0b45a34b18b70e4f48dbdf5657ae";
-// 字节序排序：B.md(0x42) 排在 a.md(0x61) 前
+// Bytewise ordering: B.md (0x42) precedes a.md (0x61)
 const BYTE_ORDER: &str = "31d5fff6b14c23b7901075b1d61958d2c6cd4ef0eb1ce264ab03b783d0f1e063";
 const PATH_CHANGE: &str = "98be5ca87a5fbab4eeab3fa5009ef2811eb2313fd6136bb3a995b9e6a76f88d1";
 const CONTENT_CHANGE: &str = "ee29a7d533c38805a80af8523513d3775de7697a36e4f6cafe623c7bb2005c2b";
@@ -47,7 +47,7 @@ fn digest_matches_independent_vectors_on_disk() {
     let (_g, d) = digest_of(|dir| write(dir, "a.txt", b"hello"));
     assert_eq!(d.as_str(), SINGLE);
 
-    // 嵌套与多文件；空目录不参与摘要。
+    // Nested/multiple files; empty directories do not contribute to the digest.
     let (_g, d) = digest_of(|dir| {
         write(dir, "flows/default.toml", b"x");
         write(dir, "workbook.toml", b"y");
@@ -63,7 +63,7 @@ fn digest_matches_independent_vectors_on_disk() {
 // Task: C002-T09
 #[test]
 fn framing_collision_pair_now_yields_two_different_digests() {
-    // 旧算法里 za="zb\0X" 与（za=""、zb="X"）碰撞；v2 帧定界后必须分开。
+    // Old algorithm collides za="zb\0X" with za="", zb="X"; v2 framing must distinguish them.
     let (_g, one) = digest_of(|dir| write(dir, "za", b"zb\0X"));
     assert_eq!(one.as_str(), ONE_FILE_ZB);
     let (_g, two) = digest_of(|dir| {
@@ -84,21 +84,24 @@ fn insertion_order_is_irrelevant_but_bytes_and_paths_matter() {
     };
     let (_g, a) = digest_of(|dir| build(dir, &["b.md", "a.md"]));
     let (_g, b) = digest_of(|dir| build(dir, &["a.md", "b.md"]));
-    assert_eq!(a, b, "目录枚举顺序不影响摘要（按路径字节序排序）");
+    assert_eq!(
+        a, b,
+        "Directory enumeration order does not affect digests; paths sort bytewise"
+    );
 
-    // 只改一个字节的内容。
+    // Change one content byte.
     let (_g, c) = digest_of(|dir| {
         write(dir, "a.md", b"a.md");
         write(dir, "b.md", b"b.me");
     });
     assert_ne!(a, c);
-    // 只改路径一个字符。
+    // Change one path character.
     let (_g, p) = digest_of(|dir| {
         write(dir, "a.md", b"a.md");
         write(dir, "c.md", b"b.md");
     });
     assert_ne!(a, p);
-    // 对照已知向量：改路径/内容后的摘要等于独立算出的常量。
+    // Compare mutated-path/content digests with independently calculated constants.
     let (_g, single_changed_content) = digest_of(|dir| write(dir, "a.txt", b"hellp"));
     assert_eq!(single_changed_content.as_str(), CONTENT_CHANGE);
     let (_g, single_changed_path) = digest_of(|dir| write(dir, "b.txt", b"hello"));
@@ -108,7 +111,7 @@ fn insertion_order_is_irrelevant_but_bytes_and_paths_matter() {
 // Task: C002-T09
 #[test]
 fn paths_sort_by_raw_bytes_not_by_locale() {
-    // B(0x42) < a(0x61)：字节序把 B.md 排在 a.md 前，与区域设置无关。
+    // B (0x42) precedes a (0x61) bytewise, independent of locale.
     let (_g, d) = digest_of(|dir| {
         write(dir, "a.md", b"2");
         write(dir, "B.md", b"1");
@@ -123,8 +126,8 @@ fn symlink_in_tree_is_rejected() {
     write(dir.path(), "real.txt", b"x");
     std::os::unix::fs::symlink("real.txt", dir.path().join("link.txt")).unwrap();
     match digest_dir_v2(&abs(dir.path())) {
-        Err(Error::InvalidRequest { reason }) => assert!(reason.contains("符号链接"), "{reason}"),
-        other => panic!("应当拒绝符号链接：{other:?}"),
+        Err(Error::InvalidRequest { reason }) => assert!(reason.contains("symlink"), "{reason}"),
+        other => panic!("Expected symlink rejection: {other:?}"),
     }
 }
 
@@ -135,15 +138,15 @@ fn hardlink_in_tree_is_rejected() {
     write(dir.path(), "a.txt", b"x");
     std::fs::hard_link(dir.path().join("a.txt"), dir.path().join("b.txt")).unwrap();
     match digest_dir_v2(&abs(dir.path())) {
-        Err(Error::InvalidRequest { reason }) => assert!(reason.contains("硬链接"), "{reason}"),
-        other => panic!("应当拒绝硬链接：{other:?}"),
+        Err(Error::InvalidRequest { reason }) => assert!(reason.contains("hardlink"), "{reason}"),
+        other => panic!("Expected hardlink rejection: {other:?}"),
     }
 }
 
 // Task: C002-T09
 #[test]
 fn file_size_limit_is_exactly_32_mib() {
-    // 恰好 32 MiB 的稀疏文件接受；多一字节拒绝（读取前按元数据核对）。
+    // Accept a 32 MiB sparse file; reject one byte more before reading, from metadata.
     let dir = tempfile::tempdir().unwrap();
     let f = std::fs::File::create(dir.path().join("big.bin")).unwrap();
     f.set_len(32 * 1024 * 1024).unwrap();
@@ -156,16 +159,16 @@ fn file_size_limit_is_exactly_32_mib() {
     drop(f);
     match digest_dir_v2(&abs(dir.path())) {
         Err(Error::InvalidRequest { reason }) => {
-            assert!(reason.contains("超过"), "{reason}")
+            assert!(reason.contains("exceeds"), "{reason}")
         }
-        other => panic!("超限文件应当拒绝：{other:?}"),
+        other => panic!("Oversized file must be rejected: {other:?}"),
     }
 }
 
 // Task: C002-T09
 #[test]
 fn total_size_limit_is_exactly_256_mib() {
-    // 8 × 32 MiB = 256 MiB 接受；再加一个字节文件即超总量，读取前拒绝。
+    // Accept eight 32 MiB files, totaling 256 MiB; reject one extra-byte file before reading.
     let dir = tempfile::tempdir().unwrap();
     for i in 0..8 {
         let f = std::fs::File::create(dir.path().join(format!("p{i}.bin"))).unwrap();
@@ -176,9 +179,9 @@ fn total_size_limit_is_exactly_256_mib() {
     write(dir.path(), "one-more", b"x");
     match digest_dir_v2(&abs(dir.path())) {
         Err(Error::InvalidRequest { reason }) => {
-            assert!(reason.contains("总量"), "{reason}")
+            assert!(reason.contains("total"), "{reason}")
         }
-        other => panic!("总量超限应当拒绝：{other:?}"),
+        other => panic!("Oversized total must be rejected: {other:?}"),
     }
 }
 
@@ -205,8 +208,8 @@ fn tree_reader_rejects_symlinked_parent_directory() {
     write(outside.path(), "sentinel.txt", b"unchanged");
     std::os::unix::fs::symlink(outside.path(), dir.path().join("linked-parent")).unwrap();
     match digest_dir_v2(&abs(dir.path())) {
-        Err(Error::InvalidRequest { reason }) => assert!(reason.contains("符号链接"), "{reason}"),
-        other => panic!("应当拒绝目录内的父软链：{other:?}"),
+        Err(Error::InvalidRequest { reason }) => assert!(reason.contains("symlink"), "{reason}"),
+        other => panic!("Expected ancestor-symlink rejection: {other:?}"),
     }
     assert_eq!(
         std::fs::read(outside.path().join("sentinel.txt")).unwrap(),

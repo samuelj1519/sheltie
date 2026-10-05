@@ -1,7 +1,7 @@
 nextest-version = { required = "0.9.145" }
 
 [profile.default]
-# 崩溃测试使用Cargo注入binary，各例独立临时目录；限制故障进程的资源并发。
+# Crash tests use Cargo-injected binaries and independent temporary directories; limit fault-process concurrency.
 [[profile.default.overrides]]
 filter = "binary(crash)"
 test-group = "serial"

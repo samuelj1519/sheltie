@@ -1,4 +1,4 @@
-//! T01：二进制能跑。这是骨架里唯一不禁用的端到端测试。
+//! T01: executable smoke test, the skeleton's sole initially enabled end-to-end test.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use assert_cmd::Command;

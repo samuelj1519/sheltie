@@ -1,11 +1,11 @@
-//! runtime 取得真实操作主体与当前时间，再作为 Context 交给 core。
+//! Runtime obtains the actual principal and timestamp, then passes Context to core.
 
 use sheltie_core::work::{Principal, Timestamp};
 
-/// 当前操作主体：发起进程的真实 OS 身份（D-036）。unix 上取 effective uid 对应的
-/// 账户名；查不到账户条目或名称不是 UTF-8 时记 `uid:<数值>`，不落到猜测值。
-/// 依赖是维护中的同 API 分支 `uzers`（见 D-036 勘误）。
-/// 完全不读 `USER`/`USERNAME`——环境变量由调用方任意可设。
+/// Current principal: initiating process OS identity (D-036); on Unix use the effective UID's
+/// account name, falling back to uid:<number> for missing or non-UTF-8 names without guesses.
+/// The dependency is the maintained, API-compatible uzers fork (D-036 erratum).
+/// Never read USER/USERNAME, which callers can set arbitrarily.
 pub fn principal() -> Principal {
     #[cfg(unix)]
     {
@@ -24,7 +24,7 @@ pub fn principal() -> Principal {
     }
 }
 
-/// 当前 UTC 时间，秒精度。格式化在 core 的 `Timestamp::from_unix_secs`。
+/// Current UTC time at second precision; core Timestamp::from_unix_secs formats it.
 pub fn now() -> Timestamp {
     let secs = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)

@@ -1,4 +1,4 @@
-//! 合法快照形状不能替代对已提交业务事实的绑定。
+//! Valid snapshot shape cannot replace binding to committed business facts.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 mod common;
 use common::store::store_rows;
@@ -215,7 +215,7 @@ fn start_snapshot_identity_mismatch_is_rejected_before_frozen_workbook_read() {
         assert_eq!(error["error"]["code"], "EFFECT_PENDING");
         assert_eq!(error["error"]["detail"]["cause"], "STORE_CORRUPT");
         assert!(
-            error.to_string().contains("data与Reply"),
+            error.to_string().contains("data differs from Reply"),
             "{field}: {error}"
         );
         assert!(error.get("original").is_none());
@@ -333,7 +333,7 @@ fn current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher() {
             "life-remove",
             "workbook",
             "remove",
-            "two-step@1.0.0",
+            "two-step@1.0.1",
         ];
         env.ok(&remove);
         let new_args = [
@@ -354,10 +354,10 @@ fn current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher() {
         connection
             .execute("UPDATE workbooks SET added_at=?1", [at])
             .unwrap();
-        let installed = env.workbook_dir("two-step", "1.0.0");
+        let installed = env.workbook_dir("two-step", "1.0.1");
         let inode = std::fs::metadata(&installed).unwrap().ino();
         let healthy_files = business_files(&env);
-        env.ok(&["workbook", "show", "two-step@1.0.0"]);
+        env.ok(&["workbook", "show", "two-step@1.0.1"]);
         env.ok(&old_args);
         env.ok(&remove);
         assert_eq!(business_files(&env), healthy_files);
@@ -457,15 +457,14 @@ fn current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher() {
         }
         let before = store_rows(&env);
         let files = business_files(&env);
-        let (error, exit) = env.fail(&["workbook", "show", "two-step@1.0.0"]);
+        let (error, exit) = env.fail(&["workbook", "show", "two-step@1.0.1"]);
         assert_eq!(exit, 1);
         assert_eq!(error["error"]["code"], "STORE_CORRUPT", "{field}: {error}");
         if field == "snapshot_id" || field == "snapshot_version" {
             assert!(
-                error["error"]["message"]
-                    .as_str()
-                    .unwrap()
-                    .contains("Workbook snapshot的业务身份与效果登记不一致"),
+                error["error"]["message"].as_str().unwrap().contains(
+                    "Workbook snapshot business identity differs from registered effects"
+                ),
                 "{field}: {error}"
             );
         }
@@ -475,7 +474,7 @@ fn current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher() {
                 error["error"]["message"]
                     .as_str()
                     .unwrap()
-                    .contains("Workbook remove请求 life-new 的intent_hash与audit不一致"),
+                    .contains("Workbook remove request life-new intent_hash differs from audit"),
                 "{error}"
             );
         } else if field == "non_workbook_audit" {
@@ -483,7 +482,7 @@ fn current_workbook_lifecycle_cannot_borrow_an_older_identical_publisher() {
                 error["error"]["message"]
                     .as_str()
                     .unwrap()
-                    .contains("Workbook audit life-new 命令解不开"),
+                    .contains("Cannot decode Workbook audit life-new command"),
                 "{error}"
             );
         }

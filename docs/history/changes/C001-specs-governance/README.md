@@ -1,23 +1,25 @@
-# C001：文档治理
+# C001: Documentation governance
 
-状态：`completed`
-目标版本：`none`（文档治理）
-兼容性：`none`
-基线：`31d7ddee18921b4066c7433a752c2000e5110869`
-Owner：Codex
-记录形式：`reference`
-历史快照：`f38954d543ff01eb5a798be48f29060b80d5952c`
+English | [简体中文](README.zh-CN.md)
 
-## 变化与理由
+Status: `completed`
+Target version: `none (documentation governance)`
+Compatibility: `none`
+Baseline: `7196697ea40c9c303d059279c02f9e3d2218efd9`
+Owner: Codex
+Record form: `reference`
+Historical snapshot: `9d98bf8f15944b7bda4fbd4096e7771b09eab728`
 
-将稳定权威、迭代状态、设计理由和发布记录分开。AGENTS.md 只保存长期规则与阅读路由，active plan 是实施进度的唯一权威。这样新读者不必重放任务历史才能判断当前行为。
+## Changes and rationale
 
-## 验证与限制
+Separate stable authority, iteration state, design reasons, and release records. AGENTS.md retains lasting rules and reading routes; the active plan is the sole implementation-progress authority. New readers need not replay task history to understand current behavior.
 
-本次变更只涉及文档结构与检查工具。completed 记录说明采用范围完成，不替代产品验收或发布。
+## Validation and limits
 
-本页保留设计与结果摘要；当前行为以根规格和合同为准。历史验证不能直接复用为当前候选 PASS。
+This change affected documentation structure and checking tools only. `completed` establishes completion within adopted scope, without replacing product acceptance or release.
 
-## 参考
+This page retains design/outcome summaries. Root specifications/contracts govern current behavior. Historical validation cannot directly qualify the current candidate as PASS.
 
-[文档维护](../../../how-to/maintain-docs.md)、[D-032](../../../explanation/decisions/D-032-use-change-packages.md)。完整任务、审查与运行原件按[历史查阅指南](../../../how-to/maintain-docs.md#查阅历史原件)从上述快照读取。
+## References
+
+[Documentation maintenance](../../../how-to/maintain-docs.md), [D-032](../../../explanation/decisions/D-032-use-change-packages.md). Read full tasks, reviews, and original runs from the snapshot above using the [historical lookup guide](../../../how-to/maintain-docs.md#read-original-historical-records).

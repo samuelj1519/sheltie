@@ -1,7 +1,7 @@
-# 实现代码变更
+# Implement a code change
 
-读取 task 的目标与验收标准、project 的仓库位置和检查前提。先检查工作区及仓库规则，保留无关修改。在本阶段内自主调查、规划和拆分子任务，完成授权范围的代码变更与必要检查。
+Read task goals/acceptance and project location/check prerequisites. Inspect worktree/repository rules first and preserve unrelated changes. Investigate, plan, and subdivide within this stage; implement authorized scope and necessary checks.
 
-previous-review 有绑定时读取具体意见；它可能来自之前的审查，以任务书“来自”和文件内容核对。普通内容返工不新增审批；部署、合并、发布等操作仍按任务授权执行。
+Read bound previous-review when present, verifying provenance through From and contents; it may be an earlier review. Ordinary rework adds no approval. Deployment/merge/publication still follow task authorization.
 
-在 change.md 第一行说明实际完成程度。写清候选标识、变更范围、验收依据、实际检查命令和原文位置、退出状态、未执行项目、剩余问题。报告中的工具结果是执行者报告，不能说引擎已核验检查或仓库快照。未完成义务准确保留，不改验收标准迁就代码。
+First line of change.md states actual completion. Record candidate, scope, acceptance authority, actual check commands/raw outputs/exit status, unrun items, and remaining issues. Tool results are worker reports, not engine-verified checks or snapshots. Preserve unfinished obligations without weakening acceptance to suit implementation.

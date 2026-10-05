@@ -1,7 +1,7 @@
-//! 把 `FlowDef` 编译成 `Graph`。校验规则见 `specs/contracts/workbook.md` §4。
+//! Compile `FlowDef` into `Graph`; validation rules are in `specs/contracts/workbook.md` §4.
 //!
-//! 每条规则一个私有函数，按顺序调用，任一失败整体拒绝。
-//! 错误一律 `Error::FlowInvalid { rule: "<编号>", path, reason }`。
+//! Call one private function per rule in order; any failure rejects the whole Flow.
+//! All errors use `Error::FlowInvalid { rule: "<number>", path, reason }`.
 
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
@@ -13,7 +13,7 @@ use crate::error::{Error, Result};
 use crate::ids::NodeId;
 use crate::workbook::Manifest;
 
-/// `resource.<path>` 绑进来的文件上限 32 MiB，编码不限。
+/// Files bound through `resource.<path>` have a 32 MiB limit and unrestricted encoding.
 const RESOURCE_MAX_BYTES: u64 = 32 * 1024 * 1024;
 
 fn invalid(rule: &'static str, path: impl Into<String>, reason: impl Into<String>) -> Error {
@@ -24,7 +24,7 @@ fn invalid(rule: &'static str, path: impl Into<String>, reason: impl Into<String
     }
 }
 
-/// 编译入口。全部规则通过才返回 `Graph`。
+/// Compilation entry point; return `Graph` only after every rule passes.
 pub fn compile(def: &FlowDef, manifest: &Manifest, res: &ResourceIndex) -> Result<Graph> {
     let out_edges = build_out_edges(&def.edges);
     check_rule_1(def)?;
@@ -45,7 +45,7 @@ pub fn compile(def: &FlowDef, manifest: &Manifest, res: &ResourceIndex) -> Resul
     ))
 }
 
-/// 邻接表：`from -> [to]`。规则 2 之前边可能有重复或未知节点，这里不校验，只收集。
+/// Adjacency list: `from -> [to]`. Before rule 2, collect duplicate/unknown edges without validating them.
 fn build_out_edges(edges: &[EdgeDef]) -> BTreeMap<NodeId, Vec<NodeId>> {
     let mut map: BTreeMap<NodeId, Vec<NodeId>> = BTreeMap::new();
     for e in edges {
@@ -54,7 +54,7 @@ fn build_out_edges(edges: &[EdgeDef]) -> BTreeMap<NodeId, Vec<NodeId>> {
     map
 }
 
-/// 从 `start` 沿出边能到达的全部节点（含自身）。BFS。
+/// BFS over nodes reachable from `start` through outgoing edges, including itself.
 pub(crate) fn reachable_from(
     out_edges: &BTreeMap<NodeId, Vec<NodeId>>,
     start: &NodeId,
@@ -73,21 +73,21 @@ pub(crate) fn reachable_from(
     seen
 }
 
-/// 规则 1：所有 ID 合规、唯一；节点 id 不是保留字（`def::RESERVED_NODE_IDS`：`start`、`resource`、`engine`）；`entry` 存在。
-/// 节点数 1..=64，边数 ≤ 256。
+/// Rule 1: valid unique IDs; no reserved node IDs (`def::RESERVED_NODE_IDS`: `start`, `resource`, `engine`); entry exists.
+/// Require 1..=64 nodes and at most 256 edges.
 fn check_rule_1(def: &FlowDef) -> Result<()> {
     if def.nodes.is_empty() || def.nodes.len() > FlowDef::MAX_NODES {
         return Err(invalid(
             "1",
             "nodes",
-            format!("节点数必须在 1..={} 之间", FlowDef::MAX_NODES),
+            format!("Node count must be in 1..={}", FlowDef::MAX_NODES),
         ));
     }
     if def.edges.len() > FlowDef::MAX_EDGES {
         return Err(invalid(
             "1",
             "edges",
-            format!("边数不得超过 {}", FlowDef::MAX_EDGES),
+            format!("Edge count must not exceed {}", FlowDef::MAX_EDGES),
         ));
     }
     let mut seen = BTreeSet::new();
@@ -97,53 +97,53 @@ fn check_rule_1(def: &FlowDef) -> Result<()> {
             return Err(invalid(
                 "1",
                 path,
-                format!("节点 id 不得是保留字 {}", node.id),
+                format!("Node ID must not be reserved: {}", node.id),
             ));
         }
         if !seen.insert(node.id.clone()) {
-            return Err(invalid("1", path, "节点 id 重复"));
+            return Err(invalid("1", path, "Duplicate node ID"));
         }
     }
     if def.node(&def.entry).is_none() {
         return Err(invalid(
             "1",
             "entry",
-            format!("入口 {} 不是节点 id", def.entry),
+            format!("Entry {} is not a node ID", def.entry),
         ));
     }
     Ok(())
 }
 
-/// 规则 2：每条边两端存在、不自环、`(from, to)` 不重复。
+/// Rule 2: both edge endpoints exist; no self-loops or duplicate `(from, to)` pairs.
 fn check_rule_2(def: &FlowDef) -> Result<()> {
     let mut seen = BTreeSet::new();
     for (i, e) in def.edges.iter().enumerate() {
         let path = format!("edges[{i}]");
         if e.from == e.to {
-            return Err(invalid("2", path.clone(), "不得自环"));
+            return Err(invalid("2", path.clone(), "Self-loops are not allowed"));
         }
         if def.node(&e.from).is_none() {
             return Err(invalid(
                 "2",
                 path.clone(),
-                format!("from {} 不是节点 id", e.from),
+                format!("from {} is not a node ID", e.from),
             ));
         }
         if def.node(&e.to).is_none() {
             return Err(invalid(
                 "2",
                 path.clone(),
-                format!("to {} 不是节点 id", e.to),
+                format!("to {} is not a node ID", e.to),
             ));
         }
         if !seen.insert((e.from.clone(), e.to.clone())) {
-            return Err(invalid("2", path, "同一条 (from, to) 出现多次"));
+            return Err(invalid("2", path, "Duplicate (from, to) edge"));
         }
     }
     Ok(())
 }
 
-/// 规则 3：从 `entry` 出发每个节点可达。
+/// Rule 3: every node is reachable from `entry`.
 fn check_rule_3(def: &FlowDef, out_edges: &BTreeMap<NodeId, Vec<NodeId>>) -> Result<()> {
     let reachable = reachable_from(out_edges, &def.entry);
     for (i, node) in def.nodes.iter().enumerate() {
@@ -151,14 +151,14 @@ fn check_rule_3(def: &FlowDef, out_edges: &BTreeMap<NodeId, Vec<NodeId>>) -> Res
             return Err(invalid(
                 "3",
                 format!("nodes[{i}].id"),
-                format!("从入口 {} 到不了 {}", def.entry, node.id),
+                format!("Node {1} is unreachable from entry {0}", def.entry, node.id),
             ));
         }
     }
     Ok(())
 }
 
-/// 规则 4：至少一个没有出边的节点。
+/// Rule 4: at least one node has no outgoing edges.
 fn check_rule_4(def: &FlowDef, out_edges: &BTreeMap<NodeId, Vec<NodeId>>) -> Result<()> {
     let has_terminal = def
         .nodes
@@ -168,15 +168,15 @@ fn check_rule_4(def: &FlowDef, out_edges: &BTreeMap<NodeId, Vec<NodeId>>) -> Res
         return Err(invalid(
             "4",
             "edges",
-            "没有任何终点节点（每个节点都有出边）",
+            "No terminal node (every node has outgoing edges)",
         ));
     }
     Ok(())
 }
 
-/// 规则 5：`inputs[].from` 的 `Node` 来源存在、不是自己、输出名存在，且从被引用节点能到达本节点；
-/// 被引用的输出 `required = false` 时，本输入也必须 `required = false`（下游不得把可选输出当必需输入）。
-/// 另：`Start`、`Resource`、`EngineStats` 来源上 `required = false` 拒绝。
+/// Rule 5: a `Node` input source exists, is not self, declares the output, and can reach this node;
+/// if the source output is optional, the input must also be optional.
+/// Reject `required = false` for `Start`, `Resource`, and `EngineStats` sources.
 fn check_rule_5(def: &FlowDef, out_edges: &BTreeMap<NodeId, Vec<NodeId>>) -> Result<()> {
     for (i, node) in def.nodes.iter().enumerate() {
         for (j, input) in node.inputs.iter().enumerate() {
@@ -185,42 +185,48 @@ fn check_rule_5(def: &FlowDef, out_edges: &BTreeMap<NodeId, Vec<NodeId>>) -> Res
                 InputSource::Start { .. }
                 | InputSource::Resource { .. }
                 | InputSource::EngineStats => {
-                    // 这三种来源永远存在，写 required = false 没有意义。
+                    // These three source kinds always exist; required = false has no meaning.
                     if !input.required {
                         return Err(invalid(
                             "5",
                             path,
-                            "start、resource 与 engine.stats 来源不得声明 required = false",
+                            "start, resource, and engine.stats sources must not declare required = false",
                         ));
                     }
                 }
                 InputSource::Node { node: src, output } => {
                     if src == &node.id {
-                        return Err(invalid("5", path.clone(), "来源节点不得是自己"));
+                        return Err(invalid("5", path.clone(), "Source node must not be self"));
                     }
                     let src_def = def.node(src).ok_or_else(|| {
-                        invalid("5", path.clone(), format!("来源节点 {src} 不存在"))
+                        invalid(
+                            "5",
+                            path.clone(),
+                            format!("Source node {src} does not exist"),
+                        )
                     })?;
                     let src_out = src_def.output(output).ok_or_else(|| {
                         invalid(
                             "5",
                             path.clone(),
-                            format!("节点 {src} 没有声明输出 {output}"),
+                            format!("Node {src} does not declare output {output}"),
                         )
                     })?;
-                    // 可选输出不得被下游当必需输入（合同 §3.2、§4 规则 5）。
+                    // Downstream inputs must not require optional outputs (contract §3.2 and §4, rule 5).
                     if !src_out.required && input.required {
                         return Err(invalid(
                             "5",
                             path,
-                            format!("来源输出 {src}.{output} 是可选的，本输入不得 required = true"),
+                            format!(
+                                "Source output {src}.{output} is optional; this input must not set required = true"
+                            ),
                         ));
                     }
                     if !reachable_from(out_edges, src).contains(&node.id) {
                         return Err(invalid(
                             "5",
                             path,
-                            format!("从 {src} 沿边走不到 {}", node.id),
+                            format!("Node {} is unreachable from source {src}", node.id),
                         ));
                     }
                 }
@@ -230,7 +236,7 @@ fn check_rule_5(def: &FlowDef, out_edges: &BTreeMap<NodeId, Vec<NodeId>>) -> Res
     Ok(())
 }
 
-/// 规则 6：`gate = true` 的节点 `instruction` 不得是空白文本。
+/// Rule 6: `gate = true` nodes require nonblank instructions.
 fn check_rule_6(def: &FlowDef) -> Result<()> {
     for (i, node) in def.nodes.iter().enumerate() {
         if !node.gate {
@@ -241,7 +247,7 @@ fn check_rule_6(def: &FlowDef) -> Result<()> {
                 return Err(invalid(
                     "6",
                     format!("nodes[{i}].instruction"),
-                    "gate 节点的说明文本不得是空白",
+                    "Gate node instructions must not be blank",
                 ));
             }
         }
@@ -249,36 +255,36 @@ fn check_rule_6(def: &FlowDef) -> Result<()> {
     Ok(())
 }
 
-/// 规则 7：`instruction.file` 存在、≤ 64 KiB、UTF-8；`resource.<path>` 输入存在、≤ 32 MiB（编码不限）。
+/// Rule 7: instruction files exist, are UTF-8, and at most 64 KiB; resource inputs exist and are at most 32 MiB, with unrestricted encoding.
 fn check_rule_7(def: &FlowDef, res: &ResourceIndex) -> Result<()> {
     for (i, node) in def.nodes.iter().enumerate() {
         if let Instruction::File(path) = &node.instruction {
             let at = format!("nodes[{i}].instruction.file");
             let meta = res
                 .get(path)
-                .ok_or_else(|| invalid("7", at.clone(), format!("文件 {path} 不存在")))?;
+                .ok_or_else(|| invalid("7", at.clone(), format!("File {path} does not exist")))?;
             if meta.bytes > NodeDef::FILE_MAX_BYTES {
                 return Err(invalid(
                     "7",
                     at.clone(),
-                    format!("文件超过 {} 字节", NodeDef::FILE_MAX_BYTES),
+                    format!("File exceeds {} bytes", NodeDef::FILE_MAX_BYTES),
                 ));
             }
             if !meta.is_utf8 {
-                return Err(invalid("7", at, "说明文件必须是 UTF-8"));
+                return Err(invalid("7", at, "Instruction file must be UTF-8"));
             }
         }
         for (j, input) in node.inputs.iter().enumerate() {
             if let InputSource::Resource { path } = &input.from {
                 let at = format!("nodes[{i}].inputs[{j}].from");
-                let meta = res
-                    .get(path)
-                    .ok_or_else(|| invalid("7", at.clone(), format!("文件 {path} 不存在")))?;
+                let meta = res.get(path).ok_or_else(|| {
+                    invalid("7", at.clone(), format!("File {path} does not exist"))
+                })?;
                 if meta.bytes > RESOURCE_MAX_BYTES {
                     return Err(invalid(
                         "7",
                         at,
-                        format!("文件超过 {RESOURCE_MAX_BYTES} 字节"),
+                        format!("File exceeds {RESOURCE_MAX_BYTES} bytes"),
                     ));
                 }
             }
@@ -287,20 +293,24 @@ fn check_rule_7(def: &FlowDef, res: &ResourceIndex) -> Result<()> {
     Ok(())
 }
 
-/// 规则 8：节点 `requires[]` 每项在 manifest 里有声明；同一节点内不重复。
+/// Rule 8: each node `requires[]` item is declared in the manifest and unique within the node.
 fn check_rule_8(def: &FlowDef, manifest: &Manifest) -> Result<()> {
     for (i, node) in def.nodes.iter().enumerate() {
         let mut seen = BTreeSet::new();
         for (j, (kind, name)) in node.requires.iter().enumerate() {
             let path = format!("nodes[{i}].requires[{j}]");
             if !seen.insert((*kind, name.clone())) {
-                return Err(invalid("8", path.clone(), "同一节点内 requires 重复"));
+                return Err(invalid(
+                    "8",
+                    path.clone(),
+                    "Duplicate requires within a node",
+                ));
             }
             if manifest.find_require(*kind, name).is_none() {
                 return Err(invalid(
                     "8",
                     path,
-                    format!("workbook.toml 里没有声明 {}:{}", kind.as_str(), name),
+                    format!("workbook.toml does not declare {}:{}", kind.as_str(), name),
                 ));
             }
         }
@@ -308,14 +318,14 @@ fn check_rule_8(def: &FlowDef, manifest: &Manifest) -> Result<()> {
     Ok(())
 }
 
-/// 规则 9：`executor = human` 的节点 `tier` 为 `None`。
+/// Rule 9: `executor = human` nodes have no tier.
 fn check_rule_9(def: &FlowDef) -> Result<()> {
     for (i, node) in def.nodes.iter().enumerate() {
         if node.executor == Executor::Human && node.tier.is_some() {
             return Err(invalid(
                 "9",
                 format!("nodes[{i}].tier"),
-                "human 节点不得声明 tier",
+                "Human nodes must not declare tier",
             ));
         }
     }
@@ -351,13 +361,25 @@ fn check_rule_10(def: &FlowDef, out_edges: &BTreeMap<NodeId, Vec<NodeId>>) -> Re
                 continue;
             }
             if !terminal {
-                return Err(invalid("10", path, "只有终点节点可以声明最终成果"));
+                return Err(invalid(
+                    "10",
+                    path,
+                    "Only terminal nodes may declare final results",
+                ));
             }
             if !required {
-                return Err(invalid("10", path, "最终成果必须是必需输入或输出"));
+                return Err(invalid(
+                    "10",
+                    path,
+                    "Final results must be required inputs or outputs",
+                ));
             }
             if !selected.insert(name) {
-                return Err(invalid("10", path, "最终成果的输入与输出逻辑名不得重复"));
+                return Err(invalid(
+                    "10",
+                    path,
+                    "Final result input and output logical names must not overlap",
+                ));
             }
         }
     }
@@ -374,11 +396,11 @@ mod tests {
     fn rule_of(err: Error) -> &'static str {
         match err {
             Error::FlowInvalid { rule, .. } => rule,
-            other => panic!("不是 FlowInvalid：{other:?}"),
+            other => panic!("Expected FlowInvalid, got {other:?}"),
         }
     }
 
-    /// 把 article-review 样例当合法基线，改一处得到反例。
+    /// Use article-review as the valid baseline; change one condition for each rejected case.
     fn compile_text(flow_text: &str) -> Result<Graph> {
         let def = parse_flow(flow_text)?;
         compile(
@@ -537,8 +559,8 @@ mod tests {
     // Task: T05
     #[test]
     fn rejects_input_from_node_that_cannot_reach_consumer() {
-        // draft 引用 publish 的输出：publish 是终点，到不了 draft。
-        // 夹具按样例字节同步：draft 的输入是多行数组，替换针对 topic 那条输入。
+        // draft references publish output; publish is terminal and cannot reach draft.
+        // Match fixture bytes to the example's multiline draft inputs; replace the topic input.
         let text = base().replace(
             "{ name = \"topic\", from = \"start.topic\" }",
             "{ name = \"topic\", from = \"publish.final\" }",
@@ -587,10 +609,10 @@ mod tests {
     #[test]
     fn rejects_gate_node_with_empty_text() {
         let text = base().replace(
-            "instruction = { text = \"阅读审查通过的文章，确认可以发布。把最终版复制到 final.md。\" }",
+            "instruction = { text = \"Read the accepted article, confirm publication, and copy the final version to final.md.\" }",
             "gate = true\ninstruction = { text = \"   \" }",
         );
-        // 上面把 publish 的说明文本改成空白并加 gate；parse 已拒绝空白文本时也算规则 6 的前置。
+        // Blank publish instructions and add gate; parse's blank-text rejection is a prerequisite to rule 6.
         assert!(matches!(
             compile_text(&text),
             Err(Error::FlowInvalid { .. })
@@ -679,12 +701,12 @@ mod tests {
             "executor = \"human\"",
             "executor = \"human\"\ntier = \"strong\"",
         );
-        // §3.2 字段规则在 parse 层先拒，rule 是 "parse"，走不到规则 9。
+        // The §3.2 field constraint rejects in parse with rule "parse", before rule 9.
         assert!(matches!(
             compile_text(&text),
             Err(Error::FlowInvalid { rule: "parse", .. })
         ));
-        // 直接改 FlowDef 绕过 parse，钉住编译规则 9 本身。
+        // Modify FlowDef directly to bypass parse and isolate compile rule 9.
         let mut def = parse_flow(base()).unwrap();
         let human = def
             .nodes
@@ -714,14 +736,14 @@ mod tests {
             match compile(&def, &manifest, &res) {
                 Ok(_) => {}
                 Err(Error::FlowInvalid { .. }) => {}
-                Err(other) => panic!("意外错误：{other:?}"),
+                Err(other) => panic!("Unexpected error: {other:?}"),
             }
         }
     }
 
-    // ── M1 补测（规则 1 与规则 7 的数量与大小上限；终点判定的反例） ─────
+    // ── M1 additional rule 1/7 count/size limits and terminal-node rejection coverage ─────
 
-    /// `n` 个节点的链 `n0 -> n1 -> …`，再补前向边（`i < j`，不成环、不重复）凑够 `edges` 条。
+    /// An `n`-node chain `n0 -> n1 -> ...`, adding forward (`i < j`) nonduplicate, noncyclic edges to reach `edges`.
     fn chain_with_edges(n: usize, edges: usize) -> Vec<(usize, usize)> {
         let mut out: Vec<(usize, usize)> = (1..n).map(|i| (i - 1, i)).collect();
         'fill: for i in 0..n {
@@ -820,7 +842,7 @@ mod tests {
         );
     }
 
-    // ── M1 复核待修（合同 workbook.md §4 规则 5 新增一句，见 decisions.md M1 记录 B1） ─────
+    // ── M1 review repair: added workbook.md §4 rule 5 clause; see decisions.md M1 B1 ─────
 
     fn optional_article() -> String {
         base().replace(
@@ -850,14 +872,14 @@ mod tests {
         assert!(compile_text(&text).is_ok());
     }
 
-    // ── M1 复核 O1：图带 Workbook 全量 requires，按 manifest 声明顺序 ─────
+    // ── M1 review O1: graph retains all Workbook requires in manifest declaration order ─────
 
     // Task: T05
     #[test]
     fn graph_carries_manifest_requires_in_declaration_order() {
         let def = parse_flow(base()).unwrap();
         let mut manifest = testkit::article_review_manifest();
-        // 先 beta 后 alpha：若按名字或 kind:name 排序，顺序会反过来。
+        // beta precedes alpha; sorting by name or kind:name would reverse them.
         manifest.requires.push(crate::workbook::HostRequire {
             kind: crate::workbook::RequireKind::Skill,
             name: "beta".into(),
@@ -872,7 +894,7 @@ mod tests {
             digest: None,
             source: None,
         });
-        // base() 的节点一条 requires 都没引用，图里照样有全量声明。
+        // base() nodes reference no requires, but the graph retains every declaration.
         let g = compile(&def, &manifest, &testkit::article_review_resources()).unwrap();
         let got: Vec<(&str, Option<&str>)> = g
             .requires()

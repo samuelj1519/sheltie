@@ -1,23 +1,25 @@
-# 当前开发规范
+# Current development specifications
 
-Released：[`v0.2.0`](../docs/reference/releases/v0.2.0/README.md)
-开发目标：`v0.3.0`
-Active change：无
+English | [简体中文](README.zh-CN.md)
 
-specs 只保存当前规范与变更入口。学习、操作、源码定位和历史参考见 [docs](../docs/README.md)。
+Released: [`v0.2.0`](../docs/reference/releases/v0.2.0/README.md)
+Development target: `v0.3.0`
+Active change: none
 
-| 依据 | 内容 |
+The specifications contain current rules and change entry points. Learning, operations, source navigation, and historical references belong in [docs](../docs/README.md).
+
+| Authority | Contents |
 | --- | --- |
-| [constitution.md](constitution.md) | 产品边界与不变式 |
-| [spec.md](spec.md) | 当前采用行为、支持环境与验收要求 |
-| [architecture.md](architecture.md) | 分层、状态、文件与恢复约束 |
-| [contracts/](contracts/README.md) | Workbook、CLI 与 Store 的精确定义 |
-| [engineering.md](engineering.md) | 编码、测试、验证、提交与审查规则 |
-| [changes/](changes/README.md) | 提案、实施与模板；active plan 是进度唯一权威 |
-| [roadmap.md](roadmap.md) | 未采用方向及需求条件 |
+| [constitution.md](constitution.md) | Product boundaries and invariants |
+| [spec.md](spec.md) | Adopted behavior, supported environment, and acceptance requirements |
+| [architecture.md](architecture.md) | Layers, state, files, and recovery constraints |
+| [contracts/](contracts/README.md) | Exact Workbook, CLI, and Store definitions |
+| [engineering.md](engineering.md) | Coding, testing, validation, commits, and review |
+| [changes/](changes/README.md) | Proposals, implementation, and templates; the active plan alone defines progress |
+| [roadmap.md](roadmap.md) | Unadopted directions and demand conditions |
 
-统一术语见 [CONTEXT](../CONTEXT.md)。冲突按「宪章 → 规格 → 架构 → 合同」裁决；实现不符时修实现或明确采用上游变更，不把缺陷自动写成规范。没有 active change 时不自行实施 proposed。
+Use [CONTEXT](../CONTEXT.md) terminology. Resolve conflicts in this order: constitution → specification → architecture → contracts. Fix implementation defects or explicitly adopt an upstream change; defects do not automatically become requirements. Do not independently implement a proposed change when none is active.
 
-当前源码使用 0.3.0-rc.1，产品环境为 macOS aarch64／APFS；已实现、已验证、已发布和已证明收益分别判断。查[实现定位](../docs/reference/implementation.md)、[验收边界](../docs/reference/acceptance.md)和[发布记录](../docs/reference/releases/README.md)。开发目标规定源码基础版本，数值产品 active 目标必须一致，不替代发布 tag 与实物。
+Current source uses 0.3.0-rc.1; the product environment is macOS aarch64/APFS. Assess implementation, validation, release, and demonstrated benefit separately. See [implementation entry points](../docs/reference/implementation.md), [acceptance boundaries](../docs/reference/acceptance.md), and [release records](../docs/reference/releases/README.md). The development target defines the source base version. Numeric active product targets must match it; it does not replace release tags or artifacts.
 
-修改后运行 `scripts/check-docs.sh`、`scripts/check-specs.sh`；涉及测试声明时加 `scripts/check-tests.sh`。
+After changes, run `scripts/check-docs.sh` and `scripts/check-specs.sh`; add `scripts/check-tests.sh` when test declarations are affected.

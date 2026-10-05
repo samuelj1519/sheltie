@@ -1,5 +1,5 @@
-//! 两种路径类型。`RelPath` 是 Workbook 内或 Attempt 目录内的相对路径；`AbsPath` 是绝对路径。
-//! 把两者分开是为了让「这个路径能不能拼到根下面」在类型上就有答案。
+//! Path types: `RelPath` is relative to a Workbook or Attempt directory; `AbsPath` is absolute.
+//! Separate types make safe joining beneath a root explicit.
 
 use std::fmt;
 
@@ -8,15 +8,15 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::{Error, Result};
 
-/// 受限相对路径：不含 `..`、不是绝对路径、没有空段、UTF-8。
+/// A restricted UTF-8 relative path: no `..`, absolute prefix, or empty segments.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(try_from = "String", into = "String")]
 pub struct RelPath(Utf8PathBuf);
 
 impl RelPath {
-    /// 校验后构造。失败返回 `Error::InvalidPath`。
+    /// Validate on construction; return `Error::InvalidPath` on failure.
     ///
-    /// 拒绝：空字符串；以 `/` 开头；任一段为 `..`；任一段为空（如 `a//b`）；段为 `.`。
+    /// Reject empty strings, leading `/`, and segments that are `..`, empty (such as `a//b`), or `.`.
     pub fn new(value: impl Into<String>) -> Result<Self> {
         let value: String = value.into();
         let reject = |reason: &'static str| Error::InvalidPath {
@@ -24,20 +24,20 @@ impl RelPath {
             reason,
         };
         if value.is_empty() {
-            return Err(reject("不能为空"));
+            return Err(reject("Must not be empty"));
         }
         if value.starts_with('/') {
-            return Err(reject("不能是绝对路径"));
+            return Err(reject("Must not be absolute"));
         }
         for seg in value.split('/') {
             if seg.is_empty() {
-                return Err(reject("不能有空段"));
+                return Err(reject("Must not contain empty segments"));
             }
             if seg == ".." {
-                return Err(reject("不能含 .."));
+                return Err(reject("Must not contain .."));
             }
             if seg == "." {
-                return Err(reject("段不能是 ."));
+                return Err(reject("A segment must not be ."));
             }
         }
         Ok(Self(Utf8PathBuf::from(value)))
@@ -71,31 +71,31 @@ impl From<RelPath> for String {
     }
 }
 
-/// 绝对路径。只保证「是绝对的」，不保证存在。
+/// An absolute path; does not guarantee existence.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(try_from = "String", into = "String")]
 pub struct AbsPath(Utf8PathBuf);
 
 impl AbsPath {
-    /// 校验后构造。不是绝对路径返回 `Error::InvalidPath`。
+    /// Validate on construction; return `Error::InvalidPath` for a nonabsolute path.
     pub fn new(value: impl Into<String>) -> Result<Self> {
         let value: String = value.into();
         let path = Utf8PathBuf::from(&value);
         if !path.is_absolute() {
             return Err(Error::InvalidPath {
                 path: value,
-                reason: "不是绝对路径",
+                reason: "Not an absolute path",
             });
         }
         Ok(Self(path))
     }
 
-    /// 在本路径下拼一个相对路径。`RelPath` 已保证不会逃出去。
+    /// Join a relative path beneath this path; `RelPath` guarantees confinement.
     pub fn join(&self, rel: &RelPath) -> AbsPath {
         AbsPath(self.0.join(rel.as_path()))
     }
 
-    /// 拼一个已知安全的字面段（如 `"attempts"`）。调用方保证不含分隔符。
+    /// Join a known-safe literal segment (such as `"attempts"`); the caller guarantees no separators.
     pub fn join_segment(&self, segment: &str) -> AbsPath {
         AbsPath(self.0.join(segment))
     }

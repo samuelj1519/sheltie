@@ -5,17 +5,17 @@ export function syncTextPreviews(model, container) {
   }
 }
 const flowAdvice = {
-  '1': '检查入口是否指向现存节点，以及节点 ID 是否合规、唯一。',
-  '2': '检查显式边的两端节点，移除自环或重复边。',
-  '3': '检查入口和显式边，使所有节点都能从入口到达；连线不会自动增加输入绑定。',
-  '4': '至少保留一个没有出边的终点节点。',
-  '5': '核对输入来源、引用输出与显式边的可达关系，并核对 required 声明。',
-  '6': '为门槛节点填写非空说明。',
-  '7': '核对引用文件是否存在，以及文件路径、大小和说明的 UTF-8 编码。',
-  '8': '核对节点的 requires 与方法的宿主资源声明；工具不会安装资源。',
-  '9': '人工执行者不得声明 tier；将档位设为「未声明」。',
-  '10': '最终成果只能选择终点的必需项，输入与输出的结果名称不能重复。',
-  'parse': '按引擎给出的字段或 TOML 行列核对声明类型与未知字段，修正后重新检查。',
+  '1': 'Check that the entry names an existing node and all node IDs are valid and unique.',
+  '2': 'Check edge endpoints and remove self-loops or duplicate edges.',
+  '3': 'Check the entry and explicit edges so every node is reachable; connecting nodes does not add input bindings.',
+  '4': 'Keep at least one terminal node with no outgoing edges.',
+  '5': 'Check input sources, referenced outputs, explicit-edge reachability, and required declarations.',
+  '6': 'Provide nonempty instructions for gate nodes.',
+  '7': 'Check referenced files, paths, sizes, and UTF-8 instruction encoding.',
+  '8': 'Check node requires against Workbook host-resource declarations; the editor does not install resources.',
+  '9': 'Human executors must not declare tier; select Not declared.',
+  '10': 'Final results must select required terminal items, with unique names across inputs and outputs.',
+  'parse': 'Check declaration types and unknown fields using the engine field or TOML line/column, then retry.',
 };
 export function describeFailure(result, flowPaths) {
   const error = result.engineError;
@@ -26,10 +26,10 @@ export function describeFailure(result, flowPaths) {
   const reason = typeof detail?.reason === 'string' ? detail.reason : '';
   const explicitFile = typeof detail?.file === 'string' ? detail.file : '';
   return {
-    message: typeof error?.message === 'string' ? error.message : result.error ?? '检查失败。',
+    message: typeof error?.message === 'string' ? error.message : result.error ?? 'Check failed.',
     code, rule, path, reason,
-    next: code === 'FLOW_INVALID' ? flowAdvice[rule] ?? '按上述字段和原因核对当前 Flow，修改后重新检查。' : '按上述字段和原因核对当前文件，修改后重新检查。',
-    fileNote: explicitFile ? `引擎给出的文件：${explicitFile}` : '引擎未提供准确文件。下面列出当前定义文件候选，请打开后核对上述字段。',
+    next: code === 'FLOW_INVALID' ? flowAdvice[rule] ?? 'Check the current Flow against the fields and reason above, then run the check again.' : 'Check the current file against the fields and reason above, then run the check again.',
+    fileNote: explicitFile ? `File identified by the engine: ${explicitFile}` : 'The engine did not identify an exact file. Open a candidate definition below and check the fields above.',
     candidates: explicitFile ? [explicitFile] : ['workbook.toml', ...flowPaths],
   };
 }

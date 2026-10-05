@@ -1,7 +1,7 @@
-读 `topic`，围绕它列一份提纲。
+Read topic and prepare an outline.
 
-- 三到六个一级要点，每个要点下一到三个子点。
-- 每个要点一句话说清要讲什么，不展开。
-- 用简体中文，Markdown 列表。
+- Three to six top-level points, each with one to three subpoints.
+- One sentence per point stating the subject, without expansion.
+- Write English using a Markdown list.
 
-把提纲写到任务书「输出要求」里 `outline` 对应的路径。回复协调者时说一句：几个要点，主线是什么。
+Write to the outline path in the brief's output requirements. Tell the coordinator the number of points and main thread in one sentence.

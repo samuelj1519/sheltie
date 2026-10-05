@@ -1,0 +1,278 @@
+{
+  "mode": "real CLI mechanical scenes; simulated outputs/gates, not actual agent or human acceptance",
+  "binary": "/private/tmp/sheltie-english-target/debug/sheltie",
+  "binary_sha256": "a3442105b6a26c6571a52c01e013b9dab1aa098be4101423ae23fdb96fe1c98a",
+  "home": "owned temporary root removed after run",
+  "workbooks": [
+    {
+      "id": "two-step",
+      "version": "1.0.1",
+      "stages": [
+        {
+          "node": "outline",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "summary",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        }
+      ],
+      "final": true,
+      "selected_artifacts": 0
+    },
+    {
+      "id": "two-step-zh-cn",
+      "version": "1.0.0",
+      "stages": [
+        {
+          "node": "outline",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "summary",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        }
+      ],
+      "final": true,
+      "selected_artifacts": 0
+    },
+    {
+      "id": "article-review",
+      "version": "1.0.1",
+      "stages": [
+        {
+          "node": "draft",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "review",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "publish",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        }
+      ],
+      "final": true,
+      "selected_artifacts": 0
+    },
+    {
+      "id": "article-review-zh-cn",
+      "version": "1.0.0",
+      "stages": [
+        {
+          "node": "draft",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "review",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "publish",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        }
+      ],
+      "final": true,
+      "selected_artifacts": 0
+    },
+    {
+      "id": "gated-release",
+      "version": "1.0.1",
+      "stages": [
+        {
+          "node": "notes",
+          "brief_english_wrappers": true,
+          "gate_exercised": true
+        },
+        {
+          "node": "archive",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        }
+      ],
+      "final": true,
+      "selected_artifacts": 0
+    },
+    {
+      "id": "gated-release-zh-cn",
+      "version": "1.0.0",
+      "stages": [
+        {
+          "node": "notes",
+          "brief_english_wrappers": true,
+          "gate_exercised": true
+        },
+        {
+          "node": "archive",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        }
+      ],
+      "final": true,
+      "selected_artifacts": 0
+    },
+    {
+      "id": "code-change",
+      "version": "1.0.1",
+      "stages": [
+        {
+          "node": "implement",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "review",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "deliver",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        }
+      ],
+      "final": true,
+      "selected_artifacts": 3
+    },
+    {
+      "id": "code-change-zh-cn",
+      "version": "1.0.0",
+      "stages": [
+        {
+          "node": "implement",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "review",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "deliver",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        }
+      ],
+      "final": true,
+      "selected_artifacts": 3
+    },
+    {
+      "id": "spec-dev",
+      "version": "0.2.3",
+      "stages": [
+        {
+          "node": "spec",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "plan",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "plan-review",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "scaffold",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "implement",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "verify",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "review",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "deliver",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "retro",
+          "brief_english_wrappers": true,
+          "gate_exercised": true
+        }
+      ],
+      "final": true,
+      "selected_artifacts": 2
+    },
+    {
+      "id": "spec-dev-zh-cn",
+      "version": "0.2.2",
+      "stages": [
+        {
+          "node": "spec",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "plan",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "plan-review",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "scaffold",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "implement",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "verify",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "review",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "deliver",
+          "brief_english_wrappers": true,
+          "gate_exercised": false
+        },
+        {
+          "node": "retro",
+          "brief_english_wrappers": true,
+          "gate_exercised": true
+        }
+      ],
+      "final": true,
+      "selected_artifacts": 2
+    }
+  ]
+}

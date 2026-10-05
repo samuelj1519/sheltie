@@ -1,14 +1,14 @@
-# 规格自查
+# Requirements self-check
 
-交稿前逐条过。任一条不满足就回去改。
+Apply every item; revise any failure.
 
-1. 「目标」只有一段，说的是用户能做到的事，不是技术动作。
-2. 「范围」里每一条都能对应到至少一条验收标准；反过来每条验收标准都在范围内。
-3. 每条验收标准都能由第三个人不问你就执行或观察。
-4. 验收标准三到十条。
-5. 「不做」非空。一个需求总有边界。
-6. 「假设」里的每条都是你替用户做的决定，而不是待问的问题。
-7. 「开放问题」里的每条都附了推荐答案。
-8. 全文没有技术方案、没有文件路径、没有代码。
-9. 全文没有「优化」「良好」「合理」「尽量」这类无法检验的词。
-10. 用简体中文，短句。
+1. One Goal paragraph describes user capability, not technical actions.
+2. Every scope item maps to acceptance and every criterion stays in scope.
+3. A third person can execute/observe each criterion without asking you.
+4. Three to ten criteria.
+5. Exclusions are nonempty; every request has boundaries.
+6. Assumptions are actual decisions, not unanswered questions.
+7. Every open question has a recommended answer.
+8. No technical plans, paths, or code.
+9. No untestable words such as optimize/good/reasonable/as far as possible.
+10. English, short sentences.

@@ -1,4 +1,4 @@
-//! 锁内读写 Store 会话。所有普通写入口先持有 HomeLock，再获得 RW Store。
+//! Read-write Store session under the lock; ordinary writes acquire HomeLock before RW Store.
 
 use crate::error::{Error, Result};
 use crate::fsx::{self, open_managed_optional_locked, write_new_file_observed};
@@ -50,7 +50,7 @@ impl WriteSession {
             fsx::rename_verified_managed_file(home, &lock, &created, &path, &bytes).map_err(
                 |error| Error::RecoveryRequired {
                     path: path.to_string(),
-                    detail: format!("完整暂存Store发布失败；所有现有端点已保留：{error}"),
+                    detail: format!("Complete staged Store publication failed; all existing endpoints preserved: {error}"),
                 },
             )?;
             let relative = home.to_rel(&staging)?;
@@ -168,10 +168,10 @@ mod tests {
                     move |home| {
                         drop(WriteSession::open_or_create(&home)?);
                         if panic_in_first {
-                            panic!("初始化后的受控线程失败");
+                            panic!("Controlled thread failure after initialization");
                         }
                         Err(Error::InvalidRequest {
-                            reason: "初始化后的受控错误".into(),
+                            reason: "Controlled error after initialization".into(),
                         })
                     },
                     move |home| {

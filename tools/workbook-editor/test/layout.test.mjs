@@ -8,7 +8,7 @@ function storage() {
   const values = new Map();
   return { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value), values };
 }
-test('真实app共享布局路径执行拖动/平移/缩放/适应/存取后所有Workbook文件原字节不变', async () => {
+test('Real app layout drag/pan/zoom/fit/save/load preserves every Workbook file byte', async () => {
   const source = await readTree(resolve('../../examples/code-change'));
   source.set('resources/binary', Buffer.from([0, 255, 13, 10, 128]));
   const model = new WorkbookModel(source), cache = storage(), key = 'layout:code-change:default';
@@ -31,11 +31,11 @@ test('真实app共享布局路径执行拖动/平移/缩放/适应/存取后所�
   assert.deepEqual([...after.keys()].sort(), [...source.keys()].sort());
   for (const [path, expected] of source) assert.deepEqual(Buffer.from(after.get(path)), Buffer.from(expected), path);
 });
-test('真实布局缓存损坏/非法坐标被拒绝为默认视图，不写Workbook', () => {
+test('Corrupt layout cache and invalid coordinates fall back to the default view without writing the Workbook', () => {
   const cache = storage();
   cache.setItem('bad', '{'); const fallback = CanvasView.load(cache, 'bad'); assert.equal(fallback.x, 45); assert.equal(fallback.scale, 1); assert.equal(fallback.positions.size, 0);
   cache.setItem('bad-scale', '{"x":1,"y":2,"scale":3,"positions":[]}'); assert.equal(CanvasView.load(cache, 'bad-scale').scale, 1);
   cache.setItem('partial', '{"x":1,"y":2,"scale":1,"positions":[["valid",{"x":7,"y":8}],["invalid",{"x":"HTML","y":9}]]}');
   const partial = CanvasView.load(cache, 'partial'); assert.deepEqual([...partial.positions], [['valid', { x: 7, y: 8 }]]);
-  assert.throws(() => partial.move({ type: 'unknown', startX: 0, startY: 0 }, 1, 1), /未知/);
+  assert.throws(() => partial.move({ type: 'unknown', startX: 0, startY: 0 }, 1, 1), /[Uu]nknown/);
 });

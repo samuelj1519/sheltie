@@ -1,0 +1,25 @@
+schema = "flow/v1"
+id = "default"
+entry = "notes"
+
+[[nodes]]
+id = "notes"
+title = "生成发布说明"
+executor = "agent"
+instruction = { file = "instructions/notes.md" }
+inputs  = [{ name = "version", from = "start.version" }]
+outputs = [{ name = "notes", path = "notes.md", max_bytes = 65536 }]
+gate = true
+
+[[nodes]]
+id = "archive"
+title = "归档"
+executor = "agent"
+instruction = { file = "instructions/archive.md" }
+inputs  = [{ name = "notes", from = "notes.notes" }]
+outputs = [{ name = "archive", path = "archive.md", max_bytes = 65536 }]
+
+[[edges]]
+from = "notes"
+to = "archive"
+kind = "main"

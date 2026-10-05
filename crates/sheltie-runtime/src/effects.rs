@@ -1,9 +1,9 @@
-//! 效果登记与恢复（存储合同 §3.2、GF-31）。
+//! Effect registration and recovery (storage contract §3.2, GF-31).
 //!
-//! `requests.effects_json` 是效果对象数组：I/O 完成情况，不参与业务选边，不构成
-//! 第二套 Work 状态。全部路径相对管理根；`write_file` 携带精确字节，历史任务书与
-//! `engine/stats.json` 按提交时字节恢复，不从最新状态重算。恢复顺序按 `audit.seq`
-//! 递增；同请求先 `publish_dir` / `prepare_attempt`，再历史文件、封存或删除，最后
+//! requests.effects_json records I/O completion, without selecting business edges or forming
+//! a second Work state. Paths are management-root relative; write_file carries exact bytes, restoring historical briefs and
+//! engine/stats.json from commit-time bytes, without recomputing from current state. Recover in audit.seq
+//! order; within each request publish_dir/prepare_attempt precede historical files, sealing/deletion, and finally
 //! `refresh_status_card`。
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -33,39 +33,39 @@ impl CheckedEffects {
     }
 }
 
-/// `effects_json` 的一个效果对象。字段与存储合同 §3.2 的表逐项对应，未知字段拒绝。
+/// One effects_json object; fields match storage contract §3.2, rejecting unknown fields.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum EffectOp {
-    /// `pending/<id>/payload/` → 最终目录的原子发布。
+    /// Atomically publish pending/<id>/payload/ to its final directory.
     PublishDir {
         pending: String,
         #[serde(rename = "final")]
         final_path: String,
-        /// `work:<work_id>` 或 `workbook:<id>@<version>`。
+        /// work:<work_id> or workbook:<id>@<version>.
         owner: String,
-        /// `workbook-digest/v2`（Workbook 与 Work 冻结副本同口径）。
+        /// workbook-digest/v2, shared by Workbooks and Work frozen copies.
         digest: String,
-        /// 摘要核算的子路径（相对 payload，空串为整棵）。Work 的 payload 含
-        /// `workbook/` 与 `start-inputs/`，摘要只核 `workbook/`（存储合同 §3.2）。
+        /// Digest subtree relative to payload; empty means the whole tree. Work payload contains
+        /// workbook/ and start-inputs/; hash only workbook/ (storage contract §3.2).
         digest_root: String,
     },
-    /// 在已提交 Attempt 下安全建立目录骨架。
+    /// Safely create the committed Attempt's directory skeleton.
     PrepareAttempt {
         work_id: String,
         attempt_id: String,
-        /// 按父先于子排序的目录路径（相对管理根）。
+        /// Root-relative directory paths ordered parent before child.
         dirs: Vec<String>,
     },
-    /// 精确字节的历史文件（任务书、`engine/stats.json`）。
+    /// Exact-byte historical files: brief and engine/stats.json.
     WriteFile {
         path: String,
         sha256: String,
         content: String,
     },
-    /// 对原产物引用核对后置只读。
+    /// Set outputs read-only after verifying original artifact references.
     SealOutputs { refs: Vec<RefJson> },
-    /// 已核归属目录的移入与删除。
+    /// Move and delete directories with verified ownership.
     DeleteDir {
         pending: String,
         #[serde(rename = "final")]
@@ -73,11 +73,11 @@ pub enum EffectOp {
         owner: String,
         digest: String,
     },
-    /// 从最新状态重新生成状态卡（当前投影，不是历史文件）。
+    /// Regenerate the status card from latest state, as a current projection rather than a historical file.
     RefreshStatusCard { work_id: String },
 }
 
-/// 完整产物引用（协议 §6 形状；`seal_outputs` 用它核对原对象）。
+/// Complete artifact reference (protocol §6); seal_outputs uses it to verify the original object.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct RefJson {
@@ -93,10 +93,10 @@ pub(crate) struct DeletedMarker {
     pub(crate) internal_id: String,
 }
 
-/// 把效果数组从 JSON 解出；结构不符报 `STORE_CORRUPT`，不猜默认值。
+/// Decode an effect array; invalid structure yields STORE_CORRUPT without guessed defaults.
 pub fn decode_effects(json: &str) -> Result<Vec<EffectOp>> {
     serde_json::from_str(json).map_err(|e| Error::StoreCorrupt {
-        detail: format!("effects_json 解不开：{e}"),
+        detail: format!("Cannot decode effects_json: {e}"),
     })
 }
 
@@ -144,7 +144,10 @@ pub(crate) fn check_work_effects(
                     work_id, workbook, ..
                 } = command
                 else {
-                    return Err(invalid("kind", "不允许非start请求发布Work目录"));
+                    return Err(invalid(
+                        "kind",
+                        "Only start requests may publish Work directories",
+                    ));
                 };
                 let parts = pending.split('/').collect::<Vec<_>>();
                 if parts.len() != 3
@@ -152,7 +155,10 @@ pub(crate) fn check_work_effects(
                     || parts[2] != "payload"
                     || uuid::Uuid::parse_str(parts[1]).is_err()
                 {
-                    return Err(invalid("pending", "不是本引擎的pending/<id>/payload路径"));
+                    return Err(invalid(
+                        "pending",
+                        "Not this engine's pending/<id>/payload path",
+                    ));
                 }
                 if work_id.as_str() != work
                     || final_path != &format!("works/{work}")
@@ -160,12 +166,15 @@ pub(crate) fn check_work_effects(
                     || digest != workbook.digest.as_str()
                     || digest_root != "workbook"
                 {
-                    return Err(invalid("owner", "与Start命令或已提交Work身份不一致"));
+                    return Err(invalid(
+                        "owner",
+                        "Does not match the Start command or committed Work identity",
+                    ));
                 }
                 ManagedRelPath::new(pending.clone())
-                    .map_err(|error| invalid("pending", &format!("无效：{error}")))?;
+                    .map_err(|error| invalid("pending", &format!("Invalid: {error}")))?;
                 ManagedRelPath::new(final_path.clone())
-                    .map_err(|error| invalid("final", &format!("无效：{error}")))?;
+                    .map_err(|error| invalid("final", &format!("Invalid: {error}")))?;
             }
             EffectOp::PrepareAttempt {
                 work_id,
@@ -173,22 +182,28 @@ pub(crate) fn check_work_effects(
                 dirs,
             } => {
                 if seen_prepare || work_id != work {
-                    return Err(invalid("work_id", "不匹配或重复准备Attempt目录"));
+                    return Err(invalid(
+                        "work_id",
+                        "Mismatched or duplicate Attempt directory preparation",
+                    ));
                 }
                 seen_prepare = true;
                 let attempt_id = AttemptId::parse(attempt_id)
-                    .map_err(|error| invalid("attempt_id", &format!("不合法：{error}")))?;
+                    .map_err(|error| invalid("attempt_id", &format!("Invalid: {error}")))?;
                 if command_attempt.as_ref() != Some(&attempt_id)
                     || state.attempt(&attempt_id).is_none()
                 {
-                    return Err(invalid("attempt_id", "不属于该请求的已提交Attempt"));
+                    return Err(invalid(
+                        "attempt_id",
+                        "Not the committed Attempt belonging to this request",
+                    ));
                 }
                 let expected = expected_attempt_dirs(home, state, graph, &attempt_id)?;
                 if dirs != &expected {
                     return Err(invalid(
                         "dirs",
                         &format!(
-                            "与冻结图声明的Attempt目录不一致：actual={dirs:?}, expected={expected:?}"
+                            "Does not match frozen-graph Attempt directories: actual={dirs:?}, expected={expected:?}"
                         ),
                     ));
                 }
@@ -200,15 +215,18 @@ pub(crate) fn check_work_effects(
             } => {
                 let attempt_id = command_attempt
                     .as_ref()
-                    .ok_or_else(|| invalid("path", "没有所属Attempt"))?;
+                    .ok_or_else(|| invalid("path", "No owning Attempt"))?;
                 let attempt = state
                     .attempt(attempt_id)
-                    .ok_or_else(|| invalid("path", "Attempt不在已校验Work状态中"))?;
+                    .ok_or_else(|| invalid("path", "Attempt is absent from verified Work state"))?;
                 if !matches!(
                     command,
                     Command::BeginAttempt { .. } | Command::ReplaceAttempt { .. }
                 ) {
-                    return Err(invalid("path", "历史文件只可由begin/replace请求登记"));
+                    return Err(invalid(
+                        "path",
+                        "Only begin/replace requests may register historical files",
+                    ));
                 }
                 let expected_brief =
                     home.to_rel(&state.attempt_dir(attempt_id).join_segment("brief.md"))?;
@@ -216,14 +234,20 @@ pub(crate) fn check_work_effects(
                     &sheltie_core::work::layout::engine_stats_path(&state.attempt_dir(attempt_id)),
                 )?;
                 if path != &expected_brief && path != &expected_stats {
-                    return Err(invalid("path", "不等于此Attempt的brief或engine.stats路径"));
+                    return Err(invalid(
+                        "path",
+                        "Does not match this Attempt's brief or engine.stats path",
+                    ));
                 }
                 ManagedRelPath::new(path.clone())
-                    .map_err(|error| invalid("path", &format!("无效：{error}")))?;
+                    .map_err(|error| invalid("path", &format!("Invalid: {error}")))?;
                 if Sha256Hex::new(sha256.clone()).is_err()
                     || Sha256Hex::of_bytes(content.as_bytes()).as_str() != sha256
                 {
-                    return Err(invalid("sha256", "与历史文件精确字节不匹配"));
+                    return Err(invalid(
+                        "sha256",
+                        "Does not match exact historical-file bytes",
+                    ));
                 }
                 if path == &expected_stats {
                     let stats_path = state
@@ -244,25 +268,25 @@ pub(crate) fn check_work_effects(
                     {
                         return Err(invalid(
                             "content",
-                            "engine.stats字节与同次begin绑定的ArtifactRef不一致",
+                            "engine.stats bytes differ from the ArtifactRef bound by this begin",
                         ));
                     }
                 }
             }
             EffectOp::SealOutputs { refs } => {
                 let Command::SubmitAttempt { attempt, .. } = command else {
-                    return Err(invalid("refs", "封存只能由submit请求登记"));
+                    return Err(invalid("refs", "Only submit requests may register sealing"));
                 };
                 let persisted = state
                     .attempt(attempt)
-                    .ok_or_else(|| invalid("refs", "Attempt不在已校验Work状态中"))?;
+                    .ok_or_else(|| invalid("refs", "Attempt is absent from verified Work state"))?;
                 let expected = persisted
                     .outputs
                     .iter()
                     .map(|(name, reference)| {
-                        let path = home
-                            .to_rel(&reference.path)
-                            .map_err(|error| invalid(name, &format!("输出路径不受管：{error}")))?;
+                        let path = home.to_rel(&reference.path).map_err(|error| {
+                            invalid(name, &format!("Output path is not managed: {error}"))
+                        })?;
                         Ok((
                             name,
                             RefJson {
@@ -289,15 +313,24 @@ pub(crate) fn check_work_effects(
                             .is_none_or(|expected| *actual != *expected)
                     })
                 {
-                    return Err(invalid("refs", "与该Attempt已提交的产物引用不一致"));
+                    return Err(invalid(
+                        "refs",
+                        "Differs from this Attempt's committed artifact references",
+                    ));
                 }
             }
             EffectOp::RefreshStatusCard { work_id } if work_id == work => {}
             EffectOp::RefreshStatusCard { .. } => {
-                return Err(invalid("work_id", "状态卡归属不是本Work"));
+                return Err(invalid(
+                    "work_id",
+                    "Status card does not belong to this Work",
+                ));
             }
             EffectOp::DeleteDir { .. } => {
-                return Err(invalid("kind", "Work请求不得删除Workbook目录"));
+                return Err(invalid(
+                    "kind",
+                    "Work requests must not delete Workbook directories",
+                ));
             }
         }
     }
@@ -344,7 +377,9 @@ fn validate_effect_shape(
         | (Command::ReplaceAttempt { .. }, Reply::AttemptReplaced { attempt, .. }) => {
             let Some(node) = graph.node(&attempt.node) else {
                 return Err(Error::StoreCorrupt {
-                    detail: format!("Work {work} 的begin Attempt节点不在冻结图中"),
+                    detail: format!(
+                        "Work {work} begin Attempt node is absent from the frozen graph"
+                    ),
                 });
             };
             let wants_stats = node
@@ -388,7 +423,9 @@ fn validate_effect_shape(
     };
     if !valid {
         return Err(Error::StoreCorrupt {
-            detail: format!("Work {work} requests.effects的数量、种类或顺序与Command不一致"),
+            detail: format!(
+                "Work {work} requests.effects count, kinds, or order differ from Command"
+            ),
         });
     }
     Ok(())
@@ -444,18 +481,18 @@ fn workbook_target_matches(
 
 fn invalid_workbook_target() -> Error {
     Error::StoreCorrupt {
-        detail: "Workbook snapshot的业务身份与效果登记不一致".into(),
+        detail: "Workbook snapshot business identity differs from registered effects".into(),
     }
 }
 
-/// 只读发布身份投影；其他效果字段仍由完整载荷校验拒绝，不影响已核身份。
+/// Read-only publication identity projection; full-payload validation still rejects other invalid effect fields without discarding verified identity.
 pub(crate) fn check_workbook_add_snapshot_target(
     identity: &WorkbookEffectIdentity,
     json: &str,
 ) -> Result<()> {
     let targets: Vec<PublicationTarget> =
         serde_json::from_str(json).map_err(|error| Error::StoreCorrupt {
-            detail: format!("Workbook发布身份解不开：{error}"),
+            detail: format!("Cannot decode Workbook publication identity: {error}"),
         })?;
     let mut publications = targets
         .iter()
@@ -513,7 +550,7 @@ pub(crate) fn check_workbook_effects(
 ) -> Result<CheckedEffects> {
     if !audit_work_id.is_empty() || audit_revision != 0 || ops.len() != 1 {
         return Err(Error::StoreCorrupt {
-            detail: "Workbook请求的audit归属或效果数量无效".to_string(),
+            detail: "Workbook request audit ownership or effect count is invalid".to_string(),
         });
     }
     check_workbook_snapshot_target(&identity, &ops)?;
@@ -533,7 +570,7 @@ pub(crate) fn check_workbook_effects(
         ) => {
             let expected_final = format!("workbooks/{id}/{version}");
             ManagedRelPath::new(expected_final.clone()).map_err(|error| Error::StoreCorrupt {
-                detail: format!("add snapshot的Workbook身份路径不合法：{error}"),
+                detail: format!("Invalid add snapshot Workbook identity path: {error}"),
             })?;
             if registered.is_some_and(|registered| {
                 registered.id != id
@@ -545,7 +582,9 @@ pub(crate) fn check_workbook_effects(
                 || Sha256Hex::new(digest.clone()).is_err()
             {
                 return Err(Error::StoreCorrupt {
-                    detail: "add请求的audit、snapshot、Store行与PublishDir归属不一致".to_string(),
+                    detail:
+                        "add request audit, snapshot, Store row, and PublishDir ownership differ"
+                            .to_string(),
                 });
             }
             validate_pending_payload(pending)?;
@@ -558,18 +597,19 @@ pub(crate) fn check_workbook_effects(
         ) => {
             let expected_final = format!("workbooks/{id}/{version}");
             ManagedRelPath::new(expected_final.clone()).map_err(|error| Error::StoreCorrupt {
-                detail: format!("remove snapshot的Workbook身份路径不合法：{error}"),
+                detail: format!("Invalid remove snapshot Workbook identity path: {error}"),
             })?;
             if Sha256Hex::new(digest.clone()).is_err() {
                 return Err(Error::StoreCorrupt {
-                    detail: "remove请求的audit、snapshot与DeleteDir归属不一致".to_string(),
+                    detail: "remove request audit, snapshot, and DeleteDir ownership differ"
+                        .to_string(),
                 });
             }
             validate_pending_payload(pending)?;
         }
         _ => {
             return Err(Error::StoreCorrupt {
-                detail: "Workbook请求的intent与效果kind不匹配".to_string(),
+                detail: "Workbook request intent does not match effect kind".to_string(),
             });
         }
     }
@@ -588,22 +628,22 @@ fn validate_pending_payload(path: &str) -> Result<()> {
         || uuid::Uuid::parse_str(segments[1]).is_err()
     {
         return Err(Error::StoreCorrupt {
-            detail: format!("pending原件路径 {path} 不合法"),
+            detail: format!("Invalid pending-original path {path}"),
         });
     }
     ManagedRelPath::new(path.to_string()).map_err(|error| Error::StoreCorrupt {
-        detail: format!("pending原件路径 {path} 无效：{error}"),
+        detail: format!("Invalid pending-original path {path}: {error}"),
     })?;
     Ok(())
 }
 
 pub(crate) fn validate_workbook_identity(id: &str, version: &str) -> Result<()> {
     sheltie_core::ids::WorkbookId::new(id).map_err(|error| Error::StoreCorrupt {
-        detail: format!("Workbook effect的id不合法：{error}"),
+        detail: format!("Invalid Workbook effect ID: {error}"),
     })?;
     if !crate::load::valid_workbook_version(version) {
         return Err(Error::StoreCorrupt {
-            detail: format!("Workbook effect的version {version:?} 不符合合同"),
+            detail: format!("Workbook effect version {version:?} violates the contract"),
         });
     }
     Ok(())
@@ -621,14 +661,14 @@ fn expected_attempt_dirs(
     add_directory_chain(home, &output_dir, &mut directories)?;
     let outputs =
         output_paths_for(state, graph, attempt_id).map_err(|error| Error::StoreCorrupt {
-            detail: format!("Attempt {attempt_id} 的冻结输出定义无效：{error}"),
+            detail: format!("Invalid Attempt {attempt_id} frozen output definitions: {error}"),
         })?;
     for output in outputs.values() {
         let parent = output
             .as_path()
             .parent()
             .ok_or_else(|| Error::StoreCorrupt {
-                detail: format!("Attempt {attempt_id} 的输出没有父目录"),
+                detail: format!("Attempt {attempt_id} output has no parent directory"),
             })?;
         add_directory_chain(
             home,
@@ -650,7 +690,9 @@ fn expected_attempt_dirs(
                     .as_path()
                     .parent()
                     .ok_or_else(|| Error::StoreCorrupt {
-                        detail: format!("Attempt {attempt_id} 的engine.stats没有父目录"),
+                        detail: format!(
+                            "Attempt {attempt_id} engine.stats has no parent directory"
+                        ),
                     })?
                     .to_string(),
             )
@@ -679,11 +721,11 @@ fn add_directory_chain(
     Ok(())
 }
 
-/// 执行（或恢复）一批效果。幂等：每个动作先核对现状再动手；同对象视为已完成，
-/// 不同对象报错，不覆盖、不删原件。全部成功返回 `Ok(())`；失败携带定位信息。
+/// Execute or recover effects idempotently: verify current state first, accepting the same object as completed,
+/// rejecting different objects without overwriting or deleting originals; return Ok only after all succeed, with context on failure.
 ///
-/// `publish` 是发布动作的开关：已 `published = 1` 的请求重放只核对 `write_file`，
-/// 不重做发布/封存/删除（存储合同 §3.2 末段）。
+/// publish controls publication; requests already published = 1 replay only write_file verification,
+/// without repeating publication, sealing, or deletion (storage contract §3.2 final paragraph).
 pub(crate) fn execute(
     home: &Home,
     lock: &crate::home::HomeLock,
@@ -733,10 +775,10 @@ pub(crate) fn execute_with_observed_outputs(
                 for rel in dirs {
                     let target = home.rel(rel)?;
                     fsx::ensure_dirs_under(home, lock, &target).map_err(|error| {
-                        classify_committed_path_error("Attempt目录", &target, error)
+                        classify_committed_path_error("Attempt directory", &target, error)
                     })?;
                     fsx::sync_managed_directory_entry(home, lock, rel).map_err(|error| {
-                        classify_committed_path_error("Attempt目录", &target, error)
+                        classify_committed_path_error("Attempt directory", &target, error)
                     })?;
                 }
             }
@@ -746,49 +788,55 @@ pub(crate) fn execute_with_observed_outputs(
                 content,
             } => {
                 let target = home.rel(path)?;
-                if let Some(f) = fsx::open_managed_optional(home, &target)
-                    .map_err(|error| classify_committed_path_error("历史文件", &target, error))?
-                {
+                if let Some(f) = fsx::open_managed_optional(home, &target).map_err(|error| {
+                    classify_committed_path_error("Historical file", &target, error)
+                })? {
                     // No-follow inspection distinguishes a missing leaf from an abnormal object.
                     // A matching existing original is verified and left unchanged.
                     let (got, _) = f.sha256_bounded(fsx::MAX_FILE_BYTES).map_err(|error| {
-                        classify_committed_path_error("历史文件", &target, error)
+                        classify_committed_path_error("Historical file", &target, error)
                     })?;
                     if got.as_str() != sha256 {
                         return Err(Error::StoreCorrupt {
-                            detail: format!("历史文件 {path} 的摘要与登记不符（被修改）"),
+                            detail: format!(
+                                "Historical file {path} digest differs from registration (modified)"
+                            ),
                         });
                     }
                     // A completed request can still have an interrupted explicit history repair.
                     fsx::sync_managed_regular_file_handle(home, lock, path, &f).map_err(
-                        |error| classify_committed_path_error("历史文件", &target, error),
+                        |error| classify_committed_path_error("Historical file", &target, error),
                     )?;
                 } else {
-                    // 父目录缺失或不可信时不臆造。
+                    // Do not invent missing or untrusted parent directories.
                     let parent = target
                         .as_path()
                         .parent()
                         .map(|p| p.to_path_buf())
                         .ok_or_else(|| Error::StoreCorrupt {
-                            detail: format!("历史文件 {path} 没有父目录"),
+                            detail: format!("Historical file {path} has no parent directory"),
                         })?;
                     if !parent.exists() {
                         return Err(Error::StoreCorrupt {
-                            detail: format!("历史文件 {path} 的父目录缺失，不能恢复"),
+                            detail: format!(
+                                "Historical file {path} parent directory is missing; cannot recover"
+                            ),
                         });
                     }
                     fsx::write_new_atomic_file(home, lock, &target, content.as_bytes()).map_err(
-                        |error| classify_committed_path_error("历史文件", &target, error),
+                        |error| classify_committed_path_error("Historical file", &target, error),
                     )?;
                     let f = fsx::open_managed_regular(home, &target).map_err(|error| {
-                        classify_committed_path_error("历史文件", &target, error)
+                        classify_committed_path_error("Historical file", &target, error)
                     })?;
                     let (got, _) = f.sha256_bounded(fsx::MAX_FILE_BYTES).map_err(|error| {
-                        classify_committed_path_error("历史文件", &target, error)
+                        classify_committed_path_error("Historical file", &target, error)
                     })?;
                     if got.as_str() != sha256 {
                         return Err(Error::StoreCorrupt {
-                            detail: format!("历史文件 {path} 恢复后摘要与登记不符"),
+                            detail: format!(
+                                "Historical file {path} digest differs from registration after recovery"
+                            ),
                         });
                     }
                 }
@@ -806,11 +854,17 @@ pub(crate) fn execute_with_observed_outputs(
                             observed
                                 .get(target.as_str())
                                 .ok_or_else(|| Error::StoreCorrupt {
-                                    detail: format!("正常submit缺少输出 {} 的观察句柄", r.path),
+                                    detail: format!(
+                                        "Ordinary submit lacks an observation handle for output {}",
+                                        r.path
+                                    ),
                                 })?;
                         if file.path() != &target {
                             return Err(Error::StoreCorrupt {
-                                detail: format!("封存句柄 {} 与效果路径不一致", r.path),
+                                detail: format!(
+                                    "Sealing handle {} differs from effect path",
+                                    r.path
+                                ),
                             });
                         }
                         seal_output(home, lock, &target, file, r)?;
@@ -833,13 +887,13 @@ pub(crate) fn execute_with_observed_outputs(
                     .request_id
                     .as_deref()
                     .ok_or_else(|| Error::StoreCorrupt {
-                        detail: "DeleteDir效果缺少已校验请求身份".to_string(),
+                        detail: "DeleteDir effect lacks verified request identity".to_string(),
                     })?;
                 delete_dir(home, lock, request_id, pending, final_path, owner, digest)?;
             }
             EffectOp::RefreshStatusCard { .. } => {
-                // 状态卡是当前投影：由调用方（持有 Store）从最新 state_json 生成，
-                // 不在本执行器里读库，也不保存历史卡字节。
+                // Status cards are current projections, generated by the Store-owning caller from latest state_json;
+                // this executor neither reads the database nor stores historical card bytes.
             }
         }
     }
@@ -854,31 +908,33 @@ fn seal_output(
     reference: &RefJson,
 ) -> Result<()> {
     file.verify_seal_reference(&reference.sha256, reference.bytes)
-        .map_err(|error| classify_committed_path_error("封存", target, error))?;
+        .map_err(|error| classify_committed_path_error("sealing", target, error))?;
     fsx::ManagedFs::open_existing(home)?
         .set_readonly(lock, file)
-        .map_err(|error| classify_committed_path_error("封存", target, error))
+        .map_err(|error| classify_committed_path_error("sealing", target, error))
 }
 
 fn classify_committed_path_error(operation: &str, target: &AbsPath, error: Error) -> Error {
     match error {
         Error::Io { source, .. } if source.kind() == std::io::ErrorKind::AlreadyExists => {
             Error::StoreCorrupt {
-                detail: format!("{operation}路径 {target} 在恢复落位前出现已有对象：{source}"),
+                detail: format!(
+                    "{operation} path {target} gained an existing object before recovery placement: {source}"
+                ),
             }
         }
         Error::InvalidRequest { reason } => Error::StoreCorrupt {
-            detail: format!("{operation}路径 {target} 的对象身份或类型不符：{reason}"),
+            detail: format!("{operation} path {target} object identity or type differs: {reason}"),
         },
         Error::NotFound { what } => Error::StoreCorrupt {
-            detail: format!("{operation}路径 {target} 在完成前消失：{what}"),
+            detail: format!("{operation} path {target} disappeared before completion: {what}"),
         },
         other => other,
     }
 }
 
-/// `publish_dir`：`final` 不存在且 `pending` 在 → 核原件归属与摘要后 rename 并置
-/// 只读；仅 `final` 在 → 核归属与摘要后视为完成；两者都在或内容不符 → 停止。
+/// publish_dir: pending only -> verify ownership/digest, rename, and set
+/// read-only; final only -> verify ownership/digest and accept completion; both present or mismatched contents -> stop.
 struct PublishSpec<'a> {
     pending: &'a str,
     final_path: &'a str,
@@ -899,8 +955,8 @@ fn publish_dir(home: &Home, lock: &crate::home::HomeLock, spec: PublishSpec<'_>)
         start_inputs,
         request_id,
     } = spec;
-    // 摘要核算的是原件的某个子路径（Work 的 payload 含 workbook/ 与 start-inputs/，
-    // 摘要只核 workbook/，存储合同 §3.2）；发布动作移动的是**整个 payload**。
+    // Hash the original's subtree (Work payload includes workbook/ and start-inputs/,
+    // but digest covers only workbook/, storage §3.2); publication moves the whole payload.
     let payload = home.rel(pending)?;
     let verify_at = if digest_root.is_empty() {
         payload.clone()
@@ -914,18 +970,25 @@ fn publish_dir(home: &Home, lock: &crate::home::HomeLock, spec: PublishSpec<'_>)
         (true, false) => {
             let tree = fsx::open_managed_tree(home, lock, pending)?;
             fsx::verify_managed_tree_at(home, &tree, pending).map_err(|error| {
-                integrity_error(format!("发布原件 {pending} 身份复核失败"), error)
+                integrity_error(
+                    format!("Publication original {pending} identity recheck failed"),
+                    error,
+                )
             })?;
             verify_publish_object(home, &verify_at, owner, digest)?;
             verify_start_input_references(home, pending, final_path, owner, start_inputs)?;
-            fsx::sync_managed_tree(home, lock, &tree)
-                .map_err(|error| integrity_error(format!("发布原件 {pending} 同步失败"), error))?;
+            fsx::sync_managed_tree(home, lock, &tree).map_err(|error| {
+                integrity_error(format!("Publication original {pending} sync failed"), error)
+            })?;
             if let Some(request_id) = request_id {
                 crate::failpoint::rendezvous("publish_after_tree_sync", request_id)
                     .map_err(|error| Error::io(pending, error))?;
             }
             fsx::verify_managed_tree_at(home, &tree, pending).map_err(|error| {
-                integrity_error(format!("发布同步后原件 {pending} 身份复核失败"), error)
+                integrity_error(
+                    format!("Original {pending} identity recheck failed after publication sync"),
+                    error,
+                )
             })?;
             if let Some(parent) = dst.as_path().parent() {
                 fsx::ensure_dirs_under(
@@ -936,7 +999,10 @@ fn publish_dir(home: &Home, lock: &crate::home::HomeLock, spec: PublishSpec<'_>)
             }
             fsx::rename_managed_tree_new(home, lock, &tree, final_path)?;
             fsx::verify_managed_tree_at(home, &tree, final_path).map_err(|error| {
-                integrity_error(format!("发布后原件 {final_path} 身份复核失败"), error)
+                integrity_error(
+                    format!("Original {final_path} identity recheck failed after publication"),
+                    error,
+                )
             })?;
             let final_verify = if digest_root.is_empty() {
                 dst.clone()
@@ -953,12 +1019,12 @@ fn publish_dir(home: &Home, lock: &crate::home::HomeLock, spec: PublishSpec<'_>)
                 &tree,
                 &dst,
                 &final_verify,
-                "readonly后原件",
+                "Original after read-only conversion",
             )
         }
         (false, true) => {
-            // 仅最终对象在：核最终对象的归属与摘要后视为完成（恢复语义 §3.1）；
-            // Work 的摘要只核 `digest_root`（workbook/）子路径。
+            // Only final exists: verify ownership/digest and accept completion (recovery §3.1);
+            // Work digests cover only the digest_root (workbook/) subtree.
             let final_verify = if digest_root.is_empty() {
                 dst.clone()
             } else {
@@ -966,25 +1032,46 @@ fn publish_dir(home: &Home, lock: &crate::home::HomeLock, spec: PublishSpec<'_>)
             };
             let tree = fsx::open_managed_tree(home, lock, final_path)?;
             fsx::verify_managed_tree_at(home, &tree, final_path).map_err(|error| {
-                integrity_error(format!("已发布原件 {final_path} 身份复核失败"), error)
+                integrity_error(
+                    format!("Published original {final_path} identity recheck failed"),
+                    error,
+                )
             })?;
             verify_publish_object(home, &final_verify, owner, digest)?;
             verify_start_input_references(home, final_path, final_path, owner, start_inputs)?;
             fsx::sync_managed_tree(home, lock, &tree).map_err(|error| {
-                integrity_error(format!("已发布原件 {final_path} 同步失败"), error)
+                integrity_error(
+                    format!("Published original {final_path} sync failed"),
+                    error,
+                )
             })?;
             fsx::verify_managed_tree_at(home, &tree, final_path).map_err(|error| {
-                integrity_error(format!("同步后原件 {final_path} 身份复核失败"), error)
+                integrity_error(
+                    format!("Original {final_path} identity recheck failed after sync"),
+                    error,
+                )
             })?;
             fsx::sync_publish_parents(home, lock, pending, final_path)?;
             fsx::sync_publish_final_root(home, lock, final_path)?;
-            finish_publication(home, lock, &spec, &tree, &dst, &final_verify, "已发布原件")
+            finish_publication(
+                home,
+                lock,
+                &spec,
+                &tree,
+                &dst,
+                &final_verify,
+                "Published original",
+            )
         }
         (false, false) => Err(Error::StoreCorrupt {
-            detail: format!("发布对象 {final_path} 与原件 {pending} 都不存在"),
+            detail: format!(
+                "Publication object {final_path} and original {pending} are both missing"
+            ),
         }),
         (true, true) => Err(Error::StoreCorrupt {
-            detail: format!("发布对象 {final_path} 已存在且原件 {pending} 仍在，不能覆盖"),
+            detail: format!(
+                "Publication object {final_path} and original {pending} both exist; must not overwrite"
+            ),
         }),
     }
 }
@@ -998,9 +1085,9 @@ fn finish_publication(
     verify_at: &AbsPath,
     identity_context: &str,
 ) -> Result<()> {
-    // 只读化只属于 Workbook 目录（合同 §5.2：目录含根 0555、文件 0444）。
-    // Work 目录要保持可写——状态卡与 Attempt 目录随后还要写入；冻结副本
-    // `workbook/` 子树已在提交前置只读（§5.4）。
+    // Only Workbook directories become read-only (contract §5.2: directories/root 0555, files 0444).
+    // Keep Work directories writable for later status-card and Attempt writes; the frozen-copy
+    // workbook/ subtree became read-only before commit (§5.4).
     if spec.owner.starts_with("workbook:") {
         fsx::set_tree_readonly_confined(home, lock, destination)?;
     } else {
@@ -1009,7 +1096,10 @@ fn finish_publication(
     }
     fsx::verify_managed_tree_at(home, tree, spec.final_path).map_err(|error| {
         integrity_error(
-            format!("{identity_context} {} 身份复核失败", spec.final_path),
+            format!(
+                "{identity_context} {} identity recheck failed",
+                spec.final_path
+            ),
             error,
         )
     })?;
@@ -1036,12 +1126,16 @@ fn verify_publish_final_state(
     if pending_exists || !final_exists {
         return Err(Error::StoreCorrupt {
             detail: format!(
-                "发布完成前四格状态改变：pending={pending_exists}, final={final_exists}"
+                "Four-case state changed before publication completed: pending={pending_exists}, final={final_exists}"
             ),
         });
     }
-    fsx::verify_managed_tree_at(home, tree, final_path)
-        .map_err(|error| integrity_error(format!("发布终态 {final_path} 不再绑定原件"), error))?;
+    fsx::verify_managed_tree_at(home, tree, final_path).map_err(|error| {
+        integrity_error(
+            format!("Publication final state {final_path} no longer binds the original"),
+            error,
+        )
+    })?;
     Ok(())
 }
 
@@ -1062,18 +1156,23 @@ fn verify_publish_object(home: &Home, dir: &AbsPath, owner: &str, digest: &str) 
         identity
             .split_once('@')
             .ok_or_else(|| Error::StoreCorrupt {
-                detail: format!("Workbook发布owner {owner:?} 格式无效"),
+                detail: format!("Invalid Workbook publication owner {owner:?} format"),
             })?;
     let loaded =
         crate::workbook_repo::WorkbookRepo::load_managed_dir(home, dir).map_err(|error| {
-            integrity_error(format!("Workbook发布目录 {dir} manifest校验失败"), error)
+            integrity_error(
+                format!("Workbook publication directory {dir} manifest validation failed"),
+                error,
+            )
         })?;
     if loaded.manifest.id().as_str() != expected_id
         || loaded.manifest.version() != expected_version
         || loaded.digest.as_str() != digest
     {
         return Err(Error::StoreCorrupt {
-            detail: format!("Workbook发布目录 {dir} 的manifest身份或摘要与请求owner不符"),
+            detail: format!(
+                "Workbook publication directory {dir} manifest identity or digest differs from request owner"
+            ),
         });
     }
     Ok(())
@@ -1089,62 +1188,76 @@ fn verify_start_input_references(
     if !owner.starts_with("work:") {
         if start_inputs.is_some() {
             return Err(Error::StoreCorrupt {
-                detail: "Workbook发布效果意外携带Work起始输入".to_string(),
+                detail: "Workbook publication effects unexpectedly carry Work start inputs"
+                    .to_string(),
             });
         }
         return Ok(());
     }
     let inputs = start_inputs.ok_or_else(|| Error::StoreCorrupt {
-        detail: "Work发布缺少已校验的起始输入引用".to_string(),
+        detail: "Work publication lacks verified start-input references".to_string(),
     })?;
     for (key, reference) in inputs {
         let expected_final = format!("{final_root}/start-inputs/{key}");
         if reference.path != expected_final || Sha256Hex::new(reference.sha256.clone()).is_err() {
             return Err(Error::StoreCorrupt {
-                detail: format!("Work发布起始输入 {key} 的路径或摘要归属无效"),
+                detail: format!(
+                    "Work publication start input {key} path or digest ownership is invalid"
+                ),
             });
         }
         let source_path = format!("{source_root}/start-inputs/{key}");
         let path = home.rel(&source_path)?;
         let file = fsx::open_managed_regular(home, &path).map_err(|error| {
             integrity_error(
-                format!("Work发布起始输入 {key} 缺失或不是受管普通文件"),
+                format!(
+                    "Work publication start input {key} is missing or not a managed regular file"
+                ),
                 error,
             )
         })?;
-        let (digest, bytes) = file
-            .sha256_bounded(fsx::MAX_FILE_BYTES)
-            .map_err(|error| integrity_error(format!("Work发布起始输入 {key} 读取失败"), error))?;
+        let (digest, bytes) = file.sha256_bounded(fsx::MAX_FILE_BYTES).map_err(|error| {
+            integrity_error(
+                format!("Work publication start input {key} read failed"),
+                error,
+            )
+        })?;
         if digest.as_str() != reference.sha256 || bytes != reference.bytes {
             return Err(Error::StoreCorrupt {
-                detail: format!("Work发布起始输入 {key} 的实际字节与提交引用不一致"),
+                detail: format!(
+                    "Work publication start input {key} actual bytes differ from committed reference"
+                ),
             });
         }
     }
     Ok(())
 }
 
-/// 核对目录摘要与归属标记（侧车）；不符报 `STORE_CORRUPT`。
+/// Verify directory digest and sidecar ownership; mismatches yield STORE_CORRUPT.
 fn verify_owned_digest(home: &Home, dir: &AbsPath, owner: &str, digest: &str) -> Result<()> {
-    let got = crate::workbook_digest::digest_managed_dir_v2(home, dir)
-        .map_err(|error| integrity_error(format!("发布原件 {dir} 摘要读取失败"), error))?;
+    let got = crate::workbook_digest::digest_managed_dir_v2(home, dir).map_err(|error| {
+        integrity_error(
+            format!("Publication original {dir} digest read failed"),
+            error,
+        )
+    })?;
     if got.as_str() != digest {
         return Err(Error::StoreCorrupt {
-            detail: format!("发布原件 {dir} 的摘要与登记不符"),
+            detail: format!("Publication original {dir} digest differs from registration"),
         });
     }
-    // 归属由 pending 侧车与 Store 引用共同承担；owner 串只做存在性核对。
+    // Pending sidecar and Store references establish ownership jointly; owner strings only check presence.
     if owner.is_empty() {
         return Err(Error::StoreCorrupt {
-            detail: "发布效果缺归属".to_string(),
+            detail: "Publication effect has no owner".to_string(),
         });
     }
     Ok(())
 }
 
-/// `delete_dir`（存储合同 §3.2/§3.3）：final或pending中只处理摘要与owner均匹配的
-/// 登记对象；两处都缺时仅本请求的合法`.deleted` marker能证明完成。摘要不符、两端点
-/// 同时存在或两端点与marker同时缺失都表示归属/结果不明，必须停止并保留现场。
+/// delete_dir (storage §3.2/§3.3) handles only registered final/pending objects with matching digest and owner;
+/// if both are absent, only this request's valid .deleted marker proves completion. Digest mismatch, both endpoints
+/// present, or both endpoints/marker absent means unknown ownership/result; stop and preserve state.
 fn delete_dir(
     home: &Home,
     lock: &crate::home::HomeLock,
@@ -1157,7 +1270,7 @@ fn delete_dir(
     let internal_id = pending_internal_id(pending)?;
     if !owner.starts_with("workbook:") {
         return Err(Error::StoreCorrupt {
-            detail: format!("remove请求 {request_id} 的owner不是Workbook"),
+            detail: format!("remove request {request_id} owner is not Workbook"),
         });
     }
     crate::service::verify_pending_owner(home, internal_id, request_id, "remove_workbook")?;
@@ -1167,7 +1280,9 @@ fn delete_dir(
     if let Some(marker_file) = marker_file {
         if pending_exists || final_exists {
             return Err(Error::StoreCorrupt {
-                detail: format!("删除请求 {request_id} 的完成marker与目录对象同时存在"),
+                detail: format!(
+                    "Deletion request {request_id} completion marker and directory object both exist"
+                ),
             });
         }
         sync_deleted_marker(home, lock, internal_id, request_id, &marker_file)?;
@@ -1175,19 +1290,23 @@ fn delete_dir(
             || fsx::managed_directory_exists(home, lock, final_path)?
         {
             return Err(Error::StoreCorrupt {
-                detail: format!("marker同步期间删除请求 {request_id} 出现目录对象"),
+                detail: format!(
+                    "Deletion request {request_id} gained a directory object during marker sync"
+                ),
             });
         }
         return Ok(());
     }
     if pending_exists && final_exists {
         return Err(Error::StoreCorrupt {
-            detail: format!("删除请求 {request_id} 的final与pending同时存在"),
+            detail: format!("Deletion request {request_id} final and pending both exist"),
         });
     }
     if !pending_exists && !final_exists {
         return Err(Error::StoreCorrupt {
-            detail: format!("删除请求 {request_id} 两端点均缺失且没有合法完成marker，结果不明"),
+            detail: format!(
+                "Deletion request {request_id} endpoints and valid completion marker are missing; result unknown"
+            ),
         });
     }
 
@@ -1225,7 +1344,7 @@ fn delete_dir(
         || fsx::managed_directory_exists(home, lock, final_path)?
     {
         return Err(Error::StoreCorrupt {
-            detail: format!("删除请求 {request_id} 后仍有final或pending对象"),
+            detail: format!("Deletion request {request_id} still has a final or pending object"),
         });
     }
     write_deleted_marker(home, lock, internal_id, request_id)?;
@@ -1234,7 +1353,9 @@ fn delete_dir(
         || fsx::managed_directory_exists(home, lock, final_path)?
     {
         return Err(Error::StoreCorrupt {
-            detail: format!("删除请求 {request_id} 写marker期间出现目录对象"),
+            detail: format!(
+                "Deletion request {request_id} gained a directory object while writing its marker"
+            ),
         });
     }
     Ok(())
@@ -1248,13 +1369,13 @@ pub(crate) fn pending_internal_id(pending: &str) -> Result<&str> {
         || uuid::Uuid::parse_str(segments[1]).is_err()
     {
         return Err(Error::StoreCorrupt {
-            detail: format!("删除效果的pending路径 {pending:?} 无效"),
+            detail: format!("Invalid deletion-effect pending path {pending:?}"),
         });
     }
     Ok(segments[1])
 }
 
-/// 独占创建并 fsync `pending/<internal_id>.deleted` 完成标记（§3.3）。
+/// Exclusively create and fsync pending/<internal_id>.deleted completion marker (§3.3).
 fn write_deleted_marker(
     home: &Home,
     lock: &crate::home::HomeLock,
@@ -1262,7 +1383,7 @@ fn write_deleted_marker(
     request_id: &str,
 ) -> Result<()> {
     let _ = uuid::Uuid::parse_str(internal_id).map_err(|error| Error::StoreCorrupt {
-        detail: format!("删除marker内部id无效：{error}"),
+        detail: format!("Invalid deletion marker internal ID: {error}"),
     })?;
     let relative = format!("pending/{internal_id}.deleted");
     if let Some(file) = read_deleted_marker(home, lock, internal_id)? {
@@ -1273,7 +1394,7 @@ fn write_deleted_marker(
         internal_id: internal_id.to_string(),
     };
     let mut content = serde_json::to_vec(&marker).map_err(|error| Error::StoreCorrupt {
-        detail: format!("删除marker序列化失败：{error}"),
+        detail: format!("Deletion marker serialization failed: {error}"),
     })?;
     content.push(b'\n');
     let path = home.rel(&relative)?;
@@ -1292,7 +1413,10 @@ pub(crate) fn read_deleted_marker(
         .join_segment(&format!("{internal_id}.deleted"));
     let Some(file) =
         fsx::open_managed_optional_locked(home, lock, &marker_path).map_err(|error| {
-            integrity_error(format!("删除marker {marker_path} 身份校验失败"), error)
+            integrity_error(
+                format!("Deletion marker {marker_path} identity validation failed"),
+                error,
+            )
         })?
     else {
         return Ok(None);
@@ -1306,21 +1430,21 @@ fn validate_deleted_marker_file(
     marker_path: &AbsPath,
     internal_id: &str,
 ) -> Result<()> {
-    let mut bytes = file
-        .read_bounded(4096)
-        .map_err(|error| integrity_error(format!("删除marker {marker_path} 读取失败"), error))?;
+    let mut bytes = file.read_bounded(4096).map_err(|error| {
+        integrity_error(format!("Deletion marker {marker_path} read failed"), error)
+    })?;
     if bytes.pop() != Some(b'\n') {
         return Err(Error::StoreCorrupt {
-            detail: format!("删除marker {marker_path} 缺少结尾换行"),
+            detail: format!("Deletion marker {marker_path} lacks a final newline"),
         });
     }
     let marker: DeletedMarker =
         serde_json::from_slice(&bytes).map_err(|error| Error::StoreCorrupt {
-            detail: format!("删除marker {marker_path} JSON无效：{error}"),
+            detail: format!("Invalid deletion marker {marker_path} JSON: {error}"),
         })?;
     if marker.format != "delete-complete/v1" || marker.internal_id != internal_id {
         return Err(Error::StoreCorrupt {
-            detail: format!("删除marker {marker_path} 与本请求internal_id不一致"),
+            detail: format!("Deletion marker {marker_path} differs from this request internal_id"),
         });
     }
     let mut expected = serde_json::to_vec(&DeletedMarker {
@@ -1328,14 +1452,14 @@ fn validate_deleted_marker_file(
         internal_id: internal_id.to_string(),
     })
     .map_err(|error| Error::StoreCorrupt {
-        detail: format!("删除marker期望值序列化失败：{error}"),
+        detail: format!("Expected deletion marker serialization failed: {error}"),
     })?;
     expected.push(b'\n');
     let mut actual = bytes;
     actual.push(b'\n');
     if actual != expected {
         return Err(Error::StoreCorrupt {
-            detail: format!("删除marker {marker_path} 字节不是合同格式"),
+            detail: format!("Deletion marker {marker_path} bytes violate the contract format"),
         });
     }
     Ok(())
@@ -1354,18 +1478,21 @@ fn sync_deleted_marker(
     crate::failpoint::rendezvous("delete_marker_after_validation_before_sync", request_id)
         .map_err(|error| Error::io(path.as_str(), error))?;
     fsx::sync_managed_regular_file_handle(home, lock, &relative, file).map_err(|error| {
-        integrity_error(format!("删除marker {internal_id}.deleted sync失败"), error)
+        integrity_error(
+            format!("Deletion marker {internal_id}.deleted sync failed"),
+            error,
+        )
     })?;
     validate_deleted_marker_file(file, &path, internal_id)?;
     fsx::verify_managed_file_bound(home, lock, &path, file).map_err(|error| {
         integrity_error(
-            format!("删除marker {internal_id}.deleted 同步后路径绑定失败"),
+            format!("Deletion marker {internal_id}.deleted path binding failed after sync"),
             error,
         )
     })
 }
 
-/// 独立校验一个 sha256 串。
+/// Independently validate a sha256 string.
 pub fn valid_digest(s: &str) -> bool {
     Sha256Hex::new(s).is_ok()
 }
@@ -1462,7 +1589,7 @@ mod seal_output_tests {
                 .mode()
                 & 0o222,
             0,
-            "摘要变化时必须在chmod前停止"
+            "Digest changes must stop before chmod"
         );
     }
 
@@ -1509,7 +1636,7 @@ mod seal_output_tests {
 
         assert!(matches!(
             execute_with_observed_outputs(&home, &lock, &effects, true, Some(&BTreeMap::new())),
-            Err(Error::StoreCorrupt { detail }) if detail.contains("缺少输出")
+            Err(Error::StoreCorrupt { detail }) if detail.contains("lacks an observation handle for output")
         ));
         assert_ne!(
             std::fs::metadata(home.rel(relative.as_str()).unwrap().as_path())
@@ -1687,7 +1814,7 @@ mod terminal_effect_contract_tests {
         crate::failpoint::arm_sync_error(home.root().as_str(), "publish_source_parent_sync")
             .unwrap();
         let error = crate::WorkbookRepo::new(home.clone())
-            .remove("two-step", "1.0.0", Some(id.into()))
+            .remove("two-step", "1.0.1", Some(id.into()))
             .unwrap_err();
         crate::failpoint::disarm_sync_error().unwrap();
         assert!(
@@ -1732,7 +1859,7 @@ mod terminal_effect_contract_tests {
         else {
             panic!("both endpoints cannot be completed publication")
         };
-        assert!(detail.contains("四格状态改变"), "{detail}");
+        assert!(detail.contains("Four-case state changed"), "{detail}");
         assert_eq!(std::fs::read(final_file.as_path()).unwrap(), original);
         assert_eq!(
             std::fs::read(competitor.as_path().join("competitor")).unwrap(),
@@ -1789,7 +1916,7 @@ mod terminal_effect_contract_tests {
         for endpoint in ["pending", "final"] {
             let (_directory, home) = registered_add();
             crate::WorkbookRepo::new(home.clone())
-                .remove("two-step", "1.0.0", Some("marker-remove".into()))
+                .remove("two-step", "1.0.1", Some("marker-remove".into()))
                 .unwrap();
             let EffectOp::DeleteDir {
                 pending,
@@ -1832,7 +1959,10 @@ mod terminal_effect_contract_tests {
             .unwrap_err() else {
                 panic!("a valid completion marker cannot coexist with an endpoint")
             };
-            assert!(detail.contains("完成marker与目录对象同时存在"), "{detail}");
+            assert!(
+                detail.contains("completion marker and directory object both exist"),
+                "{detail}"
+            );
             assert_eq!(
                 std::fs::read(path.as_path().join("competitor")).unwrap(),
                 b"preserved competitor"
@@ -1846,7 +1976,7 @@ mod terminal_effect_contract_tests {
         for endpoint in ["pending", "final"] {
             let (_directory, home) = registered_add();
             crate::WorkbookRepo::new(home.clone())
-                .remove("two-step", "1.0.0", Some("marker-sync-remove".into()))
+                .remove("two-step", "1.0.1", Some("marker-sync-remove".into()))
                 .unwrap();
             let EffectOp::DeleteDir {
                 pending,
@@ -2045,7 +2175,10 @@ mod owned_work_digest_contract_tests {
         else {
             panic!("registered Work digest must reject changed actual bytes")
         };
-        assert!(detail.contains("摘要与登记不符"), "{detail}");
+        assert!(
+            detail.contains("digest differs from registration"),
+            "{detail}"
+        );
         assert_eq!(std::fs::read(file.as_path()).unwrap(), bytes);
     }
 }

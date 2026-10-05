@@ -1,31 +1,35 @@
 # AGENTS.md
 
-给在本仓库工作的 agent 与开发者。Claude Code 通过 `CLAUDE.md` 引用本文；Codex、Cursor 直接读本文。
+Instructions for agents and developers working in this repository. Claude Code reaches this file through `CLAUDE.md`; Codex and Cursor read it directly. [简体中文](AGENTS.zh-CN.md)
 
-## 项目一句话
+## Project
 
-Sheltie 是给协调者 agent 用的本地工作流引擎。人把做事方法写成 Workbook，引擎记状态、发任务书、限定合法下一步、守门槛，不判断内容好坏。Rust，引擎三个 crate，单二进制 `sheltie`；外围未发布工具 `sheltie-export` 只通过 CLI 取得成果，在显式授权父目录建立新副本。
+Sheltie is a local workflow engine for coordinator agents. People write methods as Workbooks; the engine records state, generates briefs, computes legal next actions, and enforces gates without judging content. Rust: three engine crates and one `sheltie` binary. The unreleased external tool `sheltie-export` obtains results only through the CLI and creates a new copy under an explicitly authorized parent directory.
 
-## 开工入口
+## Entry points
 
-1. 读 `CONTEXT.md`，使用项目词汇。
-2. 读 `specs/README.md`，确认当前 release、active change 与文档权威。
-3. 只有存在 active change 时，读 `specs/changes/README.md` 指向的 package；按 package plan 找任务和验证入口。
-4. 写代码、测试或提交前，读 `specs/engineering.md`。
-5. 写使用文档或理解源码时，按 `docs/README.md` 选择教程、操作、参考或解释；字段与行为依据仍读 `specs/`，当前实现定位见 `docs/reference/implementation.md`。
+1. Read `CONTEXT.md` and use the project vocabulary.
+2. Read `specs/README.md` for the current release, active change, and document authority.
+3. When an active change exists, read the package linked by `specs/changes/README.md`; use its plan for tasks and validation.
+4. Before changing code or tests, or committing, read `specs/engineering.md`.
+5. For usage documentation or source explanations, use `docs/README.md` to choose tutorials, guides, reference, or explanations. Fields and behavior remain defined in `specs/`; implementation entry points are in `docs/reference/implementation.md`.
 
-没有 active change 时，不从 `proposed/` 自行选择方案实施。提案采用、任务开始和对外发布都由人决定。
+When no change is active, do not independently adopt a proposal from `proposed/`. People decide proposal adoption, task initiation, and external publication.
 
-## 硬边界
+## Hard boundaries
 
-- 产品语义以 `specs/spec.md` 为准；不变式以 `specs/constitution.md` 为准；字段与命令以 `specs/contracts/` 为准。冲突时先改上游文档再改代码。
-- 当前实施进度只看 active change 的 `plan.md`。proposal、review、提交存在或测试通过都不等于产品能力完成。
-- `sheltie-core` 不做 I/O；`sheltie-runtime` 不做业务判断；引擎不读自然语言下结论（`INV-1`、`INV-2`）。
-- 引擎只写 `~/.sheltie`，不写宿主配置、不安装任何东西到 agent（`INV-3`）。
-- Package 只指 Cargo 包；业务方法只有 Workbook（`INV-4`）。
-- 一个 change package 只在自己的目录内记录 finding、设计、计划、进度、验证和审查；不要把执行流水追加到根规格或决定记录。
+- Product semantics: `specs/spec.md`. Invariants: `specs/constitution.md`. Fields and commands: `specs/contracts/`. Resolve conflicts in upstream documents before changing code.
+- Implementation progress is defined only by the active package's `plan.md`. A proposal, review, commit, or passing test does not establish product completion.
+- `sheltie-core` performs no I/O; `sheltie-runtime` makes no business judgments. The engine does not interpret natural language to reach conclusions (`INV-1`, `INV-2`).
+- The engine writes only to `~/.sheltie`; it does not write host configuration or install anything into agents (`INV-3`).
+- Package means a Cargo package. A business method is always a Workbook (`INV-4`).
+- Record findings, design, plans, progress, validation, and review within their own change package. Root specifications and decision records are not execution logs.
 
-## 命令
+## Language
+
+English is the default for documentation, comments, Rust API documentation, product messages, developer instructions, and new commits. Preserve Chinese documentation and method variants through explicit language links. Keep meaningful Unicode fixtures and original evidence; follow `docs/how-to/maintain-docs.md`.
+
+## Commands
 
 ```bash
 cargo fmt --all -- --check
@@ -35,14 +39,15 @@ cargo nextest run --all-features --no-tests=pass
 cargo deny check
 scripts/check-docs.sh
 scripts/check-specs.sh
-scripts/task.sh <task>          # package plan 要求时运行
-scripts/check-task.sh <task>    # package plan 要求时运行
+python3 scripts/check-language.py
+scripts/task.sh <task>          # when required by the package plan
+scripts/check-task.sh <task>    # when required by the package plan
 ```
 
-## 提交
+## Commits
 
-一个任务一个提交，提交前运行 package plan 要求的门禁。格式见 `specs/engineering.md` §4：`type(scope): 中文摘要`，正文写为什么与怎么验证。新 change 使用 `Change:`、`Task:`、`Agent:` trailer；MVP 的 T01–T26 保留原格式。
+One task per commit; run the package plan's required gates first. Follow `specs/engineering.md` §4: `type(scope): English summary`, with a body explaining why and how it was verified. New changes use `Change:`, `Task:`, and `Agent:` trailers; MVP T01–T26 retain their legacy trailer format.
 
-## 遇到缺口
+## Gaps
 
-产品问题改 `specs/spec.md`；机制问题改架构或合同；跨任务的重要选择新增 `docs/explanation/decisions/D-*.md`；任务顺序改 active package plan。问题尚未采用时留在 `changes/proposed/`，不得写成当前行为。不要为了让任务编译通过发明第二套状态、兼容层或临时事实来源。
+Product questions belong in `specs/spec.md`; mechanisms belong in architecture or contracts. Add `docs/explanation/decisions/D-*.md` for important cross-task choices. Change task order in the active plan. Keep unadopted questions in `changes/proposed/`, without presenting them as current behavior. Do not invent a second state model, compatibility layer, or temporary source of truth merely to make a task compile.

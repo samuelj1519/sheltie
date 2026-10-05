@@ -3,9 +3,9 @@ files = ["specs/changes/completed/C004-verifiable-delegation/README.md", "specs/
 test_files = []
 allow_test_changes = false
 
-# 人采用并移入 active/ 后生效；proposed 不执行任务。
-# T01 复杂模型完整准备和测试；T02 冻结边界由确切 files 路径控制。
-# T02 test_files 为空，不表示允许修改脚本、测试、fixtures、protocol 或 oracle。
+# Effective after human adoption into active/; proposed tasks are not executed.
+# T01 prepares complete foundations/tests; T02 frozen boundaries are defined by exact files paths.
+# An empty T02 test_files array does not authorize script, test, fixture, protocol, or oracle edits.
 
 [C007-T01]
 files = ["specs/changes/active/C007-pre-run-workbook-generation/experiments/protocol.md", "specs/changes/active/C007-pre-run-workbook-generation/experiments/confirmed-input", "specs/changes/active/C007-pre-run-workbook-generation/experiments/shared-method.md", "specs/changes/active/C007-pre-run-workbook-generation/experiments/first-use.md", "specs/changes/active/C007-pre-run-workbook-generation/experiments/samples", "specs/changes/active/C007-pre-run-workbook-generation/experiments/oracle", "specs/changes/active/C007-pre-run-workbook-generation/experiments/scripts", "specs/changes/active/C007-pre-run-workbook-generation/experiments/preparation", "specs/changes/active/C007-pre-run-workbook-generation/review.md", "specs/changes/active/C007-pre-run-workbook-generation/validation.md", "specs/changes/active/C007-pre-run-workbook-generation/progress.md"]

@@ -1,11 +1,11 @@
-//! runtime 错误到协议错误码、`detail` 与退出码的映射。退出码：成功 0；`ok = false` 1；参数错误 2（clap 自带）。
+//! Map runtime errors to protocol codes, `detail`, and exit codes: success 0, `ok = false` 1, parameter errors 2 (clap).
 
 use serde_json::json;
 use sheltie_runtime::Error;
 
 use crate::output::Outcome;
 
-/// 一张 `match`，一次填全。`detail` 按协议 §7 每行的 `detail.*` 字段构造。
+/// One exhaustive `match`; build `detail.*` fields according to protocol §7.
 pub fn to_outcome(err: &Error) -> Outcome {
     let code = err.code();
     let message = err.to_string();
@@ -41,7 +41,7 @@ pub fn to_outcome(err: &Error) -> Outcome {
     outcome
 }
 
-/// 每个变体的定位字段。协议 §7 没写 `detail` 的变体也尽量带上定位信息，方便人看。
+/// Locating fields for every variant; include useful context even where protocol §7 does not specify `detail`.
 fn detail_of(err: &Error) -> Option<serde_json::Value> {
     let detail = match err {
         Error::Core(e) => match e {

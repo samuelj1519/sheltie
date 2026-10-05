@@ -1,0 +1,27 @@
+fix utf-8 byte order marker..............................................Passed
+check for case conflicts.................................................Passed
+check for merge conflicts................................................Passed
+check for broken symlinks................................................Passed
+check yaml...............................................................Passed
+check toml...............................................................Passed
+fix end of files.........................................................Passed
+mixed line ending........................................................Passed
+trim trailing whitespace.................................................Passed
+typos....................................................................Passed
+check docs...............................................................Passed
+check specs governance...................................................Passed
+check sheltie skill......................................................Passed
+check English defaults and language links................................Passed
+check engine vocabulary..................................................Passed
+check test names and owners..............................................Passed
+cargo fmt................................................................Passed
+cargo check..............................................................Passed
+cargo clippy.............................................................Passed
+cargo deny check.........................................................Failed
+- hook id: cargo-deny
+- exit code: 1
+
+2026-10-05 16:03:28 [ERROR] failed to fetch advisory database https://github.com/RustSec/advisory-db with cli: failed to fetch latest changes: ["-C", "/Users/shushu/.cargo/advisory-dbs/advisory-db-3157b0e258782691", "fetch", "--depth=1", "-u", "origin", "+main:main"]
+fatal: unable to access 'https://github.com/RustSec/advisory-db/': LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to github.com:443
+
+cargo nextest............................................................Passed

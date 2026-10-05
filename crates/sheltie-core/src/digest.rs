@@ -1,4 +1,4 @@
-//! SHA-256 摘要的十六进制表示。产物冻结与 Workbook 完整性都靠它。
+//! Hexadecimal SHA-256 digests for artifact sealing and Workbook integrity.
 
 use std::fmt;
 
@@ -7,13 +7,13 @@ use sha2::{Digest, Sha256};
 
 use crate::error::{Error, Result};
 
-/// 64 位小写十六进制的 SHA-256。
+/// A SHA-256 digest represented by 64 lowercase hexadecimal digits.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(try_from = "String", into = "String")]
 pub struct Sha256Hex(String);
 
 impl Sha256Hex {
-    /// 校验一个已有的十六进制串。失败返回 `Error::InvalidDigest`。
+    /// Validate a hexadecimal string; return `Error::InvalidDigest` on failure.
     pub fn new(value: impl Into<String>) -> Result<Self> {
         let value = value.into();
         let ok = value.len() == 64
@@ -26,14 +26,14 @@ impl Sha256Hex {
         Ok(Self(value))
     }
 
-    /// 对字节算摘要。纯计算，core 可以做。
+    /// Digest bytes with pure computation suitable for core.
     pub fn of_bytes(bytes: &[u8]) -> Self {
         let digest = Sha256::digest(bytes);
         Self(format!("{digest:x}"))
     }
 
-    /// 把 sha2 的摘要输出直接转成本类型。流式摘要（`workbook-digest/v2`）的收口：
-    /// 摘出的是字节流的**单次** SHA256，不得再经过 `of_bytes` 二次哈希。
+    /// Convert sha2 output directly; finalize streaming digests (`workbook-digest/v2`)
+    /// with one SHA256 of the byte stream; do not hash it again through `of_bytes`.
     pub fn from_sha256(output: sha2::digest::Output<Sha256>) -> Self {
         Self(format!("{output:x}"))
     }
@@ -42,7 +42,7 @@ impl Sha256Hex {
         &self.0
     }
 
-    /// 前 4 位，给人看的短形式。
+    /// The first four digits, for human-readable display.
     pub fn short(&self) -> &str {
         &self.0[..4]
     }
@@ -61,17 +61,17 @@ impl TryFrom<String> for Sha256Hex {
     }
 }
 
-/// `workbook-digest/v2` 的域前缀（存储合同 §5.1）。目录摘要字节流以它开头，
-/// 之后是 BE64 文件数与逐文件帧。
+/// Domain prefix for `workbook-digest/v2` (storage contract §5.1), followed by
+/// the BE64 file count and per-file frames in the directory digest stream.
 pub const WORKBOOK_DIGEST_V2_PREFIX: &[u8] = b"sheltie-workbook-digest/v2\0";
 
-/// BE64：8 字节大端无符号整数。数量与长度都入流，文件边界无歧义（O07）。
+/// BE64: an eight-byte unsigned big-endian integer; counts and lengths make file boundaries unambiguous (O07).
 pub fn be64(value: u64) -> [u8; 8] {
     value.to_be_bytes()
 }
 
-/// 一个文件的帧头：`BE64(路径字节数) || 路径 || BE64(内容字节数)`，内容字节紧随其后。
-/// 路径按字节序排序、内容以流式供给由 runtime 完成；core 只做纯字节组装。
+/// File frame header: `BE64(path byte length) || path || BE64(content byte length)`, followed by content.
+/// Runtime sorts paths bytewise and streams contents; core only assembles bytes.
 pub fn digest_v2_file_frame(path: &[u8], content_len: u64) -> Vec<u8> {
     let mut out = Vec::with_capacity(16 + path.len());
     out.extend_from_slice(&be64(path.len() as u64));
@@ -119,12 +119,12 @@ mod tests {
         assert_eq!(String::from(h), hex);
     }
 
-    // 期望帧字节全部手写，不经过被测函数。
+    // Expected frame bytes are handwritten independently of the implementation.
 
     // Task: C002-T09
     #[test]
     fn digest_v2_prefix_is_domain_string_with_nul() {
-        // 域前缀逐字节手写：ASCII 串加一个 NUL。
+        // Handwritten domain-prefix bytes: ASCII plus one NUL.
         let expected: &[u8] = &[
             b's', b'h', b'e', b'l', b't', b'i', b'e', b'-', b'w', b'o', b'r', b'k', b'b', b'o',
             b'o', b'k', b'-', b'd', b'i', b'g', b'e', b's', b't', b'/', b'v', b'2', 0,
@@ -148,7 +148,7 @@ mod tests {
     // Task: C002-T09
     #[test]
     fn digest_v2_file_frame_is_length_prefixed_path_and_content() {
-        // path = "za"（2 字节）、content 3 字节：帧头逐字节手写。
+        // path = "za" (two bytes), content length three: a handwritten frame header.
         assert_eq!(
             digest_v2_file_frame(b"za", 3),
             vec![
@@ -157,7 +157,7 @@ mod tests {
                 0, 0, 0, 0, 0, 0, 0, 3, // BE64(3)
             ]
         );
-        // 空路径零长度内容也在帧里显式编码，边界无歧义。
+        // Empty paths and content lengths are explicitly framed to avoid boundary ambiguity.
         assert_eq!(
             digest_v2_file_frame(b"", 0),
             vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]

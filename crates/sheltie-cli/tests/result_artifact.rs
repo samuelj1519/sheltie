@@ -116,7 +116,7 @@ fn result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_k
     std::fs::create_dir(&workbook).unwrap();
     std::fs::create_dir(workbook.join("flows")).unwrap();
     std::fs::create_dir(workbook.join("resources")).unwrap();
-    std::fs::write(workbook.join("workbook.toml"), "schema='workbook/v1'\nid='keys'\nversion='1.0.0'\nname='合法槽名'\nflows=['flows/default.toml']\n").unwrap();
+    std::fs::write(workbook.join("workbook.toml"), "schema='workbook/v1'\nid='keys'\nversion='1.0.0'\nname='Valid slot names'\nflows=['flows/default.toml']\n").unwrap();
     let keys = ["", "-name", "--json", "中文", "a$(echo literal)"];
     let declarations: Vec<_> = keys
         .iter()
@@ -128,7 +128,7 @@ fn result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_k
             )
         })
         .collect();
-    std::fs::write(workbook.join("flows/default.toml"), format!("schema='flow/v1'\nid='default'\nentry='make'\n[[nodes]]\nid='make'\ntitle='键'\nexecutor='agent'\ninstruction={{text='消费冻结文件'}}\ninputs=[{}]\n", declarations.join(","))).unwrap();
+    std::fs::write(workbook.join("flows/default.toml"), format!("schema='flow/v1'\nid='default'\nentry='make'\n[[nodes]]\nid='make'\ntitle='Key'\nexecutor='agent'\ninstruction={{text='Consume frozen files'}}\ninputs=[{}]\n", declarations.join(","))).unwrap();
     for (index, _) in keys.iter().enumerate() {
         std::fs::write(
             workbook.join("resources").join(format!("file{index}.bin")),
@@ -154,7 +154,7 @@ fn result_artifact_accepts_empty_hyphen_unicode_and_literal_metacharacter_slot_k
             "--attempt",
             "make#1.0",
             "--summary",
-            "完成",
+            "Completed",
         ],
     );
     let revision = ok(&home, &["work", "result", &work])["data"]["revision"]

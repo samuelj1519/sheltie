@@ -1,12 +1,12 @@
-//! 管理根 `~/.sheltie` 与路径约束。见 `specs/contracts/storage.md` §6、`specs/architecture.md` §5。
+//! Management root ~/.sheltie and path constraints; storage contract §6 and architecture §5.
 
 use sheltie_core::ids::WorkId;
 use sheltie_core::path::{AbsPath, RelPath};
 
 use crate::error::{Error, Result};
 
-/// 把路径规范化到「最深已存在祖先的真实位置 + 余下原样段」。
-/// 全路径已存在时等价于 `canonicalize`；尚不存在的尾部保持词法形式。
+/// Normalize to the deepest existing ancestor's real location plus remaining literal segments.
+/// Equivalent to canonicalize for existing paths; missing suffixes retain lexical form.
 fn canonicalize_deepest(path: &camino::Utf8Path) -> Result<camino::Utf8PathBuf> {
     let mut probe = path.to_path_buf();
     let mut tail: Vec<String> = Vec::new();
@@ -15,7 +15,10 @@ fn canonicalize_deepest(path: &camino::Utf8Path) -> Result<camino::Utf8PathBuf> 
             Ok(real) => {
                 let mut out = camino::Utf8PathBuf::from_path_buf(real).map_err(|path| {
                     Error::InvalidRequest {
-                        reason: format!("管理根的真实祖先 {} 不是UTF-8路径", path.display()),
+                        reason: format!(
+                            "Management root's real ancestor {} is not a UTF-8 path",
+                            path.display()
+                        ),
                     }
                 })?;
                 for seg in tail.iter().rev() {
@@ -38,25 +41,25 @@ fn canonicalize_deepest(path: &camino::Utf8Path) -> Result<camino::Utf8PathBuf> 
     }
 }
 
-/// 管理根。只有 runtime 能在它下面写东西。
+/// Management root; only runtime may write beneath it.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Home {
     root: AbsPath,
 }
 
 impl Home {
-    /// 解析管理根：`cli` 参数 > 环境变量 `SHELTIE_HOME` > `$HOME/.sheltie`。
-    /// 相对路径按当前目录转成绝对路径。不建目录。
+    /// Resolve management root: cli argument > SHELTIE_HOME > $HOME/.sheltie.
+    /// Resolve relative paths against the working directory, without creating directories.
     ///
-    /// 根在入口一次规范化：对最深已存在祖先做 `canonicalize`，再拼回余下段。
-    /// 之后所有 managed 路径都从这个规范根派生，祖先软链（如 `/tmp` 一类）不会
-    /// 让派生路径与 `confine` 的前缀比较失真（架构 §5）。
+    /// Normalize once at entry: canonicalize the deepest existing ancestor, then append remaining segments.
+    /// Derive all managed paths from this canonical root so ancestor symlinks (such as /tmp) do not
+    /// distort confine's prefix comparisons (architecture §5).
     pub fn resolve(cli: Option<&str>) -> Result<Self> {
         let configured = |name: &str| -> Result<Option<String>> {
             std::env::var_os(name)
                 .map(|value| {
                     value.into_string().map_err(|_| Error::InvalidRequest {
-                        reason: format!("{name} 不是UTF-8文本"),
+                        reason: format!("{name} is not UTF-8 text"),
                     })
                 })
                 .transpose()
@@ -68,7 +71,7 @@ impl Home {
                 None => format!(
                     "{}/.sheltie",
                     configured("HOME")?.ok_or_else(|| Error::InvalidRequest {
-                        reason: "既没有 --home 与 SHELTIE_HOME，也取不到 $HOME".to_string(),
+                        reason: "No --home or SHELTIE_HOME, and $HOME is unavailable".to_string(),
                     })?
                 ),
             },
@@ -79,7 +82,10 @@ impl Home {
             let cwd = std::env::current_dir().map_err(|e| Error::io(".", e))?;
             camino::Utf8PathBuf::from_path_buf(cwd.join(&given)).map_err(|path| {
                 Error::InvalidRequest {
-                    reason: format!("管理根的当前目录 {} 不是UTF-8路径", path.display()),
+                    reason: format!(
+                        "Management root's working directory {} is not a UTF-8 path",
+                        path.display()
+                    ),
                 }
             })?
         };
@@ -108,7 +114,7 @@ impl Home {
         self.root.join_segment("tmp")
     }
 
-    /// 成功CLI写后的独立维护；不创建根、锁或tmp，不参与请求恢复与业务提交。
+    /// Independent maintenance after successful CLI writes; creates no root/lock/tmp and does not participate in recovery or business commit.
     pub fn cleanup_tmp(&self) -> Result<()> {
         let lock = match self.acquire_existing_lock() {
             Ok(Some(lock)) => lock,
@@ -119,17 +125,17 @@ impl Home {
             .cleanup_expired_tmp(&lock, std::time::SystemTime::now())
     }
 
-    /// 管理根写锁 `<root>/.lock`（存储合同 §2.2，D-035 的 `fs4`）。
+    /// Management-root write lock <root>/.lock (storage contract §2.2, fs4 in D-035).
     pub fn lock_path(&self) -> AbsPath {
         self.root.join_segment(".lock")
     }
 
-    /// `pending/`：引擎持锁创建的私有暂存（未提交准备区、已提交未发布原件、待删除目录）。
+    /// pending/: private locked staging for uncommitted preparation, unpublished committed originals, and directories awaiting deletion.
     pub fn pending_dir(&self) -> AbsPath {
         self.root.join_segment("pending")
     }
 
-    /// 把经过校验的根内路径拼回绝对路径。非法登记路径必须报错，不能退回管理根。
+    /// Join a validated managed path to absolute form; reject invalid registered paths without falling back to root.
     pub fn rel(&self, rel: &str) -> Result<AbsPath> {
         let rel = crate::fsx::ManagedRelPath::new(rel)?;
         AbsPath::new(format!(
@@ -140,13 +146,13 @@ impl Home {
         .map_err(Error::Core)
     }
 
-    /// 绝对路径相对管理根的形式；不在根内时报错。
+    /// Convert absolute paths to root-relative form; reject paths outside the root.
     pub fn to_rel(&self, path: &AbsPath) -> Result<String> {
         path.as_path()
             .strip_prefix(self.root.as_path())
             .map(|p| p.to_string())
             .map_err(|_| Error::InvalidRequest {
-                reason: format!("{path} 不在管理根 {} 之内", self.root),
+                reason: format!("{path} is outside management root {}", self.root),
             })
     }
 
@@ -162,15 +168,15 @@ impl Home {
         self.workbooks_dir().join_segment(id).join_segment(version)
     }
 
-    /// 把外部给的相对路径限制在 `base` 之下。
+    /// Confine an external relative path beneath base.
     ///
-    /// 拒绝：绝对路径、含 `..`、空段。若拼出的路径已存在，`canonicalize` 后必须仍以 `base` 的
-    /// 规范形式为前缀。路径不合法返回 `Error::Core(InvalidPath)`，I/O 错误保留路径与原因。
+    /// Reject absolute paths, .., and empty segments; canonicalized existing paths must retain canonical base as
+    /// their prefix. Invalid syntax yields Core(InvalidPath); I/O errors retain path and reason.
     pub fn confine(base: &AbsPath, rel: &str) -> Result<AbsPath> {
-        // 先按写法拒绝：`RelPath` 的构造就是这套检查。
+        // Reject unsafe syntax through RelPath construction first.
         let rel = RelPath::new(rel)?;
         let joined = base.join(&rel);
-        // base 不存在时其下不可能有已存在路径，写法检查已足够。
+        // If base is absent, no descendant can exist; syntax checks suffice.
         let base_canon = match std::fs::canonicalize(base.as_path()) {
             Ok(path) => path,
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(joined),
@@ -178,7 +184,7 @@ impl Home {
         };
         crate::failpoint::rendezvous("confine_after_base_canonicalize", base.as_str())
             .map_err(|error| Error::io(base.as_str(), error))?;
-        // 找最近的存在祖先（叶与中间段可能还没建出来），对它 canonicalize 比前缀。
+        // Find the deepest existing ancestor, canonicalize it, and compare prefixes, allowing missing leaves/intermediate segments.
         let mut probe = joined.as_path().to_path_buf();
         loop {
             match std::fs::symlink_metadata(probe.as_std_path()) {
@@ -196,16 +202,16 @@ impl Home {
         if !canon.starts_with(&base_canon) {
             return Err(Error::Core(sheltie_core::Error::InvalidPath {
                 path: joined.to_string(),
-                reason: "经符号链接逃出了根",
+                reason: "Symlink escapes the root",
             }));
         }
         Ok(joined)
     }
 }
 
-/// 管理根写锁的守卫（存储合同 §2.2，D-035 的 `fs4`）。取得锁前只创建管理根与
-/// `.lock` 本身；进程退出由 OS 释放。drop 时解锁。守卫记下取得锁时的管理根与
-/// 锁对象身份（dev/inode），供获锁后的 §2.2 复核用。
+/// Write-lock guard (storage contract §2.2, fs4 in D-035); before acquisition create only the management root and
+/// .lock; OS releases on exit, drop unlocks. Record root and
+/// lock dev/inode at acquisition for the §2.2 recheck.
 #[derive(Debug)]
 pub struct HomeLock {
     _file: std::fs::File,
@@ -225,8 +231,8 @@ impl HomeLock {
         self.locked_ident
     }
 
-    /// §2.2 复核：管理根与 `.lock` 路径仍存在，且与取得锁时是同一对象（同 dev/inode）。
-    /// 根/锁若被锁外因素替换，调用方必须释放旧锁并整体重试；正常purge保留根锁。
+    /// §2.2 recheck: root and .lock still exist with acquisition-time dev/inode.
+    /// If external actors replaced root/lock, release the old lock and retry entirely; ordinary purge preserves both.
     pub fn identity_still_valid(&self) -> bool {
         use std::os::unix::fs::MetadataExt as _;
         let Ok(lock) = std::fs::symlink_metadata(self.lock_path.as_path()) else {
@@ -248,8 +254,8 @@ impl HomeLock {
 }
 
 impl Home {
-    /// 排他取得管理根写锁（阻塞等待本地协作进程）。根不存在时只在锁前创建根与`.lock`。
-    /// 获锁后复核根与锁对象身份（§2.2），不沿锁外替换后的旧inode继续写。
+    /// Acquire the exclusive root lock, blocking for local cooperating processes; create only root/.lock before acquisition if missing.
+    /// Recheck root/lock identity after acquisition (§2.2); never continue writes through externally replaced old inodes.
     pub fn acquire_lock(&self) -> Result<HomeLock> {
         const RETRY_LIMIT: u32 = 16;
         let mut last_miss = None;
@@ -259,11 +265,11 @@ impl Home {
                     if guard.identity_still_valid() {
                         return Ok(guard);
                     }
-                    // drop(guard)：释放落在旧 inode 上的锁，下一轮在新根上重建 .lock。
+                    // drop(guard) releases the old-inode lock; the next iteration recreates .lock on the new root.
                 }
                 Err(e) => {
-                    // 建根/建 .lock 的窗口里根被锁外移除同样需要整体重试；
-                    // 不把锁外替换/移除误报成普通 I/O 失败。
+                    // External root removal while creating root/.lock also requires a complete retry;
+                    // do not misreport external replacement/removal as ordinary I/O failure.
                     let gone = self.is_lock_setup_path_missing(&e);
                     if !gone {
                         return Err(e);
@@ -275,8 +281,8 @@ impl Home {
         Err(Error::io(
             self.lock_path().as_str(),
             std::io::Error::other(match last_miss {
-                Some(e) => format!("取管理根写锁连续被锁外替换打断（{e}）"),
-                None => "复核管理根写锁身份连续失败（根或.lock可能正被锁外替换）".to_string(),
+                Some(e) => format!("Management-root lock acquisition repeatedly interrupted by external replacement ({e})"),
+                None => "Management-root lock identity repeatedly failed verification (root or .lock may be externally replaced)".to_string(),
             }),
         ))
     }
@@ -293,7 +299,7 @@ impl Home {
         let Some(locked_ident) = file_ident(&file) else {
             return Err(Error::io(
                 lock_path.as_str(),
-                std::io::Error::other("无法读取已存在.lock的文件身份"),
+                std::io::Error::other("Cannot read existing .lock file identity"),
             ));
         };
         let root_ident = managed.identity();
@@ -316,7 +322,7 @@ impl Home {
         };
         if !guard.identity_still_valid() {
             return Err(Error::InvalidRequest {
-                reason: "等待期间管理根或.lock对象被替换；拒绝创建或继续访问Store".into(),
+                reason: "Management root or .lock replaced while waiting; refuse to create or continue accessing Store".into(),
             });
         }
         Ok(Some(guard))
@@ -325,16 +331,16 @@ impl Home {
     fn acquire_lock_once(&self) -> Result<HomeLock> {
         let lock_path = self.lock_path();
         let managed = crate::fsx::ManagedFs::create_root(&self.root)?;
-        // 不跟随叶链接、不接受FIFO或多链接；不得截断已存在的锁文件。
+        // Do not follow leaf symlinks or accept FIFOs/multiple links; never truncate existing lock files.
         let file = managed.open_lock_file()?;
-        // 身份在等锁前记下：复核比对的是「打开的那个对象」与「路径现在指向的对象」。
-        // 取不到身份说明根或锁在打开窗口中消失，整体重试（§2.2）。
+        // Record identity before waiting; compare the open object with the path's current object.
+        // Missing identity means root/lock vanished while opening; retry entirely (§2.2).
         let Some(locked_ident) = file_ident(&file) else {
             return Err(Error::io(
                 lock_path.as_str(),
                 std::io::Error::new(
                     std::io::ErrorKind::NotFound,
-                    "取不到 .lock 的文件身份（根在记身份时消失？）",
+                    "Cannot obtain .lock identity (root may have vanished during observation)",
                 ),
             ));
         };
@@ -397,7 +403,7 @@ mod lock_retry_tests {
             what: format!("{}-old/.lock", home.root()),
         }));
         assert!(!home.is_lock_setup_path_missing(&Error::InvalidRequest {
-            reason: "不是瞬时缺失".to_string(),
+            reason: "Not a transient absence".to_string(),
         }));
     }
 
@@ -441,7 +447,7 @@ mod lock_retry_tests {
             let _ = std::fs::write(rendezvous.path().join("release"), b"release");
             drop(held);
             let _ = child.join();
-            panic!("既有锁没有在CREATE=false句柄打开后停住");
+            panic!("Existing lock did not pause after opening with CREATE=false");
         }
         std::fs::remove_file(home.lock_path().as_path()).unwrap();
         drop(held);

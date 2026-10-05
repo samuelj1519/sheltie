@@ -1,4 +1,4 @@
-//! 只读查询。不改状态、不建目录。
+//! Read-only queries, without state changes or directory creation.
 
 use rusqlite::OptionalExtension;
 use sheltie_core::ids::WorkId;
@@ -7,7 +7,7 @@ use sheltie_core::work::WorkState;
 use super::Store;
 use crate::error::{Error, Result};
 
-/// `workbooks` 表一行。
+/// One workbooks row.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct WorkbookRow {
     pub id: String,
@@ -17,7 +17,7 @@ pub struct WorkbookRow {
     pub added_at: String,
 }
 
-/// 请求快照的元数据；与效果载荷和完成标记分别解码。
+/// Request-snapshot metadata, decoded separately from effects and completion markers.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct RequestMetadata {
     pub intent_hash: String,
@@ -43,14 +43,14 @@ impl RequestMetadata {
             || self.at != row.at
         {
             return Err(Error::StoreCorrupt {
-                detail: format!("请求 {request_id} 的元数据在校验期间改变"),
+                detail: format!("Request {request_id} metadata changed during validation"),
             });
         }
         Ok(())
     }
 }
 
-/// `requests` 表一行的重核视图。
+/// Recheck view of one requests row.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct RequestRow {
     pub intent_hash: String,
@@ -81,7 +81,7 @@ pub(crate) struct AuditRow {
     pub principal: String,
 }
 
-/// `works` 表一行（`state_json` 已解码）。
+/// One works row with decoded state_json.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct WorkRow {
     pub revision: u64,
@@ -141,7 +141,7 @@ impl Store {
                     ValueRef::Integer(1) => true,
                     _ => {
                         return Err(Error::StoreCorrupt {
-                            detail: format!("请求 {request_id} 的published值无效"),
+                            detail: format!("Request {request_id} published value is invalid"),
                         });
                     }
                 };
@@ -176,7 +176,9 @@ impl Store {
             let row = requests
                 .remove(request_id)
                 .ok_or_else(|| Error::StoreCorrupt {
-                    detail: format!("Work {id} 的audit请求 {request_id} 缺失或重复"),
+                    detail: format!(
+                        "Work {id} audit request {request_id} is missing or duplicated"
+                    ),
                 })?;
             let expected_revision = u64::try_from(complete.len())
                 .ok()
@@ -189,7 +191,7 @@ impl Store {
             {
                 return Err(Error::StoreCorrupt {
                     detail: format!(
-                        "Work {id} 的请求 {request_id} 与audit归属/revision/时间不一致"
+                        "Work {id} request {request_id} differs from audit ownership/revision/time"
                     ),
                 });
             }
@@ -202,7 +204,7 @@ impl Store {
         }
         if !requests.is_empty() || u64::try_from(complete.len()).ok() != Some(work.revision) {
             return Err(Error::StoreCorrupt {
-                detail: format!("Work {id} 的requests/audit闭包与revision不完整"),
+                detail: format!("Work {id} requests/audit closure is incomplete for its revision"),
             });
         }
         tx.commit()?;
@@ -212,7 +214,7 @@ impl Store {
         })
     }
 
-    /// 读一个 Work。不存在报 `NotFound`；`state_json` 解不出报 `StoreCorrupt`。
+    /// Read one Work; missing yields NotFound, undecodable state_json yields StoreCorrupt.
     pub fn load_work(&self, id: &WorkId) -> Result<WorkRow> {
         let conn = self.connect()?;
         let row: Option<(i64, String, String)> = conn
@@ -230,7 +232,7 @@ impl Store {
         decode_row(id.as_str(), revision, &status, &state_json)
     }
 
-    /// 全部 Work，按 `work_id` 升序。
+    /// All Works in ascending work_id order.
     pub fn list_works(&self) -> Result<Vec<WorkRow>> {
         let conn = self.connect()?;
         let mut stmt = conn
@@ -251,7 +253,7 @@ impl Store {
         Ok(out)
     }
 
-    /// 按前缀找 `work_id`。返回全部匹配，由调用方判断唯一性。
+    /// Find all work_id prefix matches; the caller determines uniqueness.
     pub fn find_works_by_prefix(&self, prefix: &str) -> Result<Vec<WorkId>> {
         let conn = self.connect()?;
         let mut stmt = conn.prepare("SELECT work_id FROM works ORDER BY work_id")?;
@@ -263,13 +265,13 @@ impl Store {
                 continue;
             }
             out.push(WorkId::parse(&work_id).map_err(|e| Error::StoreCorrupt {
-                detail: format!("works 表的 work_id {work_id:?} 解不开：{e}"),
+                detail: format!("Cannot decode works table work_id {work_id:?}: {e}"),
             })?);
         }
         Ok(out)
     }
 
-    /// 全部已装 Workbook，按 `(id, version)` 升序。
+    /// All installed Workbooks in ascending (id, version) order.
     pub fn list_workbooks(&self) -> Result<Vec<WorkbookRow>> {
         let conn = self.connect()?;
         let mut stmt = conn.prepare(
@@ -279,7 +281,7 @@ impl Store {
         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
     }
 
-    /// 某 id 的全部版本，按字面升序。
+    /// All versions of an ID in ascending lexicographic order.
     pub fn workbook_versions(&self, id: &str) -> Result<Vec<WorkbookRow>> {
         let conn = self.connect()?;
         let mut stmt = conn.prepare(
@@ -339,7 +341,7 @@ impl Store {
             .optional()?)
     }
 
-    /// 锁内重核请求。
+    /// Recheck requests under the lock.
     pub(crate) fn inspect_request(&self, request_id: &str) -> Result<Option<RequestRow>> {
         let conn = self.connect()?;
         Ok(conn
@@ -356,7 +358,7 @@ impl Store {
                             return Err(rusqlite::Error::FromSqlConversionFailure(
                                 5,
                                 rusqlite::types::Type::Integer,
-                                Box::new(std::io::Error::other("published必须为0或1")),
+                                Box::new(std::io::Error::other("published must be 0 or 1")),
                             ));
                         }
                     };
@@ -426,7 +428,7 @@ impl Store {
                 ValueRef::Integer(1) => true,
                 _ => {
                     return Err(Error::StoreCorrupt {
-                        detail: format!("请求 {request_id} 的published值无效"),
+                        detail: format!("Request {request_id} published value is invalid"),
                     });
                 }
             };
@@ -435,11 +437,13 @@ impl Store {
                     ValueRef::Text(bytes) => std::str::from_utf8(bytes)
                         .map(str::to_string)
                         .map_err(|error| Error::StoreCorrupt {
-                            detail: format!("请求 {request_id} 的effects_json不是UTF-8：{error}"),
+                            detail: format!(
+                                "Request {request_id} effects_json is not UTF-8: {error}"
+                            ),
                         })?,
                     _ => {
                         return Err(Error::StoreCorrupt {
-                            detail: format!("请求 {request_id} 的effects_json不是TEXT"),
+                            detail: format!("Request {request_id} effects_json is not TEXT"),
                         });
                     }
                 };
@@ -462,7 +466,7 @@ impl Store {
         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
     }
 
-    /// 按事务顺序读取全部审计事件；caller校验归属，不用正确字段预筛损坏行。
+    /// Read all audit events in transaction order; callers verify ownership without filtering out corrupt rows by expected fields.
     pub(crate) fn audit_history(&self) -> Result<Vec<AuditRow>> {
         let conn = self.connect()?;
         let mut stmt = conn.prepare(
@@ -473,7 +477,7 @@ impl Store {
         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
     }
 
-    /// 效果全部完成后置 `published = 1`。
+    /// Set published = 1 after all effects complete.
     pub(crate) fn mark_published(&self, request_id: &str) -> Result<()> {
         let conn = self.connect()?;
         let changed = conn.execute(
@@ -482,7 +486,9 @@ impl Store {
         )?;
         if changed != 1 {
             return Err(Error::StoreCorrupt {
-                detail: format!("请求 {request_id} 发布标记应更新1行，实际更新{changed}行"),
+                detail: format!(
+                    "Request {request_id} publication marker must update one row; actual {changed}"
+                ),
             });
         }
         Ok(())
@@ -518,31 +524,31 @@ pub(crate) fn decode_row(
     state_json: &str,
 ) -> Result<WorkRow> {
     let id = WorkId::parse(work_id).map_err(|e| Error::StoreCorrupt {
-        detail: format!("works 行 {work_id:?} 的 work_id 不合法：{e}"),
+        detail: format!("Invalid works row {work_id:?} work_id: {e}"),
     })?;
     let revision = u64::try_from(revision)
         .ok()
         .filter(|revision| *revision > 0)
         .ok_or_else(|| Error::StoreCorrupt {
-            detail: format!("works 行 {id} 的 revision 必须大于零"),
+            detail: format!("works row {id} revision must be positive"),
         })?;
     let state: WorkState = serde_json::from_str(state_json).map_err(|e| Error::StoreCorrupt {
-        detail: format!("works 行 {id} 的 state_json 解不开：{e}"),
+        detail: format!("Cannot decode works row {id} state_json: {e}"),
     })?;
     if state.work_id != id {
         return Err(Error::StoreCorrupt {
-            detail: format!("works 行 {id} 的 state_json.work_id 是 {}", state.work_id),
+            detail: format!("works row {id} state_json.work_id is {}", state.work_id),
         });
     }
     if state.status.column() != status {
         return Err(Error::StoreCorrupt {
-            detail: format!("works 行 {id} 的 status {status:?} 与 state_json.status 不一致"),
+            detail: format!("works row {id} status {status:?} differs from state_json.status"),
         });
     }
     state
         .validate_persisted()
         .map_err(|detail| Error::StoreCorrupt {
-            detail: format!("works 行 {id} 的 state_json.{detail}"),
+            detail: format!("works row {id} state_json.{detail}"),
         })?;
     Ok(WorkRow { revision, state })
 }

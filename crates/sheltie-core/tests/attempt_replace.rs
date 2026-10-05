@@ -40,7 +40,7 @@ fn replacement(fixture: &Fixture, reason: &str) -> Command {
         attempt: old.id.clone(),
         reason: reason.to_string(),
         observed_inputs,
-        instruction_text: "冻结说明".to_string(),
+        instruction_text: "Frozen instructions".to_string(),
     }
 }
 
@@ -60,7 +60,7 @@ fn replacement_atomically_ends_old_attempt_and_inherits_optional_frozen_inputs()
     let decision = decide(
         Some(&original),
         &fixture.graph,
-        &replacement(&fixture, "撤销旧提交资格"),
+        &replacement(&fixture, "Revoke the previous submission qualification"),
         &context,
     )
     .unwrap();
@@ -74,7 +74,7 @@ fn replacement_atomically_ends_old_attempt_and_inherits_optional_frozen_inputs()
     );
     assert_eq!(
         old.replacement_reason.as_ref().unwrap().as_str(),
-        "撤销旧提交资格"
+        "Revoke the previous submission qualification"
     );
     assert!(old.summary.is_none() && old.fail_reason.is_none() && old.outputs.is_empty());
     let new = &decision.state.attempts[1];
@@ -121,30 +121,30 @@ fn replacement_atomically_ends_old_attempt_and_inherits_optional_frozen_inputs()
             .as_str()
             .ends_with("attempt-001/outputs/article.md")
     );
-    assert!(decision.effects.iter().any(|effect| matches!(effect, Effect::WriteBrief { content, .. } if content.contains("冻结说明"))));
+    assert!(decision.effects.iter().any(|effect| matches!(effect, Effect::WriteBrief { content, .. } if content.contains("Frozen instructions"))));
 }
 
 // Task: C005-T01
 #[test]
 fn second_replacement_rejects_without_removing_current_submit_or_fail_eligibility() {
     let mut fixture = running();
-    fixture.replace("draft#1.0", "第一替换").unwrap();
+    fixture.replace("draft#1.0", "First replacement").unwrap();
     let before = fixture.state().clone();
     assert!(matches!(
-        fixture.replace("draft#1.1", "第二替换"),
+        fixture.replace("draft#1.1", "Second replacement"),
         Err(sheltie_core::Error::ReplacementsExhausted { .. })
     ));
     assert_eq!(fixture.state(), &before);
     assert!(legal_next(fixture.state(), &fixture.graph).iter().any(|operation| matches!(operation, sheltie_core::work::NextOp::SubmitAttempt { attempt } if attempt.to_string() == "draft#1.1")));
-    fixture.submit_ok("draft#1.1", "完成").unwrap();
+    fixture.submit_ok("draft#1.1", "Completed").unwrap();
 }
 
 // Task: C005-T01
 #[test]
 fn replacement_does_not_consume_failure_budget_and_historical_fail_uses_original_prefix() {
     let mut fixture = running();
-    fixture.replace("draft#1.0", "撤销").unwrap();
-    let first = fixture.fail("draft#1.1", "首次真实失败").unwrap();
+    fixture.replace("draft#1.0", "Revoked").unwrap();
+    let first = fixture.fail("draft#1.1", "First actual failure").unwrap();
     assert_eq!(first.state.status, WorkStatus::Active);
     fixture.begin("draft").unwrap();
     assert_eq!(
@@ -156,7 +156,7 @@ fn replacement_does_not_consume_failure_budget_and_historical_fail_uses_original
             .to_string(),
         "draft#1.2"
     );
-    let second = fixture.fail("draft#1.2", "第二次真实失败").unwrap();
+    let second = fixture.fail("draft#1.2", "Second actual failure").unwrap();
     assert_eq!(
         second.state.status,
         WorkStatus::Blocked(BlockedReason::RetriesExhausted)
@@ -205,8 +205,8 @@ fn zero_retries_still_allows_replacement_but_first_real_failure_blocks() {
     )
     .started();
     fixture.begin("draft").unwrap();
-    fixture.replace("draft#1.0", "撤销").unwrap();
-    fixture.fail("draft#1.1", "失败").unwrap();
+    fixture.replace("draft#1.0", "Revoked").unwrap();
+    fixture.fail("draft#1.1", "Failed").unwrap();
     assert_eq!(
         fixture.state().status,
         WorkStatus::Blocked(BlockedReason::RetriesExhausted)
@@ -218,10 +218,10 @@ fn zero_retries_still_allows_replacement_but_first_real_failure_blocks() {
 #[test]
 fn replacement_quota_resets_for_new_occurrence_and_keeps_entered_from() {
     let mut fixture = running();
-    fixture.replace("draft#1.0", "撤销").unwrap();
-    fixture.submit_ok("draft#1.1", "完成").unwrap();
+    fixture.replace("draft#1.0", "Revoked").unwrap();
+    fixture.submit_ok("draft#1.1", "Completed").unwrap();
     fixture.begin("review").unwrap();
-    fixture.submit_ok("review#1.0", "返工").unwrap();
+    fixture.submit_ok("review#1.0", "Rework").unwrap();
     fixture.begin("draft").unwrap();
     let source = fixture
         .state()
@@ -229,7 +229,9 @@ fn replacement_quota_resets_for_new_occurrence_and_keeps_entered_from() {
         .unwrap()
         .entered_from
         .clone();
-    fixture.replace("draft#2.0", "新到达撤销").unwrap();
+    fixture
+        .replace("draft#2.0", "Revocation in a new Occurrence")
+        .unwrap();
     let new = fixture.state().latest_attempt_of_current().unwrap();
     assert_eq!(new.id.to_string(), "draft#2.1");
     assert_eq!(new.entered_from, source);
@@ -241,18 +243,18 @@ fn replacement_quota_resets_for_new_occurrence_and_keeps_entered_from() {
 #[test]
 fn superseded_submit_and_fail_reject_and_terminal_guard_takes_precedence() {
     let mut fixture = running();
-    fixture.replace("draft#1.0", "撤销").unwrap();
+    fixture.replace("draft#1.0", "Revoked").unwrap();
     assert!(matches!(
-        fixture.fail("draft#1.0", "迟到"),
+        fixture.fail("draft#1.0", "Late"),
         Err(sheltie_core::Error::AttemptNotRunning { .. })
     ));
     assert!(matches!(
-        fixture.submit_ok("draft#1.0", "迟到"),
+        fixture.submit_ok("draft#1.0", "Late"),
         Err(sheltie_core::Error::AttemptNotRunning { .. })
     ));
     fixture.cancel().unwrap();
     assert!(matches!(
-        fixture.fail("draft#1.0", "迟到"),
+        fixture.fail("draft#1.0", "Late"),
         Err(sheltie_core::Error::WorkTerminal { .. })
     ));
 }
@@ -266,7 +268,7 @@ fn replacement_checks_target_and_qualification_before_reason_or_inputs() {
         replacement_input_paths_for(fixture.state(), &fixture.graph, &missing),
         Err(sheltie_core::Error::AttemptNotFound { .. })
     ));
-    fixture.fail("draft#1.0", "失败").unwrap();
+    fixture.fail("draft#1.0", "Failed").unwrap();
     assert!(matches!(
         replacement_input_paths_for(
             fixture.state(),
@@ -294,7 +296,7 @@ fn replacement_rejects_any_changed_frozen_observation_and_optional_rebinding() {
     let fixture = running();
     let original = fixture.state().clone();
     for change in 0..5 {
-        let mut command = replacement(&fixture, "撤销");
+        let mut command = replacement(&fixture, "Revoked");
         let Command::ReplaceAttempt {
             observed_inputs, ..
         } = &mut command
@@ -352,7 +354,7 @@ fn replacement_rejects_any_changed_frozen_observation_and_optional_rebinding() {
         );
         assert_eq!(fixture.state(), &original);
     }
-    let mut command = replacement(&fixture, "撤销");
+    let mut command = replacement(&fixture, "Revoked");
     let Command::ReplaceAttempt {
         observed_inputs, ..
     } = &mut command
@@ -410,7 +412,7 @@ fn replacement_stats_are_fresh_post_state_bytes_and_old_binding_is_preserved() {
     let mut fixture = Fixture::with_engine_stats_input();
     fixture.begin("only").unwrap();
     let old = fixture.state().attempts[0].inputs["stats"].clone();
-    let decision = fixture.replace("only#1.0", "撤销").unwrap();
+    let decision = fixture.replace("only#1.0", "Revoked").unwrap();
     let new = decision.state.attempts[1].inputs["stats"].as_ref().unwrap();
     assert_eq!(decision.state.attempts[0].inputs["stats"], old);
     assert_ne!(Some(new), old.as_ref());
@@ -451,7 +453,7 @@ fn replacement_reason_field_is_required_nullable_and_unknown_fields_are_rejected
     let mut extra = value;
     extra["unexpected"] = serde_json::json!(true);
     assert!(serde_json::from_value::<Attempt>(extra).is_err());
-    fixture.replace("draft#1.0", "撤销").unwrap();
+    fixture.replace("draft#1.0", "Revoked").unwrap();
     let state: WorkState =
         serde_json::from_str(&serde_json::to_string(fixture.state()).unwrap()).unwrap();
     state.validate_persisted().unwrap();
@@ -461,7 +463,7 @@ fn replacement_reason_field_is_required_nullable_and_unknown_fields_are_rejected
 #[test]
 fn persisted_replacement_rejects_reason_combinations_number_gaps_and_second_superseded() {
     let mut fixture = running();
-    fixture.replace("draft#1.0", "撤销").unwrap();
+    fixture.replace("draft#1.0", "Revoked").unwrap();
     let base = fixture.state().clone();
     for changed in 0..10 {
         let mut state = base.clone();
@@ -525,7 +527,7 @@ fn public_next_offers_current_replacement_once_and_restores_quota_on_new_occurre
         selected[0],
         &serde_json::json!({"op":"attempt replace","args":{"work":"2026-09-24-001-t","attempt":"draft#1.0"}})
     );
-    fixture.replace("draft#1.0", "撤销").unwrap();
+    fixture.replace("draft#1.0", "Revoked").unwrap();
     assert!(
         !legal_next(fixture.state(), &fixture.graph)
             .iter()
@@ -534,7 +536,7 @@ fn public_next_offers_current_replacement_once_and_restores_quota_on_new_occurre
                 sheltie_core::work::NextOp::ReplaceAttempt { .. }
             ))
     );
-    fixture.fail("draft#1.1", "失败").unwrap();
+    fixture.fail("draft#1.1", "Failed").unwrap();
     fixture.begin("draft").unwrap();
     assert!(
         !legal_next(fixture.state(), &fixture.graph)
@@ -544,9 +546,9 @@ fn public_next_offers_current_replacement_once_and_restores_quota_on_new_occurre
                 sheltie_core::work::NextOp::ReplaceAttempt { .. }
             ))
     );
-    fixture.submit_ok("draft#1.2", "完成").unwrap();
+    fixture.submit_ok("draft#1.2", "Completed").unwrap();
     fixture.begin("review").unwrap();
-    fixture.submit_ok("review#1.0", "返工").unwrap();
+    fixture.submit_ok("review#1.0", "Rework").unwrap();
     fixture.begin("draft").unwrap();
     assert!(legal_next(fixture.state(), &fixture.graph).iter().any(|operation| matches!(operation, sheltie_core::work::NextOp::ReplaceAttempt { attempt } if attempt.to_string() == "draft#2.0")));
     fixture.cancel().unwrap();

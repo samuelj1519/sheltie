@@ -1,6 +1,6 @@
 [package]
 name = "sheltie-core"
-description = "Sheltie 引擎的纯规则：解析、编译、状态机、渲染。不做 I/O。"
+description = "Pure Sheltie engine rules: parsing, compilation, state machines, and rendering. No I/O."
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -8,7 +8,7 @@ license.workspace = true
 repository.workspace = true
 
 [features]
-# 测试支持：固定图、固定状态、固定时钟。runtime 与 cli 的测试开启它。
+# Test support: fixed graphs, state, and clock; enabled by runtime and CLI tests.
 testkit = []
 
 [dependencies]

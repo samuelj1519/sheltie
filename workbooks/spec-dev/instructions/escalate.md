@@ -1,34 +1,34 @@
-这一步由人完成。agent 在实现阶段卡住了，或者同一个任务修了两轮还不过，或者要做一件需要你授权的事。你来决定接下来怎么走。
+A person decides when an agent blocks, two repairs fail, or authorization is required.
 
-## 读什么
+## Read
 
-任务书开头的「来自」一行告诉你是谁卡住了（`scaffold`、`implement`、`fix` 或 `verify`）。对应的那份报告是你要看的，其余的可能是过期的：
+From identifies blocked scaffold/implement/fix/verify; use corresponding report, not stale others.
 
-1. `scaffold_report`、`implement_change` 或 `fix_change`：agent 的报告。第一行是 `卡住` 或类似，「备注」里写了卡在哪、需要什么。骨架卡住通常是方案与现有代码冲突，或某条验收写不出测试；这类问题多半要选 `改方案`。
-2. `verify_report`：验证报告。第一行若是 `不通过，需要人`，「发现」里是反复修不掉的问题。
-3. `tasks`、`plan`：需要时查任务描述与方案。
+1. Scaffold_report/implement_change/fix_change: Blocked first line, Notes state missing facts/authority. Scaffold conflicts/untestable acceptance usually require Revise plan.
+2. Verify_report: Rejected, needs human points to persistent Findings.
+3. Tasks/plan as needed.
 
-通常五分钟能看完。不需要自己去修代码；如果你想亲手改，改完提交到项目仓库，再在决定里说明。
+Usually five minutes. You need not repair code; if you do, commit it and describe it in the decision.
 
-## 写什么
+## Decision
 
-写 `decision.md`。**第一行只写下面四个词之一**，协调者按它选下一步：
+First line exactly one:
 
-- `继续`：回到卡住的那一步（骨架、实现、修复或验证），带着你的提示再来一次。适合「agent 缺一个关键信息」「方向对但走偏了」「你已经亲手改了一部分」「批准记录写错了，要更正」。
-- `跳过`：放弃当前任务，从下一个任务继续。第二行写 `下一任务 Tnn`。适合「这个任务本身不重要」或「先做别的再回头」。
-- `改方案`：回到 `plan` 重写方案与任务清单。适合「任务拆错了」「方案走不通」。
-- `止损`：停止实现，直接写交付说明，把已完成的部分交出去。适合「继续下去不值」。
+- Continue: return to blocked stage with hints; missing facts, corrected approach, human code edits, or corrected approval.
+- Skip: abandon current task; second line Next task Tnn; low-priority/deferred work.
+- Revise plan: return to plan/tasks for faulty decomposition/unworkable approach.
+- Stop losses: stop implementation and deliver completed portion when further cost is unwarranted.
 
-第一行之后写你的意见，每条一行，越具体越好：缺的信息、你批准的动作（例如「可以安装 `xyz` 依赖」「可以删除 `legacy/` 目录」）、你亲手改了什么。这些话会原样进入下一步的任务书。
+Then concrete comments, one per line: facts, authorized actions (install xyz/delete legacy), human edits. These pass verbatim to the next brief.
 
-## 更正批准记录
+## Correct approval
 
-批准摘要写错时选「继续」，并写 `更正原审批: <原decision路径>`、`批准的规格: <当前spec文件的sha256>`、`批准的方案: <当前plan文件的sha256>`。从本任务书 `approval` 输入取原审批路径，从 `spec`、`plan` 输入分别计算 sha256（`shasum -a 256 <路径>`）。原审批必须第一行为「通过」。保留原条件；需要改条件时逐条写明。普通「继续」或口头同意不能代替版本更正。下游报告会引用本文件与原审批，供后续重规划核验。
+Choose Continue, record Corrected approval: <original-decision-path>, Approved specification: <current-spec-sha256>, Approved plan: <current-plan-sha256>. Original path comes from approval input; hash bound spec/plan. Original first line must be Accepted. Preserve conditions; explicitly identify changes. Ordinary Continue/verbal agreement is not version correction. Downstream reports reference both files for replanning.
 
-## 授权的写法
+## Authorization
 
-agent 因为「需要授权」卡住时，你的决定要写清授权范围，例如「允许修改 `.github/workflows/ci.yml`，只加一个步骤」。写「随便你」等于没写。不想授权就选 `跳过` 或 `止损`。
+State exact scope, e.g. allow modifying .github/workflows/ci.yml to add one step. “Anything you want” is not scope. Without authorization choose Skip/Stop losses.
 
-## 写到哪
+## Output
 
-把 `decision.md` 写到任务书「输出要求」里 `decision` 对应的路径，然后运行任务书末尾的 `sheltie attempt submit` 命令。
+Write decision path and run brief's submit command.

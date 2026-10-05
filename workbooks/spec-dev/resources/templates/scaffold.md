@@ -1,27 +1,27 @@
-完成
+Complete
 
-提交: <骨架提交哈希>
+Commit: <scaffold hash>
 
-## 单任务测试命令
+## Focused test command
 
-在项目根运行，按 Task 归属选择实际测试；不要求测试名带任务编号。项目已有 Task 脚本时：
+Run at project root, choosing actual task-owned tests without task-prefixed names. Prefer existing project script:
 
 ```bash
 scripts/task.sh <Task>
 ```
 
-没有 Task 脚本时，填写按任务卡完整测试名单生成的命令（如 nextest 的精确名称筛选）。零个测试匹配时命令必须失败；记录实际测试数，与任务卡逐项核对。
+Otherwise supply exact-name selection from complete card test lists. Zero matches must fail; record counts and reconcile each card.
 
-## 任务与文件
+## Tasks and files
 
-| 任务 | 只改哪些文件 | 测试数 | 测试所在文件 |
+| Task | Allowed files | Test count | Test files |
 | --- | --- | --- | --- |
-| T01 | `<路径>` | 4 | `<路径>` |
+| T01 | `<path>` | 4 | `<path>` |
 
-## 骨架里新增或修改的文件
+## Scaffold additions/changes
 
-- `<路径>`：<一句话，新增了哪些类型与函数>
+- `<path>`: <types/functions in one sentence>
 
-## 给实现者的提醒
+## Implementer reminders
 
-- <只写骨架无法表达、又必须知道的事；没有就写「无」>
+- <Necessary facts not expressed by skeleton, or None.>

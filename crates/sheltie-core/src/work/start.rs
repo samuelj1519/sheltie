@@ -1,15 +1,15 @@
-//! `work start` 的共享事实源（GF-30）：收集与校验起始输入键。
+//! Shared work start facts (GF-30): collect and validate start input keys.
 //!
-//! `decide`、runtime preflight 与 `workbook show` 用同一份结果，不各自重算
-//! （架构 §3；缺/多键的确定性拒绝发生在序号分配与目录物化之前，协议 `work start`）。
+//! decide, runtime preflight, and workbook show share one result rather than recomputing it
+//! (architecture §3); missing/extra keys reject deterministically before allocating sequence or materializing directories.
 
 use std::collections::BTreeSet;
 
 use crate::error::{Error, Result};
 use crate::flow::{Graph, InputSource};
 
-/// 图里全部 `start.<key>` 引用，按节点声明顺序首次出现（重复引用只记一次）。
-/// `workbook show` 的 `start_inputs` 与它同源。
+/// All start.<key> references in first-observed node declaration order, deduplicated.
+/// Shares the source for workbook show's start_inputs.
 pub fn start_requirements(graph: &Graph) -> Vec<String> {
     let mut seen = BTreeSet::new();
     let mut out = Vec::new();
@@ -25,8 +25,8 @@ pub fn start_requirements(graph: &Graph) -> Vec<String> {
     out
 }
 
-/// 校验给出的键集合与 [`start_requirements`] 恰好相等：缺与多都是 `Error::InputMissing`。
-/// `missing` 与 `extra` 按字典序，保证同一输入的错误信息稳定。
+/// Require exactly [`start_requirements`]; missing or extra keys yield Error::InputMissing.
+/// Sort missing and extra lexicographically for stable diagnostics.
 pub fn validate_start_inputs(
     graph: &Graph,
     provided: impl IntoIterator<Item = impl AsRef<str>>,
@@ -50,18 +50,18 @@ mod tests {
     use crate::flow::{ResourceIndex, compile, parse_flow};
     use crate::workbook::parse_manifest;
 
-    /// 手写 TOML 构图，期望值不经过被测函数。`first` 引用 `start.b`，`second` 引用
-    /// `start.a` 与 `start.b`（重复引用）：声明顺序是 b、a。
+    /// Handwritten TOML graph and independent expectations: first references start.b, second references
+    /// start.a and start.b again; declaration order is b, a.
     fn graph_with_start_keys() -> Graph {
         let manifest = parse_manifest(
-            "schema = \"workbook/v1\"\nid = \"keys\"\nversion = \"1.0.0\"\nname = \"键\"\nflows = [\"flows/default.toml\"]\n",
+            "schema = \"workbook/v1\"\nid = \"keys\"\nversion = \"1.0.0\"\nname = \"Keys\"\nflows = [\"flows/default.toml\"]\n",
         )
         .unwrap();
         let def = parse_flow(
             "schema = \"flow/v1\"\nid = \"default\"\nentry = \"first\"\n\n\
-             [[nodes]]\nid = \"first\"\ntitle = \"一\"\nexecutor = \"agent\"\ninstruction = { text = \"做一。\" }\n\
+             [[nodes]]\nid = \"first\"\ntitle = \"First\"\nexecutor = \"agent\"\ninstruction = { text = \"Do the first task.\" }\n\
              inputs = [{ name = \"in_b\", from = \"start.b\" }]\n\n\
-             [[nodes]]\nid = \"second\"\ntitle = \"二\"\nexecutor = \"agent\"\ninstruction = { text = \"做二。\" }\n\
+             [[nodes]]\nid = \"second\"\ntitle = \"Second\"\nexecutor = \"agent\"\ninstruction = { text = \"Do the second task.\" }\n\
              inputs = [{ name = \"in_a\", from = \"start.a\" }, { name = \"in_b2\", from = \"start.b\" }]\n\n\
              [[edges]]\nfrom = \"first\"\nto = \"second\"\nkind = \"main\"",
         )
@@ -71,12 +71,12 @@ mod tests {
 
     fn graph_without_start_keys() -> Graph {
         let manifest = parse_manifest(
-            "schema = \"workbook/v1\"\nid = \"none\"\nversion = \"1.0.0\"\nname = \"无键\"\nflows = [\"flows/default.toml\"]\n",
+            "schema = \"workbook/v1\"\nid = \"none\"\nversion = \"1.0.0\"\nname = \"No keys\"\nflows = [\"flows/default.toml\"]\n",
         )
         .unwrap();
         let def = parse_flow(
             "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n\
-             [[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"做。\" }",
+             [[nodes]]\nid = \"only\"\ntitle = \"Only node\"\nexecutor = \"agent\"\ninstruction = { text = \"Do the task.\" }",
         )
         .unwrap();
         compile(&def, &manifest, &ResourceIndex::default()).unwrap()
@@ -85,7 +85,7 @@ mod tests {
     // Task: C002-T02
     #[test]
     fn start_requirements_lists_keys_in_declaration_order_deduplicated() {
-        // first 声明 start.b，second 声明 start.a 再引用 start.b；首次出现顺序是 b、a。
+        // first declares start.b; second declares start.a then repeats start.b; first-observed order is b, a.
         assert_eq!(
             start_requirements(&graph_with_start_keys()),
             vec!["b".to_string(), "a".to_string()]
@@ -108,21 +108,21 @@ mod tests {
     #[test]
     fn validate_rejects_missing_extra_and_both_sorted() {
         let graph = graph_with_start_keys();
-        // 只改一个条件：少给 b。
+        // One changed condition: omit b.
         let err = validate_start_inputs(&graph, ["a"]).unwrap_err();
         assert!(
             matches!(&err, Error::InputMissing { missing, extra }
                 if missing == &["b".to_string()] && extra.is_empty()),
             "{err:?}"
         );
-        // 只改一个条件：多给 c。
+        // One changed condition: add c.
         let err = validate_start_inputs(&graph, ["a", "b", "c"]).unwrap_err();
         assert!(
             matches!(&err, Error::InputMissing { missing, extra }
                 if missing.is_empty() && extra == &["c".to_string()]),
             "{err:?}"
         );
-        // 全换：缺 a、b，多 c；两个列表都按字典序。
+        // Replace all: missing a/b, extra c; both lists are lexicographically ordered.
         let err = validate_start_inputs(&graph, ["c"]).unwrap_err();
         assert!(
             matches!(&err, Error::InputMissing { missing, extra }

@@ -1,31 +1,31 @@
 ---
 source: crates/sheltie-core/src/work/render.rs
-expression: "render_brief(fx.state(), &fx.graph, a, \"确认可以发布。\")"
+expression: "render_brief(fx.state(), &fx.graph, a, \"Confirm publication is approved.\")"
 ---
-# 任务书：定稿
+# Brief: Finalize
 
-Work: 2026-09-24-001-t（t）
-节点: publish#1，第 0 次尝试
-来自: review#1（main 边）
-执行者: human
+Work: 2026-09-24-001-t (t)
+Node: publish#1, Attempt 0
+From: review#1 (main edge)
+Executor: human
 
-## 输入
+## Inputs
 
-| 名称 | 路径 | sha256 |
+| Name | Path | sha256 |
 | --- | --- | --- |
 | article | /tmp/sheltie-test/works/2026-09-24-001-t/attempts/draft/occurrence-001/attempt-000/outputs/article.md | fc11d6f28e59d3cc33c0b14ceb644bf0902ebd63d61218dffe9e7dac7c254542 |
 | review | /tmp/sheltie-test/works/2026-09-24-001-t/attempts/review/occurrence-001/attempt-000/outputs/review.md | fc11d6f28e59d3cc33c0b14ceb644bf0902ebd63d61218dffe9e7dac7c254542 |
 
-## 说明
+## Instructions
 
-确认可以发布。
+Confirm publication is approved.
 
-## 输出要求
+## Output requirements
 
-| 名称 | 写到 | 必需 | 上限 |
+| Name | Write to | Required | Limit |
 | --- | --- | --- | --- |
-| final | /tmp/sheltie-test/works/2026-09-24-001-t/attempts/publish/occurrence-001/attempt-000/outputs/final.md | 是 | 1 MiB |
+| final | /tmp/sheltie-test/works/2026-09-24-001-t/attempts/publish/occurrence-001/attempt-000/outputs/final.md | yes | 1 MiB |
 
-写完输出文件后，在终端运行：
+After writing the output files, run in your terminal:
 
-    sheltie attempt submit 2026-09-24-001-t --attempt publish#1.0 --summary "<一句话结论>"
+    sheltie attempt submit 2026-09-24-001-t --attempt publish#1.0 --summary "<one-sentence conclusion>"

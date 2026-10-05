@@ -1,14 +1,16 @@
-# 变更入口
+# Change entry points
 
-Active change：无
+English | [简体中文](README.zh-CN.md)
 
-目前无 proposed、active 或 rejected change。人采用提案后才执行 plan，一次只允许一个 active change。
+Active change: none
+
+[C012](completed/C012-english-default/README.md) completed the authorized English-default migration, retained Chinese documentation and method variants, and translated local historical messages. There are no proposed or rejected changes. Execute a plan only after human adoption; only one change may be active at a time.
 
 ```text
-proposed ──人采用──▶ active ──实现、验证、独立审查──▶ completed
-    └──人否决──▶ rejected
+proposed ──human adoption──▶ active ──implementation, validation, independent review──▶ completed
+    └──human rejection──▶ rejected
 ```
 
-模板见 [templates](templates/README.md)，实施方法见[指南](../../docs/how-to/implement-change.md)。当前进度只看 active plan；completed 不等于已发布或所有实验通过。
+See [templates](templates/README.md) and the [implementation guide](../../docs/how-to/implement-change.md). Only the active plan defines current progress; completed does not mean released or that every experiment passed.
 
-完成资格先保存在完整 package。固定 Git 快照后，将长期参考移入 [历史变更](../../docs/history/changes/README.md)，按[维护指南](../../docs/how-to/maintain-docs.md#3-完成后收敛)清理实施目录。历史快照仍接受完成门禁核验；specs 不重复保存已关闭任务摘要。
+Preserve completion qualification in the complete package first. After freezing a Git snapshot, move lasting references into [historical changes](../../docs/history/changes/README.md) and clean up the implementation directory according to the [maintenance guide](../../docs/how-to/maintain-docs.md). Historical snapshots remain subject to completion-gate verification. Specifications do not duplicate closed-task summaries.

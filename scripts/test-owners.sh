@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# 列出每个测试的归属：一行一个「任务 测试名 文件:行 ignore标签」，缺的字段写 -。
-# 归属只认紧贴在 #[test] 上方的 `// Task: Tnn` 或 `// Task: Cnnn-Tnn`；task.sh 与 check-tests.sh 共用。
+# List one test per line: task, name, file:line, ignore label; missing fields use a dash.
+# Only immediately adjacent Task comments define ownership; task.sh/check-tests.sh share this output.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 find crates -name '*.rs' -not -path '*/target/*' -print0 | sort -z | xargs -0 awk '

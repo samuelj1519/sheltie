@@ -2,7 +2,7 @@
 # Docs: https://embarkstudios.github.io/cargo-deny/
 
 [graph]
-# 与 plan.md T20 的发布目标一致；Windows 不在 MVP 目标内。
+# Match the historical T20 release targets; Windows is outside the MVP scope.
 targets = [
     "aarch64-apple-darwin",
     "x86_64-apple-darwin",

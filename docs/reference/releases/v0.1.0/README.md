@@ -1,25 +1,30 @@
-# v0.1.0 release record
+# `v0.1.0` release record
 
-状态：`released + accepted`
-版本：`0.1.0`
-Git tag：`v0.1.0`
-Release commit：`9f87188f3b0ad2523abc7e975ae98e96db6f492b`
-安装、发布与快速开始闭包：`4177b57738ef5f56a6699bbb5310342d32dadd68`
-真实宿主与 MVP 验收闭包：`31d7ddee18921b4066c7433a752c2000e5110869`
+English | [简体中文](README.zh-CN.md)
 
-## 范围
+Status: `released + accepted`
+Version: `0.1.0`
+Git tag: `v0.1.0`
+Release commit: `6af9501b7bc12e2b18ac6017b6c894dadfc43626`
+Original published commit: `9f87188f3b0ad2523abc7e975ae98e96db6f492b`
+Installation, publication, and quickstart closure: `4bf86f7be09c27bbee98a11825eb57704e4403b9`
+Real-host and MVP acceptance closure: `7196697ea40c9c303d059279c02f9e3d2218efd9`
 
-MVP 实现了三个 crate、单一 `sheltie` 二进制、Workbook/Flow、Work 状态机、SQLite Store、CLI、self 管理、三份样例、`spec-dev` Workbook 与协调者 skill。
+## Scope
 
-设计取舍见 [MVP 设计理由](../../../explanation/decisions/mvp.md)。完整任务、里程碑与历史操作材料从[固定 Git 快照](../../../how-to/maintain-docs.md#查阅历史原件)读取。用户可感知变化见 [CHANGELOG](../../../../CHANGELOG.md)。
+Local tag and record commit IDs were remapped by the [message-only history migration](../../../history/git-message-migration.md). Published remote tags, workflow runs, and artifacts retain the original published commit above; their recorded checks were not rerun against a new identity.
 
-## 验收
+MVP implemented three crates, one `sheltie` binary, Workbook/Flow, Work state machine, SQLite Store, CLI, self management, three examples, `spec-dev`, and coordinator skill.
 
-- MVP 的 T01–T26 与 M1–M3 已完成；完整计划见[历史原件入口](../../../how-to/maintain-docs.md#查阅历史原件)。
-- 历史 T25/T26 手册记录 v0.1.0 四平台发布、install、update、rollback 与真实宿主步骤；这些事实不扩大后续版本支持范围。
-- 首次真实运行在 Claude Code 中运行三个 Work，包含一次 article-review back 回环；原记录保存在上述历史快照。
-- [CHANGELOG](../../../../CHANGELOG.md) 固定 v0.1.0 的用户可见变化；MVP 完成由项目在 `31d7dde` 接受。
+See [MVP reasons](../../../explanation/decisions/mvp.md). Complete tasks, milestones, and historical operations are in [fixed snapshots](../../../how-to/maintain-docs.md#read-original-historical-records). [CHANGELOG](../../../../CHANGELOG.md) records user-visible changes.
 
-## 已知限制与后续修复
+## Acceptance
 
-T26 后复审发现的可靠性、目录可读性、skill 与 Workbook 问题已归入已采用的 [C002 change](../../../history/changes/C002-v0.2.0-reliability/README.md)。后续修复不改写 v0.1.0 的发布和 MVP 完成事实；当前支持与验收边界见[当前限制](../../limitations.md)。
+- MVP T01–T26 and M1–M3 completed; full plans are in [original records](../../../how-to/maintain-docs.md#read-original-historical-records).
+- Historical T25/T26 manuals record `v0.1.0` four-platform publication, install/update/rollback, and real-host steps. They do not expand later support scope.
+- First real use ran three Works in Claude Code, including an article-review back loop, recorded in those snapshots.
+- CHANGELOG fixes `v0.1.0` changes; the project accepted MVP at 7196697.
+
+## Known limits
+
+Post-T26 review found reliability, directory readability, skill, and Workbook problems adopted into [C002](../../../history/changes/C002-v0.2.0-reliability/README.md). Later repairs do not rewrite `v0.1.0` release/MVP completion facts. See [current limits](../../limitations.md).

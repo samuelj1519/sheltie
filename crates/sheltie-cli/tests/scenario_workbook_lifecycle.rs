@@ -1,4 +1,4 @@
-//! T22：Workbook 生命周期场景。
+//! T22: Workbook lifecycle scenarios.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod common;
@@ -11,7 +11,7 @@ fn remove_in_use_workbook_is_rejected_with_work_list() {
     let env = Env::new();
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);
-    let (e, _) = env.fail(&["workbook", "remove", "two-step@1.0.0"]);
+    let (e, _) = env.fail(&["workbook", "remove", "two-step@1.0.1"]);
     assert_eq!(e["error"]["code"], "WORKBOOK_IN_USE");
     assert_eq!(e["error"]["detail"]["works"], serde_json::json!([wid]));
 }
@@ -26,7 +26,7 @@ fn remove_after_work_succeeds_then_status_still_renders() {
     let s1 = env.submit_all(&wid, &b1, "ok");
     let b2 = env.follow_begin(&s1, "summary");
     env.submit_all(&wid, &b2, "ok");
-    env.ok(&["workbook", "remove", "two-step@1.0.0"]);
+    env.ok(&["workbook", "remove", "two-step@1.0.1"]);
     let st = env.status(&wid);
     assert_eq!(st["data"]["status"]["kind"], "succeeded");
     assert_eq!(
@@ -42,13 +42,13 @@ fn editing_repository_copy_does_not_change_running_work_brief() {
     env.add_example("two-step");
     let wid = env.start("two-step", &[("topic", "x")]);
     let f = env
-        .workbook_dir("two-step", "1.0.0")
+        .workbook_dir("two-step", "1.0.1")
         .join("instructions/outline.md");
     make_writable(&f);
-    std::fs::write(&f, "被改过").unwrap();
+    std::fs::write(&f, "Modified").unwrap();
     let b = env.begin(&wid, "outline");
     let brief = std::fs::read_to_string(b["data"]["brief_path"].as_str().unwrap()).unwrap();
-    assert!(brief.contains("列一份提纲"));
+    assert!(brief.contains("Read topic and prepare an outline."));
 }
 
 // Task: T22
@@ -60,7 +60,7 @@ fn add_second_version_marks_it_latest_and_start_defaults_to_it() {
     copy_dir(&example_dir("two-step"), &src);
     let m = std::fs::read_to_string(src.join("workbook.toml"))
         .unwrap()
-        .replace("1.0.0", "2.0.0");
+        .replace("1.0.1", "2.0.0");
     std::fs::write(src.join("workbook.toml"), m).unwrap();
     env.ok(&["workbook", "add", src.to_str().unwrap()]);
     let list = env.ok(&["workbook", "list"]);
@@ -90,7 +90,7 @@ fn add_second_version_marks_it_latest_and_start_defaults_to_it() {
 fn verify_rejects_installed_workbook_root_symlink() {
     let env = Env::new();
     env.add_example("two-step");
-    let installed = env.workbook_dir("two-step", "1.0.0");
+    let installed = env.workbook_dir("two-step", "1.0.1");
     let saved = env.dir.path().join("original-workbook");
     let before = std::fs::read(installed.join("workbook.toml")).unwrap();
     use std::os::unix::fs::PermissionsExt as _;
@@ -103,7 +103,7 @@ fn verify_rejects_installed_workbook_root_symlink() {
     std::fs::rename(&installed, &saved).unwrap();
     std::os::unix::fs::symlink(&saved, &installed).unwrap();
 
-    let (_error, exit) = env.fail(&["workbook", "verify", "two-step@1.0.0"]);
+    let (_error, exit) = env.fail(&["workbook", "verify", "two-step@1.0.1"]);
     assert_eq!(exit, 1);
     assert_eq!(std::fs::read(saved.join("workbook.toml")).unwrap(), before);
 }
@@ -115,12 +115,12 @@ fn start_rejects_installed_workbook_parent_symlink() {
     let env = Env::new();
     env.add_example("two-step");
     let installed_id_dir = env
-        .workbook_dir("two-step", "1.0.0")
+        .workbook_dir("two-step", "1.0.1")
         .parent()
         .unwrap()
         .to_path_buf();
     let original = env.dir.path().join("original-workbook-id-dir");
-    let sentinel = installed_id_dir.join("1.0.0/workbook.toml");
+    let sentinel = installed_id_dir.join("1.0.1/workbook.toml");
     let sentinel_bytes = std::fs::read(sentinel).unwrap();
     use std::os::unix::fs::PermissionsExt as _;
     std::fs::set_permissions(&installed_id_dir, std::fs::Permissions::from_mode(0o700)).unwrap();
@@ -139,7 +139,7 @@ fn start_rejects_installed_workbook_parent_symlink() {
     ]);
     assert_eq!(exit, 1);
     assert_eq!(
-        std::fs::read(original.join("1.0.0/workbook.toml")).unwrap(),
+        std::fs::read(original.join("1.0.1/workbook.toml")).unwrap(),
         sentinel_bytes
     );
 }
@@ -156,7 +156,7 @@ fn workbook_add_accepts_current_directory_dot_path() {
         .unwrap();
     assert!(
         output.status.success(),
-        "`workbook add .` 应接受词法点段：{}",
+        "workbook add . should accept lexical dot segments: {}",
         String::from_utf8_lossy(&output.stderr)
     );
     let value: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();

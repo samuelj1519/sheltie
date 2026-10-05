@@ -1,6 +1,6 @@
-# C002 历史任务映射
+# C002 historical task mapping
 
-仅供工具核任务完成状态与测试归属；原任务正文从固定 Git 快照读取。
+Tooling only: verify task completion states and test ownership. Read original task bodies from the fixed Git snapshot.
 
 | C002-T01 | done |
 
@@ -114,7 +114,7 @@
 
 ### C002-T15
 
-| T18 | 上游合同、架构、D-035/D-038/D-039、文件/SQLite API |
+| T18 | Upstream contracts, architecture, D-035/D-038/D-039, filesystem/SQLite API |
 
 | T19 | runtime fsx/Home |
 
@@ -126,21 +126,21 @@
 
 | T23 | selfmgmt/CLI self |
 
-| T24 | 请求解析/WriteSession/Store/CLI |
+| T24 | Request parsing/WriteSession/Store/CLI |
 
-| T25 | recovery/load/协议错误 |
+| T25 | recovery/load/protocol errors |
 
-| T26 | publish/owner/同步 |
+| T26 | publish/owner/synchronization |
 
-| T27 | delete/完成标记 |
+| T27 | delete/completion markers |
 
-| T28 | pending/定位与清理 |
+| T28 | pending/locating and cleanup |
 
 | T29 | stats/next caller |
 
-| T30 | spec-dev Flow/说明/模板 |
+| T30 | spec-dev Flow/instructions/templates |
 
-| T31 | 全链测试/并发/变异与 R20 |
+| T31 | Complete-chain tests/concurrency/mutation and R20 |
 
 ### C002-T40
 

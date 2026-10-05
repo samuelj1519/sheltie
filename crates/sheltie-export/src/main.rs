@@ -8,7 +8,7 @@ use std::path::PathBuf;
 #[derive(Parser)]
 #[command(
     version,
-    about = "取得明确最终成果的可编辑新副本",
+    about = "Create a new editable copy of explicit final results",
     arg_required_else_help = true
 )]
 struct Cli {
@@ -29,7 +29,7 @@ fn absolute_path(value: &str) -> Result<PathBuf, String> {
     if path.is_absolute() {
         Ok(path)
     } else {
-        Err("必须提供绝对路径".into())
+        Err("An absolute path is required".into())
     }
 }
 
@@ -39,7 +39,9 @@ fn write_report(report: Report, json: bool) -> i32 {
         .write(json, &mut stdout)
         .and_then(|()| stdout.flush())
     {
-        eprintln!("写入导出响应失败，请核查已建立的副本或暂存：{error}");
+        eprintln!(
+            "Failed to write export response; inspect created copies or staging directories: {error}"
+        );
         return 1;
     }
     report.exit_code()
@@ -54,7 +56,7 @@ fn run() -> i32 {
             return match error.print() {
                 Ok(()) => 0,
                 Err(error) => {
-                    eprintln!("写入命令帮助或版本失败：{error}");
+                    eprintln!("Failed to write command help or version: {error}");
                     1
                 }
             };

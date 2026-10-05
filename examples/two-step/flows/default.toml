@@ -4,7 +4,7 @@ entry = "outline"
 
 [[nodes]]
 id = "outline"
-title = "列提纲"
+title = "Outline"
 executor = "agent"
 instruction = { file = "instructions/outline.md" }
 inputs  = [{ name = "topic", from = "start.topic" }]
@@ -12,7 +12,7 @@ outputs = [{ name = "outline", path = "outline.md", max_bytes = 65536 }]
 
 [[nodes]]
 id = "summary"
-title = "按提纲写摘要"
+title = "Summarize the outline"
 executor = "agent"
 instruction = { file = "instructions/summary.md" }
 inputs  = [{ name = "outline", from = "outline.outline" }]

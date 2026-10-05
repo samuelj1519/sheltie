@@ -1,5 +1,5 @@
-//! 任务书与状态卡的渲染。格式见 `specs/contracts/protocol.md` §4、§6。
-//! 快照测试的期望文件在 `snapshots/` 下，由 T01 手写，是标准答案。
+//! Brief and status-card rendering; see `specs/contracts/protocol.md` §4 and §6.
+//! Snapshot expectations in `snapshots/` were handwritten in T01 as independent oracles.
 
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -13,53 +13,25 @@ use crate::flow::{Graph, InputSource};
 use crate::ids::WorkId;
 use crate::path::AbsPath;
 
-/// 渲染一份 Attempt 的任务书（协议 §4）。快照 `snapshots/*brief*.snap` 是逐字节的标准答案。
+/// Render an Attempt brief (protocol §4). Handwritten `snapshots/*brief*.snap`
+/// files are independent byte-for-byte expectations.
 ///
-/// 逐行格式（`\n` 分隔，末尾一个换行）：
+/// Lines use `\n`, including one final newline. The header names the node, Work,
+/// Occurrence, zero-based Attempt number, incoming Occurrence and edge (or entry),
+/// executor, and agent tier. Inputs follow node declaration order and carry absolute
+/// paths and 64-digit SHA-256 digests. Missing optional inputs name their upstream
+/// node; an empty input set still has the two table header rows.
 ///
-/// ```text
-/// # 任务书：<node.title>
-/// <空行>
-/// Work: <work_id>（<name>）
-/// 节点: <node>#<n>，第 <number> 次尝试
-/// 来自: <occ>（<kind> 边）            入口为「来自: 入口」
-/// 执行者: agent（<tier>）             human 为「执行者: human」
-/// <空行>
-/// ## 输入
-/// <空行>
-/// | 名称 | 路径 | sha256 |
-/// | --- | --- | --- |
-/// | <name> | <绝对路径> | <64 位摘要> |        按节点 inputs[] 声明顺序
-/// | <name> | 尚无（上游 <node> 还没有产出） | |   可选且未绑定
-/// <空行>
-/// ## 需要的宿主资源                           节点 requires 非空时才有此节
-/// <空行>
-/// | 类型 | 名称 | 版本 | 说明 |
-/// | --- | --- | --- | --- |
-/// | <kind> | <name> | <version 或 -> | 请确认你的宿主已装此 <kind>；未装请停下并告知用户 |   「此 <kind>」随类型变成「此 skill」「此 agent」「此 mcp」
-/// <空行>
-/// ## 说明
-/// <空行>
-/// <instruction_text 原文，去掉末尾换行后再补一个换行>
-/// <空行>
-/// ## 输出要求
-/// <空行>
-/// | 名称 | 写到 | 必需 | 上限 |
-/// | --- | --- | --- | --- |
-/// | <name> | <attempt_dir>/<path> | 是/否 | <human_size(max_bytes)> |
-/// <空行>
-/// 完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。
-/// ```
+/// Show host resources only for nonempty node requires. Look up each resource's
+/// version in Workbook declarations, defaulting to `-`, and tell the worker to
+/// confirm host installation or stop and inform the user. Copy instruction text
+/// verbatim after trimming trailing newlines, then append one newline. Output rows
+/// name their destination, required yes/no flag, and byte limit. Exact MiB/KiB
+/// multiples use `N MiB`/`N KiB`; other sizes use `N B`.
 ///
-/// human 执行者时最后一段换成：
-///
-/// ```text
-/// 写完输出文件后，在终端运行：
-/// <空行>
-///     sheltie attempt submit <work_id> --attempt <attempt_id> --summary "<一句话结论>"
-/// ```
-///
-/// 没有输入时「## 输入」节只有表头两行。`human_size`：字节数是 1 MiB 的整数倍写 `N MiB`，是 1 KiB 的整数倍写 `N KiB`，否则 `N B`。
+/// Agent briefs end with instructions to leave input files unchanged, summarize the
+/// conclusion for the coordinator, and list written outputs. Human briefs instead
+/// give the `sheltie attempt submit` command with a one-sentence summary placeholder.
 pub fn render_brief(
     state: &WorkState,
     graph: &Graph,
@@ -70,30 +42,30 @@ pub fn render_brief(
         return String::new();
     };
     let mut out = String::new();
-    out.push_str(&format!("# 任务书：{}\n\n", node.title));
-    out.push_str(&format!("Work: {}（{}）\n", state.work_id, state.name));
+    out.push_str(&format!("# Brief: {}\n\n", node.title));
+    out.push_str(&format!("Work: {} ({})\n", state.work_id, state.name));
     out.push_str(&format!(
-        "节点: {}，第 {} 次尝试\n",
+        "Node: {}, Attempt {}\n",
         attempt.occurrence(),
         attempt.id.number
     ));
     match &attempt.entered_from {
-        None => out.push_str("来自: 入口\n"),
+        None => out.push_str("From: entry\n"),
         Some((occ, kind)) => {
-            out.push_str(&format!("来自: {occ}（{} 边）\n", kind.as_str()));
+            out.push_str(&format!("From: {occ} ({} edge)\n", kind.as_str()));
         }
     }
     match node.executor {
         crate::flow::Executor::Agent => {
             let tier = node.tier.unwrap_or_default();
-            out.push_str(&format!("执行者: agent（{}）\n", tier.as_str()));
+            out.push_str(&format!("Executor: agent ({})\n", tier.as_str()));
         }
-        crate::flow::Executor::Human => out.push_str("执行者: human\n"),
+        crate::flow::Executor::Human => out.push_str("Executor: human\n"),
     }
     out.push('\n');
 
-    out.push_str("## 输入\n\n");
-    out.push_str("| 名称 | 路径 | sha256 |\n");
+    out.push_str("## Inputs\n\n");
+    out.push_str("| Name | Path | sha256 |\n");
     out.push_str("| --- | --- | --- |\n");
     for decl in &node.inputs {
         match attempt.inputs.get(&decl.name).and_then(|o| o.as_ref()) {
@@ -103,33 +75,33 @@ pub fn render_brief(
                 r.path,
                 r.sha256.as_str()
             )),
-            // 合同 §4 模板：未绑定的可选输入写「尚无（上游 <node> 还没有产出）」。
-            // required = false 只允许来自 <node>.<output>（编译规则 5），其余来源 begin 时必已绑定。
+            // Protocol §4: identify the upstream node for unbound optional inputs.
+            // Only Node inputs may be optional (compile rule 5); other sources are bound before begin.
             None => match &decl.from {
                 InputSource::Node { node, .. } => out.push_str(&format!(
-                    "| {} | 尚无（上游 {} 还没有产出） | |\n",
+                    "| {} | Not available (upstream {} has not produced output) | |\n",
                     decl.name, node
                 )),
-                _ => out.push_str(&format!("| {} | 尚无 | |\n", decl.name)),
+                _ => out.push_str(&format!("| {} | Not available | |\n", decl.name)),
             },
         }
     }
 
     if !node.requires.is_empty() {
-        out.push_str("\n## 需要的宿主资源\n\n");
-        out.push_str("| 类型 | 名称 | 版本 | 说明 |\n");
+        out.push_str("\n## Required host resources\n\n");
+        out.push_str("| Kind | Name | Version | Instructions |\n");
         out.push_str("| --- | --- | --- | --- |\n");
         for (kind, name) in &node.requires {
-            // 版本从 Workbook 的 requires 声明里查（合同 §4 模板）；没声明版本就写 `-`。
+            // Look up the version in Workbook requires (protocol §4); use `-` when omitted.
             let version = graph
                 .requires()
                 .iter()
                 .find(|r| r.kind == *kind && r.name == *name)
                 .and_then(|r| r.version.as_deref())
                 .unwrap_or("-");
-            // 说明里的「此 <kind>」随类型变：此 skill / 此 agent / 此 mcp（协议 §4）。
+            // Name the actual resource kind: skill, agent, or mcp (protocol §4).
             out.push_str(&format!(
-                "| {} | {} | {} | 请确认你的宿主已装此 {}；未装请停下并告知用户 |\n",
+                "| {} | {} | {} | Confirm your host has this {} installed; otherwise stop and inform the user |\n",
                 kind.as_str(),
                 name,
                 version,
@@ -138,20 +110,20 @@ pub fn render_brief(
         }
     }
 
-    out.push_str("\n## 说明\n\n");
+    out.push_str("\n## Instructions\n\n");
     out.push_str(instruction_text.trim_end_matches('\n'));
     out.push('\n');
 
     let attempt_dir = state.attempt_dir(&attempt.id);
-    out.push_str("\n## 输出要求\n\n");
-    out.push_str("| 名称 | 写到 | 必需 | 上限 |\n");
+    out.push_str("\n## Output requirements\n\n");
+    out.push_str("| Name | Write to | Required | Limit |\n");
     out.push_str("| --- | --- | --- | --- |\n");
     for decl in &node.outputs {
         out.push_str(&format!(
             "| {} | {} | {} | {} |\n",
             decl.name,
             crate::work::layout::output_path(&attempt_dir, &decl.path),
-            if decl.required { "是" } else { "否" },
+            if decl.required { "yes" } else { "no" },
             human_size(decl.max_bytes)
         ));
     }
@@ -159,12 +131,12 @@ pub fn render_brief(
     out.push('\n');
     match node.executor {
         crate::flow::Executor::Agent => {
-            out.push_str("完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。\n");
+            out.push_str("Do not modify input files after finishing. Summarize your conclusion for the coordinator and list the output files you wrote.\n");
         }
         crate::flow::Executor::Human => {
-            out.push_str("写完输出文件后，在终端运行：\n\n");
+            out.push_str("After writing the output files, run in your terminal:\n\n");
             out.push_str(&format!(
-                "    sheltie attempt submit {} --attempt {} --summary \"<一句话结论>\"\n",
+                "    sheltie attempt submit {} --attempt {} --summary \"<one-sentence conclusion>\"\n",
                 state.work_id, attempt.id
             ));
         }
@@ -172,7 +144,7 @@ pub fn render_brief(
     out
 }
 
-/// `N MiB` / `N KiB` / `N B`。0 写 `0 B`。
+/// `N MiB` / `N KiB` / `N B`; zero is `0 B`.
 fn human_size(bytes: u64) -> String {
     const MIB: u64 = 1024 * 1024;
     const KIB: u64 = 1024;
@@ -187,42 +159,30 @@ fn human_size(bytes: u64) -> String {
     }
 }
 
-/// 渲染状态卡（协议 §6）。快照 `snapshots/*status_card*.snap` 是标准答案。
+/// Render the status card (protocol §6). Handwritten `snapshots/*status_card*.snap`
+/// files are independent expectations. The header names the Work and displays
+/// workbook, flow, WorkStatus (such as blocked(gate)), and current Occurrence.
+/// Successful Occurrences follow submission order; pending nodes and visit counts
+/// follow graph declaration order. Empty lists use `none`.
 ///
-/// ```text
-/// # Work <work_id>（<name>）
-/// <空行>
-/// workbook: <id>@<version>   flow: <flow>   status: <status>     status 用 WorkStatus 的 Display，如 blocked(gate)
-/// current: <occ>
-/// done: <occ>, <occ>                                              全部 Succeeded 的 Occurrence，按提交先后；没有写「无」
-/// pending: <node>, <node>                                         从未到达的节点，按图声明顺序；没有写「无」
-/// visits: draft 2/3, review 1/3, publish 0/1                      按图声明顺序，visits/max_visits
-/// blocked: <reason>: <说明>                                       只在 Blocked 时有；说明见协议 §6
-/// <空行>
-/// ## 最近一次尝试
-/// <空行>
-/// <attempt_id> <status>                                           attempts.last()；没有任何 Attempt 写「无」
-/// summary: <summary>                                              仅 Succeeded 且有摘要
-/// reason: <fail_reason>                                           仅 Failed 且有原因
-/// outputs:                                                        仅 Succeeded 且有输出；每个输出一行，缩进两格
-///   <name> → <path> (sha256 <64 位>, <human_size(bytes)>)
-/// <空行>
-/// ## 合法下一步
-/// <空行>
-/// - <to_command_line>                                             每项一行；终态时写「- 无」
-/// ```
+/// Only blocked states have a blocked line: gate names the required gate approval,
+/// retries_exhausted names the Occurrence, and no_legal_edge says every outgoing
+/// target has reached max_visits. The current-task section gives the bound brief,
+/// inputs, and draft outputs without claiming that drafts exist or are sealed.
 ///
-/// `blocked` 行的说明：`gate: <occ> 需要 gate approve`；`retries_exhausted: <occ>`；
-/// `no_legal_edge: <occ> 的全部出边目标已达 max_visits`。
+/// The latest Attempt section gives status, successful summary and outputs, or
+/// failure/replacement reason. Artifact lines include path, digest, and human-readable
+/// size, indented by two spaces. Legal next actions use one command per line;
+/// terminal states use `- none`. Lines use `\n`, including a final newline.
 pub fn render_status_card(state: &WorkState, graph: &Graph) -> String {
     status_view(state, graph).render()
 }
 
 impl StatusView {
-    /// 同一事实视图的文本渲染。
+    /// Text rendering of the same fact view.
     pub fn render(&self) -> String {
         let mut out = String::new();
-        out.push_str(&format!("# Work {}（{}）\n\n", self.work_id, self.name));
+        out.push_str(&format!("# Work {} ({})\n\n", self.work_id, self.name));
         out.push_str(&format!(
             "workbook: {}   flow: {}   status: {}\n",
             self.workbook, self.flow, self.status
@@ -232,7 +192,7 @@ impl StatusView {
         out.push_str(&format!(
             "done: {}\n",
             if self.done.is_empty() {
-                "无".to_string()
+                "none".to_string()
             } else {
                 self.done.join(", ")
             }
@@ -240,7 +200,7 @@ impl StatusView {
         out.push_str(&format!(
             "pending: {}\n",
             if self.pending.is_empty() {
-                "无".to_string()
+                "none".to_string()
             } else {
                 self.pending.join(", ")
             }
@@ -256,9 +216,9 @@ impl StatusView {
             out.push_str(&format!("blocked: {line}\n"));
         }
 
-        out.push_str("\n## 当前任务\n\n");
+        out.push_str("\n## Current task\n\n");
         match &self.resume {
-            None => out.push_str("无\n"),
+            None => out.push_str("none\n"),
             Some(resume) => {
                 out.push_str(&format!(
                     "attempt: {}\nbrief_path: {}\n",
@@ -271,7 +231,7 @@ impl StatusView {
                             "  {} → {} (sha256 {}, {} B)\n",
                             name, reference.path, reference.sha256, reference.bytes,
                         )),
-                        None => out.push_str(&format!("  {name} → 尚无\n")),
+                        None => out.push_str(&format!("  {name} → Not available\n")),
                     }
                 }
                 if !resume.draft_outputs.is_empty() {
@@ -283,9 +243,9 @@ impl StatusView {
             }
         }
 
-        out.push_str("\n## 最近一次尝试\n\n");
+        out.push_str("\n## Latest Attempt\n\n");
         match &self.last_attempt {
-            None => out.push_str("无\n"),
+            None => out.push_str("none\n"),
             Some(a) => {
                 out.push_str(&format!("{} {}\n", a.attempt, a.status.as_str()));
                 match a.status {
@@ -321,9 +281,9 @@ impl StatusView {
             }
         }
 
-        out.push_str("\n## 合法下一步\n\n");
+        out.push_str("\n## Legal next actions\n\n");
         if self.next.is_empty() {
-            out.push_str("- 无\n");
+            out.push_str("- none\n");
         } else {
             for op in &self.next {
                 out.push_str(&format!("- {}\n", op.to_command_line(&self.work_id)));
@@ -333,9 +293,9 @@ impl StatusView {
     }
 }
 
-/// 事实视图（GF-10/GF-29）：文本卡与 JSON 是**同一份事实**的两种渲染，失败原因、
-/// 完整产物引用（路径、摘要、字节数）与 `next` 只在这里装配一次。
-/// T06 交付纯实现与独立测试；持久 caller 与响应封装在 T07 统一接入。
+/// Fact view (GF-10/GF-29): text and JSON render the same facts; assemble failure reasons,
+/// complete artifact references (path, digest, bytes), and `next` only once here.
+/// T06 delivers pure implementation and independent tests; T07 connects persistent callers and response envelopes.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StatusView {
     pub work_id: WorkId,
@@ -347,14 +307,14 @@ pub struct StatusView {
     pub done: Vec<String>,
     pub pending: Vec<String>,
     pub visits: Vec<(String, String)>,
-    /// 与文本卡相同的说明串（如 `gate: review#2 需要 gate approve`），无则 `None`。
+    /// Explanation shared with the text card, such as `gate: review#2 requires gate approve`; otherwise `None`.
     pub blocked: Option<String>,
     pub last_attempt: Option<LastAttemptView>,
     pub resume: Option<ResumeView>,
     pub next: Vec<NextOp>,
 }
 
-/// 最近一次尝试的事实：失败原因与完整产物引用都在。
+/// Latest Attempt facts, including failure reasons and complete artifact references.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LastAttemptView {
     pub attempt: String,
@@ -372,7 +332,7 @@ pub struct ResumeView {
     pub draft_outputs: BTreeMap<String, AbsPath>,
 }
 
-/// 从状态与图装配事实视图。
+/// Assemble the fact view from state and graph.
 pub fn status_view(state: &WorkState, graph: &Graph) -> StatusView {
     StatusView {
         work_id: state.work_id.clone(),
@@ -420,9 +380,9 @@ pub fn status_view(state: &WorkState, graph: &Graph) -> StatusView {
     }
 }
 
-/// `--json` 用的状态卡：`StatusView` 的结构化渲染。`last_attempt.outputs` 是完整
-/// 产物引用（路径、摘要、字节数），失败时 `reason` 与文本卡同一来源；`next` 与协议
-/// §5 的响应封装完全同形（O13）。
+/// Structured `StatusView` rendering for `--json`; `last_attempt.outputs` contains complete
+/// artifact references (path, digest, bytes); failure reasons share the text card's source, and `next` matches
+/// the protocol §5 response envelope exactly (O13).
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct StatusCardJson {
     pub work_id: WorkId,
@@ -449,7 +409,7 @@ pub struct LastAttemptJson {
     pub outputs: BTreeMap<String, ArtifactRefJson>,
 }
 
-/// 完整产物引用（协议 §6）：与文本卡同样的路径、摘要与大小。
+/// Complete artifact reference (protocol §6), sharing the text card's path, digest, and size.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct ArtifactRefJson {
     pub path: String,
@@ -457,13 +417,13 @@ pub struct ArtifactRefJson {
     pub bytes: u64,
 }
 
-/// 状态卡的结构化形式。字段与文本卡一致。
+/// Structured status card; fields match the text card.
 pub fn status_card_json(state: &WorkState, graph: &Graph) -> StatusCardJson {
     status_view(state, graph).into_json()
 }
 
 impl StatusView {
-    /// 同一事实视图的协议 JSON 载荷。
+    /// Protocol JSON payload from the same fact view.
     pub fn into_json(self) -> StatusCardJson {
         let next = self
             .next
@@ -507,8 +467,8 @@ impl StatusView {
     }
 }
 
-/// 协议 §5 的 `next` 项：`op`、`args`（含 `work`），以及仅 `attempt begin` 项上的
-/// `edge`、`executor`、`tier`。全协议只有这一种形状（O13）。
+/// Protocol §5 `next` item: `op`, `args` (including `work`), and, only for `attempt begin`,
+/// `edge`, `executor`, and `tier`; the protocol has one canonical shape (O13).
 pub fn next_item_json(work_id: &WorkId, op: &NextOp) -> serde_json::Value {
     match op {
         NextOp::BeginAttempt {
@@ -553,7 +513,7 @@ pub fn next_item_json(work_id: &WorkId, op: &NextOp) -> serde_json::Value {
     }
 }
 
-/// 全部 Succeeded 的 Occurrence，按提交先后。
+/// All Succeeded Occurrences in submission order.
 fn done_occurrences(state: &WorkState) -> Vec<String> {
     let mut seen = BTreeSet::new();
     let mut out = Vec::new();
@@ -568,7 +528,7 @@ fn done_occurrences(state: &WorkState) -> Vec<String> {
     out
 }
 
-/// 从未到达的节点 id，按图声明顺序。
+/// Unvisited node IDs in graph declaration order.
 fn pending_nodes(state: &WorkState, graph: &Graph) -> Vec<String> {
     graph
         .nodes()
@@ -577,7 +537,7 @@ fn pending_nodes(state: &WorkState, graph: &Graph) -> Vec<String> {
         .collect()
 }
 
-/// `(node, "n/m")`，按图声明顺序。
+/// `(node, "n/m")` in graph declaration order.
 fn visit_items(state: &WorkState, graph: &Graph) -> Vec<(String, String)> {
     graph
         .nodes()
@@ -590,34 +550,36 @@ fn visit_items(state: &WorkState, graph: &Graph) -> Vec<(String, String)> {
         .collect()
 }
 
-/// `blocked` 行；非 `Blocked` 为 `None`。
-/// `blocked` 说明串（协议 §6：与文本行相同的串，不带 `blocked: ` 前缀）；
-/// 非 `Blocked` 为 `None`。文本卡自行加前缀。
+/// The `blocked` line; `None` for non-Blocked states.
+/// Blocked explanation (protocol §6), shared with the text line without its `blocked: ` prefix;
+/// `None` for non-Blocked states; the text card adds its own prefix.
 fn blocked_line(state: &WorkState) -> Option<String> {
     let occ = state.current.to_string();
     match state.status {
-        WorkStatus::Blocked(BlockedReason::Gate) => Some(format!("gate: {occ} 需要 gate approve")),
+        WorkStatus::Blocked(BlockedReason::Gate) => {
+            Some(format!("gate: {occ} requires gate approve"))
+        }
         WorkStatus::Blocked(BlockedReason::RetriesExhausted) => {
             Some(format!("retries_exhausted: {occ}"))
         }
         WorkStatus::Blocked(BlockedReason::NoLegalEdge) => Some(format!(
-            "no_legal_edge: {occ} 的全部出边目标已达 max_visits"
+            "no_legal_edge: {occ} has all outgoing targets at max_visits"
         )),
         _ => None,
     }
 }
 
-/// 事实视图（协议 `work stats`）：每个节点到达、尝试、失败几次，平均耗时、从哪些节点经哪种边进来。
-/// 只是对 `WorkState` 的计数，不含任何判断。
+/// Fact view (`work stats`): visits, attempts, failures, average duration, and incoming node/edge pairs per node.
+/// Counts from `WorkState` without content judgments.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct StatsJson {
     pub work_id: WorkId,
     pub status: WorkStatus,
-    /// 从 `created_at` 到 `updated_at` 的秒数。
+    /// Seconds from `created_at` to `updated_at`.
     pub total_seconds: u64,
     pub blocked_count: u32,
     pub approvals: u32,
-    /// 按图声明顺序。
+    /// In graph declaration order.
     pub nodes: Vec<NodeStatsJson>,
 }
 
@@ -629,15 +591,15 @@ pub struct NodeStatsJson {
     pub attempts: u32,
     pub failed: u32,
     pub superseded: u32,
-    /// 已结束 Attempt 的平均秒数；没有则 0。
+    /// Average seconds for ended Attempts; zero when none exist.
     pub avg_seconds: u64,
-    /// `"<from>(<edge>)×<n>"` 或 `"entry×<n>"`，按首次出现顺序。
+    /// `"<from>(<edge>)×<n>"` or `"entry×<n>"`, in first-observed order.
     pub entered_via: Vec<String>,
-    /// 结构化同源数据：`{from, edge, count}`（`from`/`edge` 为 `null` 表示入口）。
+    /// Structured data from the same source: `{from, edge, count}`; null from/edge means entry.
     pub entered_via_json: Vec<EnteredViaJson>,
 }
 
-/// 单条进入来源事实（协议 `work stats` 的 JSON 形状）。
+/// One incoming-source fact (`work stats` JSON shape).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct EnteredViaJson {
     pub from: Option<String>,
@@ -645,7 +607,7 @@ pub struct EnteredViaJson {
     pub count: u32,
 }
 
-/// 事实视图的结构化形式。`total_seconds` 与 `avg_seconds` 由 `Timestamp::unix_secs` 相减得到。
+/// Structured facts; derive total_seconds and avg_seconds by subtracting `Timestamp::unix_secs`.
 pub fn render_stats_json(state: &WorkState, graph: &Graph) -> StatsJson {
     let mut nodes = Vec::new();
     for def in graph.nodes() {
@@ -663,8 +625,8 @@ pub fn render_stats_json(state: &WorkState, graph: &Graph) -> StatsJson {
             .filter(|attempt| attempt.status == AttemptStatus::Superseded)
             .count() as u32;
 
-        // entered_via 按 Occurrence 计（重试沿用同一来源），来源是「节点 + 边类型」
-        // 二元组（N07：只记节点会把 main/back 混在一起），按首次出现顺序。
+        // Count entered_via by Occurrence (retries retain the same source), keyed by node and edge kind;
+        // preserve first-observed order (N07: node-only keys would merge main and back).
         let mut order: Vec<(Option<String>, Option<String>)> = Vec::new();
         let mut counts: BTreeMap<(Option<String>, Option<String>), u32> = BTreeMap::new();
         let mut seen_occ = BTreeSet::new();
@@ -730,20 +692,20 @@ pub fn render_stats_json(state: &WorkState, graph: &Graph) -> StatsJson {
         work_id: state.work_id.clone(),
         status: state.status,
         total_seconds: secs_between(&state.created_at, &state.updated_at),
-        // 累计受阻是状态转换记录的事实（GF-29/N07）：取消后不减少，不从当前
-        // status 重推历史。
+        // Cumulative blocking is recorded by state transitions (GF-29/N07); cancellation does not decrease it,
+        // and current status must not reconstruct history.
         blocked_count: state.blocked_count,
         approvals: state.approvals.len() as u32,
         nodes,
     }
 }
 
-/// 时间差，秒，负差算 0。`Timestamp` 构造时已校验格式，这里没有失败路径。
+/// Time difference in seconds, clamped to zero; Timestamp construction already validates syntax.
 fn secs_between(a: &Timestamp, b: &Timestamp) -> u64 {
     (b.unix_secs() - a.unix_secs()).max(0) as u64
 }
 
-/// 事实视图的文本表（协议 `work stats`）。快照 `*stats_table*.snap` 是标准答案。
+/// Text fact table (`work stats`); handwritten `*stats_table*.snap` files are independent expectations.
 ///
 /// ```text
 /// # Stats <work_id>
@@ -759,7 +721,7 @@ pub fn render_stats(state: &WorkState, graph: &Graph) -> String {
 }
 
 impl StatsJson {
-    /// 已组装统计的文本表，不重新统计状态。
+    /// Render assembled statistics without recounting state.
     pub fn render(&self) -> String {
         let mut out = String::new();
         out.push_str(&format!("# Stats {}\n\n", self.work_id));
@@ -806,7 +768,8 @@ mod tests {
             serde_json::Value::Null
         );
         assert!(
-            render_status_card(fixture.state(), &fixture.graph).contains("## 当前任务\n\n无\n")
+            render_status_card(fixture.state(), &fixture.graph)
+                .contains("## Current task\n\nnone\n")
         );
     }
 
@@ -840,7 +803,7 @@ mod tests {
         let text = render_status_card(fixture.state(), &fixture.graph);
         assert!(text.contains("attempt: draft#1.0"));
         assert!(text.contains(resume.brief_path.as_str()));
-        assert!(text.contains("review → 尚无"));
+        assert!(text.contains("review → Not available"));
         assert!(text.contains(&format!("{} (sha256 {}, 5 B)", topic.path, topic.sha256)));
         assert!(text.contains("draft_outputs:"));
         assert!(text.contains(resume.draft_outputs["article"].as_str()));
@@ -883,7 +846,7 @@ mod tests {
         let a = fx.state().latest_attempt_of_current().unwrap();
         insta::assert_snapshot!(
             "brief_for_review_node",
-            render_brief(fx.state(), &fx.graph, a, "审查这篇文章。")
+            render_brief(fx.state(), &fx.graph, a, "Review this article.")
         );
     }
 
@@ -895,7 +858,7 @@ mod tests {
         let a = fx.state().latest_attempt_of_current().unwrap();
         insta::assert_snapshot!(
             "brief_for_node_with_requires",
-            render_brief(fx.state(), &fx.graph, a, "用公司 API 做点事。")
+            render_brief(fx.state(), &fx.graph, a, "Use the company API.")
         );
     }
 
@@ -905,51 +868,51 @@ mod tests {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         let a = fx.state().latest_attempt_of_current().unwrap();
-        let text = render_brief(fx.state(), &fx.graph, a, "写初稿。");
-        assert!(!text.contains("需要的宿主资源"));
-        assert!(text.contains("来自: 入口"));
+        let text = render_brief(fx.state(), &fx.graph, a, "Write a draft.");
+        assert!(!text.contains("Required host resources"));
+        assert!(text.contains("From: entry"));
     }
 
-    // ── M1 复核 O3：版本列来自 Workbook 的 requires 声明，没声明版本写 `-` ─────
+    // ── M1 review O3: versions come from Workbook requires; omitted versions use `-` ─────
 
     // Task: T10
     #[test]
     fn brief_require_row_takes_version_from_manifest_and_names_kind() {
         let mut fx = Fixture::from_texts(
-            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"单节点\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"company-api\"\nversion = \"^1\"\n[[requires]]\nkind = \"mcp\"\nname = \"db\"\n",
-            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"用公司 API 做点事。\" }\nrequires = [\"skill:company-api\", \"mcp:db\"]\n",
+            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"Single node\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"company-api\"\nversion = \"^1\"\n[[requires]]\nkind = \"mcp\"\nname = \"db\"\n",
+            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"Only node\"\nexecutor = \"agent\"\ninstruction = { text = \"Use the company API.\" }\nrequires = [\"skill:company-api\", \"mcp:db\"]\n",
             &[],
         )
         .started_with(&[]);
         fx.begin("only").unwrap();
         let a = fx.state().latest_attempt_of_current().unwrap();
-        let text = render_brief(fx.state(), &fx.graph, a, "用公司 API 做点事。");
-        // 版本取自 manifest，没写时填 `-`；说明里的「此 <kind>」随类型变（protocol.md §4）。
+        let text = render_brief(fx.state(), &fx.graph, a, "Use the company API.");
+        // Versions come from manifest declarations, defaulting to `-`; instructions name the actual kind (protocol §4).
         assert!(text.contains(
-            "| skill | company-api | ^1 | 请确认你的宿主已装此 skill；未装请停下并告知用户 |\n\
-             | mcp | db | - | 请确认你的宿主已装此 mcp；未装请停下并告知用户 |\n"
+            "| skill | company-api | ^1 | Confirm your host has this skill installed; otherwise stop and inform the user |\n\
+             | mcp | db | - | Confirm your host has this mcp installed; otherwise stop and inform the user |\n"
         ));
     }
 
-    // ── M1 复审：manifest 里 kind 与 name 交叉的声明不得串行 ─────
+    // ── M1 review: distinguish declarations by both kind and name ─────
 
     // Task: T10
     #[test]
     fn brief_require_version_ignores_crossed_kind_name_pairs() {
-        // skill:db 与 mcp:db 同 name 不同 kind；mcp:db 才是节点引用的那条。
-        // 版本查找若把 && 写成 ||，会先命中 skill:db 的 1.0。
+        // skill:db and mcp:db share a name but differ in kind; the node references mcp:db.
+        // Changing && to || would incorrectly select skill:db version 1.0 first.
         let mut fx = Fixture::from_texts(
-            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"单节点\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"db\"\nversion = \"1.0\"\n[[requires]]\nkind = \"mcp\"\nname = \"db\"\nversion = \"3.0\"\n",
-            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = { text = \"做这一件事。\" }\nrequires = [\"mcp:db\"]\n",
+            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"Single node\"\nflows = [\"flows/default.toml\"]\n[[requires]]\nkind = \"skill\"\nname = \"db\"\nversion = \"1.0\"\n[[requires]]\nkind = \"mcp\"\nname = \"db\"\nversion = \"3.0\"\n",
+            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"Only node\"\nexecutor = \"agent\"\ninstruction = { text = \"Do this task.\" }\nrequires = [\"mcp:db\"]\n",
             &[],
         )
         .started_with(&[]);
         fx.begin("only").unwrap();
         let a = fx.state().latest_attempt_of_current().unwrap();
-        let text = render_brief(fx.state(), &fx.graph, a, "做这一件事。");
+        let text = render_brief(fx.state(), &fx.graph, a, "Do this task.");
         assert!(
             text.contains("| mcp | db | 3.0 |"),
-            "版本必须来自 mcp:db 那条声明：\n{text}"
+            "Version must come from the mcp:db declaration:\n{text}"
         );
     }
 
@@ -959,8 +922,10 @@ mod tests {
         let mut fx = Fixture::spec_dev().started_with(&[("request", "r"), ("project", "/p")]);
         fx.begin("spec").unwrap();
         let a = fx.state().latest_attempt_of_current().unwrap();
-        let text = render_brief(fx.state(), &fx.graph, a, "写规格。");
-        assert!(text.contains("| decision | 尚无（上游 plan-review 还没有产出） | |"));
+        let text = render_brief(fx.state(), &fx.graph, a, "Write the specification.");
+        assert!(text.contains(
+            "| decision | Not available (upstream plan-review has not produced output) | |"
+        ));
     }
 
     // Task: T10
@@ -970,12 +935,12 @@ mod tests {
         fx.begin("draft").unwrap();
         fx.submit_ok("draft#1.0", "ok").unwrap();
         fx.begin("review").unwrap();
-        fx.submit_ok("review#1.0", "通过").unwrap();
+        fx.submit_ok("review#1.0", "Approved").unwrap();
         fx.begin("publish").unwrap();
         let a = fx.state().latest_attempt_of_current().unwrap();
         insta::assert_snapshot!(
             "brief_for_human_executor_ends_with_submit_command",
-            render_brief(fx.state(), &fx.graph, a, "确认可以发布。")
+            render_brief(fx.state(), &fx.graph, a, "Confirm publication is approved.")
         );
     }
 
@@ -996,7 +961,7 @@ mod tests {
     fn status_card_blocked_on_gate() {
         let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
         fx.begin("notes").unwrap();
-        fx.submit_ok("notes#1.0", "写好了").unwrap();
+        fx.submit_ok("notes#1.0", "Written").unwrap();
         insta::assert_snapshot!(
             "status_card_blocked_on_gate",
             render_status_card(fx.state(), &fx.graph)
@@ -1008,9 +973,9 @@ mod tests {
     fn status_card_succeeded() {
         let mut fx = Fixture::two_step().started_with(&[("topic", "t")]);
         fx.begin("outline").unwrap();
-        fx.submit_ok("outline#1.0", "提纲好了").unwrap();
+        fx.submit_ok("outline#1.0", "Outline ready").unwrap();
         fx.begin("summary").unwrap();
-        fx.submit_ok("summary#1.0", "摘要好了").unwrap();
+        fx.submit_ok("summary#1.0", "Summary ready").unwrap();
         insta::assert_snapshot!(
             "status_card_succeeded",
             render_status_card(fx.state(), &fx.graph)
@@ -1056,11 +1021,11 @@ mod tests {
     fn stats_json_counts_visits_failures_and_entered_via() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
-        fx.fail("draft#1.0", "崩").unwrap();
+        fx.fail("draft#1.0", "Crashed").unwrap();
         fx.begin("draft").unwrap();
         fx.submit_ok("draft#1.1", "ok").unwrap();
         fx.begin("review").unwrap();
-        fx.submit_ok("review#1.0", "不通过").unwrap();
+        fx.submit_ok("review#1.0", "Rejected").unwrap();
         fx.begin("draft").unwrap();
         let s = render_stats_json(fx.state(), &fx.graph);
         let draft = &s.nodes[0];
@@ -1073,7 +1038,7 @@ mod tests {
             ),
             ("draft", 2, 3, 1)
         );
-        // 合同（协议 work stats）要求保留边类型：draft(back)×1。
+        // The work stats contract requires edge kinds: draft(back)×1.
         assert_eq!(draft.entered_via, vec!["entry×1", "review(back)×1"]);
         assert_eq!(s.nodes[1].entered_via, vec!["draft(main)×1"]);
         assert_eq!(s.nodes[2].attempts, 0);
@@ -1086,21 +1051,21 @@ mod tests {
         let mut fx = Fixture::article_review().started();
         fx.run_to_review_done_not_passing();
         fx.begin("draft").unwrap();
-        fx.submit_ok("draft#2.0", "改了").unwrap();
+        fx.submit_ok("draft#2.0", "Revised").unwrap();
         let card = status_card_json(fx.state(), &fx.graph);
         assert_eq!(card.done, vec!["draft#1", "review#1", "draft#2"]);
         assert_eq!(card.pending, vec!["publish"]);
         assert_eq!(card.current, "draft#2");
     }
 
-    // ── M1 补测（阻断行、阻断计数、时间换算；夹具时钟固定，快照里全是 0s） ─────
+    // ── M1 additional blocked-line, blocking-count, and timestamp coverage; snapshots use a fixed clock and 0s ─────
 
     fn exhausted_draft() -> Fixture {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
-        fx.fail("draft#1.0", "一").unwrap();
+        fx.fail("draft#1.0", "First").unwrap();
         fx.begin("draft").unwrap();
-        fx.fail("draft#1.1", "二").unwrap();
+        fx.fail("draft#1.1", "Second").unwrap();
         fx
     }
 
@@ -1109,9 +1074,9 @@ mod tests {
         fx.begin("draft").unwrap();
         fx.submit_ok("draft#1.0", "ok").unwrap();
         fx.begin("review").unwrap();
-        fx.submit_ok("review#1.0", "不通过").unwrap();
+        fx.submit_ok("review#1.0", "Rejected").unwrap();
         fx.begin("draft").unwrap();
-        fx.submit_ok("draft#2.0", "改了").unwrap();
+        fx.submit_ok("draft#2.0", "Revised").unwrap();
         fx
     }
 
@@ -1132,7 +1097,7 @@ mod tests {
         let fx = no_legal_edge();
         let card = render_status_card(fx.state(), &fx.graph);
         assert!(
-            card.contains("blocked: no_legal_edge: draft#2 的全部出边目标已达 max_visits"),
+            card.contains("blocked: no_legal_edge: draft#2 has all outgoing targets at max_visits"),
             "{card}"
         );
     }
@@ -1140,10 +1105,10 @@ mod tests {
     // Task: T10
     #[test]
     fn stats_blocked_count_by_reason() {
-        // 普通成功与可重试的失败都不算阻断。
+        // Ordinary success and retryable failure do not count as blocking.
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
-        fx.fail("draft#1.0", "一").unwrap();
+        fx.fail("draft#1.0", "First").unwrap();
         assert_eq!(fx.state().blocked_count, 0);
         assert_eq!(render_stats_json(fx.state(), &fx.graph).blocked_count, 0);
         fx.begin("draft").unwrap();
@@ -1157,21 +1122,25 @@ mod tests {
         let fx = no_legal_edge();
         assert_eq!(render_stats_json(fx.state(), &fx.graph).blocked_count, 1);
 
-        // 门槛成功算一次，批准之后仍算。
+        // Gate success counts once, retaining the count after approval.
         let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
         fx.begin("notes").unwrap();
-        fx.submit_ok("notes#1.0", "写好了").unwrap();
+        fx.submit_ok("notes#1.0", "Written").unwrap();
         assert_eq!(fx.state().blocked_count, 1);
         assert_eq!(render_stats_json(fx.state(), &fx.graph).blocked_count, 1);
         fx.approve("notes").unwrap();
-        assert_eq!(fx.state().blocked_count, 1, "批准不清除已发生的受阻事实");
+        assert_eq!(
+            fx.state().blocked_count,
+            1,
+            "Approval does not erase prior blocking facts"
+        );
         assert_eq!(render_stats_json(fx.state(), &fx.graph).blocked_count, 1);
     }
 
     // Task: T10
     #[test]
     fn secs_between_matches_independent_calendar_math() {
-        // 期望值由 Python datetime 独立算出。
+        // Expected values are independently calculated with Python datetime.
         let cases = [
             ("2026-02-28T23:59:30Z", "2026-03-01T00:00:30Z", 60),
             ("2024-02-28T00:00:00Z", "2024-03-01T00:00:00Z", 172_800),
@@ -1193,23 +1162,27 @@ mod tests {
         for (a, b, want) in cases {
             assert_eq!(secs_between(&ts(a), &ts(b)), want, "{a} → {b}");
         }
-        // 倒序夹到 0。格式不合法的时间串在 `Timestamp::parse` 就被拒绝，到不了这里。
+        // Clamp reversed time to zero; Timestamp::parse rejects invalid syntax before this function.
         assert_eq!(
             secs_between(&ts("2026-01-01T00:00:09Z"), &ts("2026-01-01T00:00:00Z")),
             0
         );
     }
 
-    // ── C002-T06：事实视图与累计受阻（O13/N07） ───────────────────
+    // ── C002-T06: fact view and cumulative blocking (O13/N07) ───────────────────
 
     // Task: C002-T06
     #[test]
     fn blocked_count_survives_cancel_after_no_legal_edge() {
-        // NoLegalEdge 发生记 1；取消是状态转换，不回退已发生的事实（GF-29/N07）。
+        // NoLegalEdge counts once; cancellation changes state without reverting recorded facts (GF-29/N07).
         let mut fx = no_legal_edge();
         assert_eq!(fx.state().blocked_count, 1);
         fx.cancel().unwrap();
-        assert_eq!(fx.state().blocked_count, 1, "取消不得减少累计受阻");
+        assert_eq!(
+            fx.state().blocked_count,
+            1,
+            "Cancellation must not decrease cumulative blocking"
+        );
         let stats = render_stats_json(fx.state(), &fx.graph);
         assert_eq!(stats.blocked_count, 1);
     }
@@ -1217,45 +1190,45 @@ mod tests {
     // Task: C002-T06
     #[test]
     fn status_json_carries_reason_and_full_artifact_refs() {
-        // 失败原因进 JSON（O13）：字段缺失或值错都会让本测试失败。
+        // JSON carries the failure reason (O13); missing or incorrect fields fail this test.
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
-        fx.fail("draft#1.0", "worker 崩了").unwrap();
+        fx.fail("draft#1.0", "Worker crashed").unwrap();
         let card = status_card_json(fx.state(), &fx.graph);
         let last = card.last_attempt.as_ref().unwrap();
-        assert_eq!(last.reason.as_deref(), Some("worker 崩了"));
+        assert_eq!(last.reason.as_deref(), Some("Worker crashed"));
         assert_eq!(last.status, "failed");
 
-        // 成功提交后 outputs 是完整产物引用：路径、sha256、字节数逐一有值。
+        // Successful outputs contain complete artifact references with path, sha256, and bytes.
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
-        let d = fx.submit_ok("draft#1.0", "完成").unwrap();
+        let d = fx.submit_ok("draft#1.0", "Completed").unwrap();
         let sealed = d.state.attempts[0].outputs["article"].clone();
         let card = status_card_json(&d.state, &fx.graph);
         let out = &card.last_attempt.as_ref().unwrap().outputs["article"];
         assert_eq!(out.path, sealed.path.to_string());
         assert_eq!(out.sha256, sealed.sha256.as_str());
         assert_eq!(out.bytes, sealed.bytes);
-        // 手写期望值字段必须真实存在（删除 digest/bytes 字段会让上面的相等失败）。
+        // Handwritten expected fields must exist; removing digest/bytes fails equality above.
         assert_eq!(out.sha256.len(), 64);
         assert!(out.bytes > 0);
 
-        // 受阻说明串两格式同源。
+        // Blocked explanations share one source in both formats.
         let mut fx = Fixture::gated_release().started_with(&[("version", "1.0")]);
         fx.begin("notes").unwrap();
-        fx.submit_ok("notes#1.0", "写好了").unwrap();
+        fx.submit_ok("notes#1.0", "Written").unwrap();
         let card = status_card_json(fx.state(), &fx.graph);
         assert_eq!(
             card.blocked.as_deref(),
-            Some("gate: notes#1 需要 gate approve")
+            Some("gate: notes#1 requires gate approve")
         );
     }
 
     // Task: C002-T06
     #[test]
     fn next_items_use_single_protocol_shape() {
-        // 状态卡 data.next 与协议 §5 的顶层 next 同形：op/args/work，begin 项带
-        // edge/executor/tier（O13 的「不同形状」修复）。
+        // Status-card data.next matches protocol §5 top-level next: op/args/work, plus
+        // edge/executor/tier on begin items (O13 inconsistent-shape repair).
         let mut fx = Fixture::article_review().started();
         fx.run_to_review_done_not_passing();
         let card = status_card_json(fx.state(), &fx.graph);
@@ -1272,7 +1245,7 @@ mod tests {
         assert_eq!(begin["edge"], "back");
         assert_eq!(begin["executor"], "agent");
         assert_eq!(begin["tier"], "standard");
-        // 与文本卡的命令行一致（同一份事实）。
+        // Matches text-card command lines from the same facts.
         let text = render_status_card(fx.state(), &fx.graph);
         assert!(text.contains("sheltie attempt begin"), "{text}");
     }
@@ -1282,11 +1255,11 @@ mod tests {
     fn entered_via_distinguishes_edges_and_entry() {
         let mut fx = Fixture::article_review().started();
         fx.run_to_review_done_not_passing();
-        // 打回后再次进入 draft：来自 review#1 的 back 边。
+        // Reenter draft after rejection through the back edge from review#1.
         fx.begin("draft").unwrap();
         let stats = render_stats_json(fx.state(), &fx.graph);
         let draft = &stats.nodes[0];
-        // 文本与结构化同源：entry 无 from/edge，back 有边类型。
+        // Text and structured forms share facts: entry has no from/edge, while back retains its edge kind.
         assert_eq!(draft.entered_via, vec!["entry×1", "review(back)×1"]);
         assert_eq!(
             draft.entered_via_json,
@@ -1306,14 +1279,14 @@ mod tests {
         assert_eq!(
             stats.nodes[1].entered_via,
             vec!["draft(main)×1"],
-            "review 经 main 进入，边类型必须保留"
+            "review enters through main; preserve the edge kind"
         );
     }
 
     // Task: C002-T06
     #[test]
     fn text_and_json_agree_on_hand_written_state() {
-        // 独立手写状态：非零时间、失败原因、多个输出，逐字段断言两种渲染一致。
+        // Independently handwritten state: nonzero timestamps, failure reason, and multiple outputs; compare every rendered field.
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
         let mut state = fx.state().clone();
@@ -1322,13 +1295,13 @@ mod tests {
         state.updated_at = ts("2026-09-24T02:30:00Z");
         state.attempts[0].started_at = ts("2026-09-24T01:10:00Z");
         state.attempts[0].fail_reason =
-            Some(crate::text::Summary::new("超时退出", "reason").unwrap());
+            Some(crate::text::Summary::new("Timed out", "reason").unwrap());
         state.attempts[0].status = AttemptStatus::Failed;
         state.attempts[0].ended_at = Some(ts("2026-09-24T01:25:00Z"));
         state.blocked_count = 2;
 
         let text = render_status_card(&state, &fx.graph);
-        assert!(text.contains("reason: 超时退出"), "{text}");
+        assert!(text.contains("reason: Timed out"), "{text}");
         let stats = render_stats_json(&state, &fx.graph);
         assert_eq!(stats.total_seconds, 5400);
         assert_eq!(stats.nodes[0].avg_seconds, 900);
@@ -1342,7 +1315,7 @@ mod tests {
     fn stats_total_and_avg_use_timestamps() {
         let mut fx = Fixture::article_review().started();
         fx.begin("draft").unwrap();
-        fx.fail("draft#1.0", "一").unwrap();
+        fx.fail("draft#1.0", "First").unwrap();
         fx.begin("draft").unwrap();
         fx.submit_ok("draft#1.1", "ok").unwrap();
         fx.begin("review").unwrap();
@@ -1354,7 +1327,7 @@ mod tests {
         state.attempts[0].ended_at = Some(ts("2026-09-24T03:00:10Z"));
         state.attempts[1].started_at = ts("2026-09-24T03:01:00Z");
         state.attempts[1].ended_at = Some(ts("2026-09-24T03:01:30Z"));
-        // review#1.0 仍在运行：不计入 avg。
+        // review#1.0 is still running, so exclude it from avg.
         state.attempts[2].started_at = ts("2026-09-24T03:02:00Z");
         let stats = render_stats_json(&state, &fx.graph);
         assert_eq!(stats.total_seconds, 3600);

@@ -1,21 +1,21 @@
-# 反思：<work_id>
+# Reflection: <work_id>
 
-## 事实
+## Facts
 
-- 任务 N 个；`implement` 到达 X 次，`fix` 到达 Y 次，`escalate` Z 次；总耗时 T。
-- 到达最多的节点：`<node>`（n 次）。相关报告第一行：<逐条摘录>。
-- 人介入：`plan-review` 第一行「<…>」；`escalate`（若有）第一行「<…>」。
+- N tasks; implement X visits, fix Y, escalate Z; total duration T.
+- Most visited: <node> (n); relevant first-line excerpts: <list>.
+- Human intervention: plan-review first line <...>; escalation first line if any <...>.
 
-## 建议
+## Proposals
 
-| # | 类别 | 证据 | 改哪 | 改成什么 |
+| # | Category | Evidence | Location | Replacement |
 | --- | --- | --- | --- | --- |
-| L1 | <六类之一> | `<node>#<n>.<retry>/<文件>` 第 <行> | `<Workbook 内文件>`「<段落>」 | <一两句可执行的改动> |
+| L1 | <one of six categories> | `<node>#<occurrence>.<number>/<file>` line <n> | `<Workbook file>` paragraph <name> | <one or two executable sentences> |
 
-## 不建议改的
+## No change recommended
 
-- <看似问题但属于一次性的事，以及为什么不改>
+- <Apparent one-off problem and reason.>
 
-## 上一版建议的效果
+## Previous proposals' effects
 
-- <采纳过的 Ln：见效 / 未见效，证据>；没有写「无」
+- <Adopted Ln: effective/ineffective with evidence; None when absent.>

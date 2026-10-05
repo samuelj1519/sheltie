@@ -1,4 +1,4 @@
-//! T20：`self` 组（cli 层）。
+//! T20: CLI self commands.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod common;
@@ -12,16 +12,16 @@ use serde_json::Value;
 #[test]
 fn self_version_works_without_home() {
     let env = Env::new();
-    // 管理根目录存在但里面什么都没有；self version 不需要 store.db。
+    // Root exists but is empty; self version does not require store.db.
     let v = env.ok(&["self", "version"]);
     assert_eq!(v["data"]["version"], env!("CARGO_PKG_VERSION"));
     assert_eq!(v["data"]["schema_version"], 4);
     assert!(!env.dir.path().join("store.db").exists());
 }
 
-// ── C002-T15：协议 JSON 纯度、schema 2 提示与固定 tag ────────────────────
+// ── C002-T15: pure protocol JSON, schema 2 notices, and pinned tags ────────────────────
 
-/// 本地发布夹具：版本 = 当前版本，`self update` 走「已是最新」短路，不下载资产。
+/// Local release version equals current; self update returns up-to-date without downloading assets.
 fn write_current_version_fixture(env: &Env) -> PathBuf {
     let rel = env.dir.path().join("rel");
     let manifest = format!(
@@ -39,7 +39,7 @@ fn write_current_version_fixture(env: &Env) -> PathBuf {
     rel
 }
 
-/// 本地发布夹具：`latest/` 是 9.9.9，另写 `v8.8.8/` 的自洽发布。
+/// Local release fixture: latest/ is 9.9.9; add a consistent v8.8.8/ release.
 fn write_two_version_fixture(env: &Env) -> PathBuf {
     let rel = env.dir.path().join("rel2");
     let platform = sheltie_runtime::selfmgmt::platform();
@@ -67,7 +67,7 @@ fn write_two_version_fixture(env: &Env) -> PathBuf {
     rel
 }
 
-/// 带 `SHELTIE_RELEASE_BASE` 的 JSON 命令，返回解析后的响应封装。
+/// JSON command with SHELTIE_RELEASE_BASE, returning the decoded envelope.
 fn ok_with_release_base(env: &Env, rel: &Path, args: &[&str]) -> Value {
     let out = env
         .cmd(args)
@@ -76,7 +76,7 @@ fn ok_with_release_base(env: &Env, rel: &Path, args: &[&str]) -> Value {
         .unwrap();
     assert!(
         out.status.success(),
-        "命令失败：{args:?}\nstdout: {}\nstderr: {}",
+        "Command failed: {args:?}\nstdout: {}\nstderr: {}",
         String::from_utf8_lossy(&out.stdout),
         String::from_utf8_lossy(&out.stderr)
     );
@@ -88,9 +88,9 @@ fn ok_with_release_base(env: &Env, rel: &Path, args: &[&str]) -> Value {
 // Task: C002-T15
 #[test]
 fn self_install_json_stdout_is_single_document() {
-    // `--json` 的 stdout 只能是协议 JSON：from_slice 拒绝任何前后缀文本。
-    // schema 2 提示只在文本模式出现（见下面的 text 用例）；JSON 里是响应封装
-    // 的 data 字段（installed_to、path_hint），提示不混在 JSON 外面。
+    // --json stdout is protocol JSON only; from_slice rejects prefix/suffix text.
+    // Schema 2 notices appear only in text mode (cases below); JSON returns envelope
+    // data fields installed_to/path_hint without surrounding notices.
     let env = Env::new();
     let out = env.cmd(&["self", "install"]).output().unwrap();
     assert!(out.status.success());
@@ -103,7 +103,7 @@ fn self_install_json_stdout_is_single_document() {
 // Task: C002-T15
 #[test]
 fn self_update_json_stdout_is_single_document() {
-    // 更新（这里是「已是最新」短路）走同一封装，stdout 也是纯 JSON。
+    // Update's up-to-date shortcut uses the same envelope and pure JSON stdout.
     let env = Env::new();
     let rel = write_current_version_fixture(&env);
     let v = ok_with_release_base(&env, &rel, &["self", "update"]);
@@ -135,15 +135,18 @@ fn self_update_resolves_relative_release_base_from_command_directory() {
 // Task: C002-T15
 #[test]
 fn self_install_text_prompt_explains_schema2_and_rollback_limit() {
-    // 安装提示要写清 Store schema 4 与旧数据保留，不能误导成「只换二进制即可降级」。
+    // Install notices state schema 4 and old-data preservation, without implying binary-only Store downgrade.
     let env = Env::new();
     let out = env.cmd_text(&["self", "install"]).output().unwrap();
     assert!(out.status.success());
     let text = String::from_utf8_lossy(&out.stdout);
-    assert!(text.contains("Store schema 是 4"), "{text}");
-    assert!(text.contains("旧数据保留在旧管理根"), "{text}");
+    assert!(text.contains("Store schema is 4"), "{text}");
     assert!(
-        text.contains("rollback 只换回旧二进制，不降级 Store"),
+        text.contains("old data remains in its old management root"),
+        "{text}"
+    );
+    assert!(
+        text.contains("rollback restores only the old binary, without downgrading Store"),
         "{text}"
     );
 }
@@ -151,7 +154,7 @@ fn self_install_text_prompt_explains_schema2_and_rollback_limit() {
 // Task: C002-T15
 #[test]
 fn self_update_text_prompt_explains_schema2_and_rollback_limit() {
-    // 更新提示同一口径。
+    // Update notices use the same wording.
     let env = Env::new();
     let rel = write_current_version_fixture(&env);
     let out = env
@@ -161,10 +164,10 @@ fn self_update_text_prompt_explains_schema2_and_rollback_limit() {
         .unwrap();
     assert!(out.status.success());
     let text = String::from_utf8_lossy(&out.stdout);
-    assert!(text.contains("已是最新"), "{text}");
-    assert!(text.contains("Store schema 是 4"), "{text}");
+    assert!(text.contains("Already up to date"), "{text}");
+    assert!(text.contains("Store schema is 4"), "{text}");
     assert!(
-        text.contains("rollback 只换回旧二进制，不降级 Store"),
+        text.contains("rollback restores only the old binary, without downgrading Store"),
         "{text}"
     );
 }
@@ -172,7 +175,7 @@ fn self_update_text_prompt_explains_schema2_and_rollback_limit() {
 // Task: C002-T15
 #[test]
 fn self_update_version_flag_pins_tag() {
-    // 真实入口的 `--version 8.8.8` 固定到 v8.8.8；latest 指着 9.9.9 也不看。
+    // The real --version 8.8.8 entry pins v8.8.8 without reading latest pointing to 9.9.9.
     let env = Env::new();
     env.ok(&["self", "install"]);
     let rel = write_two_version_fixture(&env);
@@ -201,7 +204,7 @@ fn purge_reports_the_retained_root_and_lock() {
             .stdout,
     )
     .to_string();
-    assert!(text.contains("保留"), "{text}");
+    assert!(text.contains("Retained"), "{text}");
     assert!(home.join(".lock").is_file());
     assert_eq!(
         std::fs::read_dir(&home)

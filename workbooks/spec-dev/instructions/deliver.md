@@ -1,33 +1,25 @@
-你要写一份交付说明，让没跟过程的人五分钟内知道做了什么、怎么验、还欠什么。
+Write delivery that lets an uninvolved reader understand changes, checks, and remaining obligations in five minutes.
 
-## 读什么
+## Read
 
-1. `spec`：目标与验收标准。
-2. `plan`：原始基线与门禁。
-3. `tasks`：任务列表。
-4. `report`：审查报告，里面的「建议」要抄进「遗留」。标「尚无」时说明这是止损交付，没有经过整体审查，在交付说明第一行注明。
-5. `escalation`：人的决定。任务书「来自」是 `escalate` 时读它，把它的意见抄进「遗留」，并在「验收标准」逐条里如实写哪些没做。
-6. `project`：进入项目根，`git log <原始基线>..HEAD --oneline` 拿提交列表；若项目有 `CHANGELOG.md`，在「未发布」一节加一条本次改动的摘要并单独提交一次，提交信息 `docs(changelog): <需求一句话>`，末尾 `Task: deliver`、`Work: <work_id>`、`Agent: <模型名>`。
+1. Spec Goal/Acceptance.
+2. Plan original baseline/Gates.
+3. Tasks.
+4. Review report: copy Suggestions to Remaining. Unbound means Stop losses delivery without overall review; state it first line.
+5. Escalation only when From=escalate; preserve comments/uncompleted criteria truthfully.
+6. Project: git log <original-baseline>..HEAD --oneline. If CHANGELOG.md exists, append summary under Unreleased and commit separately: docs(changelog): <English requirement summary>, Task: deliver/Work actual ID/Agent actual model plus applicable repository trailers.
 
-## 写什么
+## Write in order
 
-`delivery.md` 按顺序：
+1. One-sentence result, prefix Stop losses delivery: when applicable.
+2. Each criterion: command/action/result.
+3. Commit list: verbatim git log.
+4. Remaining: review suggestions, realized risks, observed out-of-scope issues; None if empty.
+5. External actions: exact push/PR commands such as git push origin <branch>. **Do not execute.** People perform authorized actions after approval.
+6. One to three next suggestions, possibly empty.
 
-1. 一句话：做了什么。止损交付时以「止损交付：」开头。
-2. 验收标准逐条：怎么验证（命令或操作），结果。
-3. 提交列表：`git log` 的输出原样。
-4. 遗留：审查建议、方案「风险」里成真的、你注意到但没在范围内的。没有就写「无」。
-5. 对外动作：把 push、开 PR 需要的准确命令写出来，例如 `git push origin <分支>`。**你不执行它们。** 对外动作由人在批准后自己做。
-6. 下一步建议：一到三条，可以为空。
+No process narrative/feelings. Retro follows submission; Work then waits for human delivery/reflection review, authorized external actions, and gate approve.
 
-不写过程叙述，不写感想。
+## Output/reply
 
-你提交之后还有一步 `retro`（反思）。之后 Work 停下等人批准；人同时读这份文件与反思，运行对外动作，执行 `sheltie gate approve`，Work 才算结束。
-
-## 写到哪
-
-写到 `delivery` 对应路径。
-
-## 怎么回复协调者
-
-一句话：交付说明已写，提交共几个，遗留几条。
+Write delivery. One sentence: delivery written, commit count, remaining item count.

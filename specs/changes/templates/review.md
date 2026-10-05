@@ -1,18 +1,19 @@
-# Cnnn 独立 review
+# Cnnn independent review
 
-结论：`PASS | FAIL | BLOCKED`
+English | [简体中文](review.zh-CN.md)
 
-Reviewer：`<未参与实现的人或 agent>`
-Candidate：`<hash | SELF>`
+Conclusion: `PASS | FAIL | BLOCKED`
+Reviewer: `<person or agent who did not implement>`
+Candidate: `<hash | SELF>`
 
 ## Standards
 
-- <违反仓库规则的 finding；没有就写“无”。>
+- <Findings violating repository rules, or none.>
 
 ## Spec
 
-- <缺失、偏差或错误实现；没有就写“无”。>
+- <Missing, divergent, or incorrectly implemented behavior, or none.>
 
-## 建议
+## Suggestions
 
-- <非阻断建议；没有就写“无”。>
+- <Nonblocking suggestions, or none.>

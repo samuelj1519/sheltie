@@ -1,32 +1,34 @@
-# 跑完第一个 Work
+# Finish your first Work
 
-这个练习使用仓库的 two-step 方法：先列提纲，再写摘要。完成后能区分方法与运行、领取与提交，以及流程成功与最终成果声明。练习只写新的临时管理根和声明输出，不安装引擎、不修改仓库或旧 Store。
+English | [简体中文](first-work.zh-CN.md)
 
-先在仓库根打开 Bash，按[构建指南](../how-to/build-from-source.md)取得 `engine_binary`、`source_home`、`session_dir` 和 `project_repo`，核 `self version` 的版本与根。在同一会话继续。每条命令非零、`ok=false` 或结果无法核实时停止，保存完整输出；学习排障见[接续指南](../how-to/resume-work.md)。
+Use two-step: outline then summary. Learn method versus run, claiming versus submitting, and flow success versus result selection. Only new temporary roots/declared outputs are written, without installation/repository/old-Store changes.
 
-## 1. 装入两步方法
+Open Bash at the root. [Build](../how-to/build-from-source.md) engine_binary/source_home/session_dir/project_repo and verify self version. Continue in one session. Stop on nonzero/ok=false/unverifiable outcomes and retain full output; see [resume](../how-to/resume-work.md).
+
+## 1. Install two-step
 
 ```bash
 "$engine_binary" --home "$source_home" --json workbook add examples/two-step
-"$engine_binary" --home "$source_home" --json workbook verify two-step@1.0.0
-"$engine_binary" --home "$source_home" --json workbook show two-step@1.0.0
+"$engine_binary" --home "$source_home" --json workbook verify two-step@1.0.1
+"$engine_binary" --home "$source_home" --json workbook show two-step@1.0.1
 ```
 
-show 展示 default Flow 的 outline、summary 两个 Node，入口需要 topic。方法说明在 [two-step 目录](../../examples/two-step)；这里只装入冻结副本，不调用模型。
+show lists outline/summary in default with topic input. See [method directory](../../examples/two-step). Installation freezes a copy, without model calls.
 
-## 2. 创建一次运行
+## 2. Create a run
 
 ```bash
 "$engine_binary" --home "$source_home" --json work start \
-  --workbook two-step@1.0.0 --flow default --input 'topic=介绍 Sheltie' \
+  --workbook two-step@1.0.1 --flow default --input 'topic=Introduce Sheltie' \
   > "$session_dir/start.json"
 cat "$session_dir/start.json"
 work_id=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["data"]["work_id"])' "$session_dir/start.json")
 ```
 
-保存真实 Work ID。响应 next 应允许 begin outline；它还允许取消，不意味着协调者可以跳到 summary。
+Retain actual Work ID. next permits begin outline/cancel, without skipping to summary.
 
-## 3. 领取任务书并完成提纲
+## 3. Claim the brief and write an outline
 
 ```bash
 "$engine_binary" --home "$source_home" --json attempt begin "$work_id" --node outline \
@@ -38,28 +40,28 @@ outline_attempt=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])
 cat "$brief_path"
 ```
 
-任务书给出冻结 topic 的输入路径和 outline 输出要求。在真实使用中将它交给工作 agent；练习中手工完成工作者动作，写三项提纲：
+The brief gives frozen topic paths/outline requirements. Real use delegates it to workers; here write a three-point outline manually:
 
 ```bash
 cat > "$outline_path" <<'OUTLINE'
-- 方法、运行与分工
-  - Workbook 保存方法，Work 保存一次运行。
-  - 协调者判断内容，引擎记录事实与合法下一步。
-- 输入、输出与接续
-  - 输入按字节冻结，输出提交后封存。
-  - 中断后从当前任务书与冻结输入继续。
-- 门槛、状态与成果
-  - 方法可以声明需要批准的门槛，本练习没有门槛。
-  - 流程成功与明确成果选择分别表达。
+- Methods, runs, and responsibilities
+  - Workbook holds a method; Work holds one run.
+  - Coordinators judge content; the engine records facts and legal next actions.
+- Inputs, outputs, and continuation
+  - Inputs freeze by bytes; submission seals outputs.
+  - After interruption, continue from current briefs and frozen inputs.
+- Gates, state, and results
+  - Methods may require approval gates; this exercise has none.
+  - Flow success differs from explicit result selection.
 OUTLINE
 "$engine_binary" --home "$source_home" --json attempt submit "$work_id" \
-  --attempt "$outline_attempt" --summary '已写三项提纲'
+  --attempt "$outline_attempt" --summary 'Three-point outline written'
 "$engine_binary" --home "$source_home" --json work status "$work_id"
 ```
 
-submit 核文件合同并封存，不判断提纲好坏。新的 next 应允许 begin summary；上一步文件不再是可编辑草稿。
+submit checks/seals files without judging outlines. New next permits summary; previous files are no longer editable drafts.
 
-## 4. 按冻结提纲写摘要
+## 4. Write a summary from the frozen outline
 
 ```bash
 "$engine_binary" --home "$source_home" --json attempt begin "$work_id" --node summary \
@@ -72,21 +74,21 @@ cat "$summary_brief"
 cat "$frozen_outline"
 ```
 
-确认读取的是 begin 绑定的提纲，再写三段摘要：
+Confirm begin-bound outline reads, then write three paragraphs:
 
 ```bash
 cat > "$summary_path" <<'SUMMARY'
-Sheltie 用 Workbook 保存可复用的方法，用 Work 保存这份方法的一次运行。方法声明步骤、输入、输出和显式边；协调者理解任务与报告，选择合法下一步，工作者按任务书完成内容。引擎负责记录执行事实、生成任务书和限制操作，不从自然语言判断内容是否正确。
+Sheltie holds reusable methods in Workbooks and individual runs in Works. Methods declare steps, inputs, outputs, and explicit edges. Coordinators interpret tasks/reports, choose legal next actions, and delegate content to workers through briefs. The engine records execution facts, generates briefs, and restricts actions without judging natural-language correctness.
 
-每次领取形成一个 Attempt。任务书列出本次冻结输入和声明输出位置，提交时引擎核文件合同并封存字节，下游继续使用已绑定的来源。会话中断后，协调者先查询当前状态，再读取当前任务书与冻结输入；草稿路径只是位置提示，不能证明内容存在或已经封存。
+Each claim creates an Attempt. Briefs list frozen inputs and output locations; submission validates file contracts and seals bytes for bound downstream use. After interruption, coordinators query current state and read current briefs/frozen inputs. Draft paths only locate potential content and prove neither existence nor sealing.
 
-方法可以在需要批准的节点声明门槛，本练习的两步方法没有门槛。完成终点后，Work 成为 succeeded，但内容质量仍由读者判断。最终成果还需要终点明确选择输入或输出；没有声明选集时，工作流可以成功而成果集合为空，不能从目录里猜一份文件充当最终成果。
+Methods may require approval gates; this two-step exercise has none. Terminal completion succeeds the Work, while readers judge content quality. Final results additionally need explicit terminal input/output selection. A successful flow without selections has an empty result set; directory files cannot be guessed as final results.
 SUMMARY
 "$engine_binary" --home "$source_home" --json attempt submit "$work_id" \
-  --attempt "$summary_attempt" --summary '已按三项提纲写摘要'
+  --attempt "$summary_attempt" --summary 'Summary follows the three-point outline'
 ```
 
-## 5. 观察成功与成果选择
+## 5. Observe success and selections
 
 ```bash
 "$engine_binary" --home "$source_home" --json work status "$work_id"
@@ -94,6 +96,6 @@ SUMMARY
 "$engine_binary" --home "$source_home" --json work result "$work_id"
 ```
 
-status 应为 succeeded，next 为空；统计中两步各执行一次。result 可以 final=true 而 artifacts 为空，因为 two-step 没有 result 声明。两份输出仍在具体 Attempt 的封存路径，这是方法未选择最终选集，不是运行失败。
+Expect succeeded/empty next and one execution per node. result may be final=true with empty artifacts because two-step declares none. Outputs still exist at sealed Attempt paths: absence of selection is not execution failure.
 
-至此完成一条固定路径。理解两种结果见[工作流模型](../explanation/workflow-model.md)；准备自己的方法见[编写 Workbook](../how-to/write-workbook.md)；实际代码任务使用[code-change 指南](../how-to/run-code-change.md)。本教程不修改既有样例来人为增加成果选择。
+This completes one fixed path. See [model](../explanation/workflow-model.md), [authoring](../how-to/write-workbook.md), or real-task [code-change](../how-to/run-code-change.md). This tutorial does not alter examples to manufacture selections.

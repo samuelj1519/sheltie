@@ -1,4 +1,4 @@
-//! Flow 的领域类型。字段与默认值见 `specs/contracts/workbook.md` §3.2、§3.3。
+//! Flow domain types; fields and defaults are in `specs/contracts/workbook.md` §3.2 and §3.3.
 
 use serde::{Deserialize, Serialize};
 
@@ -6,7 +6,7 @@ use crate::ids::{FlowId, NodeId};
 use crate::path::RelPath;
 use crate::workbook::RequireKind;
 
-/// 谁干活。只表示执行者，不推断门槛。
+/// Executor identity; does not infer gates.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Executor {
@@ -23,7 +23,7 @@ impl Executor {
     }
 }
 
-/// 给协调者选模型的标签。引擎只透传。
+/// Model-selection label for the coordinator; the engine passes it through.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum Tier {
@@ -41,7 +41,7 @@ impl Tier {
     }
 }
 
-/// 说明书来源：Workbook 内文件，或内联文本。
+/// Instruction source: a Workbook file or inline text.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Instruction {
@@ -49,7 +49,7 @@ pub enum Instruction {
     Text(String),
 }
 
-/// 输入来源的四种写法。
+/// The four input-source forms.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum InputSource {
@@ -57,16 +57,16 @@ pub enum InputSource {
     Start { key: String },
     /// `resource.<path>`
     Resource { path: RelPath },
-    /// `engine.stats`：引擎在开工时把本 Work 的事实视图（`render_stats_json`）写成文件绑进来。
+    /// `engine.stats`: bind a file containing the Work's fact view (`render_stats_json`) at begin time.
     EngineStats,
     /// `<node>.<output>`
     Node { node: NodeId, output: String },
 }
 
-/// 节点 id 的保留字：输入来源的前缀。
+/// Reserved node IDs: input-source prefixes.
 pub const RESERVED_NODE_IDS: &[&str] = &["start", "resource", "engine"];
 
-/// 一条输入声明。`required = false` 只对 `Node` 来源有意义。
+/// An input declaration; `required = false` applies only to `Node` sources.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct InputDecl {
     pub(crate) name: String,
@@ -93,7 +93,7 @@ impl InputDecl {
     }
 }
 
-/// 一条输出声明。`path` 相对 Attempt 目录。
+/// An output declaration; `path` is relative to the Attempt output directory.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct OutputDecl {
     pub(crate) name: String,
@@ -108,13 +108,13 @@ impl OutputDecl {
         self.result
     }
 
-    /// `max_bytes` 默认 1 MiB。
+    /// `max_bytes` defaults to 1 MiB.
     pub const DEFAULT_MAX_BYTES: u64 = 1_048_576;
-    /// `max_bytes` 上限 32 MiB。
+    /// `max_bytes` is capped at 32 MiB.
     pub const MAX_MAX_BYTES: u64 = 33_554_432;
 }
 
-/// 边类型。对引擎只是标签，四种边的合法性判断相同。
+/// Edge kind: a label; the engine applies the same legality rules to all four kinds.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum EdgeKind {
@@ -135,7 +135,7 @@ impl EdgeKind {
     }
 }
 
-/// 一条显式边。
+/// An explicit edge.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct EdgeDef {
     pub(crate) from: NodeId,
@@ -157,7 +157,7 @@ impl EdgeDef {
     }
 }
 
-/// 一个节点。外部调用方可读取，但不能修改已解析节点。
+/// A node; external callers may read but cannot modify parsed nodes.
 ///
 /// ```compile_fail
 /// use sheltie_core::flow::parse_flow;
@@ -170,12 +170,12 @@ pub struct NodeDef {
     pub(crate) id: NodeId,
     pub(crate) title: String,
     pub(crate) executor: Executor,
-    /// `human` 节点为 `None`（规则 9 禁止声明）；`agent` 节点默认 `Standard`。
+    /// Human tier is `None` (rule 9 prohibits declaration); agent tier defaults to `Standard`.
     pub(crate) tier: Option<Tier>,
     pub(crate) instruction: Instruction,
     pub(crate) inputs: Vec<InputDecl>,
     pub(crate) outputs: Vec<OutputDecl>,
-    /// `kind:name`，必须对应 manifest 的一条 `requires`。
+    /// `kind:name` must match a manifest `requires` declaration.
     pub(crate) requires: Vec<(RequireKind, String)>,
     pub(crate) gate: bool,
     pub(crate) max_visits: u32,
@@ -223,7 +223,7 @@ impl NodeDef {
     pub const TEXT_MAX_BYTES: usize = 8192;
     /// `instruction.file` ≤ 64 KiB。
     pub const FILE_MAX_BYTES: u64 = 65_536;
-    /// `title` ≤ 128 字节。
+    /// `title` is at most 128 bytes.
     pub const TITLE_MAX_BYTES: usize = 128;
 
     pub fn output(&self, name: &str) -> Option<&OutputDecl> {
@@ -231,7 +231,7 @@ impl NodeDef {
     }
 }
 
-/// 解析后、编译前的 Flow。外部调用方不能在解析后改动节点或边。
+/// A parsed, uncompiled Flow; external callers cannot mutate nodes or edges after parsing.
 ///
 /// ```compile_fail
 /// use sheltie_core::flow::parse_flow;

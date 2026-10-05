@@ -1,11 +1,11 @@
-读 `topic`，写一篇 800 到 1200 字的文章。
+Read topic and write an 800–1200-word article.
 
-- 有明确的论点，至少两个论据，每个论据有例子或数据。
-- 结构：引言、正文两到三段、结论。
-- 用简体中文。
+- A clear thesis and at least two supporting arguments, each with examples or data.
+- Introduction, two or three body paragraphs, conclusion.
+- Write English.
 
-`review` 是审查意见文档的路径，列在任务书输入表里，正文不在任务书里重复。首次开工它标「尚无」：还没有意见，正常写首稿。
+Review is a document path in the input table, not inline text. On first arrival it is unavailable; write an initial draft normally.
 
-如果任务书「来自」是 `review`，说明上一稿被打回：读 `review` 指向的文档（最近一次成功审查的意见），逐条回应审查意见再改，不要只改措辞。
+When the brief's From node is review, the previous draft was returned: read the latest successful review's referenced document and address each finding rather than rewording alone.
 
-写到 `article` 对应的路径。回复协调者时说一句：论点是什么，改了哪几处（首稿写「首稿」）。
+Write to article. Tell the coordinator the thesis and revisions (or Initial draft) in one sentence.

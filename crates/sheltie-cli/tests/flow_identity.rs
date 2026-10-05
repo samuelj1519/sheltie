@@ -1,4 +1,4 @@
-//! Workbook 内跨文件的 Flow 身份校验。
+//! Cross-file Flow identity verification within a Workbook.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod common;
@@ -12,7 +12,7 @@ fn write_flow(path: &Path, id: &str) {
     std::fs::write(
         path,
         format!(
-            "schema = \"flow/v1\"\nid = \"{id}\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = {{ text = \"做。\" }}\n"
+            "schema = \"flow/v1\"\nid = \"{id}\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"Only node\"\nexecutor = \"agent\"\ninstruction = {{ text = \"Do the task.\" }}\n"
         ),
     )
     .unwrap();
@@ -22,7 +22,7 @@ fn write_workbook(root: &Path, second_id: &str) {
     std::fs::create_dir_all(root.join("flows")).unwrap();
     std::fs::write(
         root.join("workbook.toml"),
-        "schema = \"workbook/v1\"\nid = \"two-flows\"\nversion = \"1.0.0\"\nname = \"两张图\"\nflows = [\"flows/first.toml\", \"flows/second.toml\"]\n",
+        "schema = \"workbook/v1\"\nid = \"two-flows\"\nversion = \"1.0.0\"\nname = \"Two graphs\"\nflows = [\"flows/first.toml\", \"flows/second.toml\"]\n",
     )
     .unwrap();
     write_flow(&root.join("flows/first.toml"), "default");
@@ -90,7 +90,7 @@ fn duplicate_flow_id_is_rejected_before_commit_and_same_request_can_retry() {
                 row.get::<_, i64>(0)
             })
             .unwrap();
-        assert_eq!(count, 0, "拒绝后不得新增 {table} 行");
+        assert_eq!(count, 0, "Rejection must not add {table} rows");
     }
     assert!(!env.workbook_dir("two-flows", "1.0.0").exists());
 
@@ -111,7 +111,7 @@ fn duplicate_flow_id_is_rejected_before_commit_and_same_request_can_retry() {
                 })
                 .unwrap(),
             2,
-            "{table} 应只记录两个成功请求"
+            "{table} should contain only two successful requests"
         );
     }
 }
@@ -207,9 +207,9 @@ fn duplicate_flow_ids_in_a_committed_snapshot_stay_rejected_and_unmodified() {
                 })
                 .unwrap(),
             1,
-            "{table} 不得迁移、删除历史记录或登记被阻断请求"
+            "{table} must not migrate/delete historical records or register blocked requests"
         );
     }
     assert!(env.workbook_dir("two-flows", "1.0.0").exists());
-    assert!(!env.workbook_dir("two-step", "1.0.0").exists());
+    assert!(!env.workbook_dir("two-step", "1.0.1").exists());
 }

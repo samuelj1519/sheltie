@@ -1,4 +1,4 @@
-//! cli 端到端测试共用：临时管理根、跑命令、解析 JSON 响应封装、按 `next` 走。
+//! Shared CLI end-to-end support: temporary roots, commands, JSON envelopes, and next-action execution.
 #![allow(dead_code)]
 
 use std::path::{Path, PathBuf};
@@ -29,26 +29,26 @@ impl Env {
         self.dir.path().to_str().unwrap().to_string()
     }
 
-    /// 一条 `sheltie --home <tmp> --json ...` 命令。
+    /// One sheltie --home <tmp> --json ... command.
     pub fn cmd(&self, args: &[&str]) -> Command {
         let mut c = Command::cargo_bin("sheltie").unwrap();
         c.args(["--home", &self.home(), "--json"]).args(args);
         c
     }
 
-    /// 文本模式。
+    /// Text mode.
     pub fn cmd_text(&self, args: &[&str]) -> Command {
         let mut c = Command::cargo_bin("sheltie").unwrap();
         c.args(["--home", &self.home()]).args(args);
         c
     }
 
-    /// 跑命令，要求成功，返回解析后的响应封装。
+    /// Run a command, require success, and decode its response envelope.
     pub fn ok(&self, args: &[&str]) -> Value {
         let out = self.cmd(args).output().unwrap();
         assert!(
             out.status.success(),
-            "命令失败：{args:?}\nexit: {:?}\nstdout: {}\nstderr: {}",
+            "Command failed: {args:?}\nexit: {:?}\nstdout: {}\nstderr: {}",
             out.status.code(),
             String::from_utf8_lossy(&out.stdout),
             String::from_utf8_lossy(&out.stderr)
@@ -58,10 +58,13 @@ impl Env {
         v
     }
 
-    /// 跑命令，要求失败，返回响应封装与退出码。
+    /// Run a command, require failure, and return envelope/exit code.
     pub fn fail(&self, args: &[&str]) -> (Value, i32) {
         let out = self.cmd(args).output().unwrap();
-        assert!(!out.status.success(), "命令意外成功：{args:?}");
+        assert!(
+            !out.status.success(),
+            "Command unexpectedly succeeded: {args:?}"
+        );
         let v: Value = serde_json::from_slice(&out.stdout).unwrap_or(Value::Null);
         (v, out.status.code().unwrap_or(-1))
     }
@@ -70,7 +73,7 @@ impl Env {
         self.ok(&["workbook", "add", example_dir(name).to_str().unwrap()])
     }
 
-    /// `work start`，返回 `work_id`。
+    /// work start, returning work_id.
     pub fn start(&self, workbook: &str, inputs: &[(&str, &str)]) -> String {
         let mut args = vec!["work", "start", "--workbook", workbook, "--flow", "default"];
         let owned: Vec<String> = inputs.iter().map(|(k, v)| format!("{k}={v}")).collect();
@@ -86,7 +89,7 @@ impl Env {
         self.ok(&["attempt", "begin", work, "--node", node])
     }
 
-    /// 在任务书给的输出目录写出全部声明输出，然后提交。
+    /// Write every declared output in the brief's output directory, then submit.
     pub fn submit_all(&self, work: &str, begun: &Value, summary: &str) -> Value {
         let attempt = begun["data"]["attempt"].as_str().unwrap().to_string();
         for (_, path) in begun["data"]["outputs"].as_object().unwrap() {
@@ -109,14 +112,14 @@ impl Env {
         self.ok(&["work", "status", work])
     }
 
-    /// 从 `next` 里找一项 `attempt begin <node>` 并按它拼命令跑。证明 `next` 可执行。
+    /// Find and run next's attempt begin <node> command, proving next actions are executable.
     pub fn follow_begin(&self, envelope: &Value, node: &str) -> Value {
         let item = envelope["next"]
             .as_array()
             .unwrap()
             .iter()
             .find(|n| n["op"] == "attempt begin" && n["args"]["node"] == node)
-            .unwrap_or_else(|| panic!("next 里没有 begin {node}：{}", envelope["next"]));
+            .unwrap_or_else(|| panic!("next has no begin {node}: {}", envelope["next"]));
         let work = item["args"]["work"].as_str().unwrap();
         self.ok(&["attempt", "begin", work, "--node", node])
     }

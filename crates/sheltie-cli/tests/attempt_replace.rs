@@ -10,9 +10,9 @@ use std::path::Path;
 fn fixture(retries: u32, gate: bool) -> (Env, tempfile::TempDir, String) {
     let source = tempfile::tempdir().unwrap();
     std::fs::create_dir(source.path().join("flows")).unwrap();
-    std::fs::write(source.path().join("workbook.toml"), "schema = 'workbook/v1'\nid = 'replace-fixture'\nversion = '1.0.0'\nname = '替换夹具'\nflows = ['flows/default.toml']\n").unwrap();
+    std::fs::write(source.path().join("workbook.toml"), "schema = 'workbook/v1'\nid = 'replace-fixture'\nversion = '1.0.0'\nname = 'Replacement fixture'\nflows = ['flows/default.toml']\n").unwrap();
     std::fs::write(source.path().join("flows/default.toml"), format!(
-        "schema = 'flow/v1'\nid = 'default'\nentry = 'execute'\n[[nodes]]\nid = 'execute'\ntitle = '执行'\nexecutor = 'agent'\ninstruction = {{ text = '按冻结输入完成报告' }}\ninputs = [{{ name = 'task', from = 'start.task' }}, {{ name = 'facts', from = 'engine.stats' }}]\noutputs = [{{ name = 'report', path = 'report.md', result = true }}]\nmax_retries = {retries}\ngate = {gate}\n"
+        "schema = 'flow/v1'\nid = 'default'\nentry = 'execute'\n[[nodes]]\nid = 'execute'\ntitle = 'Execute'\nexecutor = 'agent'\ninstruction = {{ text = 'Complete the report from frozen inputs' }}\ninputs = [{{ name = 'task', from = 'start.task' }}, {{ name = 'facts', from = 'engine.stats' }}]\noutputs = [{{ name = 'report', path = 'report.md', result = true }}]\nmax_retries = {retries}\ngate = {gate}\n"
     )).unwrap();
     let env = Env::new();
     env.ok(&["workbook", "add", source.path().to_str().unwrap()]);
@@ -53,7 +53,13 @@ fn replacement_is_atomic_and_business_failures_use_history_not_attempt_number() 
     let original = env.begin(&work, "execute");
     let old_output = Path::new(original["data"]["outputs"]["report"].as_str().unwrap());
     std::fs::write(old_output, b"old unsealed draft").unwrap();
-    let replaced = replace(&env, &work, "execute#1.0", "撤销正式资格", "replace-once");
+    let replaced = replace(
+        &env,
+        &work,
+        "execute#1.0",
+        "Revoke submission qualification",
+        "replace-once",
+    );
     assert_eq!(replaced["revision"], 3);
     assert_eq!(replaced["data"]["replaced_attempt"], "execute#1.0");
     assert_eq!(replaced["data"]["attempt"], "execute#1.1");
@@ -74,7 +80,7 @@ fn replacement_is_atomic_and_business_failures_use_history_not_attempt_number() 
     assert_eq!(persisted["attempts"][0]["status"], "superseded");
     assert_eq!(
         persisted["attempts"][0]["replacement_reason"],
-        "撤销正式资格"
+        "Revoke submission qualification"
     );
     assert!(persisted["attempts"][0]["ended_at"].is_string());
     assert_eq!(persisted["attempts"][0]["outputs"], json!({}));
@@ -179,7 +185,7 @@ fn replacement_does_not_consume_zero_business_retries_or_approve_a_gate() {
         "administrative change",
         "replace-zero",
     );
-    let submitted = env.submit_all(&work, &replaced, "执行完成，等待门槛");
+    let submitted = env.submit_all(&work, &replaced, "Execution complete; awaiting gate");
     assert_eq!(
         submitted["data"]["work_status"],
         json!({"kind": "blocked", "reason": "gate"})

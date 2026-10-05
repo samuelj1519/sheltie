@@ -1,4 +1,4 @@
-//! C002-T31：真实重放入口拒绝不完整或互相矛盾的效果登记。
+//! C002-T31: real replay entries reject incomplete or contradictory effect registration.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 mod common;
 use common::*;
@@ -64,12 +64,12 @@ fn assert_unchanged(
     assert_eq!(
         store_rows(conn),
         before_rows,
-        "拒绝前不得提交或改变完成标记"
+        "No commit or completion-marker change before rejection"
     );
     assert_eq!(
         files(home.root().as_path().as_std_path()),
         before_files,
-        "整批登记校验失败不得写文件、封存或清理元数据"
+        "Batch registration failure must prevent file writes, sealing, and metadata cleanup"
     );
 }
 
@@ -176,7 +176,7 @@ fn submit_replay_requires_exactly_the_committed_output_references_and_seal() {
     }
 }
 
-// 原任务 C002-T31；T34收紧原响应资格断言。
+// Original task C002-T31; T34 strengthens original-response qualification assertions.
 // Task: C002-T34
 #[test]
 fn completed_workbook_replay_checks_effect_shape_identity_and_pending_path() {
@@ -189,7 +189,7 @@ fn completed_workbook_replay_checks_effect_shape_identity_and_pending_path() {
             .add(&source, Some(if remove { "setup-add" } else { rid }.into()))
             .unwrap();
         let expected_data = if remove {
-            repo.remove("two-step", "1.0.0", Some(rid.into()))
+            repo.remove("two-step", "1.0.1", Some(rid.into()))
                 .unwrap()
                 .data
         } else {
@@ -197,7 +197,7 @@ fn completed_workbook_replay_checks_effect_shape_identity_and_pending_path() {
         };
         if remove {
             assert!(
-                repo.remove("two-step", "1.0.0", Some(rid.into()))
+                repo.remove("two-step", "1.0.1", Some(rid.into()))
                     .unwrap()
                     .replayed
             );
@@ -243,7 +243,7 @@ fn completed_workbook_replay_checks_effect_shape_identity_and_pending_path() {
                     }
                     "digest_format" => op["digest"] = json!("invalid-digest"),
                     "shared_bad_digest" => {
-                        // 两份相等的摘要仍必须满足SHA-256格式；此事实已损坏，不能返回可信original。
+                        // Even equal digests must satisfy SHA-256 syntax; corrupt facts cannot yield a trusted original.
                         op["digest"] = json!("invalid-digest");
                         let mut reply: Value = serde_json::from_str(&pristine_reply).unwrap();
                         reply["data"]["digest"] = json!("invalid-digest");
@@ -278,13 +278,13 @@ fn completed_workbook_replay_checks_effect_shape_identity_and_pending_path() {
             let before_rows = store_rows(&conn);
             let before_files = files(home.root().as_path().as_std_path());
             let error = if remove {
-                repo.remove("two-step", "1.0.0", Some(rid.into()))
+                repo.remove("two-step", "1.0.1", Some(rid.into()))
                     .unwrap_err()
             } else {
                 repo.add(&source, Some(rid.into())).unwrap_err()
             };
-            // add的唯一业务身份锚点损坏时，不能把仅形状合法的快照当可信原响应。
-            // remove仍由audit target独立绑定；pending等后效果错误也保留已核原响应。
+            // Corrupting add's sole business identity anchor prevents a shape-valid snapshot from qualifying as trusted original.
+            // audit target independently binds remove; later pending/effect errors preserve the verified original response.
             if corruption == "shared_bad_digest"
                 || !remove
                     && matches!(
@@ -394,7 +394,7 @@ fn cleanup_validates_completed_remove_metadata_before_any_deletion_and_is_repeat
         let rid = "completed-remove";
         repo.add(&abs(&example_dir("two-step")), None).unwrap();
         assert!(repo.cleanup_pending().unwrap().is_empty());
-        repo.remove("two-step", "1.0.0", Some(rid.into())).unwrap();
+        repo.remove("two-step", "1.0.1", Some(rid.into())).unwrap();
         let conn = Connection::open(home.store_path().as_str()).unwrap();
         let original = effects(&conn, rid);
         let id = original[0]["pending"]
@@ -571,7 +571,7 @@ fn cleanup_checks_the_entire_request_index_before_removing_a_legitimate_orphan()
             "publish_digest" => changed[0]["digest"] = json!("invalid-digest"),
             "publish_root" => changed[0]["digest_root"] = json!("workbook"),
             "publish_version" => {
-                // 一个Workbook版本事实在owner与final中的两份表示保持一致，只破坏其格式。
+                // Keep owner/final version representations consistent, changing only their syntax.
                 changed[0]["owner"] = json!("workbook:two-step@bad_");
                 changed[0]["final"] = json!("workbooks/two-step/bad_");
             }
@@ -1029,7 +1029,7 @@ fn cleanup_rejects_each_invalid_delete_reference_before_removing_an_orphan() {
         .add(&abs(&example_dir("two-step")), Some("delete-source".into()))
         .unwrap();
     repository
-        .remove("two-step", "1.0.0", Some("delete-reference".into()))
+        .remove("two-step", "1.0.1", Some("delete-reference".into()))
         .unwrap();
     let connection = Connection::open(home.store_path().as_str()).unwrap();
     let pristine = effects(&connection, "delete-reference");
@@ -1087,7 +1087,7 @@ fn workbook_replay_rejects_audit_and_snapshot_single_field_drift() {
             .unwrap();
         if remove {
             repository
-                .remove("two-step", "1.0.0", Some(rid.into()))
+                .remove("two-step", "1.0.1", Some(rid.into()))
                 .unwrap();
         }
         let connection = Connection::open(home.store_path().as_str()).unwrap();
@@ -1152,7 +1152,7 @@ fn workbook_replay_rejects_audit_and_snapshot_single_field_drift() {
             let before_files = files(home.root().as_path().as_std_path());
             let error = if remove {
                 repository
-                    .remove("two-step", "1.0.0", Some(rid.into()))
+                    .remove("two-step", "1.0.1", Some(rid.into()))
                     .unwrap_err()
             } else {
                 repository.add(&source, Some(rid.into())).unwrap_err()
@@ -1178,7 +1178,7 @@ fn workbook_replay_rejects_audit_and_snapshot_single_field_drift() {
         }
         assert!(if remove {
             repository
-                .remove("two-step", "1.0.0", Some(rid.into()))
+                .remove("two-step", "1.0.1", Some(rid.into()))
                 .unwrap()
                 .replayed
         } else {

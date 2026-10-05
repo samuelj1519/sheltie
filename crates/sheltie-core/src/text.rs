@@ -1,16 +1,16 @@
-//! 有界文本。上限按字节计，超限拒绝而不截断（宪章 `T-4`）。
+//! Bounded text. Limits count bytes; reject overflow without truncation (constitution `T-4`).
 
 use serde::{Deserialize, Serialize};
 
 use crate::error::{Error, Result};
 
-/// 最多 `N` 字节的字符串。
+/// A string of at most `N` bytes.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(transparent)]
 pub struct BoundedText<const N: usize>(String);
 
 impl<const N: usize> BoundedText<N> {
-    /// 超过 `N` 字节返回 `Error::TextTooLong`。`field` 只用于错误信息。
+    /// Return `Error::TextTooLong` above `N` bytes; `field` is diagnostic context only.
     pub fn new(value: impl Into<String>, field: &'static str) -> Result<Self> {
         let value = value.into();
         if value.len() > N {
@@ -32,7 +32,7 @@ impl<const N: usize> BoundedText<N> {
     }
 }
 
-/// 读取时也不豁免上限：超限拒绝，不把超限文本悄悄收进库（宪章 `T-4`）。
+/// Reads enforce the same limit; reject oversized text rather than silently storing it (constitution `T-4`).
 impl<'de, const N: usize> Deserialize<'de> for BoundedText<N> {
     fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
     where
@@ -41,7 +41,7 @@ impl<'de, const N: usize> Deserialize<'de> for BoundedText<N> {
         let value = String::deserialize(deserializer)?;
         if value.len() > N {
             return Err(serde::de::Error::custom(format!(
-                "超过 {N} 字节（实际 {} 字节）",
+                "Exceeds {N} bytes (actual {} bytes)",
                 value.len()
             )));
         }
@@ -49,7 +49,7 @@ impl<'de, const N: usize> Deserialize<'de> for BoundedText<N> {
     }
 }
 
-/// 工作 agent 回复摘要的上限（协议 `attempt submit` 第 2 步）。
+/// Worker reply summary limit (protocol `attempt submit`, step 2).
 pub type Summary = BoundedText<4096>;
 
 #[cfg(test)]
@@ -69,7 +69,7 @@ mod tests {
                 ..
             })
         ));
-        // 两个汉字六个字节
+        // Two Han characters occupy six UTF-8 bytes.
         assert!(BoundedText::<5>::new("汉字", "x").is_err());
         assert!(BoundedText::<6>::new("汉字", "x").is_ok());
     }

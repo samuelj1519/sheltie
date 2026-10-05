@@ -1,23 +1,25 @@
-# C008：宿主依赖前检
+# C008: Host dependency preflight
 
-状态：`completed`
-目标版本：`不进入产品 release`（是否保留外部工具由真实证据决定）
-兼容性：不改 Workbook、Flow、Store 或公开操作；不建设兼容层
-基线：`75b81ebed655693844ae417bb7d501a1b12a4387`
-Owner：`Codex /root；任务作者与独立Reviewer`
-记录形式：`reference`
-历史快照：`f38954d543ff01eb5a798be48f29060b80d5952c`
+English | [简体中文](README.zh-CN.md)
 
-## 变化与理由
+Status: `completed`
+Target version: `outside the product release (real evidence decides whether to retain an external tool)`
+Compatibility: `no Workbook, Flow, Store, or public-operation changes; no compatibility layer`
+Baseline: `405822f7236bed81403f64ca4d8d30283ece8a4f`
+Owner: Codex /root; task authors and independent Reviewer
+Record form: `reference`
+Historical snapshot: `9d98bf8f15944b7bda4fbd4096e7771b09eab728`
 
-先检查真实 Workbook 声明和重复摩擦，再决定是否值得开发一个单宿主只读探针。resource.* 是冻结参考文件，不自动推断成宿主依赖；部分搜索、身份闭包不足或选择不明保持 unknown。
+## Changes and rationale
 
-## 验证与限制
+Inspect actual Workbook declarations and repeated friction before deciding whether a single-host read-only probe is worthwhile. resource.* contains frozen references, without inferring host dependencies. Partial search, insufficient identity closure, and unclear selection remain unknown.
 
-本轮检查 7 份方法、27 个 Node，requires 为 0。只证明这组方法的声明情况，不证明宿主就绪、未来任务无依赖或预检无价值。探针机制未采用，原机制、宿主观察与价值实验 not_run。
+## Validation and limits
 
-本页保留设计与结果摘要；当前行为以根规格和合同为准。历史验证不能直接复用为当前候选 PASS。
+This round inspected 7 methods/27 Nodes with zero requires. This proves only those declarations, without host readiness, absence of future dependencies, or lack of preflight value. Probes were not adopted; original mechanisms, host observation, and value experiments remain not_run.
 
-## 参考
+This page retains design/outcome summaries. Root specifications/contracts govern current behavior. Historical validation cannot directly qualify the current candidate as PASS.
 
-[路线图](../../../../specs/roadmap.md)、[Workbook 合同](../../../../specs/contracts/workbook.md)、[当前限制](../../../reference/limitations.md)。完整任务、审查与运行原件按[历史查阅指南](../../../how-to/maintain-docs.md#查阅历史原件)从上述快照读取。
+## References
+
+[Roadmap](../../../../specs/roadmap.md), [Workbook contract](../../../../specs/contracts/workbook.md), [Current limits](../../../reference/limitations.md). Read full tasks, reviews, and original runs from the snapshot above using the [historical lookup guide](../../../how-to/maintain-docs.md#read-original-historical-records).

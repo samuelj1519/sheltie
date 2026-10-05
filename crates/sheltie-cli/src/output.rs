@@ -1,11 +1,11 @@
-//! 输出：给人读的文本，或协议 §5 的 JSON 响应封装。
+//! Output: human-readable text or the protocol §5 JSON response envelope.
 
 use serde::Serialize;
 use sheltie_core::ErrorCode;
 use sheltie_core::ids::WorkId;
 use sheltie_runtime::Response;
 
-/// 成功响应封装。
+/// Success response envelope.
 #[derive(Debug, Serialize)]
 pub struct OkEnvelope<T: Serialize> {
     pub ok: bool,
@@ -17,17 +17,17 @@ pub struct OkEnvelope<T: Serialize> {
     pub next: Vec<serde_json::Value>,
 }
 
-/// 一次命令的输出，由命令模块构造，`dispatch` 决定怎么打印。
+/// A command's output, constructed by command modules and printed by `dispatch`.
 #[derive(Debug)]
 pub struct Outcome {
-    /// 文本模式下打印的内容。
+    /// Content printed in text mode.
     pub text: String,
-    /// JSON 模式下的完整响应封装。
+    /// Complete response envelope for JSON mode.
     pub json: serde_json::Value,
     pub exit_code: i32,
 }
 
-/// `text` 由调用方渲染；`next` 使用 core 生成的协议形状。
+/// The caller renders `text`; `next` uses core's protocol representation.
 pub fn ok<T: Serialize>(
     text: String,
     request_id: Option<String>,
@@ -49,7 +49,7 @@ pub fn ok<T: Serialize>(
     }
 }
 
-/// Work 写操作只渲染提交时快照；`next` 与只读状态卡使用同一协议形状。
+/// Work writes render only commit-time snapshots; `next` shares the read-only status card's protocol shape.
 pub(crate) fn ok_response(text: String, response: Response, work: &WorkId) -> Outcome {
     let next = response
         .next
@@ -72,7 +72,7 @@ pub(crate) fn replayed_data(mut data: serde_json::Value, replayed: bool) -> serd
     data
 }
 
-/// 把错误包成两种形式。退出码 1。
+/// Wrap an error in both output forms, with exit code 1.
 pub fn err(code: ErrorCode, message: String, detail: Option<serde_json::Value>) -> Outcome {
     let mut error = serde_json::Map::new();
     error.insert("code".to_string(), to_value_lossy(code));
@@ -92,14 +92,14 @@ pub fn err(code: ErrorCode, message: String, detail: Option<serde_json::Value>) 
     }
 }
 
-/// 参数格式错误的统一出口：`INVALID_REQUEST` 封装、退出码 2（协议 §5「参数解析错误 2」）。
+/// Common parameter-error response: `INVALID_REQUEST` envelope and exit code 2 (protocol §5).
 pub(crate) fn param_error(message: String) -> Outcome {
     let mut out = err(ErrorCode::InvalidRequest, message, None);
     out.exit_code = 2;
     out
 }
 
-/// 打印。JSON 模式打一行 `json`；文本模式打 `text`。错误走 stderr。
+/// Print one-line `json` or human-readable `text`; errors go to stderr.
 pub fn print(outcome: &Outcome, json_mode: bool) {
     if json_mode {
         println!("{}", outcome.json);
@@ -121,7 +121,7 @@ pub(crate) fn raw_param_error(message: &str) -> i32 {
     2
 }
 
-/// 这些响应类型全是普通数据，序列化实际不会失败；真失败了给 `null` 也不比 panic 差。
+/// These plain-data response types cannot normally fail serialization; return `null` rather than panic if they do.
 fn to_value_lossy<T: Serialize>(value: T) -> serde_json::Value {
     serde_json::to_value(value).unwrap_or(serde_json::Value::Null)
 }

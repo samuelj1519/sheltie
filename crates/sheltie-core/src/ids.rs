@@ -1,7 +1,7 @@
-//! 强类型 ID。构造即校验，模块边界不传裸 `String`。
+//! Strongly typed IDs validate on construction; do not pass bare `String` values across module boundaries.
 //!
-//! ID 字符规则见 `specs/contracts/workbook.md` §2：`^[a-z0-9]+(-[a-z0-9]+)*$`，≤ 64 字节。
-//! `work_id` 与名字规则见 `specs/contracts/protocol.md` `work start` 第 3、4 步。
+//! ID syntax: `specs/contracts/workbook.md` §2, `^[a-z0-9]+(-[a-z0-9]+)*$`, at most 64 bytes.
+//! For `work_id` and names, see `specs/contracts/protocol.md`, `work start` steps 3 and 4.
 
 use std::fmt;
 
@@ -9,10 +9,10 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::{Error, Result};
 
-/// 校验一个 kebab-case ID。`field` 只用于错误信息。
+/// Validate a kebab-case ID; `field` is diagnostic context only.
 ///
-/// 失败返回 `Error::InvalidId`。规则：非空；≤ 64 字节；只含 `a-z0-9-`；
-/// 不以 `-` 开头或结尾；没有连续 `-`。
+/// Return `Error::InvalidId` on failure. Require nonempty text, at most 64 bytes, containing only `a-z0-9-`,
+/// without leading, trailing, or consecutive `-`.
 pub fn validate_id(value: &str, field: &str) -> Result<()> {
     let reject = |reason: &'static str| Error::InvalidId {
         field: field.to_string(),
@@ -20,27 +20,27 @@ pub fn validate_id(value: &str, field: &str) -> Result<()> {
         reason,
     };
     if value.is_empty() {
-        return Err(reject("不能为空"));
+        return Err(reject("Must not be empty"));
     }
     if value.len() > 64 {
-        return Err(reject("超过 64 字节"));
+        return Err(reject("Exceeds 64 bytes"));
     }
     if value.starts_with('-') || value.ends_with('-') {
-        return Err(reject("不能以 - 开头或结尾"));
+        return Err(reject("Must not start or end with -"));
     }
     if value.contains("--") {
-        return Err(reject("不能有连续 -"));
+        return Err(reject("Must not contain consecutive -"));
     }
     if !value
         .chars()
         .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-')
     {
-        return Err(reject("只能含 a-z、0-9 与 -"));
+        return Err(reject("May contain only a-z, 0-9, and -"));
     }
     Ok(())
 }
 
-/// `YYYY-MM-DD` 的格式：四段数字与两个固定位置的连字符。不做日历校验。
+/// `YYYY-MM-DD` syntax: digit groups and two fixed-position hyphens, without calendar validation.
 fn is_day_shape(day: &str) -> bool {
     let b = day.as_bytes();
     b.len() == 10
@@ -51,7 +51,7 @@ fn is_day_shape(day: &str) -> bool {
         && b[8..].iter().all(u8::is_ascii_digit)
 }
 
-/// 规范十进制：`0`，或 `1-9` 后跟任意位。拒绝前导 `+`、前导零、空串与溢出。
+/// Canonical decimal: `0` or `1-9` followed by digits; reject leading `+`, leading zeros, empty text, and overflow.
 fn parse_u32_canonical(s: &str) -> Option<u32> {
     if s.is_empty() || !s.bytes().all(|b| b.is_ascii_digit()) {
         return None;
@@ -62,22 +62,22 @@ fn parse_u32_canonical(s: &str) -> Option<u32> {
     s.parse().ok()
 }
 
-/// 协议 `work start` 第 3 步列出的十二个汉字区间。std 没有 Unicode 脚本分类，按区段判断。
+/// The twelve Han ranges in protocol `work start`, step 3; std has no script classifier, so test ranges.
 fn is_han(c: char) -> bool {
     matches!(
         c,
-        '\u{3400}'..='\u{4DBF}'      // 扩展 A
-        | '\u{4E00}'..='\u{9FFF}'    // 基本区
-        | '\u{F900}'..='\u{FAFF}'    // 兼容
-        | '\u{20000}'..='\u{2A6DF}'  // 扩展 B
-        | '\u{2A700}'..='\u{2B73F}'  // 扩展 C
-        | '\u{2B740}'..='\u{2B81F}'  // 扩展 D
-        | '\u{2B820}'..='\u{2CEAF}'  // 扩展 E
-        | '\u{2CEB0}'..='\u{2EBEF}'  // 扩展 F
-        | '\u{2EBF0}'..='\u{2EE5F}'  // 扩展 I
-        | '\u{2F800}'..='\u{2FA1F}'  // 兼容补充
-        | '\u{30000}'..='\u{3134F}'  // 扩展 G
-        | '\u{31350}'..='\u{323AF}'  // 扩展 H
+        '\u{3400}'..='\u{4DBF}'      // Extension A
+        | '\u{4E00}'..='\u{9FFF}'    // Basic range
+        | '\u{F900}'..='\u{FAFF}'    // Compatibility
+        | '\u{20000}'..='\u{2A6DF}'  // Extension B
+        | '\u{2A700}'..='\u{2B73F}'  // Extension C
+        | '\u{2B740}'..='\u{2B81F}'  // Extension D
+        | '\u{2B820}'..='\u{2CEAF}'  // Extension E
+        | '\u{2CEB0}'..='\u{2EBEF}'  // Extension F
+        | '\u{2EBF0}'..='\u{2EE5F}'  // Extension I
+        | '\u{2F800}'..='\u{2FA1F}'  // Compatibility supplement
+        | '\u{30000}'..='\u{3134F}'  // Extension G
+        | '\u{31350}'..='\u{323AF}'  // Extension H
     )
 }
 
@@ -89,7 +89,7 @@ macro_rules! kebab_id {
         pub struct $name(String);
 
         impl $name {
-            /// 校验后构造。失败返回 `Error::InvalidId`。
+            /// Validate on construction; return `Error::InvalidId` on failure.
             pub fn new(value: impl Into<String>) -> Result<Self> {
                 let value = value.into();
                 validate_id(&value, $field)?;
@@ -122,27 +122,31 @@ macro_rules! kebab_id {
     };
 }
 
-kebab_id!(WorkbookId, "workbook_id", "Workbook 的稳定身份，全局唯一。");
-kebab_id!(FlowId, "flow_id", "Workbook 内一张图的 ID。");
+kebab_id!(
+    WorkbookId,
+    "workbook_id",
+    "Stable, globally unique Workbook identity."
+);
+kebab_id!(FlowId, "flow_id", "The ID of a graph within a Workbook.");
 kebab_id!(
     NodeId,
     "node_id",
-    "Flow 内一个节点的 ID。`start` 与 `resource` 是保留字，编译规则 1 拒绝。"
+    "The ID of a node within a Flow; compile rule 1 rejects reserved `start` and `resource`."
 );
 
-/// Work 的名字，`work_id` 的后缀部分。
+/// The Work name, forming the suffix of `work_id`.
 ///
-/// 规范化规则（协议 `work start` 第 3 步）：去首尾空白，连续空白替换为一个 `-`，转小写；
-/// 之后只含小写字母、数字、汉字与单个 `-`（不首尾、不连续），≤ 48 字节。「汉字」是协议 `work start` 第 3 步列出的十二个码点区间。
+/// Normalization (protocol `work start`, step 3): trim, collapse whitespace to one `-`, and lowercase;
+/// then allow lowercase letters, digits, Han, and single interior `-`, at most 48 bytes. Han means the twelve specified ranges.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(try_from = "String", into = "String")]
 pub struct WorkName(String);
 
 impl WorkName {
-    /// 最大字节数。
+    /// Maximum byte length.
     pub const MAX_BYTES: usize = 48;
 
-    /// 规范化并校验。失败返回 `Error::InvalidId { field: "work_name", .. }`。
+    /// Normalize and validate; return `Error::InvalidId { field: "work_name", .. }` on failure.
     pub fn normalize(raw: &str) -> Result<Self> {
         let value = raw
             .split_whitespace()
@@ -155,22 +159,22 @@ impl WorkName {
             reason,
         };
         if value.is_empty() {
-            return Err(reject("不能为空"));
+            return Err(reject("Must not be empty"));
         }
         if value.len() > Self::MAX_BYTES {
-            return Err(reject("超过 48 字节"));
+            return Err(reject("Exceeds 48 bytes"));
         }
         if value.starts_with('-') || value.ends_with('-') {
-            return Err(reject("不能以 - 开头或结尾"));
+            return Err(reject("Must not start or end with -"));
         }
         if value.contains("--") {
-            return Err(reject("不能有连续 -"));
+            return Err(reject("Must not contain consecutive -"));
         }
         if !value
             .chars()
             .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-' || is_han(c))
         {
-            return Err(reject("只能含 a-z、0-9、汉字与 -"));
+            return Err(reject("May contain only a-z, 0-9, Han characters, and -"));
         }
         Ok(Self(value))
     }
@@ -189,13 +193,13 @@ impl fmt::Display for WorkName {
 impl TryFrom<String> for WorkName {
     type Error = Error;
     fn try_from(value: String) -> Result<Self> {
-        // 读取时（serde、存库往返）只收规范化形式，不替脏数据悄悄改名，与 `WorkId::parse` 同规矩。
+        // Reads (serde or storage roundtrips) require canonical names, without silently renaming corrupt data; same as `WorkId::parse`.
         let name = Self::normalize(&value)?;
         if name.0 != value {
             return Err(Error::InvalidId {
                 field: "work_name".to_string(),
                 value,
-                reason: "不是规范化形式",
+                reason: "Not in canonical form",
             });
         }
         Ok(name)
@@ -208,15 +212,15 @@ impl From<WorkName> for String {
     }
 }
 
-/// `work_id`，形如 `2026-09-24-003-文章-初稿`：UTC 日期、当日序号（三位补零）、名字。
+/// `work_id`, such as `2026-09-24-003-article-draft`: UTC date, three-digit daily sequence, and name.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(try_from = "String", into = "String")]
 pub struct WorkId(String);
 
 impl WorkId {
-    /// 用日期、序号、名字拼出 `work_id`。
+    /// Construct `work_id` from the date, sequence, and name.
     ///
-    /// `day` 必须是 `YYYY-MM-DD`；`seq` 必须在 1..=999；否则 `Error::InvalidId { field: "work_id", .. }`。
+    /// Require `YYYY-MM-DD` and `seq` in 1..=999; otherwise return `Error::InvalidId { field: "work_id", .. }`.
     pub fn new(day: &str, seq: u32, name: &WorkName) -> Result<Self> {
         let reject = |value: &str, reason: &'static str| Error::InvalidId {
             field: "work_id".to_string(),
@@ -224,17 +228,17 @@ impl WorkId {
             reason,
         };
         if !is_day_shape(day) {
-            return Err(reject(day, "日期必须是 YYYY-MM-DD"));
+            return Err(reject(day, "Date must be YYYY-MM-DD"));
         }
         if !(1..=999).contains(&seq) {
-            return Err(reject(&seq.to_string(), "序号必须在 1..=999"));
+            return Err(reject(&seq.to_string(), "Sequence must be in 1..=999"));
         }
         Ok(Self(format!("{day}-{seq:03}-{}", name.as_str())))
     }
 
-    /// 解析一个完整的 `work_id` 字符串（用于从数据库读出）。
+    /// Parse a complete `work_id` string, including database reads.
     ///
-    /// 格式必须是 `YYYY-MM-DD-NNN-<name>` 且 `<name>` 能通过 `WorkName::normalize` 且规范化后不变。
+    /// Require `YYYY-MM-DD-NNN-<name>` with a valid, already canonical `WorkName`.
     pub fn parse(value: &str) -> Result<Self> {
         let reject = |reason: &'static str| Error::InvalidId {
             field: "work_id".to_string(),
@@ -243,26 +247,28 @@ impl WorkId {
         };
         let day = value
             .get(..10)
-            .ok_or_else(|| reject("格式不是 YYYY-MM-DD-NNN-名字"))?;
+            .ok_or_else(|| reject("Format must be YYYY-MM-DD-NNN-<name>"))?;
         let seq_str = value
             .get(11..14)
-            .ok_or_else(|| reject("格式不是 YYYY-MM-DD-NNN-名字"))?;
+            .ok_or_else(|| reject("Format must be YYYY-MM-DD-NNN-<name>"))?;
         let name_str = value
             .get(15..)
-            .ok_or_else(|| reject("格式不是 YYYY-MM-DD-NNN-名字"))?;
+            .ok_or_else(|| reject("Format must be YYYY-MM-DD-NNN-<name>"))?;
         if value.as_bytes().get(10) != Some(&b'-') || value.as_bytes().get(14) != Some(&b'-') {
-            return Err(reject("格式不是 YYYY-MM-DD-NNN-名字"));
+            return Err(reject("Format must be YYYY-MM-DD-NNN-<name>"));
         }
         if !is_day_shape(day) {
-            return Err(reject("日期必须是 YYYY-MM-DD"));
+            return Err(reject("Date must be YYYY-MM-DD"));
         }
         if !seq_str.bytes().all(|b| b.is_ascii_digit()) {
-            return Err(reject("序号必须是三位数字"));
+            return Err(reject("Sequence must contain exactly three digits"));
         }
-        let seq: u32 = seq_str.parse().map_err(|_| reject("序号必须是三位数字"))?;
+        let seq: u32 = seq_str
+            .parse()
+            .map_err(|_| reject("Sequence must contain exactly three digits"))?;
         let name = WorkName::normalize(name_str)?;
         if name.as_str() != name_str {
-            return Err(reject("名字不是规范化形式"));
+            return Err(reject("Name is not in canonical form"));
         }
         Self::new(day, seq, &name)
     }
@@ -291,7 +297,7 @@ impl From<WorkId> for String {
     }
 }
 
-/// Attempt 的 ID：节点、到达次数与从 0 起的尝试顺序号。显示为 `draft#1.0`。
+/// Attempt ID: node, Occurrence number, and zero-based Attempt sequence; displayed as `draft#1.0`.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AttemptId {
@@ -309,7 +315,7 @@ impl AttemptId {
         }
     }
 
-    /// 解析 `node#n.number`。失败返回 `Error::InvalidId { field: "attempt_id", .. }`。
+    /// Parse `node#n.number`; return `Error::InvalidId { field: "attempt_id", .. }` on failure.
     pub fn parse(value: &str) -> Result<Self> {
         let reject = |reason: &'static str| Error::InvalidId {
             field: "attempt_id".to_string(),
@@ -318,18 +324,18 @@ impl AttemptId {
         };
         let (node_str, rest) = value
             .split_once('#')
-            .ok_or_else(|| reject("格式不是 节点#n.number"))?;
+            .ok_or_else(|| reject("Format must be node#n.number"))?;
         let (occ_str, number_str) = rest
             .split_once('.')
-            .ok_or_else(|| reject("格式不是 节点#n.number"))?;
+            .ok_or_else(|| reject("Format must be node#n.number"))?;
         let node = NodeId::new(node_str).map_err(|e| match e {
             Error::InvalidId { reason, .. } => reject(reason),
             e => e,
         })?;
-        let occurrence: u32 =
-            parse_u32_canonical(occ_str).ok_or_else(|| reject("到达次数不是数字"))?;
-        let number: u32 =
-            parse_u32_canonical(number_str).ok_or_else(|| reject("尝试顺序号不是数字"))?;
+        let occurrence: u32 = parse_u32_canonical(occ_str)
+            .ok_or_else(|| reject("Occurrence number must be canonical decimal"))?;
+        let number: u32 = parse_u32_canonical(number_str)
+            .ok_or_else(|| reject("Attempt sequence must be canonical decimal"))?;
         Ok(Self::new(node, occurrence, number))
     }
 }
@@ -412,7 +418,7 @@ mod tests {
     // Task: T02
     #[test]
     fn work_name_rejects_over_48_bytes_and_bad_chars() {
-        assert!(WorkName::normalize(&"文".repeat(17)).is_err(), "51 字节");
+        assert!(WorkName::normalize(&"文".repeat(17)).is_err(), "51 bytes");
         assert!(WorkName::normalize("a/b").is_err());
         assert!(WorkName::normalize("").is_err());
         assert!(WorkName::normalize("--").is_err());
@@ -421,7 +427,7 @@ mod tests {
     // Task: T02
     #[test]
     fn work_id_parse_rejects_plus_sign_in_seq() {
-        // str::parse::<u32> 接受前导 +，解析层必须自己拒绝，否则解析再拼出会得到不同的串。
+        // str::parse::<u32> accepts leading +; reject it so parsing and rendering cannot change the original text.
         assert!(WorkId::parse("2026-09-24-+12-x").is_err());
         assert!(WorkId::parse("2026-09-24-0x1-x").is_err());
     }
@@ -437,15 +443,15 @@ mod tests {
     // Task: T02
     #[test]
     fn parse_rejects_leading_zero_in_numeric_segments() {
-        // "01".parse::<u32>() 放行，会让 draft#01.0 重排成 draft#1.0；序号段必须是规范十进制。
+        // "01".parse::<u32>() succeeds and would render draft#01.0 as draft#1.0; require canonical decimal.
         assert!(AttemptId::parse("draft#01.0").is_err());
         assert!(AttemptId::parse("draft#1.00").is_err());
         assert!(AttemptId::parse("draft#1.0").is_ok());
         assert!(
             AttemptId::parse("draft#0.0").is_ok(),
-            "到达次数与重试都接受 0 本身"
+            "Occurrence and Attempt numbers both accept 0"
         );
-        // work_id 的序号固定三位，恰好三位数字才合法。
+        // The work_id sequence requires exactly three digits.
         assert!(WorkId::parse("2026-09-24-0001-x").is_err());
         assert!(WorkId::parse("2026-09-24-01-x").is_err());
     }
@@ -453,7 +459,7 @@ mod tests {
     // Task: T02
     #[test]
     fn work_name_accepts_han_extension_f_h_i_and_compat_supplement() {
-        // 协议 work start 第 3 步列出的全部区段各取一个码点。
+        // Test one code point from every range in protocol work start, step 3.
         for c in [
             '\u{2CEB0}',
             '\u{31350}',
@@ -464,10 +470,10 @@ mod tests {
         ] {
             assert!(
                 WorkName::normalize(&c.to_string()).is_ok(),
-                "{c:?} 应当合法"
+                "{c:?} should be valid"
             );
         }
-        // 部首补充区不在允许列表里。
+        // The radicals supplement range is not allowed.
         assert!(WorkName::normalize("\u{2E80}").is_err());
     }
 
@@ -490,7 +496,7 @@ mod tests {
     fn attempt_id_parse_error_field_is_attempt_id() {
         match AttemptId::parse("Bad#1.0") {
             Err(Error::InvalidId { field, .. }) => assert_eq!(field, "attempt_id"),
-            other => panic!("应是 InvalidId{{ field: attempt_id }}，实际 {other:?}"),
+            other => panic!("Expected InvalidId{{ field: attempt_id }}, got {other:?}"),
         }
     }
 
@@ -502,7 +508,7 @@ mod tests {
         assert!(WorkId::new("20260924", 1, &name("x")).is_err());
     }
 
-    // ── M1 补测（边界与格式，杀死存活的突变体） ─────────────────────
+    // ── M1 additional boundary and format coverage for surviving mutants ─────────────────────
 
     // Task: T02
     #[test]
@@ -555,7 +561,7 @@ mod tests {
     fn work_name_try_from_and_serde_reject_non_canonical() {
         assert!(WorkName::try_from("hello".to_string()).is_ok());
         assert!(WorkName::try_from("文章-初稿".to_string()).is_ok());
-        // 规范化会改写的形式读取时拒绝，不悄悄改名。
+        // Reject noncanonical forms on read rather than silently renaming them.
         assert!(WorkName::try_from("Hello".to_string()).is_err());
         assert!(WorkName::try_from("two  words".to_string()).is_err());
         assert!(serde_json::from_str::<WorkName>("\"文章 初稿\"").is_err());

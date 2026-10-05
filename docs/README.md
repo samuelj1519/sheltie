@@ -1,38 +1,40 @@
-# Sheltie 文档
+# Sheltie documentation
 
-Sheltie 是给协调者 agent 使用的本地工作流引擎。Workbook 保存做事方法，Work 保存一次运行；引擎记状态、生成任务书、计算合法下一步并守门槛，内容判断和派活由协调者完成。
+English | [简体中文](README.zh-CN.md)
 
-本文档面向方法作者、任务协调者、操作者与维护者，按 [Diátaxis](https://diataxis.fr/) 分为教程、操作指南、参考和解释。
+Sheltie is a local workflow engine for coordinator agents. A Workbook holds a method; a Work holds one run. The engine records state, generates briefs, computes legal next actions, and enforces gates. The coordinator judges content and delegates tasks.
 
-## 从当前目标开始
+These documents serve method authors, coordinators, operators, and maintainers. They follow [Diátaxis](https://diataxis.fr/): tutorials, how-to guides, reference, and explanation.
 
-| 需要完成什么 | 阅读入口 |
+## Start with your current goal
+
+| Goal | Entry point |
 | --- | --- |
-| 第一次了解如何运行 | [构建源码](how-to/build-from-source.md) → [第一个 Work](tutorials/first-work.md) → [门槛与成果](tutorials/gate-and-result.md) |
-| 执行已授权的仓库修改 | [code-change](how-to/run-code-change.md)；需要先规划再逐任务实施时用 [spec-dev](how-to/run-spec-dev.md) |
-| 编写或编辑方法 | [编写 Workbook](how-to/write-workbook.md)／[画布编辑](how-to/edit-workbook.md) |
-| 装入、核验或移除方法版本 | [管理 Workbook](how-to/manage-workbooks.md) |
-| 重开会话、返工或更换执行资格 | [接续 Work](how-to/resume-work.md) |
-| 读取和复制最终成果 | [导出成果](how-to/export-results.md) |
-| 安装、更新或卸载引擎 | [管理安装](how-to/manage-installation.md) |
-| 命令报错或流程受阻 | [排查错误](how-to/troubleshoot.md) |
-| 查参数、状态、文件和工具接口 | [技术参考](reference/README.md) |
-| 理解概念、模块、事务与恢复 | [原理与源码](explanation/README.md) |
-| 修改代码或维护文档 | [实施变更](how-to/implement-change.md)／[验证变更](how-to/validate-change.md)／[维护文档](how-to/maintain-docs.md) |
+| Learn to run your first method | [Build from source](how-to/build-from-source.md) → [First Work](tutorials/first-work.md) → [Gates and results](tutorials/gate-and-result.md) |
+| Make an authorized repository change | [code-change](how-to/run-code-change.md); use [spec-dev](how-to/run-spec-dev.md) to plan first and implement task by task |
+| Write or edit a method | [Write a Workbook](how-to/write-workbook.md) / [Canvas editing](how-to/edit-workbook.md) |
+| Install, verify, or remove a method version | [Manage Workbooks](how-to/manage-workbooks.md) |
+| Resume a session, rework, or replace execution qualification | [Resume a Work](how-to/resume-work.md) |
+| Read and copy final results | [Export results](how-to/export-results.md) |
+| Install, update, or uninstall the engine | [Manage installation](how-to/manage-installation.md) |
+| Resolve a command error or blocked flow | [Troubleshoot](how-to/troubleshoot.md) |
+| Look up arguments, states, files, and tool interfaces | [Technical reference](reference/README.md) |
+| Understand concepts, modules, transactions, and recovery | [Explanation and source](explanation/README.md) |
+| Change code or maintain documentation | [Implement a change](how-to/implement-change.md) / [Validate a change](how-to/validate-change.md) / [Maintain documentation](how-to/maintain-docs.md) |
 
-## 版本与阅读范围
+## Version and reading scope
 
-当前源码为 `0.3.0-rc.1` 开发线，正式发布仍为 v0.2.0。本文的操作和格式面向当前源码；已发布二进制的行为与实物查[发布记录](reference/releases/README.md)。不同 Store 格式不自动迁移，试用开发线使用新的显式管理根，详见[支持与兼容性](reference/limitations.md)。
+Current source is on the `0.3.0-rc.1` development line; the released version remains v0.2.0. Instructions and formats here target current source. See [release records](reference/releases/README.md) for released binaries and artifacts. Store formats do not migrate automatically. Try the development line with a new explicit management root; see [support and compatibility](reference/limitations.md).
 
-引擎不会安装宿主资源、调用模型、决定报告质量或自动发布成果。作者工具和导出器是未发布的外围工具，各有独立文件与权限边界。
+The engine does not install host resources, invoke models, judge report quality, or publish results automatically. The authoring tool and exporter are unreleased external tools, each with separate file and permission boundaries.
 
-## 四类文档与规范依据
+## Four document types and specification authority
 
-- [教程](tutorials/README.md)：固定练习路径，帮助学习并得到可观察结果。
-- [操作指南](how-to/README.md)：按实际目标给前提、步骤、结果与失败处理。
-- [参考](reference/README.md)：按产品结构查命令、数据、文件、工具和支持范围。
-- [解释](explanation/README.md)：说明概念关系、设计原因与源码调用链。
+- [Tutorials](tutorials/README.md): fixed exercises with observable learning outcomes.
+- [How-to guides](how-to/README.md): prerequisites, steps, results, and failure handling for actual goals.
+- [Reference](reference/README.md): commands, data, files, tools, and support scope organized by product structure.
+- [Explanation](explanation/README.md): concept relationships, design reasons, and source call chains.
 
-[specs](../specs/README.md) 定义产品必须满足的规则，精确字段、限额、错误和持久格式只在 specs/contracts 维护。docs 提供查阅摘要与使用材料，不另立规范。统一术语见 [CONTEXT](../CONTEXT.md)。
+[specs](../specs/README.md) defines required product behavior. Exact fields, limits, errors, and persistent formats are maintained only in specs/contracts. docs provides summaries and usage material, without establishing a second specification. Use [CONTEXT](../CONTEXT.md) terminology.
 
-实现、验证、用户接受、发布与可量化收益分别判断；当前实现和证据入口见[实现定位](reference/implementation.md)与[验收边界](reference/acceptance.md)。需要追溯时查[历史档案](history/README.md)；历史记录不作为当前操作步骤。
+Implementation, verification, user acceptance, release, and measurable benefit are separate conclusions. See [implementation entry points](reference/implementation.md) and [acceptance boundaries](reference/acceptance.md). Use the [historical archive](history/README.md) for traceability; historical records are not current operating instructions.

@@ -1,5 +1,5 @@
-//! C002-T02：`work start` 的无副作用预检（GF-30）。
-//! 确定性拒绝发生在当日序号分配与任何目录物化之前；拒绝后补齐条件即成功，不烧号。
+//! C002-T02: side-effect-free work start preflight (GF-30).
+//! Reject deterministically before sequence allocation/materialization; fixing only the missing condition succeeds without consuming sequence.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod common;
@@ -9,7 +9,7 @@ use common::*;
 use sheltie_core::error::ErrorCode;
 use sheltie_runtime::{Error, Home};
 
-/// 独立 oracle：绕过 runtime 直接查 SQLite，读 `works`、`work_sequence`、`requests` 行数。
+/// Independent oracle: query SQLite directly for works/work_sequence/requests row counts.
 fn db_counts(home: &Home) -> (i64, i64, i64) {
     let conn = rusqlite::Connection::open_with_flags(
         home.store_path().as_str(),
@@ -23,19 +23,22 @@ fn db_counts(home: &Home) -> (i64, i64, i64) {
     (count("works"), count("work_sequence"), count("requests"))
 }
 
-/// 断言一次失败之后：三张表与调用前相同、`works/` 下没有目录、报错码正确。
+/// After failure, assert unchanged tables, no works/ directories, and the correct error code.
 fn assert_unchanged(home: &Home, before: (i64, i64, i64), err: &Error, code: ErrorCode) {
     assert_eq!(err.code(), code, "{err:?}");
     assert_eq!(
         db_counts(home),
         before,
-        "失败后 works/sequence/requests 不得有变化"
+        "Failure must not change works/sequence/requests"
     );
     let works = home.works_dir();
     let entries = std::fs::read_dir(works.as_path())
         .map(|it| it.count())
         .unwrap_or(0);
-    assert_eq!(entries, 0, "失败的 start 不得物化任何 Work 目录");
+    assert_eq!(
+        entries, 0,
+        "Failed start must not materialize Work directories"
+    );
 }
 
 fn assert_first_sequence(response: &sheltie_runtime::Response) {
@@ -53,7 +56,7 @@ fn missing_start_input_rejected_before_seq_and_materialization() {
     let err = svc.start(start_args(&[]), None).unwrap_err();
     assert_unchanged(&home, before, &err, ErrorCode::InputMissing);
 
-    // 拒绝后只补缺条件、用同一个 request-id 即成功；序号未被烧掉。
+    // Fix only the missing condition and reuse request-id; succeed without consuming sequence.
     let resp = svc
         .start(
             start_args(&[("topic", "t")]),

@@ -1,4 +1,4 @@
-//! T20：二进制自管理（runtime 层）。发布源用本地目录，不联网。
+//! T20: runtime binary self-management, using local release directories without network access.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod common;
@@ -17,15 +17,15 @@ fn pack_tar(stage: &Path, asset: &str, entry: &str, flag: &str) -> Vec<u8> {
         .unwrap();
     assert!(
         packed.status.success(),
-        "tar打包失败：{}",
+        "tar packaging failed: {}",
         String::from_utf8_lossy(&packed.stderr)
     );
     std::fs::read(stage.join(asset)).unwrap()
 }
 
-/// 写一个 tag 目录：`<base>/<tag>/dist-manifest.json` 与该 tag 的资产。
-/// 本地发布目录镜像远端 tag 布局（存储合同 §9）：`latest/` 是移动别名，
-/// 固定 tag 的清单与资产都在 `v<version>/` 下。
+/// Write a tag directory: <base>/<tag>/dist-manifest.json and its assets.
+/// Local releases mirror remote tag layout (storage §9); latest/ is mutable,
+/// while pinned manifest/assets live beneath v<version>/.
 fn write_tag_dir(base: &Path, tag: &str, manifest: &str, assets: &[(&str, &[u8])]) {
     let dir = base.join(tag);
     std::fs::create_dir_all(&dir).unwrap();
@@ -46,7 +46,7 @@ fn make_release(dir: &Path, version: &str) -> ReleaseSource {
         "assets": [{ "platform": platform, "name": asset, "sha256": digest.as_str() }]
     })
     .to_string();
-    // `latest/` 只用来发现版本号；清单与资产都从固定后的 `v<version>/` 取。
+    // Use latest/ only for version discovery; fetch manifest/assets from pinned v<version>/.
     write_tag_dir(dir, "latest", &manifest, &[]);
     write_tag_dir(
         dir,
@@ -109,7 +109,7 @@ fn update_stops_if_verified_candidate_bytes_change_before_any_replacement() {
     let update = std::thread::spawn(move || selfmgmt::update(&update_home, &source, None));
     let release = rendezvous.path().join("release");
     let mut worker = RendezvousWorker::single(update, rendezvous.path());
-    worker.wait("update 未到达候选核验后的同步点");
+    worker.wait("update did not reach the synchronization point after candidate verification");
     let tmp = std::fs::read_dir(home.tmp_dir().as_path())
         .unwrap()
         .next()
@@ -161,7 +161,7 @@ fn rollback_swaps_prev_back() {
     );
     assert!(
         matches!(selfmgmt::rollback(&home), Err(Error::NotFound { .. })),
-        "只保留一级"
+        "Retain only one previous version"
     );
 }
 
@@ -266,7 +266,7 @@ fn install_rejects_tmp_parent_symlink_and_preserves_external_sentinel() {
     std::os::unix::fs::symlink(outside.path(), home.tmp_dir().as_path()).unwrap();
 
     let error = selfmgmt::install(&home).unwrap_err();
-    assert!(error.to_string().contains("符号链接"), "{error:?}");
+    assert!(error.to_string().contains("symlink"), "{error:?}");
     assert_eq!(snapshot(&external), external_before);
     assert!(!home.bin_dir().as_path().join("sheltie").exists());
 }
@@ -283,7 +283,7 @@ fn rollback_rejects_bin_parent_symlink_and_preserves_external_binaries() {
     std::os::unix::fs::symlink(outside.path(), home.bin_dir().as_path()).unwrap();
 
     let error = selfmgmt::rollback(&home).unwrap_err();
-    assert!(error.to_string().contains("符号链接"), "{error:?}");
+    assert!(error.to_string().contains("symlink"), "{error:?}");
     assert_eq!(snapshot(&target), target_before);
     assert_eq!(snapshot(&previous), previous_before);
 }
@@ -316,7 +316,7 @@ fn update_rejects_symlink_in_archive_without_chmodding_its_target() {
         .unwrap();
     assert!(
         packed.status.success(),
-        "tar打包失败：{}",
+        "tar packaging failed: {}",
         String::from_utf8_lossy(&packed.stderr)
     );
     let archive_bytes = std::fs::read(&archive).unwrap();
@@ -336,7 +336,10 @@ fn update_rejects_symlink_in_archive_without_chmodding_its_target() {
     );
 
     let error = selfmgmt::update(&home, &release_source(&release_root), Some(version)).unwrap_err();
-    assert!(error.to_string().contains("链接或特殊对象"), "{error:?}");
+    assert!(
+        error.to_string().contains("links or special objects"),
+        "{error:?}"
+    );
     assert_eq!(std::fs::read(bin_path(&home)).unwrap(), original_binary);
     assert_eq!(snapshot(&external), external_before);
     assert_no_prev(&home);
@@ -377,7 +380,9 @@ fn purge_reports_partial_roots_and_keeps_store_until_data_trees_are_removed() {
     let purge = std::thread::spawn(move || selfmgmt::uninstall(&purge_home, true, true));
     let release = rendezvous.path().join("release");
     let mut worker = RendezvousWorker::single(purge, rendezvous.path());
-    worker.wait("purge 未到达首个根目录删除后的同步点");
+    worker.wait(
+        "purge did not reach the synchronization point after removing the first root directory",
+    );
     let blocked = home.work_dir(&wid).join_segment("purge-special");
     let fifo = std::process::Command::new("mkfifo")
         .arg(blocked.as_str())
@@ -389,12 +394,18 @@ fn purge_reports_partial_roots_and_keeps_store_until_data_trees_are_removed() {
 
     match result {
         Err(Error::Io { path, source }) => {
-            assert!(path.contains("works"), "失败位置要明确：{path}");
+            assert!(
+                path.contains("works"),
+                "Failure location must be explicit: {path}"
+            );
             let detail = source.to_string();
-            assert!(detail.contains("部分清理"), "{detail}");
-            assert!(detail.contains("workbooks"), "已完成顶层项要明确：{detail}");
+            assert!(detail.contains("may be partially cleared"), "{detail}");
+            assert!(
+                detail.contains("workbooks"),
+                "Completed top-level items must be explicit: {detail}"
+            );
         }
-        other => panic!("特殊文件导致的部分purge未报告：{other:?}"),
+        other => panic!("Partial purge caused by a special file was not reported: {other:?}"),
     }
     assert!(!home.workbooks_dir().as_path().exists());
     assert!(home.works_dir().as_path().exists());
@@ -419,12 +430,12 @@ fn purge_reports_partial_roots_and_keeps_store_until_data_trees_are_removed() {
     drop(dir);
 }
 
-// ── M3 里程碑审查补测：发布链与 install 语义（挂 T20） ─────────────────────
+// ── M3 review additions: release chain and install semantics, owned by T20 ─────────────────────
 
 // Task: T20
 #[test]
 fn platform_matches_supported_target_triples() {
-    // 发布包按 Rust target triple 命名（存储合同 §9）；平台串错了就永远找不到包。
+    // Artifacts use Rust target triples (storage §9); an incorrect platform name cannot locate them.
     let expect = match (std::env::consts::OS, std::env::consts::ARCH) {
         ("macos", "aarch64") => Some("aarch64-apple-darwin"),
         ("macos", "x86_64") => Some("x86_64-apple-darwin"),
@@ -457,7 +468,9 @@ fn purge_final_rescan_removes_late_readonly_sqlite_shm_and_retains_lock() {
     let purge = std::thread::spawn(move || selfmgmt::uninstall(&purge_home, true, true));
     let release = rendezvous.path().join("release");
     let mut worker = RendezvousWorker::single(purge, rendezvous.path());
-    worker.wait("purge未到达最终sqlite控制文件扫描前的同步点");
+    worker.wait(
+        "purge did not reach the synchronization point before final sqlite control-file scanning",
+    );
     std::fs::write(
         home.root().join_segment("store.db-shm").as_path(),
         b"late shm",
@@ -490,12 +503,15 @@ fn purge_reports_partial_progress_if_locked_inode_is_unlinked() {
     let purge = std::thread::spawn(move || selfmgmt::uninstall(&purge_home, true, true));
     let release = rendezvous.path().join("release");
     let mut worker = RendezvousWorker::single(purge, rendezvous.path());
-    worker.wait("purge未到达最终扫描前的同步点");
+    worker.wait("purge did not reach the synchronization point before final scanning");
     std::fs::remove_file(home.lock_path().as_path()).unwrap();
     std::fs::write(&release, b"release").unwrap();
     let result = worker.finish().unwrap();
     assert!(matches!(result, Err(Error::Io { .. })));
-    assert!(!home.lock_path().as_path().exists(), "不得在错误锁下重建锁");
+    assert!(
+        !home.lock_path().as_path().exists(),
+        "Must not recreate a lock under an incorrect lock"
+    );
     assert!(home.root().as_path().exists());
 }
 
@@ -505,10 +521,13 @@ fn install_replaces_divergent_binary_instead_of_short_circuit() {
     let (_d, home) = temp_home();
     selfmgmt::install(&home).unwrap();
     let bin = std::path::PathBuf::from(home.bin_dir().as_str()).join("sheltie");
-    std::fs::write(&bin, "被换掉的旧文件").unwrap();
+    std::fs::write(&bin, "Replaced old file").unwrap();
     let out = selfmgmt::install(&home).unwrap();
-    // 幂等短路只认「字节相同」；分叉了的二进制必须重装回当前可执行文件。
-    assert!(!out.already_installed, "分叉后仍报 already_installed");
+    // Idempotency requires identical bytes; restore divergent binaries from the running executable.
+    assert!(
+        !out.already_installed,
+        "Divergent binary still reported already_installed"
+    );
     let current = std::fs::read(std::env::current_exe().unwrap()).unwrap();
     assert_eq!(std::fs::read(&bin).unwrap(), current);
 }
@@ -522,11 +541,11 @@ fn update_unpacks_tarball_asset_and_keeps_executable_bit() {
     let platform = selfmgmt::platform();
     let payload = format!("tarred sheltie for {platform}");
     use std::os::unix::fs::PermissionsExt as _;
-    // cargo-dist 0.32 的真实包内布局（T25 用 dist build 的产出核过）：
-    // <产物名去掉扩展>/sheltie，二进制在内层目录根部。
+    // Actual cargo-dist 0.32 archive layout, checked against T25 dist build:
+    // <artifact name without extension>/sheltie, binary at the nested directory root.
     let asset = format!("sheltie-cli-9.9.9-{platform}.tar.gz");
     let inner = format!("sheltie-cli-9.9.9-{platform}");
-    // 打包在暂存目录里做，产物放进固定 tag 的目录（存储合同 §9 的 tag 布局）。
+    // Package in staging, placing artifacts beneath the pinned tag (storage §9).
     let stage = d.path().join("stage");
     std::fs::create_dir_all(stage.join(&inner)).unwrap();
     std::fs::write(stage.join(&inner).join("sheltie"), &payload).unwrap();
@@ -557,7 +576,7 @@ fn update_unpacks_tarball_asset_and_keeps_executable_bit() {
     let mode = std::fs::metadata(&bin).unwrap().permissions().mode();
     assert!(
         mode & 0o111 != 0,
-        "解包后的 bin/sheltie 不可执行（mode {mode:o}）"
+        "Extracted bin/sheltie is not executable (mode {mode:o})"
     );
 }
 
@@ -571,9 +590,9 @@ fn update_adapts_cargo_dist_manifest_format() {
     let payload = format!("cargo-dist style sheltie for {platform}");
     let asset = format!("sheltie-cli-7.7.7-{platform}");
     let digest = sheltie_core::digest::Sha256Hex::of_bytes(payload.as_bytes());
-    // 完整 dist-manifest.json 的真实形态（0.32.0，T25 用 dist build 的产出核过）：
-    // artifacts 是按产物名索引的对象；checksum 是校验文件名，真哈希在 checksums.sha256。
-    // 非 executable-zip 的产物要被跳过，别的平台的也要被跳过。
+    // Actual full dist-manifest.json shape (0.32.0), checked against T25 dist build:
+    // artifacts is a name-keyed object; checksum is the checksum filename, and checksums.sha256 is the real digest.
+    // Skip non-executable-zip artifacts and other platforms.
     let manifest = serde_json::json!({
         "dist_version": "0.32.0",
         "announcement_tag": "v7.7.7",
@@ -590,7 +609,7 @@ fn update_adapts_cargo_dist_manifest_format() {
         }
     })
     .to_string();
-    // `latest/` 学出 7.7.7 后，清单与资产都从 `v7.7.7/` 重取（固定 tag 不混两次解析）。
+    // After latest/ discovers 7.7.7, fetch manifest/assets again from v7.7.7/, pinning one identity.
     write_tag_dir(&dir, "latest", &manifest, &[]);
     write_tag_dir(&dir, "v7.7.7", &manifest, &[(&asset, payload.as_bytes())]);
     let src = ReleaseSource {
@@ -605,8 +624,8 @@ fn update_adapts_cargo_dist_manifest_format() {
 // Task: T20
 #[test]
 fn update_unpacks_tgz_named_asset() {
-    // 覆盖后缀判定的第三个区段：.tgz 与 .tar.gz、.tar.xz 是并列写法，
-    // 只测 .tar.gz 时「|| 换 &&」的突变体测不出来。
+    // Cover the third suffix branch: .tgz alongside .tar.gz and .tar.xz;
+    // .tar.gz alone cannot distinguish the ||-to-&& mutant.
     let (d, home) = temp_home();
     selfmgmt::install(&home).unwrap();
     let dir = d.path().join("rel");
@@ -643,10 +662,10 @@ fn update_unpacks_tgz_named_asset() {
     assert_eq!(std::fs::read(&bin).unwrap(), payload.as_bytes());
 }
 
-// ── C002-T15：固定 tag、失败窗口、并发与发布形状 ────────────────────────
+// ── C002-T15: pinned tags, failure windows, concurrency, and release shapes ────────────────────────
 
-/// 往发布目录写一个版本的 `v<version>/` tag 目录（不动 `latest/`）。
-/// 漂移反例正是靠 `latest/` 与固定 tag 不一致做出来的。
+/// Write one v<version>/ tag directory without changing latest/.
+/// Create drift rejection cases by making latest/ differ from its pinned tag.
 fn write_version_release(dir: &Path, version: &str, payload: &[u8]) {
     let platform = selfmgmt::platform();
     let asset = format!("sheltie-{version}-{platform}");
@@ -669,29 +688,29 @@ fn bin_path(home: &sheltie_runtime::Home) -> std::path::PathBuf {
     std::path::PathBuf::from(home.bin_dir().as_str()).join("sheltie")
 }
 
-/// tmp/ 在每个失败窗口后都不能留半成品（存储合同 §9 步 3）。
+/// No incomplete tmp/ artifacts after any failure window (storage §9, step 3).
 fn assert_tmp_clean(home: &sheltie_runtime::Home) {
     let tmp = std::path::PathBuf::from(home.tmp_dir().as_str());
     assert!(
         !tmp.exists() || std::fs::read_dir(&tmp).unwrap().next().is_none(),
-        "tmp/ 留了半成品"
+        "Incomplete artifacts remain in tmp/"
     );
 }
 
-/// 失败窗口不许建 `sheltie.prev`（只有替换步才动它，存储合同 §9 步 4）。
+/// Failure windows must not create sheltie.prev; only replacement changes it (storage §9, step 4).
 fn assert_no_prev(home: &sheltie_runtime::Home) {
     assert!(
         !std::path::PathBuf::from(home.bin_dir().as_str())
             .join("sheltie.prev")
             .exists(),
-        "失败窗口不该出现 sheltie.prev"
+        "sheltie.prev must not appear in this failure window"
     );
 }
 
 // Task: C002-T15
 #[test]
 fn update_pinned_version_installs_only_that_tag() {
-    // `--version 8.8.8` 一次固定到 v8.8.8；latest 指着 9.9.9 也不看（存储合同 §9 步 1）。
+    // --version 8.8.8 pins v8.8.8 without reading latest, even if latest points to 9.9.9 (storage §9, step 1).
     let (d, home) = temp_home();
     selfmgmt::install(&home).unwrap();
     let dir = d.path().join("rel");
@@ -703,16 +722,16 @@ fn update_pinned_version_installs_only_that_tag() {
     assert_eq!(
         std::fs::read_to_string(bin_path(&home)).unwrap(),
         eight,
-        "装上的不是 v8.8.8 的包"
+        "Installed artifact is not from v8.8.8"
     );
 }
 
 // Task: C002-T15
 #[test]
 fn update_latest_drift_does_not_mix_manifest_and_assets() {
-    // `latest/` 是自洽的毒发布（清单与包都是毒字节），`v9.9.9/` 是正确的。
-    // 版本号只从 latest 学一次，清单与资产都从固定后的 tag 取：
-    // 混用两次解析，要么装上毒包，要么被自己那份摘要卡住。
+    // latest/ has a self-consistent poisoned manifest/artifact; v9.9.9/ is correct.
+    // Discover the version once from latest, then fetch manifest/assets from the pinned tag;
+    // inconsistent resolution either installs poison or fails the digest check.
     let (d, home) = temp_home();
     selfmgmt::install(&home).unwrap();
     let dir = d.path().join("rel");
@@ -737,22 +756,26 @@ fn update_latest_drift_does_not_mix_manifest_and_assets() {
     let out = selfmgmt::update(&home, &release_source(&dir), None).unwrap();
     assert_eq!(out.to, "9.9.9");
     let got = std::fs::read(bin_path(&home)).unwrap();
-    assert_eq!(got, good.as_bytes(), "装上了漂移 latest 的包");
+    assert_eq!(
+        got,
+        good.as_bytes(),
+        "Installed the drifting latest artifact"
+    );
     assert_ne!(got, poisoned.as_bytes());
 }
 
 // Task: C002-T15
 #[test]
 fn update_rejects_forged_asset_name() {
-    // 伪造清单的资产名带路径段：`{tag}/{name}` 能走出发布目录。
-    // 逐个单条件改名字，必须在下载前拒绝；根外哨兵与旧二进制都不许动。
+    // Forged manifest asset names contain path segments allowing {tag}/{name} to escape the release directory.
+    // Change one filename condition each time; reject before download, preserving the external sentinel and old binary.
     let (_d, home) = temp_home();
     selfmgmt::install(&home).unwrap();
     let before = std::fs::read(bin_path(&home)).unwrap();
     let outside = tempfile::tempdir().unwrap();
     let secret = outside.path().join("secret");
     std::fs::write(&secret, b"outside secret bytes").unwrap();
-    // 发布目录挨着哨兵；`../../secret` 从 v9.9.9/ 出去正好读到它。
+    // Release directory is beside the sentinel; ../../secret from v9.9.9/ would read it.
     let dir = outside.path().join("rel");
     std::fs::create_dir_all(dir.join("v9.9.9")).unwrap();
     let platform = selfmgmt::platform();
@@ -769,18 +792,18 @@ fn update_rejects_forged_asset_name() {
                 selfmgmt::update(&home, &release_source(&dir), Some("9.9.9")),
                 Err(Error::UpdateUnavailable { .. })
             ),
-            "伪造资产名 {forged:?} 竟然被接受"
+            "Forged asset name {forged:?} was accepted"
         );
     }
     assert_eq!(
         std::fs::read(&secret).unwrap(),
         b"outside secret bytes",
-        "根外哨兵被动了"
+        "External sentinel changed"
     );
     assert_eq!(
         std::fs::read(bin_path(&home)).unwrap(),
         before,
-        "旧二进制被换掉"
+        "Old binary was replaced"
     );
     assert_no_prev(&home);
     assert_tmp_clean(&home);
@@ -789,8 +812,8 @@ fn update_rejects_forged_asset_name() {
 // Task: C002-T15
 #[test]
 fn update_rejects_path_like_version_argument() {
-    // `--version` 同样是路径段来源：空、`.`、`..`、分隔符与 NUL 一律拒绝
-    // （与 `checked_asset_name` 同一套拒法）。
+    // --version also forms a path segment; reject empty, ., .., separators, and NUL
+    // with the same rules as checked_asset_name.
     let (d, home) = temp_home();
     selfmgmt::install(&home).unwrap();
     let dir = d.path().join("rel");
@@ -802,7 +825,7 @@ fn update_rejects_path_like_version_argument() {
                 selfmgmt::update(&home, &src, Some(bad)),
                 Err(Error::UpdateUnavailable { .. })
             ),
-            "版本 {bad:?} 竟然被接受"
+            "Invalid version {bad:?} was accepted"
         );
     }
 }
@@ -810,8 +833,8 @@ fn update_rejects_path_like_version_argument() {
 // Task: C002-T15
 #[test]
 fn update_missing_tag_preserves_binary_and_allows_pinned_retry() {
-    // 只有 latest/ 与 v9.9.9/：固定到 v5.5.5 后清单取不到，
-    // 诊断要点名缺的是哪个 tag，二进制不动、tmp 不留。
+    // Only latest/ and v9.9.9/ exist; pinning v5.5.5 cannot locate its manifest,
+    // so name the missing tag, preserve the binary, and clear tmp.
     let (d, home) = temp_home();
     selfmgmt::install(&home).unwrap();
     let before = std::fs::read(bin_path(&home)).unwrap();
@@ -819,14 +842,17 @@ fn update_missing_tag_preserves_binary_and_allows_pinned_retry() {
     make_release(&dir, "9.9.9");
     match selfmgmt::update(&home, &release_source(&dir), Some("5.5.5")) {
         Err(Error::UpdateUnavailable { reason }) => {
-            assert!(reason.contains("v5.5.5"), "诊断没点名缺的 tag：{reason}");
+            assert!(
+                reason.contains("v5.5.5"),
+                "Diagnostic did not name the missing tag: {reason}"
+            );
         }
-        other => panic!("缺 tag 目录竟然成功：{other:?}"),
+        other => panic!("Missing tag directory unexpectedly succeeded: {other:?}"),
     }
     assert_eq!(
         std::fs::read(bin_path(&home)).unwrap(),
         before,
-        "失败窗口换了二进制"
+        "Failure window replaced the binary"
     );
     assert_tmp_clean(&home);
     let out = selfmgmt::update(&home, &release_source(&dir), Some("9.9.9")).unwrap();
@@ -836,13 +862,16 @@ fn update_missing_tag_preserves_binary_and_allows_pinned_retry() {
         .unwrap()
         .permissions()
         .mode();
-    assert!(mode & 0o111 != 0, "bin/sheltie 不可执行（mode {mode:o}）");
+    assert!(
+        mode & 0o111 != 0,
+        "bin/sheltie is not executable (mode {mode:o})"
+    );
 }
 
 // Task: C002-T15
 #[test]
 fn update_rejects_manifest_version_not_matching_tag() {
-    // v9.9.9/ 的清单写着 9.9.8：固定 tag 与清单身份不符，拒绝而不是装错版本。
+    // v9.9.9/ manifest declares 9.9.8; reject identity mismatch rather than installing the wrong version.
     let (d, home) = temp_home();
     selfmgmt::install(&home).unwrap();
     let dir = d.path().join("rel");
@@ -859,16 +888,16 @@ fn update_rejects_manifest_version_not_matching_tag() {
     write_tag_dir(&dir, "v9.9.9", &manifest, &[(&asset, payload.as_bytes())]);
     match selfmgmt::update(&home, &release_source(&dir), Some("9.9.9")) {
         Err(Error::UpdateUnavailable { reason }) => {
-            assert!(reason.contains("与 tag 不符"), "{reason}");
+            assert!(reason.contains("does not match the tag"), "{reason}");
         }
-        other => panic!("身份不符竟然被接受：{other:?}"),
+        other => panic!("Identity mismatch was accepted: {other:?}"),
     }
 }
 
 // Task: C002-T15
 #[test]
 fn update_failed_download_leaves_old_binary_and_cleans_tmp() {
-    // 清单声明的资产在 tag 目录里不存在：下载失败窗口——旧二进制不变，tmp 清空。
+    // Declared asset missing from the tag: download failure preserves the old binary and clears tmp.
     let (d, home) = temp_home();
     selfmgmt::install(&home).unwrap();
     let before = std::fs::read(bin_path(&home)).unwrap();
@@ -891,7 +920,7 @@ fn update_failed_download_leaves_old_binary_and_cleans_tmp() {
     assert_eq!(
         std::fs::read(bin_path(&home)).unwrap(),
         before,
-        "旧二进制被换掉"
+        "Old binary was replaced"
     );
     assert_no_prev(&home);
     assert_tmp_clean(&home);
@@ -900,7 +929,7 @@ fn update_failed_download_leaves_old_binary_and_cleans_tmp() {
 // Task: C002-T15
 #[test]
 fn update_failed_digest_leaves_old_binary_and_cleans_tmp() {
-    // 资产字节与清单摘要不符：摘要失败窗口——旧二进制不变，tmp 清空（存储合同 §9 步 3）。
+    // Asset/manifest digest mismatch: failure preserves the old binary and clears tmp (storage §9, step 3).
     let (d, home) = temp_home();
     selfmgmt::install(&home).unwrap();
     let before = std::fs::read(bin_path(&home)).unwrap();
@@ -908,7 +937,7 @@ fn update_failed_digest_leaves_old_binary_and_cleans_tmp() {
     std::fs::create_dir_all(&dir).unwrap();
     let platform = selfmgmt::platform();
     let asset = format!("sheltie-9.9.9-{platform}");
-    // 只改一个条件：资产本体下载得到，清单记的摘要是别的字节的哈希。
+    // Change one condition: downloadable artifact, but the manifest hashes different bytes.
     let payload = b"asset bytes that do not match the manifest digest";
     let digest = sheltie_core::digest::Sha256Hex::of_bytes(b"a different payload entirely");
     let manifest = serde_json::json!({
@@ -925,7 +954,7 @@ fn update_failed_digest_leaves_old_binary_and_cleans_tmp() {
     assert_eq!(
         std::fs::read(bin_path(&home)).unwrap(),
         before,
-        "旧二进制被换掉"
+        "Old binary was replaced"
     );
     assert_no_prev(&home);
     assert_tmp_clean(&home);
@@ -934,7 +963,7 @@ fn update_failed_digest_leaves_old_binary_and_cleans_tmp() {
 // Task: C002-T15
 #[test]
 fn update_failed_extract_leaves_old_binary_and_cleans_tmp() {
-    // 资产是坏压缩包（摘要自洽）：解包失败窗口——旧二进制不变，tmp 清空。
+    // Malformed archive with matching digest: extraction failure preserves the old binary and clears tmp.
     let (d, home) = temp_home();
     selfmgmt::install(&home).unwrap();
     let before = std::fs::read(bin_path(&home)).unwrap();
@@ -958,7 +987,7 @@ fn update_failed_extract_leaves_old_binary_and_cleans_tmp() {
     assert_eq!(
         std::fs::read(bin_path(&home)).unwrap(),
         before,
-        "旧二进制被换掉"
+        "Old binary was replaced"
     );
     assert_no_prev(&home);
     assert_tmp_clean(&home);
@@ -967,13 +996,13 @@ fn update_failed_extract_leaves_old_binary_and_cleans_tmp() {
 // Task: C002-T15
 #[test]
 fn clean_home_install_then_update_two_step() {
-    // 全新管理根的两步生命周期：install 建根建库建 bin，update 换二进制留 .prev。
+    // New-root two-step lifecycle: install creates root/database/bin; update replaces binary and retains .prev.
     let (d, home) = temp_home();
     let first = selfmgmt::install(&home).unwrap();
     assert!(!first.already_installed);
     assert!(
         std::path::Path::new(home.store_path().as_str()).exists(),
-        "install 没建库"
+        "install did not create storage"
     );
     let original = std::fs::read(bin_path(&home)).unwrap();
     let store_before = std::fs::read(home.store_path().as_str()).unwrap();
@@ -983,13 +1012,13 @@ fn clean_home_install_then_update_two_step() {
     assert_eq!(
         std::fs::read(home.store_path().as_str()).unwrap(),
         store_before,
-        "update 动了 store.db（存储合同 §9：update 不碰库）"
+        "update changed store.db (storage §9 forbids update from changing storage)"
     );
     assert_eq!(
         std::fs::read(std::path::PathBuf::from(home.bin_dir().as_str()).join("sheltie.prev"))
             .unwrap(),
         original,
-        ".prev 不是更新前的二进制"
+        ".prev is not the pre-update binary"
     );
     assert!(
         std::fs::read_to_string(bin_path(&home))
@@ -1001,7 +1030,7 @@ fn clean_home_install_then_update_two_step() {
 // Task: C002-T15
 #[test]
 fn update_pinned_version_then_rollback_restores_previous() {
-    // 指定版本更新后 rollback 换回旧二进制（本地 release fixture，存储合同 §9）。
+    // Rollback restores the old binary after pinned update (local release fixture, storage §9).
     let (d, home) = temp_home();
     selfmgmt::install(&home).unwrap();
     let original = std::fs::read(bin_path(&home)).unwrap();
@@ -1015,33 +1044,33 @@ fn update_pinned_version_then_rollback_restores_previous() {
     assert_eq!(
         std::fs::read(home.store_path().as_str()).unwrap(),
         store_before,
-        "update 动了 store.db（存储合同 §9：update 不碰库）"
+        "update changed store.db (storage §9 forbids update from changing storage)"
     );
     selfmgmt::rollback(&home).unwrap();
     assert_eq!(std::fs::read(bin_path(&home)).unwrap(), original);
     assert_eq!(
         std::fs::read(home.store_path().as_str()).unwrap(),
         store_before,
-        "rollback 动了 store.db（只换回旧二进制，不降级 Store）"
+        "rollback changed store.db (only binary restoration, without Store downgrade)"
     );
     assert!(
         !std::path::PathBuf::from(home.bin_dir().as_str())
             .join("sheltie.prev")
             .exists(),
-        "rollback 后仍留着 .prev"
+        ".prev remains after rollback"
     );
 }
 
 // Task: C002-T15
 #[test]
 fn update_adapts_cargo_dist_plan_real_manifest_shape() {
-    // 形状照抄 cargo-dist 0.32.0 `dist plan --output-format=json` 的真实输出
-    // （evidence/t15/dist-plan.json；包内字节与哈希是合成的）：
-    // artifacts 按产物名索引；`checksum` 是校验文件名，真哈希在 `checksums.sha256`；
-    // 已建产物（本机 tarball 与 source.tar.gz）带 `checksums`，未建的 executable-zip
-    // **缺 `checksums` 键**（不是 null），适配器必须跳过而不是拿文件名当哈希；
-    // 顶层 `assets` 是 exe 条目字典（无 `kind`、name 是 `sheltie`），不能当发布资产取
-    // ——tag 目录里另放一份同名毒字节，谁取谁翻车。
+    // Shape copied from actual cargo-dist 0.32.0 dist plan --output-format=json
+    // (evidence/t15/dist-plan.json; artifact bytes/digests are synthetic):
+    // artifacts is keyed by artifact name; checksum names a file, real digests are in checksums.sha256;
+    // built artifacts (local tarball and source.tar.gz) have checksums; unbuilt executable-zip
+    // lacks the checksums key, rather than null; skip it without treating filenames as hashes.
+    // top-level assets is an exe dictionary without kind, name sheltie; do not fetch it as release assets;
+    // a same-named poison file in the tag detects incorrect selection.
     let (d, home) = temp_home();
     selfmgmt::install(&home).unwrap();
     let dir = d.path().join("rel");
@@ -1049,7 +1078,7 @@ fn update_adapts_cargo_dist_plan_real_manifest_shape() {
     let platform = selfmgmt::platform();
     let payload = format!("dist-plan shaped sheltie for {platform}");
     let asset = format!("sheltie-cli-7.7.7-{platform}.tar.xz");
-    // 真实产物名以 .tar.xz 结尾，资产就得是真压缩包（包内布局同 T25 实测）。
+    // The actual filename ends in .tar.xz; use a real archive with T25's verified layout.
     let inner = format!("sheltie-cli-7.7.7-{platform}");
     let stage = d.path().join("stage");
     std::fs::create_dir_all(stage.join(&inner)).unwrap();
@@ -1081,7 +1110,7 @@ fn update_adapts_cargo_dist_plan_real_manifest_shape() {
                 "checksums": { "sha256": digest.as_str() },
                 "path": format!("target/distrib/{asset}"),
             },
-            // 真 plan 里未建的 executable-zip 直接没有 `checksums` 键（不是 null）。
+            // Actual plan omits checksums for unbuilt executable-zip, rather than using null.
             "sheltie-cli-7.7.7-x86_64-unknown-linux-gnu.tar.xz": {
                 "name": "sheltie-cli-7.7.7-x86_64-unknown-linux-gnu.tar.xz",
                 "kind": "executable-zip",
@@ -1090,7 +1119,7 @@ fn update_adapts_cargo_dist_plan_real_manifest_shape() {
                 "checksum": "sheltie-cli-7.7.7-x86_64-unknown-linux-gnu.tar.xz.sha256",
                 "path": "target/distrib/sheltie-cli-7.7.7-x86_64-unknown-linux-gnu.tar.xz",
             },
-            // source.tar.gz 同样是已建产物、同样带哈希：kind 不是 executable-zip 就得跳过。
+            // Built source.tar.gz also has a digest, but skip it because its kind is not executable-zip.
             "source.tar.gz": {
                 "name": "source.tar.gz",
                 "kind": "source-tarball",
@@ -1109,7 +1138,7 @@ fn update_adapts_cargo_dist_plan_real_manifest_shape() {
                 "path": "target/distrib/sheltie-cli-installer.sh",
             },
         },
-        // 顶层 `assets` 照真 plan 的键集：无 `kind`，name 是 `sheltie`。
+        // Top-level assets matches actual plan keys: no kind, name sheltie.
         "assets": {
             "sheltie-cli-7.7.7-aarch64-apple-darwin-exe-sheltie": {
                 "id": format!("sheltie-cli-7.7.7-{platform}-exe-sheltie"),
@@ -1121,8 +1150,8 @@ fn update_adapts_cargo_dist_plan_real_manifest_shape() {
         },
     })
     .to_string();
-    // 同名毒字节放进 tag 目录：谁把顶层 assets 当发布资产取，要么报错要么装上它，
-    // 断言都会翻。
+    // Same-named poison in the tag catches top-level-assets selection, either by error or incorrect installation;
+    // either fails the assertion.
     let poison = b"poison bytes from the top-level assets entry";
     write_tag_dir(&dir, "latest", &manifest, &[]);
     write_tag_dir(
@@ -1136,14 +1165,14 @@ fn update_adapts_cargo_dist_plan_real_manifest_shape() {
     assert_eq!(
         std::fs::read_to_string(bin_path(&home)).unwrap(),
         payload,
-        "装上的不是平台 tarball 里的二进制（顶层 assets 被当成发布资产了？）"
+        "Installed binary is not from the platform tarball (top-level assets selected as release assets)"
     );
 }
 
 // Task: C002-T15
 #[test]
 fn home_lock_identity_detects_replaced_lock_file() {
-    // §2.2 复核：`.lock` 路径换成另一个对象（同名新文件）后身份不再连续。
+    // §2.2 recheck: replacing .lock with a same-named new object breaks identity continuity.
     let (_d, home) = temp_home();
     let guard = home.acquire_lock().unwrap();
     assert!(guard.identity_still_valid());
@@ -1155,11 +1184,11 @@ fn home_lock_identity_detects_replaced_lock_file() {
 // Task: C002-T15
 #[test]
 fn home_lock_identity_detects_replaced_root() {
-    // §2.2 复核：管理根被 purge 掉又重建，即使 `.lock` 又出现，dev/inode 也换了。
+    // §2.2 recheck: deleting/recreating the root changes dev/inode even if .lock reappears.
     let (_d, home) = temp_home();
     let guard = home.acquire_lock().unwrap();
     assert!(guard.identity_still_valid());
-    // 该用例模拟同用户锁外替换，测试夹具清理由std处理；产品路径删除走runtime句柄API。
+    // Simulate same-user external replacement; std cleans fixtures, while production deletes through runtime handle APIs.
     std::fs::remove_dir_all(home.root().as_path()).unwrap();
     std::fs::create_dir_all(home.root().as_str()).unwrap();
     std::fs::write(home.lock_path().as_str(), b"replaced").unwrap();
@@ -1169,8 +1198,8 @@ fn home_lock_identity_detects_replaced_root() {
 // Task: C002-T15
 #[test]
 fn self_install_and_work_writes_serialize_under_home_lock() {
-    // self 写动词与 Work 写动词共用管理根写锁（§2.2）：并发交错跑完后，
-    // 库可读、Work 状态完整、二进制在位，没有写坏的半状态。
+    // self and Work writes share the root lock (§2.2); after concurrent interleaving,
+    // storage stays readable, Work state complete, and binary present without partial corruption.
     let (_d, home, svc) = home_with_example("two-step");
     let home_b = home.clone();
     let installs = std::thread::spawn(move || {
@@ -1178,7 +1207,7 @@ fn self_install_and_work_writes_serialize_under_home_lock() {
             selfmgmt::install(&home_b).unwrap();
         }
     });
-    // 每轮新建一个 Work 再 begin（都是合法写），不复用同一 Attempt。
+    // Create a fresh Work and begin per iteration, without reusing an Attempt.
     let works = std::thread::spawn(move || {
         let mut ids = Vec::new();
         for _ in 0..8 {
@@ -1199,7 +1228,11 @@ fn self_install_and_work_writes_serialize_under_home_lock() {
     assert!(std::path::PathBuf::from(home.store_path().as_str()).exists());
     for wid in &started {
         let (_, json) = service(&home).status(wid).unwrap();
-        assert!(json.last_attempt.is_some(), "Work {} 状态被并发写坏", wid);
+        assert!(
+            json.last_attempt.is_some(),
+            "Work {} state corrupted by concurrent writes",
+            wid
+        );
     }
 }
 
@@ -1232,7 +1265,7 @@ fn purge_late_sqlite_control_files_accept_only_empty_single_link_wal_or_safe_shm
         let worker =
             std::thread::spawn(move || selfmgmt::uninstall(&worker_home, true, true).map(|_| ()));
         let mut guard = RendezvousWorker::single(worker, point.path());
-        guard.wait("purge未到达最终SQLite控制文件扫描前的同步点");
+        guard.wait("purge did not reach the synchronization point before final SQLite control-file scanning");
         assert!(!home.store_path().as_path().exists());
         let outside = tempfile::tempdir().unwrap();
         let sentinel = outside.path().join("sentinel");

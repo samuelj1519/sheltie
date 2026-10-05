@@ -1,4 +1,4 @@
-//! C002-T24：无I/O构造与普通写入口的锁内建库边界。
+//! C002-T24: I/O-free construction and locked initialization at ordinary write entries.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod common;
@@ -41,7 +41,7 @@ fn missing_work_and_remove_do_not_initialize_a_store_or_lock() {
 
     let repo = WorkbookRepo::new(home.clone());
     assert!(matches!(
-        repo.remove("two-step", "1.0.0", None),
+        repo.remove("two-step", "1.0.1", None),
         Err(Error::NotFound { .. })
     ));
     assert!(!home.store_path().as_path().exists());
@@ -177,7 +177,7 @@ fn failed_store_initialization_never_deletes_a_replaced_database_leaf() {
     if !reached.exists() {
         let _ = std::fs::write(&release, b"release");
         let _ = add.join();
-        panic!("WriteSession 未到达Store叶创建后的同步点");
+        panic!("WriteSession did not reach synchronization after Store leaf creation");
     }
     assert!(!home.store_path().as_path().exists());
     let staging = std::fs::read_dir(home.tmp_dir().as_path())
@@ -218,7 +218,7 @@ fn failed_store_initialization_never_deletes_a_replaced_database_leaf() {
         .unwrap();
     assert_eq!(schema, 1);
     assert_eq!(record, "keep me");
-    assert!(!home.workbook_dir("two-step", "1.0.0").as_path().exists());
+    assert!(!home.workbook_dir("two-step", "1.0.1").as_path().exists());
 }
 
 // Task: C002-T24
@@ -264,7 +264,7 @@ fn old_work_waiting_behind_purge_does_not_recreate_the_removed_store() {
         let _ = std::fs::write(&release, b"release");
         drop(parent_lock);
         let _ = child.join();
-        panic!("Work写操作未到达真实锁竞争点");
+        panic!("Work write did not reach the real lock-contention point");
     }
 
     for name in [
@@ -283,9 +283,12 @@ fn old_work_waiting_behind_purge_does_not_recreate_the_removed_store() {
     assert!(matches!(child.join().unwrap(), Err(Error::NotFound { .. })));
     assert!(
         !home.store_path().as_path().exists(),
-        "等待者不得重建store.db"
+        "Waiting callers must not recreate store.db"
     );
-    assert!(home.lock_path().as_path().exists(), "同一管理锁仍保留");
+    assert!(
+        home.lock_path().as_path().exists(),
+        "The same management lock remains"
+    );
 }
 
 // Task: C002-T24

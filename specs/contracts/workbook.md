@@ -1,10 +1,12 @@
-# Workbook 与 Flow 格式
+# Workbook and Flow formats
 
-本合同定义 Workbook 目录、`workbook.toml`、Flow 文件的精确结构与装入校验规则。版本串 `workbook/v1`、`flow/v1` 是初始值。所有对象**未知字段拒绝**。
+English | [简体中文](workbook.zh-CN.md)
 
-## 1. 目录
+This contract defines Workbook directories, `workbook.toml`, Flow files, and loading validation. Initial format versions are `workbook/v1` and `flow/v1`. **Every object rejects unknown fields.**
 
-一个 Workbook 是一个目录，可在任何仓库编写：
+## 1. Directory
+
+A Workbook is a directory authored in any repository:
 
 ```text
 my-workbook/
@@ -14,78 +16,77 @@ my-workbook/
   instructions/
     draft.md
     review.md
-  resources/                 可选。给工作 agent 读的参考文件，用 resource.<path> 绑成输入
+  resources/                 # Optional worker references, bound as resource.<path> inputs
     review-checklist.md
 ```
 
-`sheltie workbook add <dir>` 在本操作的 `pending/` 内复制目录，随后解析 `workbook.toml`、编译每个 Flow，并核对 `instruction.file`、`resource.<path>` 与 `requires` 引用。校验与登记身份都基于复制后的最终副本（[存储合同 §5.2](storage.md)）；目录摘要用 `workbook-digest/v2`（[存储合同 §5.1](storage.md)）。提交前失败不产生 Workbook 行或最终目录；未提交的私有暂存按存储合同清理。提交后发布失败返回 `EFFECT_PENDING`，保留受 Store 保护的原件供恢复。校验不执行脚本、不调模型、不联网。
+`sheltie workbook add <dir>` copies the directory into this operation's `pending/`, then parses the manifest, compiles every Flow, and checks `instruction.file`, `resource.<path>`, and `requires` references. Validation and registered identity derive only from the final copy ([storage §5.2](storage.md)); directory digests use `workbook-digest/v2` ([storage §5.1](storage.md)). Precommit failure creates no Workbook row or final directory; uncommitted private staging is cleaned under the storage contract. Postcommit publication failure returns `EFFECT_PENDING`, retaining the Store-protected original for recovery. Validation executes no scripts, models, or network requests.
 
-同一 `<id>/<version>` 已存在时拒绝（`WORKBOOK_EXISTS`）。要改内容就升版本。
+An existing `<id>/<version>` is rejected (`WORKBOOK_EXISTS`). Changed content requires a new version.
 
-### 可视化作者工具
+### Visual author tool
 
-独立本地网页可以读取用户选定的源码目录，编辑此合同已有字段和说明文件，下载新的完整ZIP副本；解压后可重新打开目录。未编辑文件保留原字节，编辑TOML保留完整原对象，包括仍应拒绝的未知字段，不能用表单投影静默清洗；图坐标不得成为未知字段。第一版输入限制为16MiB/1024文件，超限拒绝而不截断，此限制不改变引擎装入合同。最终结构判定来自可信公开CLI在自有临时Home装入同一文件集合；界面预检不代该判定。保存前重新校验当前字节，不依赖以前成功的预检。已装版本和Work冻结副本不由作者工具改写。
+An independent local web tool may read a user-selected source directory, edit existing fields/instructions, and download a new complete ZIP copy that can be reopened after extraction. Unedited files retain original bytes. Edited TOML retains the complete original object, including unknown fields that must still be rejected; form projections must not silently sanitize it. Graph coordinates must not become unknown fields. The initial tool input limit is 16 MiB/1024 files; reject excess without truncation. This does not change engine loading limits. Final structural judgment comes from trusted public CLI loading the same file set into the tool's temporary Home, not UI preflight. Revalidate current bytes before saving rather than relying on previous preflight. The tool does not modify installed versions or frozen Work copies.
 
-作者工具默认布局及“整理布局”只改视图；主流程、返工和分支方向通过箭头、线型与文字可区分。选中图上路径、连线标签或连线列表项时，所选实际edge与右侧起点/终点/类型及画布高亮一致，画布重绘不得把点击改成另一条边或节点。输入来源可用“任务开始时提供／另一步的输出／方法中的参考文件／运行统计”选择，精确映射既有from格式；未知或非法原值显示自定义原值，不自动修复。required、result、max_bytes等折叠至高级配置；未操作字段（含省略默认值及未知对象）保留，不因通俗表单渲染而写入默认值、改变语义或添加边。
+Default layout and “Arrange layout” change views only. Arrows, line styles, and text distinguish main, rework, and branch directions. Selecting a path, label, or edge-list entry selects the same actual edge shown by its endpoints/type in the properties panel and highlighted on canvas; redraw must not turn a click into another edge or node. Input-source labels “Provided at start / Another step's output / Workbook reference / Run statistics” map exactly to existing from syntax. Unknown or illegal values display their original custom values without automatic repair. Fold required, result, and max_bytes into advanced controls. Preserve untouched fields, including omitted defaults and unknown objects; rendering a friendly form must not write defaults, change semantics, or add edges.
 
-作者工具导航与属性面板提供面板内可见关闭按钮；窄窗口覆盖画布时关闭入口仍可访问，Esc关闭侧面板并返回画布。显隐操作不改方法字节或选中定义。
+Navigation and properties panels have visible in-panel close buttons, accessible even when narrow windows cover the canvas. Esc closes the side panel and returns to canvas. Visibility changes neither method bytes nor selected definitions.
 
-作者工具新增显式边时以 `(from,to)` 判断已存在，与 `kind` 无关；已有边只选中并提示，不再次添加或改写。属性编辑不能生成自环或另一条同端点边；拒绝后保留原值并恢复表单。导入原有非法定义不自动修复或删除字节，仍由公开CLI判断完整结构。
+When adding edges, determine duplicates by `(from,to)` regardless of `kind`. Select and explain an existing edge without adding or rewriting it. Property edits must reject self-loops and duplicate endpoint pairs, retaining the original value and restoring the form. Imported illegal definitions remain unchanged for complete public CLI validation.
 
 ## 2. `workbook.toml`
 
 ```toml
 schema = "workbook/v1"
-id = "article-review"          # 小写字母、数字、单个连字符；≤ 64 字节；全局唯一
-version = "1.0.0"              # 语义化版本字符串；只做字面比较，不解析范围
-name = "文章写作与审查"
-description = "写一篇文章，由独立 agent 审查，不通过则打回修改。"
+id = "article-review"          # Lowercase letters, digits, single hyphens; ≤ 64 bytes; globally unique
+version = "1.0.0"              # Semantic version string; literal comparison, no range evaluation
+name = "Article writing and review"
+description = "Write an article and have an independent agent review it; return rejected drafts for revision."
+flows = ["flows/default.toml"] # At least one path relative to the Workbook root
 
-flows = ["flows/default.toml"] # 至少一个；路径相对 Workbook 根
-
-[[requires]]                   # 可选。需要宿主已装的资源，只声明不打包
+[[requires]]                   # Optional host resources: declared, not bundled
 kind = "skill"                 # skill | agent | mcp
 name = "company-api"
-version = "^1"                 # 可选，语义化版本范围，只给人和安装工具看
-digest = "sha256:…"            # 可选，给了就要求字节一致
-source = "https://github.com/acme/skills/tree/main/company-api"   # 可选，告诉安装工具去哪拿
+version = "^1"                 # Optional range, for people and installation tools
+ digest = "sha256:…"           # Optional; when supplied, bytes must match
+source = "https://github.com/acme/skills/tree/main/company-api" # Optional installation source
 ```
 
-| 字段 | 类型 | 规则 |
+| Field | Type | Rule |
 | --- | --- | --- |
-| `schema` | string | 必须等于 `workbook/v1` |
-| `id` | string | 正则 `^[a-z0-9]+(-[a-z0-9]+)*$`，≤ 64 字节 |
-| `version` | string | 非空，≤ 32 字节，只允许 `[0-9A-Za-z.+-]`；再拒绝 `.`、`..` 与保留名 `.staging`（它要作为单个安全目录段，[存储合同 §5.3](storage.md)） |
-| `name` | string | 非空，≤ 128 字节 |
-| `description` | string | 可选，≤ 2 KiB |
-| `flows` | array of string | 非空；每项是 Workbook 内相对路径，不得含 `..`、绝对路径或符号链接 |
-| `requires` | array of table | 可选，≤ 32 项；`(kind, name)` 唯一 |
+| `schema` | string | Must equal `workbook/v1` |
+| `id` | string | `^[a-z0-9]+(-[a-z0-9]+)*$`; ≤ 64 bytes |
+| `version` | string | Nonempty, ≤ 32 bytes, only `[0-9A-Za-z.+-]`; reject `.`, `..`, and reserved `.staging` because it is one safe directory segment ([storage §5.3](storage.md)) |
+| `name` | string | Nonempty; ≤ 128 bytes |
+| `description` | string | Optional; ≤ 2 KiB |
+| `flows` | string array | Nonempty; Workbook-relative paths without `..`, absolute paths, or symlinks |
+| `requires` | table array | Optional; ≤ 32 entries; unique `(kind, name)` |
 
-`requires[]` 字段：
+`requires[]` fields:
 
-| 字段 | 规则 |
+| Field | Rule |
 | --- | --- |
-| `kind` | `skill`、`agent`、`mcp` 之一 |
-| `name` | 同 ID 字符规则。身份是 `kind + name`；两个 Workbook 声明同名同类即同一资源，宿主里已有的同名资源也算 |
-| `version` | 可选，≤ 32 字节。MVP 只透传，不比较 |
-| `digest` | 可选，`sha256:` 加 64 位小写十六进制。给了才要求字节一致 |
-| `source` | 可选，≤ 512 字节的 URL |
+| `kind` | One of `skill`, `agent`, `mcp` |
+| `name` | ID character rules. Identity is `kind + name`: matching declarations in different Workbooks or existing host resources name the same resource |
+| `version` | Optional; ≤ 32 bytes. MVP passes it through without comparison |
+| `digest` | Optional; `sha256:` followed by 64 lowercase hexadecimal digits; supplied values require byte equality |
+| `source` | Optional URL; ≤ 512 bytes |
 
-**资源分两层。** 能让工作 agent「读文件」解决的，放进 `resources/` 用输入绑定，随版本冻结，不装、不撞名。只有需要宿主机制（skill 自动触发或工具授权、带模型与工具限制的命名 subagent、MCP 服务）才写进 `requires`。声明不等于打包；引擎只把声明列进任务书，不检查宿主、不安装（安装与就绪检查见 [路线图 GF-20](../roadmap.md)）。
+**Resources have two layers.** Worker-readable files belong in `resources/`, bound as inputs and frozen with the version, without installation or name collisions. Use `requires` only for host mechanisms: automatic skill invocation/tool authorization, named subagents with model/tool limits, or MCP services. Declaration is not bundling. The engine lists declarations in briefs without checking or installing host resources; see [roadmap GF-20](../roadmap.md).
 
-## 3. Flow 文件
+## 3. Flow file
 
 ```toml
 schema = "flow/v1"
-id = "default"                 # Workbook 内唯一
-entry = "draft"                # 入口节点
+id = "default"                 # Unique within the Workbook
+entry = "draft"                # Entry node
 
 [[nodes]]
 id = "draft"
-title = "写初稿"
+title = "Write a draft"
 executor = "agent"
 instruction = { file = "instructions/draft.md" }
-inputs  = [
+inputs = [
   { name = "topic", from = "start.topic" },
   { name = "review", from = "review.verdict", required = false },
 ]
@@ -94,11 +95,11 @@ max_visits = 3
 
 [[nodes]]
 id = "review"
-title = "审查初稿"
+title = "Review the draft"
 executor = "agent"
 instruction = { file = "instructions/review.md" }
-inputs  = [
-  { name = "article",   from = "draft.article" },
+inputs = [
+  { name = "article", from = "draft.article" },
   { name = "checklist", from = "resource.resources/review-checklist.md" },
 ]
 outputs = [{ name = "verdict", path = "review.md", max_bytes = 65536 }]
@@ -106,10 +107,10 @@ max_visits = 3
 
 [[nodes]]
 id = "publish"
-title = "定稿"
+title = "Finalize"
 executor = "human"
-instruction = { text = "阅读审查通过的文章，确认可以发布。把最终版复制到 final.md。" }
-inputs  = [{ name = "article", from = "draft.article" }, { name = "review", from = "review.verdict" }]
+instruction = { text = "Read the accepted article and confirm it may be published. Copy the final version to final.md." }
+inputs = [{ name = "article", from = "draft.article" }, { name = "review", from = "review.verdict" }]
 outputs = [{ name = "final", path = "final.md" }]
 
 [[edges]]
@@ -128,122 +129,120 @@ to = "draft"
 kind = "back"
 ```
 
-### 3.1 Flow 字段
+### 3.1 Flow fields
 
-| 字段 | 类型 | 规则 |
+| Field | Type | Rule |
 | --- | --- | --- |
-| `schema` | string | 必须等于 `flow/v1` |
-| `id` | string | 同 `workbook.id` 的字符规则 |
-| `entry` | string | 必须是某个节点的 `id` |
-| `nodes` | array of table | 1 到 64 个；`id` 唯一 |
-| `edges` | array of table | 0 到 256 条；`(from, to)` 唯一 |
+| `schema` | string | Must equal `flow/v1` |
+| `id` | string | Workbook ID character rules |
+| `entry` | string | Must identify a node |
+| `nodes` | table array | 1–64; unique `id` |
+| `edges` | table array | 0–256; unique `(from, to)` |
 
-### 3.2 Node 字段
+### 3.2 Node fields
 
-| 字段 | 类型 | 默认 | 规则 |
+| Field | Type | Default | Rule |
 | --- | --- | --- | --- |
-| `id` | string | 必填 | 同 ID 字符规则 |
-| `title` | string | 必填 | ≤ 128 字节，给人看 |
-| `executor` | `"agent"` 或 `"human"` | 必填 | 只表示谁干活。不推断门槛 |
-| `tier` | `"strong"` 或 `"standard"` | `"standard"` | 给协调者选模型的标签：`strong` 需要设计判断，`standard` 是填空、跑命令、对照清单。引擎只透传到 `next` 与任务书，不据此做任何事。`executor = human` 时不得出现 |
-| `instruction` | `{ file = ... }` 或 `{ text = ... }` | 必填 | 恰一个。`file` 是 Workbook 内相对路径，文件 ≤ 64 KiB，UTF-8；`text` 非空、≤ 8 KiB |
-| `inputs` | array | `[]` | 每项 `{ name, from, required?, result? }`；`name` 在节点内唯一；`required` 默认 `true` |
-| `outputs` | array | `[]` | 每项 `{ name, path, required?, max_bytes?, result? }`；`name` 与 `path` 在节点内唯一 |
-| `requires` | array of string | `[]` | 每项 `"<kind>:<name>"`，必须对应 `workbook.toml` 的一条 `requires`。引擎把它们列进任务书 |
-| `gate` | bool | `false` | `true` 表示 Attempt 成功后要真人批准才能离开本节点 |
-| `max_visits` | integer | `1` | 1 到 32。本节点到达次数的上限，含回环 |
-| `max_retries` | integer | `1` | 0 到 8。同一次到达内失败重试上限 |
+| `id` | string | Required | ID character rules |
+| `title` | string | Required | ≤ 128 bytes; human-readable |
+| `executor` | `"agent"` or `"human"` | Required | Executor only; does not imply a gate |
+| `tier` | `"strong"` or `"standard"` | `"standard"` | Coordinator model-selection label: strong for design judgment, standard for filling templates, commands, and checklist comparison. Passed to next/briefs without engine action; forbidden for human executors |
+| `instruction` | `{ file = ... }` or `{ text = ... }` | Required | Exactly one; file is Workbook-relative, UTF-8, ≤ 64 KiB; text nonempty, ≤ 8 KiB |
+| `inputs` | array | `[]` | `{ name, from, required?, result? }`; names unique within the node; required defaults true |
+| `outputs` | array | `[]` | `{ name, path, required?, max_bytes?, result? }`; names and paths unique within the node |
+| `requires` | string array | `[]` | `"<kind>:<name>"` must match a manifest declaration; listed in briefs |
+| `gate` | bool | `false` | true requires human approval to leave after Attempt success |
+| `max_visits` | integer | `1` | 1–32 node arrivals, including loops |
+| `max_retries` | integer | `1` | 0–8 business-failure retries within one arrival |
 
-`inputs[].from` 四种写法：
+Four input source forms:
 
-| 写法 | 含义 | 校验 |
+| Form | Meaning | Validation |
 | --- | --- | --- |
-| `"start.<key>"` | 起始输入里的键 | `key` 是 ID 字符规则；运行时缺该键则 `work start` 拒绝 |
-| `"resource.<path>"` | Workbook 内的一个文件，随版本冻结 | `path` 是 Workbook 内相对路径，文件存在、是普通文件、≤ 32 MiB。运行时指向本 Work 的冻结副本 |
-| `"engine.stats"` | 引擎在开工时生成的事实视图（[协议 `work stats`](protocol.md) 的 JSON），写成 Attempt 目录下的 `engine/stats.json` 并按字节冻结 | 字面量，`engine.` 后只允许 `stats`。给反思类节点用；引擎只给数字，不给结论 |
-| `"<node>.<output>"` | 某节点最近一次成功 Attempt 的某个输出 | `node` 存在且不是自己，且 `node` 不能叫 `start`、`resource`、`engine`；`output` 是该节点声明的输出名；见 §4 第 5 条 |
+| `"start.<key>"` | Initial input key | key follows ID rules; missing key rejects work start |
+| `"resource.<path>"` | Workbook file frozen with the version | Workbook-relative existing regular file, ≤ 32 MiB; resolves to this Work's frozen copy |
+| `"engine.stats"` | Facts generated at begin ([work stats JSON](protocol.md)), written as `engine/stats.json` under the Attempt and byte-frozen | Literal stats only after engine.; intended for reflection; numbers without engine conclusions |
+| `"<node>.<output>"` | Output of that node's latest successful Attempt | Node exists, differs from self, and is not named start/resource/engine; declared output exists; see compilation rule 5 |
 
-`inputs[].required = false` 只对 `<node>.<output>` 来源有意义：上游还没有成功的 Attempt 时，这个输入不绑定，任务书里标「尚无」，`attempt begin` 不报 `INPUT_UNAVAILABLE`。这是回环的标准写法：被打回的节点用可选输入接收审核意见，第一次到达时没有意见也能开工。`start.<key>`、`resource.<path>`、`engine.stats` 来源上 `required = false` 编译拒绝，它们永远存在。
+`required = false` is meaningful only for node outputs. Without an upstream successful Attempt, leave the input unbound, mark it unavailable in the brief, and do not reject begin with `INPUT_UNAVAILABLE`. This supports feedback loops: optional review feedback is absent on first arrival. Compilation rejects optional start/resource/stats inputs because these always exist.
 
-`outputs[]`：
-
-| 字段 | 默认 | 规则 |
+| Output field | Default | Rule |
 | --- | --- | --- |
-| `name` | 必填 | ID 字符规则 |
-| `path` | 必填 | 输出目录（Attempt 目录下 `outputs/`）内相对路径，规则见下 |
-| `required` | `true` | `false` 时缺文件不算错，下游不得把它当必需输入 |
-| `max_bytes` | `1048576` | 1 到 33554432（32 MiB） |
+| `name` | Required | ID character rules |
+| `path` | Required | Relative to Attempt `outputs/`; rules below |
+| `required` | `true` | Missing optional files are allowed; downstream must not require them |
+| `max_bytes` | `1048576` | 1–33554432 (32 MiB) |
 
-`path` 的写法规则（拒绝信息均点名 `nodes[i].outputs[j].path`）：
+Output-path rejections name `nodes[i].outputs[j].path`:
 
-1. 不含 `..`、不是绝对路径、没有空段（`RelPath` 通用规则）。
-2. **可移植字符集**：每段只含 `A-Z a-z 0-9 . _ -`，段非空、≤ 128 字节。非 ASCII（含汉字、Unicode 变体）拒绝；这使大小写折叠成为完整的别名判定，不需要 Unicode 归一化猜测。
-3. 同一节点内不得重复，不得互为祖先（`out` 与 `out/x.md` 只能留一个）。
-4. 同一节点内两条路径先逐段按 ASCII 大小写折叠；折叠后相同或互为祖先即拒绝（`OUT.md` 与 `out.md`、`Out` 与 `out/x.md`）：目标平台默认文件系统大小写不敏感。
+1. No `..`, absolute path, or empty segment (general RelPath rules).
+2. **Portable characters:** each nonempty segment contains only `A-Z a-z 0-9 . _ -`, ≤ 128 bytes. Reject non-ASCII, including Han and Unicode variants; ASCII case folding then fully determines aliases without guessing Unicode normalization.
+3. Paths in one node must neither duplicate nor be ancestors of one another (`out` versus `out/x.md`).
+4. Fold each segment's ASCII case before checking equality/ancestry (`OUT.md`/`out.md`, `Out`/`out/x.md`), because the target default filesystem is case-insensitive.
 
-引擎文件（`brief.md`、`engine/stats.json`）在 Attempt 目录根部，worker 输出在 `outputs/` 之下，两套命名空间不再比较；`outputs/brief.md`、`outputs/stats.json` 都是合法输出。
+Engine files (`brief.md`, `engine/stats.json`) reside at Attempt root; worker files under `outputs/`. These namespaces are not compared; `outputs/brief.md` and `outputs/stats.json` are legal.
 
-### 3.3 最终成果声明
+### 3.3 Final result declarations
 
-`inputs[]`、`outputs[]` 可声明 `result = true`，默认 false。只允许没有出边的终点 Node，且选中项必须 `required = true`。选中 input/output 的逻辑名跨两类唯一。编译按规则 10 拒绝非终点、可选选中项或重复 key，并点名字段。输入来源仍用 §3.2 的四种写法。
+Inputs/outputs may declare `result = true` (default false) only on terminal Nodes without outgoing edges, and selected entries must be required. Selected logical names are unique across both categories. Rule 10 rejects nonterminal, optional, or duplicate selections with field paths. Input source syntax remains §3.2.
 
-最终选择绑定使 Work 成功的具体终点 Attempt：input 使用开工时已经绑定的 ArtifactRef，output 使用该 Attempt 提交封存的 ArtifactRef。选择方是终点；被绑定输入的生产者可以是其他 Attempt 或起始/参考/引擎文件。没有声明时成果为空，不从历史或目录猜测。读取与就绪合同见 [`work result`](protocol.md#work-result)。
+Selections bind to the terminal Attempt that caused success: inputs use begin-time ArtifactRefs; outputs use that Attempt's sealed submit-time ArtifactRefs. Selection belongs to the terminal node; producers may be earlier Attempts or start/resource/engine files. Without declarations, the result is empty, never inferred from history or directories. See [work result](protocol.md#work-result) for reading/readiness.
 
-### 3.4 Edge 字段
+### 3.4 Edge fields
 
-| 字段 | 规则 |
+| Field | Rule |
 | --- | --- |
-| `from`、`to` | 都必须是节点 `id`；`from ≠ to` |
-| `kind` | `main`、`back`、`branch`、`re_review` 之一 |
+| `from`, `to` | Existing node IDs; distinct endpoints |
+| `kind` | `main`, `back`, `branch`, `re_review` |
 
-`kind` 只是给协调者看的标签，引擎对四种边的合法性判断完全相同。约定含义：`main` 主干推进；`back` 打回上游；`branch` 进入修复旁支；`re_review` 从旁支回到审查节点。
+Kinds are coordinator labels; engine legality is identical for all four. Main advances, back returns upstream, branch enters repair, and re_review returns from repair to review.
 
-## 4. 编译校验
+## 4. Compilation validation
 
-装入时按顺序检查，任一失败则报 `FLOW_INVALID` 并附字段路径与原因：
+Check in this order. Any failure returns `FLOW_INVALID` with field path and reason:
 
-1. 所有 ID 合规、唯一；节点 id 不得是保留字 `start`、`resource`、`engine`；`entry` 存在。
-2. 每条边两端存在、不自环、`(from, to)` 不重复。
-3. 从 `entry` 出发每个节点可达。不可达节点是错误，不是警告。
-4. 至少存在一个没有出边的节点（终点）。
-5. `inputs[].from` 引用的节点与输出存在，且从被引用节点出发能沿边走到本节点；被引用的输出 `required = false` 时，本输入也必须 `required = false`（§3.2「下游不得把它当必需输入」）；`start.<key>`、`resource.<path>`、`engine.stats` 来源不得声明 `required = false`（§3.2）。这是静态能做的全部检查；运行时若上游还没有成功的 Attempt，`attempt begin` 报 `INPUT_UNAVAILABLE`。
-6. `gate = true` 的节点 `instruction` 不得为空文本。
-7. 文件引用存在、大小合规；`instruction.file` 另须 UTF-8，`resource.<path>` 不限编码。
-8. 节点 `requires[]` 的每项都能在 `workbook.toml` 的 `requires` 里找到；同一节点内不重复。
-9. `executor = human` 的节点不得声明 `tier`。
-10. `result = true` 只允许终点的 required input/output；选中逻辑名跨 input/output 唯一。
+1. All IDs valid/unique; node IDs exclude start/resource/engine; entry exists.
+2. Every edge has existing distinct endpoints and a unique endpoint pair.
+3. Every node is reachable from entry; unreachable nodes are errors, not warnings.
+4. At least one terminal node has no outgoing edge.
+5. Referenced nodes/outputs exist and a directed path leads from producer to consumer. Optional outputs require optional consuming inputs. Start/resource/stats must not be optional. These exhaust static checks; unavailable successful upstream Attempts cause runtime `INPUT_UNAVAILABLE`.
+6. Gate nodes must not have empty text instructions.
+7. Referenced files exist within size limits; instruction files are UTF-8; resources may use any encoding.
+8. Every node requires entry matches the manifest, without node-local duplicates.
+9. Human nodes must not declare tier.
+10. Result selections are required terminal inputs/outputs with unique names across categories.
 
-**为什么允许有环。** `back` 与 `re_review` 边形成环，这是修复回环的本意。`max_visits` 给每个节点一个硬上限，保证任何路径有限。编译期不做环检测，运行期靠计数。
+**Cycles are intentional.** Back/re_review edges support repair loops. Hard max_visits limits make every path finite. Compilation does not detect cycles; runtime counts arrivals.
 
-## 5. 说明书写法
+## 5. Instructions
 
-`instruction` 是给工作 agent 读的自然语言，用法和一份 skill 一样：写方向、标准、产出要求，留发挥空间。三条建议：
+Instructions are worker-facing natural language, like skills: direction, standards, and output requirements with room for judgment.
 
-- 写清「读什么、产出什么、结论写在哪」。例：「读 `article`，按下面三条标准审查，把结论写进 `review.md`，第一行只写『通过』或『不通过』。」
-- 不写运行时才知道的路径。引擎会在任务书里把每个输入的绝对路径和每个输出的目标路径附在说明之后。
-- 不写「然后走哪条边」。选边是协调者读了输出文档之后的事。
-- 节点有多个可选输入时，用任务书的「来自」行告诉工作 agent 读哪一份。可选输入一旦绑定过就会一直带着上一次的内容，「来自」是区分新旧的机械依据。
-- 让每份输出文档的第一行成为结论。协调者按第一行选边，下游按第一行决定读不读。
+- State what to read, produce, and where conclusions go: “Read article, apply these three criteria, and write review.md with Accepted or Rejected on its first line.”
+- Do not hardcode runtime paths. The engine appends absolute input and target output paths after instructions.
+- Leave edge selection to the coordinator after reading outputs.
+- For multiple optional inputs, use the brief's source line to identify the relevant input. Once bound, optional inputs retain their previous content; source identity mechanically distinguishes old and new.
+- Put conclusions on each output's first line. Coordinators use it to choose edges; downstream workers use it to decide whether to read further.
 
-## 6. 样例 Workbook
+## 6. Example Workbooks
 
-仓库 `examples/` 下维护样例，它们同时是端到端测试的 fixture：
+Examples are also end-to-end fixtures:
 
-| 目录 | 证明什么 |
+| Directory | Demonstrates |
 | --- | --- |
-| `examples/two-step/` | 两个 `agent` 节点，一条 `main` 边，无审查、无门槛。证明业务无关与最小流程 |
-| `examples/article-review/` | 即本文 §3 的图。证明 `back` 回环、可选输入接收打回意见、`max_visits`、`human` 执行者、`resource.<path>` 输入 |
-| `examples/gated-release/` | 一个 `agent` 节点 `gate = true`，后接一个终点节点。证明门槛阻断与 `gate approve` |
-| `examples/code-change/` | implement → review → deliver 和显式返工边；task/project 冻结输入，终点选择 change/review/delivery |
+| `examples/two-step/` | Two agent nodes, one main edge, no review/gate; minimal business-independent flow |
+| `examples/article-review/` | §3 graph; back loop, optional feedback, max_visits, human executor, resources |
+| `examples/gated-release/` | Gated agent node followed by terminal node; blocking and approval |
+| `examples/code-change/` | implement → review → deliver with explicit rework; frozen task/project; terminal change/review/delivery |
 
-另有一份完整的业务 Workbook `workbooks/spec-dev/`（规格驱动的软件开发，十一个节点、二十五条边、可选输入、`engine.stats` 输入、`tier` 标签、两个人审节点、验证与审查两个独立回环、卡住时升级给人的旁支、结尾的反思节点）。0.2.2 的 scaffold、implement、verify 显式绑定共享审批规则；终点 retro 选择 delivery 输入和 lessons 输出，门槛批准后通过 work result 取得这两份成果。已有 Work 保留原冻结版本。它不是测试 fixture，但编译与真实 CLI 场景覆盖它，保证合同改动不会让它失效。
+The complete business Workbook `workbooks/spec-dev/` has eleven nodes and twenty-five edges, optional inputs, engine.stats, tiers, two human-review nodes, independent verification/review loops, human escalation, and final reflection. The default English version is 0.2.3; the maintained Chinese variant is `spec-dev-zh-cn` 0.2.2. Both explicitly bind shared approval rules to scaffold/implement/verify; terminal retro selects delivery input and lessons output, available through work result after approval. Existing Works retain their original frozen versions. This is not a fixture, but compilation and actual CLI scenarios cover it to prevent contract changes from breaking it.
 
-样例文件的字节由测试固定。实现与样例不一致时，先改合同与样例再改实现，不能改期望迎合实现。
+Default English examples retain their IDs at 1.0.1. Chinese sibling directories use IDs ending `-zh-cn` at 1.0.0 so both variants install concurrently. Chinese instructions remain maintained translations, including English future commit rules; they are not byte-identical historical evidence. Tests freeze fixture bytes. If implementation and examples differ, revise authority/examples before implementation rather than accommodating implementation through expectations.
 
-作者工具清晰流程视图默认展示从入口沿main首次到达的显示骨架，保留循环/分支等所有定义；完整连线数量与模式显式可见，节点聚焦展示邻接边，列表选择隐藏边时仍呈现该实际edge。自动端口与紧凑折行/侧列布局只影响视图，不改变from/to/kind、输入绑定或Engine next。常态标签收起，hover/selected显示；高亮必须复用同一渲染路径，不延长或改变几何。输入名称可自定义；改名只编辑当前输入的name，from及其它声明保持。名称遵循既有节点内唯一规则，不套用节点ID规则。
+The author tool's clear-flow view follows first arrivals along main edges from entry while preserving all cycles/branches. Full edge counts/modes are visible; node focus shows adjacent edges; selecting hidden edges in lists still shows the actual edge. Automatic ports and compact wrapped/side-column layouts change only views, never from/to/kind, bindings, or engine next. Labels appear on hover/selection; highlights reuse identical rendering geometry. Renaming an input changes only its name, preserving from and other declarations. Names obey existing node-local uniqueness, not node-ID syntax.
 
-作者工具支持多选直接前置节点outputs生成node.output输入，或多选前置inputs明确沿用其原from声明（不声称读取上一Attempt被冻结的输入副本）；新输入保留required三态，optional输出不得变成required输入，不复制result/max_bytes等Node上下文属性。对当前owner不可表达的自引/缺失/不允许可选的组合不可新添，原文件保留交CLI判断。外部URL/绝对或相对文件位置固定保存为真实Workbook内参考文本资源，用既有resource.<path>绑定；位置作为引用字符串，不由编辑器读取host内容或访问网络。此功能不新增from变体，不把node.input当合法来源，也不向manifest或Flow写未声明字段。生成的专用引用文本所有权可验证，无法识别的原资源按普通来源保留，不静默覆盖。
+The tool may multi-select direct predecessor outputs to create node.output inputs, or predecessor inputs to explicitly reuse their original from declarations; this does not claim to read a previous Attempt's frozen input copy. Preserve required's three states; optional outputs must not become required inputs. Do not copy context-dependent result/max_bytes attributes. Do not add unrepresentable self-references, missing sources, or prohibited optional combinations for the current owner; preserve imported files for CLI judgment. External URLs and absolute/relative locations become actual Workbook reference-text resources bound by existing resource syntax. They are reference strings; the editor neither reads host contents nor accesses networks. No new from form, node.input source, or undeclared manifest/Flow field is introduced. Verify ownership of generated dedicated reference text; preserve unrecognized original resources without silent overwrite.
 
-上述资料选择在界面使用统一“选择或输入资料”可编辑多选框：前置资料候选与自定义外部引用通过同一入口添加，名称可自定义；不要求单独配置路径或URL字段。已有from来源的精确语法仅在高级/原文展示，未编辑的输入不转换或迁移。
+Use one editable multi-select “Select or enter material” control for predecessor candidates and custom external references, with customizable names rather than separate path/URL fields. Exact syntax appears in advanced/raw views only; untouched inputs are not converted or migrated.
 
-节点属性用输入/输出页签和紧凑分组摘要浏览，搜索、分组、折叠与页签仅影响展示，不重排或改写声明。点开单项才编辑名称、来源或文件名；说明默认折叠。候选的已有使用状态从当前节点输入的精确from声明派生，已用来源显示勾选和本步骤名称，别名或不同required声明不因此合并或覆盖。已有勾选只表示资料已使用；移除从已选列表明确操作，不能取消一个候选就隐式删除同来源的多个输入。编辑、移除、新增后刷新勾选状态，未知和非法原值保持并交CLI判断。
+Input/output tabs and compact grouped summaries support browsing. Search, grouping, collapse, and tabs affect display only, without declaration reordering/rewriting. Edit names/sources/filenames only after opening an item; instructions start collapsed. Candidate usage derives from exact current from declarations, displaying checked state and this step's names; aliases or differing required declarations are not merged/overwritten. A checked candidate means used material only. Remove explicitly from selected entries; unchecking must not implicitly delete multiple same-source inputs. Refresh checked state after edits/removals/additions, preserve unknown/illegal originals, and defer judgment to CLI.

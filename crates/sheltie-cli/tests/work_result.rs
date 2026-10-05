@@ -12,7 +12,7 @@ fn fixture(gate: bool, selected: bool) -> (Env, tempfile::TempDir, String) {
     std::fs::create_dir(source.path().join("flows")).unwrap();
     std::fs::write(
         source.path().join("workbook.toml"),
-        "schema = \"workbook/v1\"\nid = \"result-fixture\"\nversion = \"1.0.0\"\nname = \"结果夹具\"\nflows = [\"flows/default.toml\"]\n",
+        "schema = \"workbook/v1\"\nid = \"result-fixture\"\nversion = \"1.0.0\"\nname = \"Result fixture\"\nflows = [\"flows/default.toml\"]\n",
     )
     .unwrap();
     std::fs::write(
@@ -23,9 +23,9 @@ id = "default"
 entry = "finish"
 [[nodes]]
 id = "finish"
-title = "完成"
+title = "Completed"
 executor = "agent"
-instruction = {{ text = "写明实际结果" }}
+instruction = {{ text = "State the actual result" }}
 gate = {gate}
 inputs = [{{ name = "original", from = "start.topic", result = {selected} }}]
 outputs = [{{ name = "report", path = "report.md", result = {selected} }}]
@@ -53,7 +53,7 @@ fn submit(env: &Env, work: &str) -> Value {
         "--attempt",
         "finish#1.0",
         "--summary",
-        "报告已完成，内容由使用者核对",
+        "Report complete; the consumer verifies its contents",
     ])
 }
 
@@ -109,7 +109,7 @@ fn result_lists_explicit_terminal_bindings_and_sealed_outputs_without_writes() {
         for field in ["key", "path", "sha256"] {
             assert!(
                 text.contains(item[field].as_str().unwrap()),
-                "{field} 未显示"
+                "{field} is not displayed"
             );
         }
     }
@@ -154,7 +154,7 @@ fn result_distinguishes_no_selection_from_cancelled_and_active_work() {
     assert!(
         String::from_utf8(text.stdout)
             .unwrap()
-            .contains("未声明最终成果")
+            .contains("No final results are declared")
     );
     let (cancelled_env, _source, cancelled_work) = fixture(false, true);
     cancelled_env.begin(&cancelled_work, "finish");

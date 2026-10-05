@@ -1,4 +1,4 @@
-//! 编译通过后的图，以及编译需要的资源索引。
+//! Compiled graph and the resource index required for compilation.
 
 use std::collections::BTreeMap;
 
@@ -9,14 +9,14 @@ use crate::ids::NodeId;
 use crate::path::RelPath;
 use crate::workbook::HostRequire;
 
-/// runtime 观察到的 Workbook 内文件元数据。core 用它做规则 7 的存在性、大小、编码检查。
+/// Runtime-observed Workbook file metadata for core rule 7 existence, size, and encoding checks.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ResourceMeta {
     pub bytes: u64,
     pub is_utf8: bool,
 }
 
-/// Workbook 目录里全部普通文件的索引，键是相对路径。
+/// Index of every regular Workbook file, keyed by relative path.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ResourceIndex {
     pub files: BTreeMap<RelPath, ResourceMeta>,
@@ -27,7 +27,7 @@ impl ResourceIndex {
         self.files.get(path)
     }
 
-    /// 测试夹具登记 UTF-8 小文件，不暴露为生产 API。
+    /// Register small UTF-8 fixture files without exposing a production API.
     #[cfg(any(test, feature = "testkit"))]
     pub(crate) fn with_utf8(mut self, path: &str, bytes: u64) -> Self {
         if let Ok(p) = RelPath::new(path) {
@@ -43,20 +43,20 @@ impl ResourceIndex {
     }
 }
 
-/// 校验通过的图。只能由 `compile` 构造，不派生 `Deserialize`，读出来也绕不过校验。
+/// Validated graph, constructed only by compile; no Deserialize bypass for validation.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Graph {
     entry: NodeId,
-    /// 声明顺序。状态卡的 `pending` 与 `visits` 按它排。
+    /// Declaration order used by status-card pending and visits.
     order: Vec<NodeId>,
     nodes: BTreeMap<NodeId, NodeDef>,
     out_edges: BTreeMap<NodeId, Vec<EdgeDef>>,
-    /// Workbook 声明的**全部** `requires`，按 manifest 声明顺序，不止本图用到的（work start 用它）。
+    /// All Workbook requires in manifest declaration order, including unused declarations, for work start.
     requires: Vec<HostRequire>,
 }
 
 impl Graph {
-    /// 仅供 `compile` 在全部规则通过后调用。
+    /// Called only by compile after every rule passes.
     pub(crate) fn from_checked(
         entry: NodeId,
         nodes: Vec<NodeDef>,
@@ -85,7 +85,7 @@ impl Graph {
         self.nodes.get(id)
     }
 
-    /// 按声明顺序。
+    /// In declaration order.
     pub fn nodes(&self) -> impl Iterator<Item = &NodeDef> {
         self.order.iter().filter_map(|id| self.nodes.get(id))
     }
@@ -94,7 +94,7 @@ impl Graph {
         self.nodes.len()
     }
 
-    /// 从某节点出发的全部边，按声明顺序。
+    /// All outgoing edges from a node, in declaration order.
     pub fn out_edges(&self, id: &NodeId) -> &[EdgeDef] {
         self.out_edges.get(id).map(Vec::as_slice).unwrap_or(&[])
     }
@@ -103,12 +103,12 @@ impl Graph {
         self.out_edges.values().map(Vec::len).sum()
     }
 
-    /// 没有出边的节点是终点。
+    /// Nodes without outgoing edges are terminal.
     pub fn is_terminal(&self, id: &NodeId) -> bool {
         self.out_edges(id).is_empty()
     }
 
-    /// 本节点引用的完整宿主声明，保留节点引用顺序。
+    /// Complete host declarations referenced by this node, preserving reference order.
     pub fn node_requires(&self, node: &NodeId) -> Option<Vec<HostRequire>> {
         Some(
             self.node(node)?
@@ -124,7 +124,7 @@ impl Graph {
         )
     }
 
-    /// Workbook 声明的全部宿主资源，按 manifest 声明顺序。
+    /// All declared Workbook host resources in manifest declaration order.
     pub fn requires(&self) -> &[HostRequire] {
         &self.requires
     }

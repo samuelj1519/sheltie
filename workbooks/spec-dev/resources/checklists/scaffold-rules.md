@@ -1,31 +1,31 @@
-# 骨架规则
+# Scaffold rules
 
-骨架的目标只有一个：让一个第一次接触项目、能力有限的实现者，给定签名、注释和失败的测试，就能写对函数体。每条规则都对着这个目标。
+A newcomer with limited implementation ability must be able to fill correct bodies from signatures/comments/failing tests.
 
-## 结构
+## Structure
 
-1. 新类型与新函数全部在骨架里出现。实现者不新建文件、不加公开项、不加依赖。每个占位体在它那一行标所属任务的编号（`todo!() // T03`），一个占位体只归一个任务，测试用单独的任务归属注释或标记关联；没标编号的占位体验证者不认。
-2. 一个函数只做一件事，长度以一个初级实现者一次能填完为准。大函数拆成多个私有函数，各自占位、各自注释、各自能被测试直接调用。
-3. 非法状态不可表示：能用枚举就不用字符串加注释，能用新类型就不用裸基础类型，能在构造时校验就不留到使用时。
-4. 语言有穷尽匹配就用穷尽匹配，不写兜底分支。编译器替实现者查漏。
-5. 文档注释两行：做什么；失败返回什么。引用方案或规格的哪一节，不复述。
+1. Declare every new type/function now; implementers add no files/public items/dependencies. Same-line task labels identify each placeholder (todo!() // T03); one owner each, separate test ownership markers. Verifiers reject unlabeled placeholders.
+2. One responsibility per function, small enough for one junior implementation. Split into private documented/testable placeholders.
+3. Make invalid states unrepresentable: enums over annotated strings, newtypes over primitives, construction checks over deferred validation.
+4. Use exhaustive matching without catch-all where supported; compiler finds omissions.
+5. Two doc lines: behavior/failure; reference exact spec/plan sections rather than repeat.
 
-## 测试
+## Tests
 
-6. 每个任务至少一对：一个合法例，一个只改一个条件的拒绝例。
-7. 期望值手写，或从规格里抄，或独立算出。绝不调用被测代码生成期望。
-8. 快照或黄金文件由你预写成标准答案；实现者不得更新它们。
-9. 测试名描述条件与行为；归属用注释或标记记录。全部禁用并在禁用原因里写任务编号。
-10. 测试用的 helper、fixture、假时钟、假 ID 由你写完并能跑，不留给实现者。
-11. 每个任务写清「只改哪些文件」。测试文件、配置文件、门禁配置不在任何任务的白名单里。
+6. Each task has legal and one-condition rejection cases.
+7. Handwritten/spec-derived/independently calculated expectations, never tested-code calculations.
+8. Author goldens/snapshots now; implementers cannot update them.
+9. Behavior-named tests with separate ownership; all disabled with task reasons.
+10. Complete runnable helpers/fixtures/fake clocks/IDs yourself.
+11. Complete task allowlists; tests/config/gates are not implementation allowlisted files.
 
-## 顺序
+## Order
 
-12. 骨架提交后门禁必须全绿：占位体能编译，禁用测试不运行，lint 不报错。lint 对占位体报错，就把这一项配成允许占位（例如 Rust 不启用 `clippy::todo`），而不是删占位。
-13. 先写最底层的类型，再写依赖它们的函数，最后写测试。测试引用的每个符号都必须存在。
-14. 骨架提交前做一次正例试跑：挑一个最小任务，临时填满它，跑单任务测试命令与全部门禁，确认「按规则做能通过」；再把填充撤掉。只验证负例会漏掉工具本身的缺陷。
-15. 实现者遇到工具缺陷时会按规则修工具并单独提交；你在审查阶段复核每一次工具改动。
+12. Skeleton gates must pass: compiling placeholders, disabled tests, clean lint. Permit necessary placeholder lint (e.g. do not enable clippy::todo) rather than remove placeholders.
+13. Lowest types, dependent functions, tests; every referenced symbol exists.
+14. Before committing positively trial one smallest task: temporarily fill it, run focused tests/all gates, then revert trial bodies. Negative-only checks miss tool defects.
+15. Implementers independently commit tool fixes under rules; review every tool change.
 
-## 提交信息
+## Commit
 
-与实现者相同格式：`chore(scaffold): <中文摘要>`，正文写新增了哪些类型与函数、多少测试、单任务测试命令，末尾 `Task: scaffold`、`Work: <work_id>`、`Agent: <模型名>`。
+Same implementer format: chore(scaffold): <English summary>; body names types/functions/test count/focused command; Task: scaffold, Work: <actual-id>, Agent: <actual-model>. Follow stricter repository trailers when applicable.

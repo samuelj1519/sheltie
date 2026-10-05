@@ -2,14 +2,14 @@ schema = "flow/v1"
 id = "default"
 entry = "spec"
 
-# 说明：tier 是给协调者选模型的标签。strong = 需要设计判断，派最强的模型；
-# standard = 填空、跑命令、对照清单，派便宜的模型即可。
+# tier guides coordinator model selection: strong requires design judgment; use the strongest model;
+# standard means fill implementations, run commands, compare checklists; an economical model suffices.
 
-# ── 规划阶段：强模型起草，人拍板，强模型搭骨架 ────────────────
+# ── Planning: strong-model drafts, human approval, strong-model scaffolding ────────────────
 
 [[nodes]]
 id = "spec"
-title = "写需求规格"
+title = "Write requirements"
 executor = "agent"
 tier = "strong"
 instruction = { file = "instructions/spec.md" }
@@ -25,7 +25,7 @@ max_visits = 3
 
 [[nodes]]
 id = "plan"
-title = "写技术方案与任务清单"
+title = "Write the technical plan and task list"
 executor = "agent"
 tier = "strong"
 instruction = { file = "instructions/plan.md" }
@@ -51,7 +51,7 @@ max_visits = 4
 
 [[nodes]]
 id = "plan-review"
-title = "人工审核规格与方案"
+title = "Human review of specification and plan"
 executor = "human"
 instruction = { file = "instructions/plan-review.md" }
 inputs = [
@@ -68,7 +68,7 @@ max_visits = 4
 
 [[nodes]]
 id = "scaffold"
-title = "搭骨架：类型、签名、禁用的测试"
+title = "Scaffold types, signatures, and disabled tests"
 executor = "agent"
 tier = "strong"
 instruction = { file = "instructions/scaffold.md" }
@@ -87,11 +87,11 @@ outputs = [{ name = "scaffold", path = "scaffold.md", max_bytes = 65536 }]
 max_visits = 4
 max_retries = 1
 
-# ── 实现阶段：一次一个任务填空，独立验证，卡住就找人 ───────────
+# ── Implementation: one task at a time, independent verification, human escalation when blocked ───────────
 
 [[nodes]]
 id = "implement"
-title = "实现一个任务"
+title = "Implement one task"
 executor = "agent"
 tier = "standard"
 instruction = { file = "instructions/implement.md" }
@@ -113,7 +113,7 @@ max_retries = 1
 
 [[nodes]]
 id = "verify"
-title = "验证本任务"
+title = "Verify this task"
 executor = "agent"
 tier = "standard"
 instruction = { file = "instructions/verify.md" }
@@ -135,7 +135,7 @@ max_visits = 32
 
 [[nodes]]
 id = "fix"
-title = "修复验证或审查发现的问题"
+title = "Fix verification or review findings"
 executor = "agent"
 tier = "standard"
 instruction = { file = "instructions/fix.md" }
@@ -155,7 +155,7 @@ max_retries = 1
 
 [[nodes]]
 id = "escalate"
-title = "人工决策：卡住、反复失败或需要授权"
+title = "Human decision: blockage, repeated failure, or authorization"
 executor = "human"
 instruction = { file = "instructions/escalate.md" }
 inputs = [
@@ -171,11 +171,11 @@ inputs = [
 outputs = [{ name = "decision", path = "decision.md", max_bytes = 16384 }]
 max_visits = 6
 
-# ── 收尾阶段：整体审查，交付，反思，人批准 ───────────────────
+# ── Completion: overall review, delivery, reflection, human approval ───────────────────
 
 [[nodes]]
 id = "review"
-title = "审查整体改动"
+title = "Review the complete change"
 executor = "agent"
 tier = "strong"
 instruction = { file = "instructions/review.md" }
@@ -194,7 +194,7 @@ max_visits = 4
 
 [[nodes]]
 id = "deliver"
-title = "写交付说明"
+title = "Write delivery notes"
 executor = "agent"
 tier = "standard"
 instruction = { file = "instructions/deliver.md" }
@@ -210,7 +210,7 @@ outputs = [{ name = "delivery", path = "delivery.md", max_bytes = 32768 }]
 
 [[nodes]]
 id = "retro"
-title = "反思：这次流程哪里该改"
+title = "Reflect on workflow improvements"
 executor = "agent"
 tier = "standard"
 instruction = { file = "instructions/retro.md" }
@@ -228,9 +228,9 @@ inputs = [
 outputs = [{ name = "lessons", path = "lessons.md", result = true, max_bytes = 32768 }]
 gate = true
 
-# ── 边 ───────────────────────────────────────────────────────
+# ── Edges ───────────────────────────────────────────────────────
 
-# 规划
+# Planning
 [[edges]]
 from = "spec"
 to = "plan"
@@ -261,7 +261,7 @@ from = "scaffold"
 to = "implement"
 kind = "main"
 
-# 实现与验证回环
+# Implementation and verification loop
 [[edges]]
 from = "implement"
 to = "verify"
@@ -287,7 +287,7 @@ from = "fix"
 to = "verify"
 kind = "re_review"
 
-# 审查回环
+# Review loop
 [[edges]]
 from = "review"
 to = "deliver"
@@ -308,7 +308,7 @@ from = "fix"
 to = "review"
 kind = "re_review"
 
-# 升级给人：谁卡住谁进来
+# Escalation: the blocked stage enters
 [[edges]]
 from = "scaffold"
 to = "escalate"
@@ -329,7 +329,7 @@ from = "verify"
 to = "escalate"
 kind = "branch"
 
-# 人的四种决定（「继续」回到卡住的那一步：骨架、实现、修复或验证）
+# Human decisions (Continue returns to blocked scaffold, implement, fix, or verify)
 [[edges]]
 from = "escalate"
 to = "scaffold"

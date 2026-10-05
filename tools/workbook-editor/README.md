@@ -1,67 +1,70 @@
-# Workbook 作者工具
+# Workbook editor
 
-未发布的本地网页工具。用于创建 Workbook、打开目录、编辑 Flow 与节点，并下载完整的新 ZIP 副本。需要 Node.js 22 或更高版本和当前开发线的可信 `sheltie` 二进制。
+English | [简体中文](README.zh-CN.md)
 
-## 启动
+An unreleased local web tool for creating Workbooks, opening directories, editing Flows/nodes, and downloading complete new ZIP copies. Requires Node.js 22 or later and a trusted `sheltie` binary from the current development source.
 
-在仓库根安装工具自己的依赖：
+## Start
+
+Install its dependencies from the repository root:
 
 ```bash
-npm_config_cache=/private/tmp/sheltie-c011-npm-cache npm --prefix tools/workbook-editor ci --ignore-scripts --no-audit --no-fund
+npm ci --prefix tools/workbook-editor
 ```
 
-在仓库根启动。将下面的二进制路径换成已核验的绝对路径：
+Start from the repository root, replacing the binary path with a verified absolute path:
 
 ```bash
 node tools/workbook-editor/server.mjs --sheltie /absolute/path/sheltie --port 4311
 ```
 
-打开终端打印的 `http://127.0.0.1:4311`。必须使用这个地址；`localhost` 不会通过 Host 检查。服务只监听 `127.0.0.1`。用 Ctrl+C 结束服务。
+Open the printed `http://127.0.0.1:4311` address exactly. `localhost` fails the Host check. The service listens only on `127.0.0.1`; stop it with Ctrl+C.
 
-## 创建与编辑
+## Create and edit
 
-1. 点击「新建方法」，在左侧方法名称下编辑方法 ID、版本和名称。
-2. 点击「＋ 节点」增加步骤。选中节点，在右侧填写 ID、标题、执行者和说明。说明可用内嵌文本或目录中的文件；不存在的说明文件可在草稿内创建。
-3. 点击「＋ 显式边」。在右侧选择起点、终点和类型。输入绑定独立编辑；连线不会自动添加输入。选中连线也可编辑、删除。
-4. 在 Flow 属性选择入口，或选中节点后点击「设为入口」。输入通过统一的「选择或输入资料」框多选或输入固定引用，输出可逐项增加、删除；高级设置包含档位、门槛、到达与重试额度、宿主资源引用。方法的高级设置可编辑宿主资源声明。
-5. 点击「检查结构」。失败时，底部直接显示引擎的错误码、规则、字段、原因和下一步。引擎未给出准确 Flow 文件时，从标明的候选文件打开对应节点或入口；原始命令与输出在「技术诊断」单独展开。按引擎给出的字段路径修改草稿；删除节点或更改 ID 不会猜测、修补引用。
-6. 点击「保存新副本 ZIP」。工具重新校验当次文件集合；只有真实引擎接受时才下载完整 ZIP。解压到新的目录后，用「打开目录」重新打开。
+1. Select **New Workbook**, then edit its ID, version, and name beneath the left-hand Workbook name.
+2. Select **＋ Node** and edit its ID, title, executor, and instructions on the right. Instructions can be inline text or a file in the directory. Missing instruction files can be created within the draft.
+3. Select **＋ Explicit edge** and choose source, target, and kind. Input bindings are independent: connecting nodes does not add inputs. Select an edge to edit or delete it.
+4. Choose the Flow entry or select a node and **Set as entry**. **Choose or enter inputs** supports multiple inputs and fixed references; add/remove outputs individually. Advanced settings include tier, gate, visit/retry limits, and host-resource references. Declare host resources in Workbook advanced settings.
+5. Select **Check structure**. Failures display the engine code, rule, field, reason, and next step. When no exact Flow file is identified, open a candidate definition and check its node/entry against the reported field. Expand **Technical diagnostics** for raw command/output. Follow the engine field path when correcting the draft; deleting nodes or changing IDs does not guess or repair references.
+6. Select **Save new ZIP copy**. The tool rechecks the current file set and downloads a complete ZIP only after the real engine accepts it. Extract into a new directory and reopen with **Open directory**.
 
-「打开目录」支持浏览器的目录选择功能，读取整个目录；第一版不导入 ZIP。现有 code-change 和 spec-dev 可以从左侧固定样例按钮打开。多个 Flow 在左侧切换；没有编辑的 Flow 和二进制参考文件保留原字节。已编辑 TOML 可重排格式，展开的「当前 TOML 原文」会同步当前草稿字节，普通名称、标题与说明编辑不重建属性面板。完整原对象及未知字段仍保留，未知字段会继续被真实引擎拒绝。
+**Open directory** uses the browser directory picker to read the whole directory; this version does not import ZIPs. Fixed sample buttons open default English code-change and spec-dev. Chinese variants remain explicitly selectable as repository directories. Switch Flows in the left panel. Unedited Flows and binary resources retain original bytes; edited TOML may be reformatted. **View current TOML source** tracks draft bytes. Ordinary name/title/instruction edits preserve the properties-panel DOM. Complete objects and unknown fields remain present, and the real engine continues to reject unknown fields.
 
-默认主流程按首次到达顺序每行约三步折行，完整连线总数始终显示。「主流程／全部连线」只切换显示；选节点显示邻接线，左侧全部连线列表能选中隐藏边并定位。类型标签只在悬停或选中时出现；高亮使用同一路径。已有拖动位置保留，「整理布局」重新编排。
+The main flow follows first-visit order, wrapping at roughly three nodes per row. The complete edge count stays visible. **Main flow / All edges** changes presentation only. A selected node shows adjacent edges; the complete left-hand list selects and locates hidden edges. Kind labels appear on hover/selection; highlights use the same route. Dragged positions persist until **Arrange layout** rearranges them.
 
-节点资料用「输入 N / 输出 N」页签查看，按来源分组的紧凑行支持名称与来源搜索。点击一项打开编辑区，另一项会替换当前编辑；说明默认折叠。名称、来源及提供要求只在实际编辑时写入，切换、搜索、展开不改方法。
+Node bindings appear in **Inputs N / Outputs N** tabs. Compact source groups support name/source search. Select an item to edit it; selecting another replaces the expanded editor. Instructions start collapsed. Names, sources, and required declarations are written only on actual edits; switching, searching, and expanding do not modify the Workbook.
 
-「＋ 添加资料」默认折叠，展开后仍是统一选择或输入框。待添加数量显示在折叠标题，折叠或页签切换保留未提交选择。已有来源自动勾选并显示本步骤使用名；该勾选只读，移除从已选列表逐项操作，同来源的其它别名保持。
+**＋ Add inputs** starts collapsed. Its title shows the pending count; uncommitted choices survive collapse and tab switches. Existing sources show read-only checkmarks and this step's used names. Remove an input individually from the selected list; other aliases sharing its source remain.
 
-输入的统一框可多选直接前置步骤的输出，或沿用前置步骤输入的原来源；沿用来源不表示读取前次运行的冻结输入。已选项可改名、移除选择，按「添加所选资料」确认。名称只需在本步骤内唯一，中文、下划线均可；冲突会提示改名，相同名称与来源不会重复添加。可选输出的提供要求保持。
+The unified picker selects direct predecessor outputs or reuses predecessor inputs' original source declarations. Reusing a source does not read a previous Attempt's frozen inputs. Rename/remove selections, then **Add selected inputs**. Names need be unique only within this node; Chinese and underscores are supported. Conflicts require renaming; identical name/source pairs are not duplicated. Optional outputs preserve their required declaration.
 
-在同一个框输入文件位置或 URL 并按 Enter，可选为固定外部引用。工具把位置保存在方法自己的参考文本中，不读取宿主路径或访问网址；实际任务执行者根据位置及方法说明读取。旧 start、普通资源、统计或自定义来源保持原声明，精确来源与提供要求在每项高级设置中。编辑固定位置采用新资源副本，旧文件保留；改输入名称只改名称。「移除此输入」不会删除参考文件。保存 ZIP 包含全部原资源和新增参考文本。
+Enter a file location or URL in the same picker and press Enter to select a fixed external reference. The location is stored in the Workbook's own reference text file without reading host paths or accessing URLs; the eventual worker follows the location and method instructions. Existing start, ordinary resource, statistics, and custom sources retain their original declarations. Exact sources and required declarations appear in advanced settings. Editing a fixed location creates a new resource copy and preserves the old file. Renaming changes only the name; removing an input does not delete reference files. ZIPs contain every original resource and new reference text.
 
-拖动节点仅改变视图布局。拖动空白平移，滚轮或工具栏按钮缩放，「适应画布」调整视野。布局存在浏览器 localStorage，草稿内容仅在当前页面内存；关闭或刷新前先保存 ZIP。窄屏用「导航」「属性」展开面板。节点列表和连线支持键盘选择，表单有明确焦点。
+Dragging nodes changes only view layout. Drag empty space to pan, scroll or use buttons to zoom, and **Fit canvas** to adjust the view. Layout persists in browser localStorage; draft content exists only in page memory. Save a ZIP before closing/refreshing. On narrow screens, **Navigation** and **Properties** open the panels. Node lists and edges support keyboard selection, with visible form focus.
 
-## 边界与失败
+## Boundaries and failures
 
-输入至多 16 MiB、1024 个文件，每条相对路径 UTF-8 至多 4096 字节。文件清单先检查再读取；HTTP 请求体流式限制为 24 MiB。路径逃逸、重复、ASCII 大小写或 NFC 别名、目录别名、文件与目录前缀冲突、非法 base64 都整组拒绝。
+Input limits are 16 MiB, 1024 files, and 4096 UTF-8 bytes per relative path. Check the list before reading; stream-limit HTTP bodies to 24 MiB. Refuse the entire set for escaping paths, duplicates, ASCII-case/NFC aliases, directory aliases, file/directory prefix conflicts, or invalid base64.
 
-原字节通过逐项 `[[path, base64], ...]` 传输。check/export 只接受此集合，不接受宿主路径、任意命令或任意二进制。每次结构检查在工具自有的新临时根（0700）内核物化字节，用启动时选定的可信引擎直接调用 `--json workbook add` 和新的 `SHELTIE_HOME`。源码目录、正式 Home 和 Work 冻结副本不会被写入。
+Transmit original bytes as `[[path, base64], ...]`. Check/export accepts this set only, not host paths, arbitrary commands, or arbitrary binaries. Each check materializes/verifies bytes in a new owned temporary root (0700), then directly invokes the trusted startup-selected engine using `--json workbook add` and a new `SHELTIE_HOME`. Source directories, production Homes, and frozen Work copies are not written.
 
-每次 CLI 限 30 秒，stdout/stderr 各限 1 MiB。超时、输出超限或请求断开先 TERM，1 秒后仍未关闭则 KILL；只有观察到直接 child 结束和流关闭后才清理自有根。引擎装入的只读目录只在该根内恢复写权限后清理。若无法确认关闭，返回失败及 `residualRoot` 并保留该根。服务不承诺整棵进程树隔离，也不提供同一 OS 账户下的真人认证。
+Each CLI call is limited to 30 seconds and separate 1 MiB stdout/stderr limits. Timeout, excess output, or a disconnected request triggers TERM, then KILL after one second if closure has not occurred. Clean the owned root only after observing direct-child termination and stream closure. Restore write permissions on engine-installed read-only directories only inside that root. If closure cannot be confirmed, fail with `residualRoot` and preserve it. The service does not promise whole-process-tree isolation or authenticate a person within the same OS account.
 
-HTTP 的 Host 必须等于打印的 `127.0.0.1:port`，POST 的 Origin 必须精确等于该来源并携带本次会话 token。标题、说明、路径和错误以文本显示，Markdown 不渲染 HTML。不能解析或不能由表单表示的文档保留原字节，并拒绝相应编辑。
+Host must equal the printed `127.0.0.1:port`; POST Origin must match exactly and carry the session token. Titles, instructions, paths, and errors are text. Markdown does not render HTML. Unparseable/unrepresentable documents retain original bytes and refuse the corresponding edits.
 
-## 检查与接口
+## Checks and interfaces
 
-在工具目录运行，二进制必须是本次已核验产物，不能用缺失环境变量跳过真实测试：
+Run from the tool directory using this verified build; missing engine variables must fail rather than skip real tests:
 
 ```bash
 cd tools/workbook-editor
 SHELTIE_EDITOR_ENGINE=/absolute/path/sheltie npm test
+SHELTIE_EDITOR_ENGINE=/absolute/path/sheltie node scripts/smoke.mjs
 ```
 
-测试包括独立文件/模型期望、真实样例与未知字段 CLI 拒绝、真实 HTTP 拒绝矩阵、完整 ZIP 同字节解压后 add/show/verify，以及直接 child 超时、输出和取消边界。HTTP 测试需要允许本地监听；沙箱拒绝必须保留原文后取得限定权限，不能记为产品通过。
+Tests cover independent file/model expectations, real examples, unknown-field CLI refusal, real HTTP rejection matrices, complete ZIP byte equality after extraction and add/show/verify, and direct-child timeout/output/cancellation boundaries. HTTP tests require local listening permission. Preserve sandbox denials verbatim and obtain scoped permission; denial is not product PASS.
 
-固定接口：`GET /api/session` 获取页面会话 token；`GET /api/sample/code-change` 或 `GET /api/sample/spec-dev` 读取固定样例；`POST /api/check` 返回 CLI 原始结构结果；`POST /api/export` 在重验成功后返回 `application/zip`。POST 使用 `Content-Type: application/json` 和 `X-Editor-Token`，正文为逐项数组。静态资源使用固定白名单；没有任意宿主路径接口。
+Fixed interfaces: `GET /api/session` returns the page token; `GET /api/sample/code-change` and `/api/sample/spec-dev` read fixed samples; `POST /api/check` returns original CLI structural results; `POST /api/export` returns `application/zip` only after successful revalidation. POST uses `Content-Type: application/json`, `X-Editor-Token`, and an entry-array body. Static resources have a fixed allowlist, with no arbitrary host-path interface.
 
-`smol-toml` 1.7.1 与 `fflate` 0.8.2 固定在 package-lock。工具不进入 Cargo 或 dist 发布。独立内容 review、实际浏览器操作和真人接受由协调者分别记录，`npm test` 不代替这些结果。
+`smol-toml` 1.7.1 and `fflate` 0.8.2 are pinned in package-lock. The tool is outside Cargo/dist releases. Independent content review, browser operation, and human acceptance are separate results; npm test does not replace them.

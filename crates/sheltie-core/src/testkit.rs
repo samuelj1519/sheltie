@@ -1,8 +1,8 @@
-//! 测试支持：固定图、固定状态、固定时钟、内存里的假文件系统。
-//! runtime 与 cli 的测试通过 `testkit` feature 使用。
+//! Test support: fixed graphs, state, clock, and an in-memory filesystem.
+//! Runtime and CLI tests use the `testkit` feature.
 //!
-//! `Fixture` 把「一个 Work 的状态 + 图 + 假文件」捆在一起，提供与 CLI 同名的动作。
-//! 它调用真实的 `decide`，被测的就是生产路径本身。
+//! `Fixture` bundles Work state, graph, and fake files, exposing actions with CLI names.
+//! Calls the real `decide`, exercising the production path.
 
 use std::collections::BTreeMap;
 
@@ -30,7 +30,7 @@ pub const GATED_RELEASE_FLOW: &str =
 pub const SPEC_DEV_MANIFEST: &str = include_str!("../../../workbooks/spec-dev/workbook.toml");
 pub const SPEC_DEV_FLOW: &str = include_str!("../../../workbooks/spec-dev/flows/default.toml");
 
-/// 每份样例目录里的文本文件（相对路径，内容）。用于假文件系统与 `ResourceIndex`。
+/// Example-directory text files (relative path, content), for the fake filesystem and `ResourceIndex`.
 pub fn example_files(name: &str) -> Vec<(&'static str, &'static str)> {
     match name {
         "two-step" => vec![
@@ -177,11 +177,11 @@ pub fn example_files(name: &str) -> Vec<(&'static str, &'static str)> {
                 include_str!("../../../workbooks/spec-dev/resources/checklists/retro-rules.md"),
             ),
         ],
-        other => panic!("没有叫 {other} 的样例"),
+        other => panic!("No example named {other}"),
     }
 }
 
-/// 用样例文件建 `ResourceIndex`。
+/// Build a `ResourceIndex` from example files.
 pub fn resources_of(name: &str) -> ResourceIndex {
     let mut idx = ResourceIndex::default();
     for (path, content) in example_files(name) {
@@ -191,16 +191,18 @@ pub fn resources_of(name: &str) -> ResourceIndex {
 }
 
 pub fn article_review_manifest() -> Manifest {
-    parse_manifest(ARTICLE_REVIEW_MANIFEST).unwrap_or_else(|e| panic!("样例 manifest 应合法：{e}"))
+    parse_manifest(ARTICLE_REVIEW_MANIFEST)
+        .unwrap_or_else(|e| panic!("Example manifest should be valid: {e}"))
 }
 
 pub fn article_review_resources() -> ResourceIndex {
     resources_of("article-review")
 }
 
-/// 固定时钟：所有测试里的「现在」。
+/// Fixed clock: the current time for every test.
 pub fn now() -> Timestamp {
-    Timestamp::parse("2026-09-24T03:00:00Z").unwrap_or_else(|e| panic!("固定时钟应合法：{e}"))
+    Timestamp::parse("2026-09-24T03:00:00Z")
+        .unwrap_or_else(|e| panic!("Fixed clock should be valid: {e}"))
 }
 
 pub fn principal() -> Principal {
@@ -221,10 +223,10 @@ pub fn occ(node: &str, n: u32) -> crate::work::Occurrence {
     }
 }
 
-/// 测试根目录。core 不碰真实文件系统，这只是个字符串前缀。
+/// Test root: core does not access the real filesystem; this is only a string prefix.
 pub const TEST_ROOT: &str = "/tmp/sheltie-test";
 
-/// proptest 用：`n` 个节点 `n0..n{n-1}`，边按下标对给出（越界下标指向不存在的节点，用于触发规则 2）。
+/// proptest: `n` nodes `n0..n{n-1}`, with edges as index pairs; out-of-range indices trigger rule 2.
 pub fn random_flow(n: usize, edges: &[(usize, usize)]) -> crate::flow::FlowDef {
     let mut text = String::from("schema = \"flow/v1\"\nid = \"rand\"\nentry = \"n0\"\n");
     for i in 0..n {
@@ -237,22 +239,22 @@ pub fn random_flow(n: usize, edges: &[(usize, usize)]) -> crate::flow::FlowDef {
             "[[edges]]\nfrom = \"n{from}\"\nto = \"n{to}\"\nkind = \"main\"\n"
         ));
     }
-    parse_flow(&text).unwrap_or_else(|e| panic!("随机 Flow 应能解析：{e}"))
+    parse_flow(&text).unwrap_or_else(|e| panic!("Generated Flow should parse: {e}"))
 }
 
-/// 一个 Work 的完整测试夹具。
+/// Complete fixture for one Work.
 pub struct Fixture {
     pub graph: Graph,
     pub manifest: Manifest,
     pub instructions: BTreeMap<NodeId, String>,
     state: Option<WorkState>,
-    /// 假文件系统：绝对路径 → 字节。
+    /// Fake filesystem: absolute path to bytes.
     files: BTreeMap<AbsPath, Vec<u8>>,
     work_dir: AbsPath,
 }
 
 impl Fixture {
-    /// 从真实声明与内存文件构造夹具；仍经 parse、compile 与真实 decide。
+    /// Construct from real declarations and in-memory files, retaining parse, compile, and real decide.
     pub fn from_texts(manifest_text: &str, flow_text: &str, files: &[(&str, &str)]) -> Self {
         let manifest = parse_manifest(manifest_text).unwrap_or_else(|e| panic!("manifest：{e}"));
         let def = parse_flow(flow_text).unwrap_or_else(|e| panic!("flow：{e}"));
@@ -291,7 +293,7 @@ impl Fixture {
         }
     }
 
-    /// 用内嵌的样例文件构造夹具，不读取文件系统。
+    /// Construct from embedded examples without filesystem access.
     pub fn from_example(name: &str) -> Self {
         let files = example_files(name);
         let manifest = files
@@ -323,7 +325,7 @@ impl Fixture {
         Self::from_example("spec-dev")
     }
 
-    /// article-review，但 `review.max_visits = 1`。
+    /// article-review with `review.max_visits = 1`.
     pub fn article_review_with_review_max_visits_1() -> Self {
         let files = example_files("article-review");
         let flow = ARTICLE_REVIEW_FLOW.replacen(
@@ -336,17 +338,17 @@ impl Fixture {
 
     fn single_node(manifest_extra: &str, node_extra: &str) -> Self {
         let manifest = format!(
-            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"单节点\"\nflows = [\"flows/default.toml\"]\n{manifest_extra}"
+            "schema = \"workbook/v1\"\nid = \"single\"\nversion = \"1.0.0\"\nname = \"Single node\"\nflows = [\"flows/default.toml\"]\n{manifest_extra}"
         );
         let flow = format!(
-            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"唯一\"\nexecutor = \"agent\"\ninstruction = {{ text = \"做这一件事。\" }}\n{node_extra}\n"
+            "schema = \"flow/v1\"\nid = \"default\"\nentry = \"only\"\n\n[[nodes]]\nid = \"only\"\ntitle = \"Only node\"\nexecutor = \"agent\"\ninstruction = {{ text = \"Do this task.\" }}\n{node_extra}\n"
         );
         let mut fx = Self::from_texts(&manifest, &flow, &[]);
         fx.start(&[]).unwrap_or_else(|e| panic!("{e}"));
         fx
     }
 
-    /// 单节点，声明 `requires = ["skill:company-api"]`，manifest 有对应声明。已 start。
+    /// Started single node with skill:company-api and a matching manifest declaration.
     pub fn with_requires() -> Self {
         Self::single_node(
             "[[requires]]\nkind = \"skill\"\nname = \"company-api\"\n",
@@ -354,7 +356,7 @@ impl Fixture {
         )
     }
 
-    /// 单节点，输出 `must`（必需）与 `maybe`（可选）。已 start。
+    /// Started single node with required must and optional maybe outputs.
     pub fn with_optional_output() -> Self {
         Self::single_node(
             "",
@@ -362,7 +364,7 @@ impl Fixture {
         )
     }
 
-    /// 单节点、`gate = true`、无出边。已 start。
+    /// Started single gated terminal node without outgoing edges.
     pub fn single_gated_terminal() -> Self {
         Self::single_node(
             "",
@@ -370,7 +372,7 @@ impl Fixture {
         )
     }
 
-    /// 单节点，输入 `stats` 来自 `engine.stats`。已 start。
+    /// Started single node with input stats from engine.stats.
     pub fn with_engine_stats_input() -> Self {
         Self::single_node(
             "",
@@ -378,10 +380,10 @@ impl Fixture {
         )
     }
 
-    /// `first -> second`（main）、`first -> side`（branch）、`side -> second`（main）；
-    /// `second` 必需输入 `side.out`。已 start 并完成 `first`，此时 `begin("second")` 应报 `INPUT_UNAVAILABLE`。
+    /// `first -> second` (main), `first -> side` (branch), `side -> second` (main);
+    /// second requires side.out; started with first completed, so begin("second") must report INPUT_UNAVAILABLE.
     pub fn two_step_with_required_input_but_edge_before_success() -> Self {
-        let manifest = "schema = \"workbook/v1\"\nid = \"diamond\"\nversion = \"1.0.0\"\nname = \"菱形\"\nflows = [\"flows/default.toml\"]\n";
+        let manifest = "schema = \"workbook/v1\"\nid = \"diamond\"\nversion = \"1.0.0\"\nname = \"Diamond\"\nflows = [\"flows/default.toml\"]\n";
         let flow = r#"
 schema = "flow/v1"
 id = "default"
@@ -389,23 +391,23 @@ entry = "first"
 
 [[nodes]]
 id = "first"
-title = "一"
+title = "First"
 executor = "agent"
-instruction = { text = "做一。" }
+instruction = { text = "Do the first task." }
 outputs = [{ name = "out", path = "out.md" }]
 
 [[nodes]]
 id = "side"
-title = "旁"
+title = "Side"
 executor = "agent"
-instruction = { text = "做旁。" }
+instruction = { text = "Do the side task." }
 outputs = [{ name = "out", path = "out.md" }]
 
 [[nodes]]
 id = "second"
-title = "二"
+title = "Second"
 executor = "agent"
-instruction = { text = "做二。" }
+instruction = { text = "Do the second task." }
 inputs = [{ name = "side_out", from = "side.out" }]
 outputs = [{ name = "out", path = "out.md" }]
 
@@ -432,9 +434,9 @@ kind = "main"
         fx
     }
 
-    // ── 动作 ─────────────────────────────────────────────────
+    // ── Actions ─────────────────────────────────────────────────
 
-    /// article-review 默认起始输入 `topic = "hello"`。
+    /// article-review default start input: `topic = "hello"`.
     pub fn started(self) -> Self {
         self.started_with(&[("topic", "hello")])
     }
@@ -445,7 +447,9 @@ kind = "main"
     }
 
     pub fn state(&self) -> &WorkState {
-        self.state.as_ref().unwrap_or_else(|| panic!("还没 start"))
+        self.state
+            .as_ref()
+            .unwrap_or_else(|| panic!("Not started yet"))
     }
 
     fn apply(&mut self, cmd: Command) -> Result<Decision> {
@@ -505,7 +509,7 @@ kind = "main"
         })
     }
 
-    /// 写出全部声明输出（每个 10 字节），然后提交。
+    /// Write all declared outputs, ten bytes each, then submit.
     pub fn submit_ok(&mut self, attempt: &str, summary: &str) -> Result<Decision> {
         let id = AttemptId::parse(attempt)?;
         let names: Vec<String> = output_paths_for(self.state(), &self.graph, &id)?
@@ -515,7 +519,7 @@ kind = "main"
         self.submit_with(&id, summary, &spec)
     }
 
-    /// 只写出给定的输出（名字，字节数），其余视为缺失，然后提交。
+    /// Write only the specified outputs (name, byte length); treat others as missing, then submit.
     pub fn submit_with(
         &mut self,
         attempt: &AttemptId,
@@ -580,7 +584,7 @@ kind = "main"
         self.apply(Command::Cancel)
     }
 
-    /// 改掉某个已提交输出的字节，模拟有人动了产物。
+    /// Change a submitted output's bytes to simulate artifact tampering.
     pub fn tamper_output(&mut self, attempt: &str, output: &str) {
         let id = AttemptId::parse(attempt).unwrap_or_else(|e| panic!("{e}"));
         let path = self
@@ -588,37 +592,37 @@ kind = "main"
             .attempt(&id)
             .and_then(|a| a.outputs.get(output))
             .map(|r| r.path.clone())
-            .unwrap_or_else(|| panic!("{attempt} 没有输出 {output}"));
+            .unwrap_or_else(|| panic!("{attempt} has no output {output}"));
         self.files.insert(path, b"tampered".to_vec());
     }
 
-    /// article-review：跑到 review 成功、结论不通过。
-    /// 当前是 draft 且无 Attempt 时先做完 draft；draft 已成功（上一轮回来了）则直接进 review。
+    /// article-review: run until review succeeds with a negative conclusion.
+    /// Complete draft if no Attempt exists; if draft already succeeded after the previous loop, begin review directly.
     pub fn run_to_review_done_not_passing(&mut self) {
         if self.state().latest_attempt_of_current().is_none() {
             let draft_n = self
                 .state()
                 .visits_of(&NodeId::new("draft").unwrap_or_else(|e| panic!("{e}")));
             self.begin("draft").unwrap_or_else(|e| panic!("{e}"));
-            self.submit_ok(&format!("draft#{draft_n}.0"), "初稿")
+            self.submit_ok(&format!("draft#{draft_n}.0"), "Draft")
                 .unwrap_or_else(|e| panic!("{e}"));
         }
         self.begin("review").unwrap_or_else(|e| panic!("{e}"));
         let review_n = self.state().current.n;
         self.submit_ok(
             &format!("review#{review_n}.0"),
-            "不通过。第二段论据不足，见 review.md 第 12 行。",
+            "Rejected. Paragraph two lacks evidence; see review.md line 12.",
         )
         .unwrap_or_else(|e| panic!("{e}"));
     }
 
-    /// spec-dev：spec → plan → plan-review，人审结论为 `word`。
+    /// spec-dev: spec -> plan -> plan-review, with human decision `word`.
     pub fn run_spec_dev_to_plan_review_returning(&mut self, word: &str) {
         self.begin("spec").unwrap_or_else(|e| panic!("{e}"));
-        self.submit_ok("spec#1.0", "规格好了")
+        self.submit_ok("spec#1.0", "Specification ready")
             .unwrap_or_else(|e| panic!("{e}"));
         self.begin("plan").unwrap_or_else(|e| panic!("{e}"));
-        self.submit_ok("plan#1.0", "方案好了")
+        self.submit_ok("plan#1.0", "Plan ready")
             .unwrap_or_else(|e| panic!("{e}"));
         self.begin("plan-review").unwrap_or_else(|e| panic!("{e}"));
         self.submit_ok("plan-review#1.0", word)

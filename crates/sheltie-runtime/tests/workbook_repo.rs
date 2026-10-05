@@ -1,4 +1,4 @@
-//! T14、T15：Workbook 仓库。
+//! T14/T15: Workbook repository.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod common;
@@ -28,10 +28,10 @@ fn add_two_step_example_copies_and_marks_readonly() {
             added.data["id"].as_str().unwrap(),
             added.data["version"].as_str().unwrap()
         ),
-        ("two-step", "1.0.0")
+        ("two-step", "1.0.1")
     );
     let dir =
-        std::path::PathBuf::from(home.workbook_dir("two-step", "1.0.0").as_str()).to_path_buf();
+        std::path::PathBuf::from(home.workbook_dir("two-step", "1.0.1").as_str()).to_path_buf();
     assert!(dir.join("workbook.toml").exists());
     assert!(dir.join("instructions/outline.md").exists());
     assert!(is_readonly(&dir.join("workbook.toml")));
@@ -60,7 +60,7 @@ fn add_rejects_symlink_inside_workbook() {
     let src = copy_example("two-step", d.path());
     std::os::unix::fs::symlink("/etc/hosts", src.join("instructions/evil.md")).unwrap();
     assert!(repo(&home).add(&abs(&src), None).is_err());
-    assert!(!std::path::PathBuf::from(home.workbook_dir("two-step", "1.0.0").as_str()).exists());
+    assert!(!std::path::PathBuf::from(home.workbook_dir("two-step", "1.0.1").as_str()).exists());
 }
 
 // Task: T14
@@ -98,10 +98,14 @@ fn add_failure_leaves_no_staging_and_no_row() {
     assert!(repo.add(&abs(&src), None).is_err());
     let staging = std::path::PathBuf::from(home.workbooks_dir().join_segment(".staging").as_str());
     assert!(!staging.exists() || std::fs::read_dir(staging).unwrap().next().is_none());
-    assert_eq!(repo.list().unwrap().len(), before_rows, "失败不得插入新行");
+    assert_eq!(
+        repo.list().unwrap().len(),
+        before_rows,
+        "Failure must not insert new rows"
+    );
 }
 
-// T31按GF-17/GF-30替换T24的内容错误不建库断言；原始T24证据保留。
+// T31 replaces T24's no-storage-on-content-error assertion under GF-17/GF-30; preserve original T24 evidence.
 // Task: C002-T31
 #[test]
 fn invalid_source_structure_on_new_home_does_not_create_store_or_lock() {
@@ -141,7 +145,7 @@ fn invalid_private_copy_has_no_business_rows_and_the_same_request_can_retry() {
             "{table}"
         );
     }
-    assert!(!home.workbook_dir("two-step", "1.0.0").as_path().exists());
+    assert!(!home.workbook_dir("two-step", "1.0.1").as_path().exists());
     std::fs::write(source.join("workbook.toml"), manifest).unwrap();
     let added = repository.add(&abs(&source), Some(request.into())).unwrap();
     assert_eq!(added.data["id"], "two-step");
@@ -173,22 +177,22 @@ fn add_rejects_hard_link_inside_workbook() {
     assert!(repo(&home).add(&abs(&src), None).is_err());
 }
 
-/// 一个最小的合法 Workbook，用来凑文件大小边界。
+/// Minimal valid Workbook for file-size boundaries.
 fn write_minimal_workbook(dir: &Path) {
     std::fs::create_dir_all(dir.join("flows")).unwrap();
     std::fs::write(
         dir.join("workbook.toml"),
-        "schema = \"workbook/v1\"\nid = \"big\"\nversion = \"1.0.0\"\nname = \"大小边界\"\ndescription = \"凑上限用。\"\nflows = [\"flows/default.toml\"]\n",
+        "schema = \"workbook/v1\"\nid = \"big\"\nversion = \"1.0.0\"\nname = \"Size boundary\"\ndescription = \"Used to reach exact limits.\"\nflows = [\"flows/default.toml\"]\n",
     )
     .unwrap();
     std::fs::write(
         dir.join("flows/default.toml"),
-        "schema = \"flow/v1\"\nid = \"default\"\nentry = \"a\"\n\n[[nodes]]\nid = \"a\"\ntitle = \"甲\"\nexecutor = \"agent\"\ninstruction = { text = \"做。\" }\noutputs = [{ name = \"x\", path = \"x.md\", max_bytes = 65536 }]\n",
+        "schema = \"flow/v1\"\nid = \"default\"\nentry = \"a\"\n\n[[nodes]]\nid = \"a\"\ntitle = \"Task A\"\nexecutor = \"agent\"\ninstruction = { text = \"Do the task.\" }\noutputs = [{ name = \"x\", path = \"x.md\", max_bytes = 65536 }]\n",
     )
     .unwrap();
 }
 
-/// 目录现有小文件的总字节数（只算普通文件，与 `copy_confined` 的口径一致）。
+/// Total bytes of existing small regular files, matching copy_confined's definition.
 fn small_files_bytes(dir: &Path) -> u64 {
     walk(dir)
         .iter()
@@ -220,7 +224,7 @@ fn write_limit_tree(dir: &Path, extra: u64) {
 // Task: T14
 #[test]
 fn add_accepts_files_at_exact_limits() {
-    // 7 个恰好 32 MiB 的文件加一个凑数文件，总量恰好 256 MiB：两个上限都顶到且接受。
+    // Seven 32 MiB files plus padding reach exactly 256 MiB, accepting both exact limits.
     let (d, home) = temp_home();
     let src = d.path().join("big");
     write_limit_tree(&src, 0);
@@ -230,12 +234,12 @@ fn add_accepts_files_at_exact_limits() {
 // Task: T14
 #[test]
 fn add_rejects_when_total_over_256mib() {
-    // 总量上限多 1 字节。
+    // One byte above the total limit.
     let (d, home) = temp_home();
     let src = d.path().join("big");
     write_limit_tree(&src, 1);
     assert!(
-        matches!(repo(&home).add(&abs(&src), None), Err(Error::InvalidRequest { reason }) if reason.contains("总量"))
+        matches!(repo(&home).add(&abs(&src), None), Err(Error::InvalidRequest { reason }) if reason.contains("total"))
     );
 }
 
@@ -252,7 +256,7 @@ fn total_limit_rejects_before_staging_or_registering_source_files() {
     let repo = repo(&home);
     let result = repo.add(&abs(&src), None);
     std::fs::set_permissions(&unreadable, std::fs::Permissions::from_mode(0o600)).unwrap();
-    assert!(matches!(result, Err(Error::InvalidRequest { reason }) if reason.contains("总量")));
+    assert!(matches!(result, Err(Error::InvalidRequest { reason }) if reason.contains("total")));
     assert!(!home.store_path().as_path().exists());
     assert!(!home.lock_path().as_path().exists());
     assert!(!home.pending_dir().as_path().exists());
@@ -267,15 +271,15 @@ fn load_with_explicit_version_picks_that_version() {
     let src = copy_example("two-step", d.path());
     let m = std::fs::read_to_string(src.join("workbook.toml"))
         .unwrap()
-        .replace("1.0.0", "1.1.0");
+        .replace("1.0.1", "1.1.0");
     std::fs::write(src.join("workbook.toml"), m).unwrap();
     r.add(&abs(&src), None).unwrap();
     assert_eq!(
-        r.load("two-step", Some("1.0.0"))
+        r.load("two-step", Some("1.0.1"))
             .unwrap()
             .manifest
             .version(),
-        "1.0.0"
+        "1.0.1"
     );
     assert_eq!(
         r.load("two-step", None).unwrap().manifest.version(),
@@ -304,7 +308,7 @@ fn list_orders_by_id_then_version() {
     let src = copy_example("two-step", d.path());
     let m = std::fs::read_to_string(src.join("workbook.toml"))
         .unwrap()
-        .replace("1.0.0", "1.1.0");
+        .replace("1.0.1", "1.1.0");
     std::fs::write(src.join("workbook.toml"), m).unwrap();
     r.add(&abs(&src), None).unwrap();
     r.add(&abs(&example_dir("article-review")), None).unwrap();
@@ -317,8 +321,8 @@ fn list_orders_by_id_then_version() {
     assert_eq!(
         rows,
         vec![
-            ("article-review".into(), "1.0.0".into()),
-            ("two-step".into(), "1.0.0".into()),
+            ("article-review".into(), "1.0.1".into()),
+            ("two-step".into(), "1.0.1".into()),
             ("two-step".into(), "1.1.0".into())
         ]
     );
@@ -332,9 +336,9 @@ fn remove_deletes_row_and_directory() {
     let (_d, home) = temp_home();
     let r = repo(&home);
     r.add(&abs(&example_dir("two-step")), None).unwrap();
-    r.remove("two-step", "1.0.0", None).unwrap();
+    r.remove("two-step", "1.0.1", None).unwrap();
     assert!(r.list().unwrap().is_empty());
-    assert!(!std::path::PathBuf::from(home.workbook_dir("two-step", "1.0.0").as_str()).exists());
+    assert!(!std::path::PathBuf::from(home.workbook_dir("two-step", "1.0.1").as_str()).exists());
 }
 
 // Task: T15
@@ -371,10 +375,10 @@ fn remove_stops_on_corrupt_row_even_when_redundant_status_looks_terminal() {
         ],
     )
     .unwrap();
-    let error = repo.remove("two-step", "1.0.0", None).unwrap_err();
+    let error = repo.remove("two-step", "1.0.1", None).unwrap_err();
     assert!(matches!(&error, Error::StoreCorrupt { .. }), "{error}");
     assert_eq!(repo.list().unwrap().len(), 1);
-    assert!(std::path::Path::new(home.workbook_dir("two-step", "1.0.0").as_str()).exists());
+    assert!(std::path::Path::new(home.workbook_dir("two-step", "1.0.1").as_str()).exists());
 }
 
 // Task: T15
@@ -383,18 +387,18 @@ fn remove_allows_when_only_terminal_works_reference_version() {
     let (_d, home, svc) = home_with_example("two-step");
     let resp = start_two_step(&svc);
     svc.cancel(&work_id_of(&resp), None).unwrap();
-    repo(&home).remove("two-step", "1.0.0", None).unwrap();
+    repo(&home).remove("two-step", "1.0.1", None).unwrap();
 }
 
 // Task: T15
 #[test]
 fn remove_allows_when_other_workbook_shares_version() {
-    // 活跃 Work 引用 two-step@1.0.0；同号的 article-review@1.0.0 不受牵连。
+    // An active Work references two-step@1.0.1; same-version article-review@1.0.1 is unaffected.
     let (_d, home, svc) = home_with_example("two-step");
     let r = repo(&home);
     r.add(&abs(&example_dir("article-review")), None).unwrap();
     let _ = start_two_step(&svc);
-    r.remove("article-review", "1.0.0", None).unwrap();
+    r.remove("article-review", "1.0.1", None).unwrap();
     assert!(matches!(
         r.load("article-review", None),
         Err(Error::NotFound { .. })
@@ -407,7 +411,7 @@ fn verify_reports_ok_for_untouched_install() {
     let (_d, home) = temp_home();
     let r = repo(&home);
     r.add(&abs(&example_dir("two-step")), None).unwrap();
-    let rows = r.verify(Some(("two-step", "1.0.0"))).unwrap();
+    let rows = r.verify(Some(("two-step", "1.0.1"))).unwrap();
     assert_eq!(rows.len(), 1);
     assert_eq!(rows[0].status, VerifyStatus::Ok);
 }
@@ -418,11 +422,11 @@ fn verify_reports_missing_when_directory_gone() {
     let (_d, home) = temp_home();
     let r = repo(&home);
     r.add(&abs(&example_dir("two-step")), None).unwrap();
-    let dir = std::path::PathBuf::from(home.workbook_dir("two-step", "1.0.0").as_str());
-    // T04 起整棵含根置只读（0555）；删除前把根本身也放开。
+    let dir = std::path::PathBuf::from(home.workbook_dir("two-step", "1.0.1").as_str());
+    // Since T04, the entire tree/root is read-only (0555); relax root permissions before deletion too.
     std::fs::set_permissions(&dir, std::os::unix::fs::PermissionsExt::from_mode(0o755)).unwrap();
     for entry in walk(&dir) {
-        // 目录保留可遍历的 0755（同本文件 `make_writable` 的约定），否则 remove_dir_all 进不了子目录。
+        // Keep directories traversable at 0755, matching make_writable, so remove_dir_all can enter subdirectories.
         let mode = if entry.is_dir() { 0o755 } else { 0o644 };
         std::fs::set_permissions(&entry, std::os::unix::fs::PermissionsExt::from_mode(mode))
             .unwrap();
@@ -448,7 +452,7 @@ fn corrupted_workbook_row_path_is_rejected_before_verify_or_remove_io() {
 
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     conn.execute(
-        "UPDATE workbooks SET dir = ?1 WHERE id = 'two-step' AND version = '1.0.0'",
+        "UPDATE workbooks SET dir = ?1 WHERE id = 'two-step' AND version = '1.0.1'",
         [outside.path().to_string_lossy().as_ref()],
     )
     .unwrap();
@@ -456,14 +460,14 @@ fn corrupted_workbook_row_path_is_rejected_before_verify_or_remove_io() {
 
     assert_eq!(
         workbooks
-            .verify(Some(("two-step", "1.0.0")))
+            .verify(Some(("two-step", "1.0.1")))
             .unwrap_err()
             .code(),
         sheltie_core::ErrorCode::StoreCorrupt
     );
     assert_eq!(
         workbooks
-            .remove("two-step", "1.0.0", Some("remove-corrupt-row".to_string()))
+            .remove("two-step", "1.0.1", Some("remove-corrupt-row".to_string()))
             .unwrap_err()
             .code(),
         sheltie_core::ErrorCode::StoreCorrupt
@@ -483,7 +487,7 @@ fn workbook_row_version_must_be_one_manifest_compatible_path_segment() {
     workbooks.add(&abs(&example_dir("two-step")), None).unwrap();
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     conn.execute(
-        "UPDATE workbooks SET version = '1.0.0/nested', dir = 'workbooks/two-step/1.0.0/nested' WHERE id = 'two-step' AND version = '1.0.0'",
+        "UPDATE workbooks SET version = '1.0.1/nested', dir = 'workbooks/two-step/1.0.1/nested' WHERE id = 'two-step' AND version = '1.0.1'",
         [],
     )
     .unwrap();
@@ -501,7 +505,7 @@ fn empty_remove_digest_blocks_later_workbook_write() {
     workbooks.add(&abs(&example_dir("two-step")), None).unwrap();
     let request_id = "remove-before-corruption";
     workbooks
-        .remove("two-step", "1.0.0", Some(request_id.to_string()))
+        .remove("two-step", "1.0.1", Some(request_id.to_string()))
         .unwrap();
 
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
@@ -585,12 +589,12 @@ fn workbook_publish_requires_digest_root_before_recovery_io() {
     let err = workbooks
         .remove(
             "two-step",
-            "1.0.0",
+            "1.0.1",
             Some("remove-after-missing-field".to_string()),
         )
         .unwrap_err();
     assert_effect_pending(err, false, None, Some(request_id));
-    assert!(home.workbook_dir("two-step", "1.0.0").as_path().is_dir());
+    assert!(home.workbook_dir("two-step", "1.0.1").as_path().is_dir());
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     assert_eq!(
         conn.query_row(
@@ -633,7 +637,7 @@ fn malformed_historical_workbook_snapshot_is_not_projected_as_success() {
         .add(&abs(&example_dir("two-step")), Some(request_id.to_string()))
         .unwrap_err();
     assert_effect_pending_without_original(error, true, request_id, None);
-    assert!(home.workbook_dir("two-step", "1.0.0").as_path().is_dir());
+    assert!(home.workbook_dir("two-step", "1.0.1").as_path().is_dir());
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     let reply: String = conn
         .query_row(
@@ -677,12 +681,12 @@ fn unpublished_workbook_add_requires_its_owner_sidecar() {
     let err = workbooks
         .remove(
             "two-step",
-            "1.0.0",
+            "1.0.1",
             Some("remove-without-owner".to_string()),
         )
         .unwrap_err();
     assert_effect_pending(err, false, None, Some(request_id));
-    assert!(home.workbook_dir("two-step", "1.0.0").as_path().is_dir());
+    assert!(home.workbook_dir("two-step", "1.0.1").as_path().is_dir());
     let conn = rusqlite::Connection::open(home.store_path().as_str()).unwrap();
     assert_eq!(
         conn.query_row(
@@ -775,14 +779,14 @@ fn removing_an_unrelated_workbook_preserves_the_registered_neighbor() {
         .add(&abs(&second), Some("neighbor-b".into()))
         .unwrap();
     repository
-        .remove("other-step", "1.0.0", Some("remove-neighbor-b".into()))
+        .remove("other-step", "1.0.1", Some("remove-neighbor-b".into()))
         .unwrap();
     let rows = repository.list().unwrap();
     assert_eq!(rows.len(), 1);
     assert_eq!(rows[0].id, "two-step");
     assert_eq!(
         repository
-            .load("two-step", Some("1.0.0"))
+            .load("two-step", Some("1.0.1"))
             .unwrap()
             .manifest
             .id()
@@ -790,7 +794,7 @@ fn removing_an_unrelated_workbook_preserves_the_registered_neighbor() {
         "two-step"
     );
     assert_eq!(
-        repository.verify(Some(("two-step", "1.0.0"))).unwrap()[0].status,
+        repository.verify(Some(("two-step", "1.0.1"))).unwrap()[0].status,
         VerifyStatus::Ok
     );
 }
@@ -803,11 +807,11 @@ fn missing_installed_manifest_is_tampered_instead_of_a_missing_workbook() {
     repository
         .add(&abs(&example_dir("two-step")), None)
         .unwrap();
-    let installed = home.workbook_dir("two-step", "1.0.0");
+    let installed = home.workbook_dir("two-step", "1.0.1");
     use std::os::unix::fs::PermissionsExt as _;
     std::fs::set_permissions(installed.as_path(), std::fs::Permissions::from_mode(0o755)).unwrap();
     std::fs::remove_file(installed.as_path().join("workbook.toml")).unwrap();
-    let rows = repository.verify(Some(("two-step", "1.0.0"))).unwrap();
+    let rows = repository.verify(Some(("two-step", "1.0.1"))).unwrap();
     assert_eq!(rows.len(), 1);
     assert_eq!(rows[0].status, VerifyStatus::Tampered);
     assert_eq!(rows[0].id, "two-step");

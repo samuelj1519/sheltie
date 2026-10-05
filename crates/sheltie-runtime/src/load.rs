@@ -24,7 +24,7 @@ pub(crate) fn refresh_status_cards(
     for op in effects.as_slice() {
         if let crate::effects::EffectOp::RefreshStatusCard { work_id } = op {
             let id = WorkId::parse(work_id).map_err(|error| Error::StoreCorrupt {
-                detail: format!("效果里的 work_id {work_id} 不合法：{error}"),
+                detail: format!("Effect work_id {work_id} is invalid: {error}"),
             })?;
             let (state, graph) = load_work(&id)?;
             let card = sheltie_core::work::render_status_card(&state, &graph);
@@ -46,7 +46,7 @@ pub(crate) fn validate_work_root(home: &Home, state: &WorkState) -> Result<AbsPa
         return Err(corrupt(
             &state.work_id,
             format!(
-                "state_json.work_dir 是 {}，期望 {}",
+                "state_json.work_dir is {}; expected {}",
                 state.work_dir, expected
             ),
         ));
@@ -55,14 +55,19 @@ pub(crate) fn validate_work_root(home: &Home, state: &WorkState) -> Result<AbsPa
     if !valid_workbook_version(&state.workbook.version) {
         return Err(corrupt(
             &state.work_id,
-            "state_json.workbook.version不是合法单路径段".to_string(),
+            "state_json.workbook.version is not a valid single path segment".to_string(),
         ));
     }
     ManagedRelPath::new(format!(
         "workbooks/{}/{}",
         state.workbook.id, state.workbook.version
     ))
-    .map_err(|error| corrupt(&state.work_id, format!("workbook身份路径无效：{error}")))?;
+    .map_err(|error| {
+        corrupt(
+            &state.work_id,
+            format!("Invalid workbook identity path: {error}"),
+        )
+    })?;
     Ok(expected)
 }
 
@@ -88,7 +93,7 @@ pub(crate) fn validate_work_paths(
         let node = graph.node(&attempt.id.node).ok_or_else(|| {
             corrupt(
                 &state.work_id,
-                format!("state_json.attempts[{index}].id.node 不在冻结图中"),
+                format!("state_json.attempts[{index}].id.node is absent from the frozen graph"),
             )
         })?;
         let attempt_dir = state.attempt_dir(&attempt.id);
@@ -102,7 +107,7 @@ pub(crate) fn validate_work_paths(
             let expected = declared_outputs.get(name).ok_or_else(|| {
                 corrupt(
                     &state.work_id,
-                    format!("state_json.attempts[{index}].outputs.{name} 未在冻结图声明"),
+                    format!("state_json.attempts[{index}].outputs.{name} is not declared in the frozen graph"),
                 )
             })?;
             require_path(
@@ -123,13 +128,15 @@ pub(crate) fn validate_work_paths(
         {
             return Err(corrupt(
                 &state.work_id,
-                format!("attempts[{index}].entered_from 未继承被替换Attempt的进入来源",),
+                format!(
+                    "attempts[{index}].entered_from did not inherit the replaced Attempt's incoming source",
+                ),
             ));
         }
         if attempt.inputs.len() != node.inputs().len() {
             return Err(corrupt(
                 &state.work_id,
-                format!("state_json.attempts[{index}].inputs 键集合与冻结图不一致"),
+                format!("state_json.attempts[{index}].inputs keys differ from the frozen graph"),
             ));
         }
         for declaration in node.inputs() {
@@ -140,7 +147,7 @@ pub(crate) fn validate_work_paths(
                     corrupt(
                         &state.work_id,
                         format!(
-                            "state_json.attempts[{index}].inputs 缺少 {}",
+                            "state_json.attempts[{index}].inputs is missing {}",
                             declaration.name()
                         ),
                     )
@@ -157,7 +164,7 @@ pub(crate) fn validate_work_paths(
                         return Err(corrupt(
                             &state.work_id,
                             format!(
-                                "attempts[{index}].inputs.{} 未继承被替换Attempt的冻结引用/进入来源",
+                                "attempts[{index}].inputs.{} did not inherit the replaced Attempt's frozen reference/incoming source",
                                 declaration.name(),
                             ),
                         ));
@@ -180,7 +187,7 @@ pub(crate) fn validate_work_paths(
                             corrupt(
                                 &state.work_id,
                                 format!(
-                                    "attempts[{index}].inputs.{} 的冻结资源 {path} 未被观察",
+                                    "attempts[{index}].inputs.{} frozen resource {path} was not observed",
                                     declaration.name(),
                                 ),
                             )
@@ -190,7 +197,7 @@ pub(crate) fn validate_work_paths(
                             return Err(corrupt(
                                 &state.work_id,
                                 format!(
-                                    "attempts[{index}].inputs.{} 的摘要/字节数与冻结资源不一致",
+                                    "attempts[{index}].inputs.{} digest/bytes differ from the frozen resource",
                                     declaration.name(),
                                 ),
                             ));
@@ -199,7 +206,7 @@ pub(crate) fn validate_work_paths(
                         return Err(corrupt(
                             &state.work_id,
                             format!(
-                                "attempts[{index}].inputs.{} 资源引用缺失",
+                                "attempts[{index}].inputs.{} resource reference is missing",
                                 declaration.name()
                             ),
                         ));
@@ -212,7 +219,7 @@ pub(crate) fn validate_work_paths(
                         corrupt(
                             &state.work_id,
                             format!(
-                                "attempts[{index}].inputs.{} 缺少引擎stats",
+                                "attempts[{index}].inputs.{} lacks engine stats",
                                 declaration.name()
                             ),
                         )
@@ -240,7 +247,10 @@ pub(crate) fn validate_work_paths(
                 (None, None) if !declaration.required() => {}
                 (Some(actual), Some(expected)) if actual == expected => {
                     ManagedRelPath::new(home.to_rel(&actual.path).map_err(|error| {
-                        corrupt(&state.work_id, format!("受管输入路径无效：{error}"))
+                        corrupt(
+                            &state.work_id,
+                            format!("Invalid managed input path: {error}"),
+                        )
                     })?)
                     .map_err(|error| corrupt(&state.work_id, error.to_string()))?;
                 }
@@ -248,7 +258,7 @@ pub(crate) fn validate_work_paths(
                     return Err(corrupt(
                         &state.work_id,
                         format!(
-                            "state_json.attempts[{index}].inputs.{} 与冻结定义或历史产物不一致",
+                            "state_json.attempts[{index}].inputs.{} differs from frozen definitions or historical artifacts",
                             declaration.name()
                         ),
                     ));
@@ -264,29 +274,32 @@ pub(crate) fn validate_workbook_row(
     row: &crate::store::WorkbookRow,
 ) -> Result<AbsPath> {
     WorkbookId::new(&row.id).map_err(|error| Error::StoreCorrupt {
-        detail: format!("workbooks行id不合法：{error}"),
+        detail: format!("Invalid workbooks row ID: {error}"),
     })?;
     if !valid_workbook_version(&row.version) {
         return Err(Error::StoreCorrupt {
-            detail: format!("workbooks行version {:?} 不符合Workbook合同", row.version),
+            detail: format!(
+                "workbooks row version {:?} violates the Workbook contract",
+                row.version
+            ),
         });
     }
     ManagedRelPath::new(format!("workbooks/{}/{}", row.id, row.version)).map_err(|error| {
         Error::StoreCorrupt {
-            detail: format!("workbooks行version不能用作受管路径：{error}"),
+            detail: format!("workbooks row version cannot form a managed path: {error}"),
         }
     })?;
     Sha256Hex::new(row.digest.clone()).map_err(|error| Error::StoreCorrupt {
-        detail: format!("workbooks行digest不合法：{error}"),
+        detail: format!("Invalid workbooks row digest: {error}"),
     })?;
     Timestamp::parse(&row.added_at).map_err(|error| Error::StoreCorrupt {
-        detail: format!("workbooks行added_at不合法：{error}"),
+        detail: format!("Invalid workbooks row added_at: {error}"),
     })?;
     let expected_rel = format!("workbooks/{}/{}", row.id, row.version);
     if row.dir != expected_rel {
         return Err(Error::StoreCorrupt {
             detail: format!(
-                "workbooks行dir {} 与登记身份 {expected_rel} 不一致",
+                "workbooks row dir {} differs from registered identity {expected_rel}",
                 row.dir
             ),
         });
@@ -315,7 +328,7 @@ pub(crate) fn compile_frozen_workbook(
             match error {
                 Error::NotFound { .. } | Error::Io { .. } => error,
                 other => Error::StoreCorrupt {
-                    detail: format!("冻结副本读不了：{other}"),
+                    detail: format!("Cannot read frozen copy: {other}"),
                 },
             }
         })?;
@@ -324,12 +337,12 @@ pub(crate) fn compile_frozen_workbook(
         || manifest.version() != state.workbook.version
     {
         return Err(Error::StoreCorrupt {
-            detail: "冻结副本manifest身份与WorkState不一致".to_string(),
+            detail: "Frozen-copy manifest identity differs from WorkState".to_string(),
         });
     }
     if workbook.flow(state.flow.as_str()).is_none() {
         return Err(Error::StoreCorrupt {
-            detail: format!("冻结副本里没有Flow {}", state.flow),
+            detail: format!("Frozen copy has no Flow {}", state.flow),
         });
     }
     Ok(workbook)
@@ -339,7 +352,7 @@ fn require_path(work: &WorkId, field: &str, actual: &AbsPath, expected: &AbsPath
     if actual != expected {
         return Err(corrupt(
             work,
-            format!("state_json.{field} 路径 {actual} 与所属对象 {expected} 不一致"),
+            format!("state_json.{field} path {actual} differs from owning object {expected}"),
         ));
     }
     Ok(())
@@ -347,7 +360,7 @@ fn require_path(work: &WorkId, field: &str, actual: &AbsPath, expected: &AbsPath
 
 fn corrupt(work: &WorkId, detail: String) -> Error {
     Error::StoreCorrupt {
-        detail: format!("Work {work} 的持久路径校验失败：{detail}"),
+        detail: format!("Work {work} persistent path validation failed: {detail}"),
     }
 }
 

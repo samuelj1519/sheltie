@@ -1,7 +1,7 @@
-读 `version`，为这个版本写一份发布说明。
+Read version and write release notes.
 
-- 标题写版本号。
-- 分「新增」「修复」「已知问题」三节，没有内容的一节写「无」。
-- 每条一行，面向使用者，不写实现细节。
+- Use the version as the title.
+- Sections: Added, Fixed, Known issues; write None for empty sections.
+- One item per line, user-facing, without implementation details.
 
-写到 `notes` 对应的路径。这一步有门槛：你提交后，人会读这份说明并批准，之后流程才继续。回复协调者时说一句：三节各几条。
+Write to notes. This step has a gate: a person reads/approves after submission before progression. Tell the coordinator each section's item count.

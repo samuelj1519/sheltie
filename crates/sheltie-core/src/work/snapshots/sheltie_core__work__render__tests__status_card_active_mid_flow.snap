@@ -2,15 +2,15 @@
 source: crates/sheltie-core/src/work/render.rs
 expression: "render_status_card(fx.state(), &fx.graph)"
 ---
-# Work 2026-09-24-001-t（t）
+# Work 2026-09-24-001-t (t)
 
-workbook: article-review@1.0.0   flow: default   status: active
+workbook: article-review@1.0.1   flow: default   status: active
 current: draft#2
 done: draft#1, review#1
 pending: publish
 visits: draft 2/3, review 1/3, publish 0/1
 
-## 当前任务
+## Current task
 
 attempt: draft#2.0
 brief_path: /tmp/sheltie-test/works/2026-09-24-001-t/attempts/draft/occurrence-002/attempt-000/brief.md
@@ -20,13 +20,13 @@ inputs:
 draft_outputs:
   article → /tmp/sheltie-test/works/2026-09-24-001-t/attempts/draft/occurrence-002/attempt-000/outputs/article.md
 
-## 最近一次尝试
+## Latest Attempt
 
 draft#2.0 running
 
-## 合法下一步
+## Legal next actions
 
-- sheltie attempt submit 2026-09-24-001-t --attempt draft#2.0 --summary "<一句话结论>"
-- sheltie attempt fail 2026-09-24-001-t --attempt draft#2.0 --reason "<原因>"
-- sheltie attempt replace 2026-09-24-001-t --attempt draft#2.0 --reason "<原因>"
+- sheltie attempt submit 2026-09-24-001-t --attempt draft#2.0 --summary "<one-sentence conclusion>"
+- sheltie attempt fail 2026-09-24-001-t --attempt draft#2.0 --reason "<reason>"
+- sheltie attempt replace 2026-09-24-001-t --attempt draft#2.0 --reason "<reason>"
 - sheltie work cancel 2026-09-24-001-t

@@ -1,186 +1,180 @@
-# Sheltie 产品规格
+# Sheltie product specification
 
-本文规定产品最终要做成什么样。它是产品语义的唯一出处：架构、合同、计划都从这里推导。原则与不变式见 [宪章](constitution.md)，技术设计见 [架构](architecture.md)，MVP 之后的方向见 [路线图](roadmap.md)。
+English | [简体中文](spec.zh-CN.md)
 
-「必须」表示当前目标合同，不表示代码已经做到。当前 release、active change 与实施进度入口见 [文档地图](README.md)；MVP 历史见 [v0.1.0 archive](../docs/reference/releases/v0.1.0/README.md)。
+This is the sole source of product semantics; architecture, contracts, and plans derive from it. See [constitution](constitution.md), [architecture](architecture.md), and [roadmap](roadmap.md). Must states the adopted target, not implementation completion. Current release/change/progress entry points are in the [map](README.md); MVP history is in [v0.1.0 archive](../docs/reference/releases/v0.1.0/README.md).
 
-## 1. 要解决的问题
+## 1. Problem
 
-用 Claude Code、Codex 这类 agent 做多步工作时，有一批机械活每次都要重做：记住做到哪一步了、把上一步的产出交给下一步、把写好的任务说明再发一遍、在该停下来找人的地方停下来、防止 agent 跳过检查直接往下走。这些活交给 agent 自己记，容易忘、容易错、还很花 token。
+Multistep work with agents such as Claude Code/Codex repeatedly needs mechanical bookkeeping: remember progress, hand outputs to successors, redeliver instructions, stop for approval, and prevent skipped checks. Agent-maintained bookkeeping is error-prone and token-expensive.
 
-Sheltie 把这批机械活固定下来。人把做事方法写成一份 **Workbook**（TOML 图 + 自然语言说明）。**协调者 agent** 按 Workbook 派活；**工作 agent** 或人完成每一步；**引擎**记状态、发任务书、限定合法下一步。
+People express methods as **Workbooks** (TOML graphs plus natural-language instructions). **Coordinators** delegate; **workers** or people execute; the **engine** records state, generates briefs, and computes legal next actions.
 
-产品价值以方法复用中的总投入与成果质量判断：减少重复解释、过程核对、产物传递和中断重做，同时保留准确来源与人工批准边界。首次准备、首次任务和复用任务分别报告，不用流程完成或局部省时证明用户收益。首批目标场景与采用条件见[路线图](roadmap.md)。
+Assess product value through total investment and final quality during method reuse: fewer repeated explanations, process checks, handoffs, and interruption rework while retaining provenance and approvals. Report preparation/first-task/reuse separately; completion or local time savings do not establish benefit. Initial scenarios/adoption conditions are in the roadmap.
 
-### 当前产品环境
+### Current product environment
 
-当前产品承诺与验收范围为已采用的 macOS aarch64／APFS 本地使用场景。正常可表示的文件名与路径、合法中文名称、Workbook与成果副本在该范围内验收；其他平台、文件系统以及外置物理设备专项认证属于需求成立后另行采用的扩展范围。
+Current commitments/acceptance cover adopted local macOS aarch64/APFS scenarios, including representable names/paths, legal Han names, Workbooks, and exported copies. Other platforms/filesystems and external physical-device qualification require separately adopted demand.
 
-APFS无法创建的非UTF-8名称不作为当前产品验收的必需现场输入。已有非法参数、目录名称与路径的准确拒绝合同和测试保持；外置物理盘专项测试也不阻断本地APFS交付。支持环境的限定不把未执行测试变成通过，也不增加引擎的运行时文件系统准入机制。跨范围扩展先采用明确目标和真实环境，再验证对应行为，依据见 [D-044](../docs/explanation/decisions/D-044-macos-apfs-product-scope.md)。
+Non-UTF-8 names APFS cannot create are not mandatory live inputs. Preserve accurate invalid argument/name/path rejection contracts/tests. External physical-drive tests do not block local APFS delivery. Scope restrictions neither convert unrun tests into passes nor introduce runtime filesystem admission. Adopt explicit scope/real environments before extending verification ([D-044](../docs/explanation/decisions/D-044-macos-apfs-product-scope.md)).
 
-## 2. 成功的样子
+## 2. Success
 
-一个从没接触过项目的用户，只靠文档就能：
+A new user must be able to use documentation alone to:
 
-1. 选择一份可用 Workbook；需要自己的方法时，再编写两三步的 Workbook 并装入。
-2. 在 Claude Code 里输入 `/sheltie`，选这份 Workbook，开一个 Work。
-3. 看着协调者一步步领任务、派工作 agent、提交结果、走到下一步，中间不需要人插手。
-4. 在声明了门槛的地方被叫停，批准后继续。
-5. Work 结束后通过 `work result` 找到终点明确选择的成果引用，并在固定目录取得原件；每份引用可追溯到终点绑定或封存的具体 Attempt。内容判断仍属于协调者和用户。
-6. 换一个 Workbook 做完全不同的事（写文章、审代码、整理资料），引擎不需要改一行。
+1. Choose a Workbook; author/install a two- or three-step method when needed.
+2. Invoke /sheltie in Claude Code, select a method, and start Work.
+3. Observe coordinator brief acquisition/delegation/submission/advancement without unnecessary human intervention.
+4. Stop at declared gates and continue after approval.
+5. Locate explicitly selected terminal references through work result and originals in fixed directories, tracing each to its particular binding/sealing Attempt. Coordinators/users still judge content.
+6. Run entirely different methods (writing, code review, research organization) without engine changes.
 
-## 3. 三方分工与边界
+## 3. Roles and boundaries
 
-| 主体 | 职责 | 没有的权力 |
+| Role | Responsibilities | No authority to |
 | --- | --- | --- |
-| Workbook 作者 | 用自然语言写清每一步要干什么、输入是什么、输出是什么、检查怎么判；把步骤连成图；标出需要人批准的地方 | 在运行中改图；授予宿主、网络、文件权限 |
-| 用户 | 选 Workbook 与 Flow，给初始输入，批准门槛，批准安装 | 把历史失败改成成功 |
-| 协调者 agent | 读 Workbook，取下一步，领任务书，派工作 agent，理解回复，在合法下一步中选一条 | 绕过合法下一步；绕过门槛；私建第二套进度 |
-| 工作 agent 或人 | 按一步的说明把输入变成输出，写结论文档，用自然语言回复 | 改其他步骤的产出、标准或记录 |
-| 引擎 | 解析图；创建与保存 Work；发任务书并绑输入；限定合法下一步；守门槛；算上限；维护产出目录 | 判断内容好坏；选路；从自然语言推断事实；安装任何东西 |
+| Author | Write step/input/output/check instructions, connect graph, declare gates | Change running graphs or grant host/network/file permissions |
+| User | Select method/Flow, supply inputs, approve gates/installation | Turn historical failures into successes |
+| Coordinator | Read method, acquire brief, delegate, interpret responses, choose legal next | Bypass next/gates or maintain another progress authority |
+| Worker/person | Transform inputs, write conclusion documents, summarize | Change others' outputs/standards/records |
+| Engine | Parse graph, create/store Work, bind briefs, enforce next/gates/limits, maintain output directories | Judge content, choose routes, infer natural-language facts, install resources |
 
-**Workbook 由人负责。** AI 可以起草，人看过、改过、点头之后才算冻结。未冻结的草稿不构成图与门槛。
+**People own Workbooks.** AI may draft; human reading, editing, and adoption establish freezing. Unfrozen drafts establish no graph/gates.
 
-方法作者准备图、说明、稳定规则与失败路径；任务使用者选择方法并提供本次目标和输入。两种角色可以由同一人承担，成本分别计算。图表达稳定阶段，阶段内部允许 agent 自主调查与细分任务；普通内容修复不自动增加人工审批。
+Authors prepare graphs/instructions/stable rules/failure paths; users choose methods and provide current goals/inputs. One person may do both, with costs separate. Graphs express stable stages; agents may investigate/subdivide within them. Ordinary repairs do not automatically add approvals.
 
-**Review 是普通工作。** 审查节点和写作节点走同一套过程，区别只在说明书写的是「审查什么、按什么标准、结论写哪」。引擎不知道哪个节点是 Review。
+**Review is ordinary work.** Its process matches writing; only instructions specify review targets/standards/conclusion output. The engine does not identify Review nodes.
 
-## 4. 一步是怎么走的
-
-每个 Node 走同一套过程：
+## 4. Step execution
 
 ```text
-输入文件 → 执行 → 输出文件 + 自然语言回复 → 协调者在合法下一步里选一条
-              ↑                                           │
-              └──────────── 打回 / 修复旁支 ────────────────┘
+Input files → execution → output files + natural-language response → coordinator chooses legal next
+                  ↑                                                       │
+                  └──────────────── rework / repair branch ───────────────┘
 ```
 
-以一个审查节点为例：
+For review:
 
-1. 协调者调用 `attempt begin`，引擎返回任务书：Workbook 里人预写的说明原文，加上本次绑定好的输入文件路径与输出文件要求。
-2. 协调者把任务书交给一个工作 agent。工作 agent 读输入，审查，把「通过」或「不通过，问题如下」写进说明里声明的那份输出文档，然后用几句话回复协调者。
-3. 协调者调用 `attempt submit`，交上回复摘要。引擎检查输出文件是否齐全、大小是否合规，记下摘要与文件摘要，然后返回新的合法下一步。
-4. 合法下一步来自 Flow 声明的边：通过走 `main` 边到下一节点；不通过走 `back` 边回上一步，或走 `branch` 边到修复旁支；修复完再走 `re_review` 边回到审查节点。协调者看着输出文档自己选一条。
-5. 协调者调用下一节点的 `attempt begin`。**这次调用就是选边**，不另设「推进」操作。
+1. Begin returns verbatim prewritten instructions plus bound paths/output requirements.
+2. Worker reads/reviews, writes Accepted or Rejected with findings into declared output, then briefly reports.
+3. Submit records bounded summary/file digests after existence/size checks and returns next.
+4. Explicit edges provide main acceptance, back rework, branch repair, and re_review return. Coordinator reads outputs and chooses.
+5. Beginning the target **is edge selection**; no separate advance operation.
 
-引擎全程不读输出文档的内容。它只知道：这次尝试执行完了，输出文件在，摘要有界，可以走哪几条边。
+The engine never interprets document contents. It knows execution finished, files exist, summary is bounded, and legal edges. **Execution success is not acceptance.** Completed rejection is successful execution; crashes/timeouts/missing delivery are execution failures retryable within limits.
 
-**执行成功不等于结论通过。** 「审查完了，结论是不通过」是一次成功的执行。「工作 agent 崩了、超时了、没交文件」才是执行失败。失败可以在上限内重试。
+## 5. Capability requirements
 
-## 5. 能力要求
+GF identifiers connect architecture/contracts/tests. These requirements are adopted unless marked roadmap. See [implementation](../docs/reference/implementation.md) and [acceptance](../docs/reference/acceptance.md) for actual evidence/scope.
 
-编号 `GF-*` 供架构、合同和测试引用。以下是当前采用的能力要求，标注「路线图」的方向不构成已实现承诺；当前实现定位与限定验收分别见[实现基线](../docs/reference/implementation.md)和[验收边界](../docs/reference/acceptance.md)。
+### 5.1 General engine
 
-### 5.1 引擎通用
+`GF-01` **Business independence.** One binary runs no-review two-step, review/repair, and human-gate Flows. Engine code contains no business vocabulary such as Spec/Plan/Git/code review.
 
-`GF-01` **业务无关。** 同一个引擎二进制能跑完三类 Flow：无审查的两步 Flow、带审查与修复回环的 Flow、带人工门槛的 Flow。引擎代码里不出现任何业务词汇（Spec、Plan、Git、代码审查等）。
+`GF-02` **Separate language from machine contracts.** Instructions express work; TOML expresses dependencies/edges/limits/output contracts. The engine infers no acceptance, permissions, or next steps from language.
 
-`GF-02` **自然语言与机器合同分层。** 每步「要干什么」用自然语言写在说明书里。依赖、边、上限、输出文件合同用 TOML 字段写，引擎能机械判断。引擎不从自然语言推断通过、权限或下一步。
+`GF-03` **Bounded graphs, explicit edges.** Declare nodes/edges (main/back/branch/re_review); loading checks references/entry/reachability/limits. Running graphs are immutable.
 
-`GF-03` **有限图，显式边。** Flow 声明节点与边。边有类型 `main | back | branch | re_review`。引擎在装入时校验引用、入口、可达性、上限。运行中不接受改图。
+`GF-04` **Pull progression.** Coordinators acquire/execute/submit. Every write response includes next. Read queries change no state.
 
-`GF-04` **拉取式推进。** 协调者通过「领取、执行、提交」循环推进。每次写操作的响应都带当前合法下一步集合 `next`。只读查询不改状态。
+`GF-05` **Definitions and runs differ.** Workbook defines; Work runs one ID/version/digest. Arrivals are Occurrences; executions are Attempts. Retries/loops append rather than overwrite records.
 
-`GF-05` **定义与运行分离。** Workbook 是定义，Work 是某个 Workbook 版本的一次运行。Work 记录 Workbook 的 id、版本与内容摘要。节点每到达一次叫一个 Occurrence，每次执行叫一个 Attempt。重试与回环都产生新记录，不覆写旧的。
+### 5.2 Briefs, inputs, outputs
 
-### 5.2 任务书、输入与输出
+`GF-06` **Prewritten skeletons and path bindings.** Deliver original instructions once plus absolute input/output requirements; no generated/rewritten bodies. Coordinator rewording must preserve intent.
 
-`GF-06` **骨架预写，输入绑路径。** 任务书正文是 Workbook 里人预写的说明原文。引擎只投递一次，附上本次绑定的输入文件绝对路径与输出要求，不生成、不改写正文。协调者可以在交给工作 agent 前调整任务书，但不得改变原意。
+`GF-07` **Byte-frozen inputs.** Record path/sha256. Later bindings reject modifications rather than same-name replacements.
 
-`GF-07` **输入按字节冻结。** 任务书里每个输入记录路径与 sha256。开工后有人改了文件，引擎在后续绑定时拒绝，不换读同名新文件。
+`GF-08` **Output contracts and immutable artifacts.** Declare name/path/required/size. Submit checks existence/size, records sha256, seals. Successors read identical bytes. Structural validation establishes compliance, not quality.
 
-`GF-08` **输出合同与不可变产物。** 节点声明输出文件的逻辑名、相对路径、是否必需、大小上限。提交时引擎检查存在性与大小，记录 sha256 并封存。后继节点读到的是同一份字节。结构校验通过只说明合同满足，不说明内容好。
+`GF-09` **Bounded responses.** Natural-language summary plus output refs, no conversation history; default 4 KiB. Reject excess, never truncate.
 
-`GF-09` **回复有界。** 工作 agent 的回复是自然语言摘要加输出文件引用，不是对话记录。摘要有上限（默认 4 KiB），超限拒绝而不截断。
+`GF-33` **Original result bytes and new copies.** [Protocol](contracts/protocol.md) governs reading/export. Engine reads originals; external tools write authorized parents only, without lifecycle changes.
 
-`GF-33` **明确成果的原字节与新副本。** 读取和副本合同见[协议](contracts/protocol.md)；引擎只读原件，外围工具只写授权父目录，不改生命周期。
+### 5.3 State and progression
 
-### 5.3 状态与推进
+`GF-10` **External state and compact cards.** Regenerate current node/completed/pending/latest summary/output paths/block reasons/next after transitions. Resume via current brief/frozen inputs/running draft paths; live queries add same-snapshot revision/pending effects. Draft paths prove no existence/sealing. Text/JSON share facts and shapes, including failure reasons, complete path/digest/byte refs, and next; coordinators need not reread history.
 
-`GF-10` **状态外置，读状态卡。** Work 状态存在引擎侧。引擎在每次状态变化后重新生成一份紧凑状态卡：当前节点、已完成、待执行、最近一次尝试的摘要与产出路径、是否受阻、合法下一步。协调者读状态卡即可继续，不重读历史。当前 Attempt 提供任务书、冻结输入和 running 草稿位置；实时查询另给同次读快照的 revision 和未完成效果提示。草稿路径不证明已经生成或封存。文本与 JSON 是同一份事实视图的两种渲染：失败原因、完整产物引用（路径、摘要、字节数）与 `next` 在两种形式里字段相同、形状一致。
+`GF-11` **Completion differs from conclusion.** Attempt records running/succeeded/failed and administrative superseded. Revoke old qualification and start same-Occurrence replacement atomically, at most once per Occurrence, with caller-reported reason. No process stop/executor authentication/host write exclusion. Business conclusions remain coordinator-interpreted documents; no Review state machine.
 
-`GF-11` **完成与结论分开。** Attempt 记录 `running | succeeded | failed` 与行政撤销 `superseded`。撤销旧资格时原子结束旧 Attempt 并创建同一 Occurrence 的新 running，每个 Occurrence 固定最多一次，理由为调用者报告；不停止进程、不认证执行者、不封锁宿主写入。业务结论在输出文档里，由协调者理解。引擎不设 Review 专属状态。
+`GF-12` **Gates cannot be bypassed.** Successful gated Attempts block Work with only approve/cancel. Approval records actual OS process account, never spoofable environment variables. No outgoing edge is legal before approval. Shared accounts provide no independent human authentication; report approval by that account only.
 
-`GF-12` **门槛不可绕过。** 节点声明 `gate = true` 时，该节点的 Attempt 成功后 Work 转为 `blocked`，合法下一步只有 `gate approve` 与 `work cancel`。批准记录写入发起调用的真实操作系统账户（进程身份，不采信可伪造的环境变量）。批准前任何出边都不合法。同一 OS 账户环境下不提供独立真人认证，报告只说「已由该账户批准」，不说「已验证独立真人」。
+`GF-13` **Mechanical limits, free strategy.** Max_visits counts arrivals including loops; max_retries counts business-failure retries per Occurrence. Exhausted edges/retries disappear from next. Exhaustion/all-target limits block with reasons. Count failed directly: k permits k retries, failure k+1 blocks. Numbers do not determine allowance; superseded is not failed. Coordinator chooses retry/abandon within bounds.
 
-`GF-13` **上限机械，策略自由。** 每个节点有 `max_visits`（到达次数上限，含回环）与 `max_retries`（同一 Occurrence 内业务失败重试上限）。引擎计数，到顶就把对应边或重试从 `next` 里拿掉。重试耗尽，或所有出边的目标都到顶，Work 转为 `blocked` 并说明原因。业务失败数从 failed 直接统计；max_retries=k 允许 k 次业务重试，第k+1次真实失败阻塞。顺序号不决定失败额度，superseded不计失败。上限之内重试还是放弃，由协调者决定。
+`GF-14` **Completion and result selection.** Nodes without outgoing edges are terminal. Successful terminal Attempt without unapproved gate succeeds Work. Nongate blocking allows cancel only; terminal Work rejects writes. Terminal required inputs/outputs may select results. Result binds to the specific successful terminal Attempt. Valid terminal/gate facts plus all Work effects complete establish final=true; other states have empty selection. No selections is explicitly empty; corrupt refs reject rather than select latest files/parse reports.
 
-`GF-14` **结束条件与成果选择。** 没有出边的节点是终点。终点节点的 Attempt 成功且无未批准门槛时，Work 转为 `succeeded`。`blocked` 且原因不是门槛时，唯一合法操作是 `work cancel`。终态 Work 不再接受写操作。终点 required 输入/输出可以明确声明最终选择；`work result` 从使 Work 成功的具体终点 Attempt 取被冻结引用。成功终点/gate 事实有效且该 Work 文件效果全部完成时才 final=true；其他状态的集合为空。未选择明确为空，损坏引用准确拒绝，不取上游最新文件或解析报告正文。
+### 5.4 Reliability
 
-### 5.4 可靠性
+`GF-15` **Idempotence and recovery.** Work/Workbook writes support request_id; reads/self reject it as argument error. IDs bind operation/full target/user parameters. Same intent returns complete commit response with replayed=true; different target/parameters conflict. Precommit failures leave no successful record and may retry same ID. Postcommit unfinished effects recover from registration on replay/next write; unprovable completion reports committed recovery failure and stops new writes. Historical next is historical; resume requires current status. Any kill/restart yields consistent state/files or explicit unprovable effects; cards regenerate from state.
 
-`GF-15` **幂等与恢复。** Work 与 Workbook 的每个写操作可带 `request_id`；只读操作与 `self` 命令组不支持 `request_id`，收到即参数错误。`request_id` 绑定操作种类、解析后的完整目标与用户参数：同 id 同意图重放返回提交时的完整响应（附 `replayed = true`），同 id 不同目标或参数拒绝。提交前失败的请求不留成功记录，故障排除后可用同 id 重试；提交后效果未完成的，重放或下一次写操作先按持久登记恢复，无法证明完成时返回已提交的恢复错误并停止新写。历史响应里的 `next` 是历史事实；恢复后续接一律先查当前状态。进程在任何时刻被杀，重启后状态与磁盘一致或明确报告无法证明的文件效果；状态卡可从状态重新生成。
+`GF-16` **Accurate structural rejection.** Validate DB/Workbook structures, rejecting whole mismatches without migration/clearing. Structure changes increment initial format versions.
 
-`GF-16` **结构不符准确拒绝。** 数据库与 Workbook 装入时按结构校验，不符就整体拒绝并报准确错误，不自动迁移、不清空。版本标识从初始值起，改结构只升版本号。
+### 5.5 Workbook and host integration
 
-### 5.5 Workbook 与宿主接入
+`GF-34` **Visual author tool.** Unreleased local web tool creates/edits Workbook source copies after user directory selection. Canvas edits explicit Flows/instructions/inputs/outputs while retaining advanced declarations. Duplicate endpoint additions select/explain existing edges; endpoint edits reject self/duplicate edges preserving originals. Compact reading-order main flow, focused adjacency/full-edge mode, and arrange layout retain all definitions. Directional ports and rework/branch distinction do not force right-out/left-in. Labels appear on hover/selection; highlight reuses exact path. Selected edge/panel/highlight/endpoints identify one actual edge. Customize input names, multi-select predecessor outputs or reuse original input sources. Multiple external URLs/locations become fixed internal reference text without access. Renaming preserves source declarations. Input/output count tabs, grouped summaries, item editing, collapsed instructions, and actual-source checked states preserve aliases and require explicit removal. Friendly source labels/advanced collapse retain untouched/unknown values. Panels have visible accessible close controls in narrow overlays; Esc returns to canvas without draft change. Layout is view-only, absent from format/state. Trusted CLI validates same bytes in own temporary Home. Saving produces a complete reopenable ZIP, never overwrites source/installed/frozen copies. Local listening/user-selected reads; clear size/unknown-format/incomplete-validation rejection. CLI/Store/workbook/v1/flow/v1 unchanged.
 
-`GF-34` **可视化作者工具。** 未发布外围网页工具用于新建/编辑Workbook源码副本。用户选择目录后，在节点画布编辑显式Flow与说明/输入/输出；高级声明保持。重复新增同一端点连线时选中已有边并提示；编辑端点拒绝自环或重复端点，原定义保持。节点提供按阅读顺序紧凑排列的主流程与按需展开邻接连线、完整连线切换、按主流程整理布局；端口按方向选择而非固定右出左入，返工/分支方向可辨；边名在悬停或选中时显示，选中高亮严格复用同一路径；选中连线与属性面板指向同一实际边，并突出起点和终点。输入可自定义、多选前置步骤输出或沿用前置资料来源；外部URL和路径可多项固定记录为Workbook内引用文本，不自动访问。名称编辑不改变来源声明。输入、输出使用带数量的页签及紧凑分组摘要，点开单项编辑，说明默认折叠；资料候选显示从实际声明派生的已有勾选状态与本步骤名称，明确移除保持别名独立。输入、输出使用通俗标签和可选择的来源，高级配置折叠，渲染表单不得改写未操作的声明或未知原值。导航与属性面板提供可见关闭入口，窄窗口覆盖画布时仍能关闭；Esc可返回画布，不更改草稿。画布布局只属于视图，不写入Workbook格式或Work状态。最终结构校验通过可信公开CLI在工具自有临时Home装入同一字节集合；保存产生新的完整ZIP副本，解压后可重新打开，不直接覆盖作者源、已装版本或Work冻结副本。工具本地监听、读取用户选择的文件，超限/未知格式/不完整校验清楚拒绝；引擎CLI/Store及workbook/v1、flow/v1保持。
+`GF-17` **Independent Workbook release and local lifecycle.** A directory contains manifest/Flows/instructions/optional resources and may live in any repo. Add privately copies then validates/registers only final bytes, with no scripts/models/network. Concurrent source changes reject invalid copies; valid copies register actual bytes without claims to detect restored transient changes. Remove rejects nonterminal references; verify detects installed tampering. Upgrade installs new versions; old versions remain until manual removal. Start copies/reverifies methods then uses that copy only, unaffected by upgrade/removal. Add/remove support request replay.
 
-`GF-17` **Workbook 独立发布与本机生命周期。** Workbook 是一个目录：`workbook.toml` 加若干 Flow、说明文件与可选的 `resources/`。可在任何仓库编写。`sheltie workbook add <dir>` 先复制到私有暂存，再只依据最终副本校验并登记身份与摘要；不执行脚本、不调模型、不联网。源目录在复制期间变化导致副本不合规时拒绝；若最终副本仍完整且合法，则登记它的实际字节，不声称能识别已恢复原样的瞬时源变化。`workbook remove` 删一个版本，有未结束的 Work 引用时拒绝；`workbook verify` 发现有人改过已装目录。升级就是装新版本，旧版本留到手工删除。每个 Work 在开始时拿走一份 Workbook 副本，复制后重新核验，之后只读副本，删除与升级不影响已开始的 Work。`workbook add` 与 `remove` 同样支持 `request_id` 重放语义。
+`GF-27` **Self installation/upgrades.** Self writes only ~/.sheltie, never shell config. Pin release tags/assets, verify, replace, retain rollback. Default uninstall preserves data; confirmed purge removes data/binary but retains empty root/original lock. No request_id.
 
-`GF-27` **自我安装与升级。** `self`只写`~/.sheltie`，不写shell配置。升级按固定tag核资产、校验后替换并保留回滚版本。默认uninstall保留Store/Workbook/Work；确认purge删除全部用户数据和binary，但保留空管理根与原`.lock`。`self`不支持request_id。
+`GF-28` **Host declarations, not bundling.** Worker references live in resources and arrive as frozen inputs. Host skills/named subagents/MCP use kind+name manifest declarations referenced by nodes. Engine lists needs without host checks/install. Matching kind/name identifies one resource across methods/hosts for future installation deduplication.
 
-`GF-28` **宿主资源只声明不打包。** 工作 agent 要读的参考材料放进 Workbook 的 `resources/`，用输入绑定交付，随版本冻结。确实需要宿主机制的（skill、命名 subagent、MCP）在 `workbook.toml` 里按 `kind + name` 声明，节点引用声明。引擎把本步需要的声明列进任务书，不检查宿主，不安装。同名同类声明在任何 Workbook 与宿主里都指同一资源，这是将来安装工具去重的依据。
+`GF-18` **Sheltie skill is instructions only.** Deliver SKILL.md teaching existing CLI operations, no state store/progression judgment; CI checks mechanically. Installed artifact is self-contained after copying anywhere. Referenced contracts generate/check from one authority, no manually maintained duplicate.
 
-`GF-18` **sheltie skill 只是说明书。** 交付一份 `SKILL.md`，教协调者调用既有 CLI 操作完成一个 Work。skill 里不得含状态存储或推进判定。CI 用机械检查守住这条。安装产物自包含：复制到任何目录后全部引用仍可解析，不要求用户保留仓库路径；引用的命令合同由单一权威生成并校验，不手工维护两份。
+`GF-19` **Honest delivery.** Report source, offline tests, actual Claude Code interaction, and external installation separately. Tests alone are not value evidence.
 
-`GF-19` **诚实交付。** 源码、离线测试、真实 Claude Code 交互、外部安装分别报告。不把测试通过当成用户价值证据。
+### 5.6 Facts and reflection
 
-### 5.6 事实视图与反思
+`GF-29` **Engine facts, Workbook reflection, human evolution.** Read-only stats count arrivals/Attempts/failures/mean duration/source node+edge/blocking/approvals. Blocking is cumulative transition history, unchanged by cancellation/progression. Ordinary reflection nodes bind engine.stats and read reports to produce evidenced, located method improvements. Engine changes no parameters/methods; human review/new version add adopts improvements. A given Workbook version behaves consistently across runs.
 
-`GF-29` **引擎给事实，Workbook 做反思，人做演进。** 引擎提供只读的事实视图（`work stats`）：每个节点到达、尝试、失败几次，平均耗时，从哪个节点经哪种边进来（来源节点加边的类型），累计受阻与批准次数。受阻次数是累计事实，由状态转换在发生时记录，不随取消或后续推进减少。Workbook 可以用 `engine.stats` 输入把这份视图交给一个普通节点，由它读各步报告写出对本 Workbook 的具体修改建议（每条有证据、有落点）。引擎不据统计调任何参数、不改任何 Workbook；改进由人审后以新版本 `workbook add` 生效。同一 Workbook 版本在每次运行里行为相同。
+`GF-30` **Input preflight, no business side effects.** Show exposes all ordered start keys. Deterministic start rejection precedes sequences/business directories without Home/lock creation. Existing WAL Store identification permits D-039 control-file exceptions only. Correct inputs may reuse request IDs.
 
-`GF-30` **输入先验，拒绝无业务副作用。** `workbook show`公开全部有序start键；`work start`确定性拒绝在序号分配和业务目录创建前发生。不创建Home或引擎`.lock`；已有WAL Store识别只允许D-039明定的SQLite控制文件例外。补齐输入可用原request-id重试。
+`GF-31` **Closed persistent recovery.** No business rows/finals before commit; preparation failures after sequence allocation may leave unreclaimed gaps. Clean pending by ownership/Store references, never age. Unprovable committed effects stop accurately. Restore historical bytes, regenerate latest cards. No automatic old-root/user-data cleanup; purge requires confirmation/retains lock.
 
-`GF-31` **持久恢复闭合。** 提交前无业务行/最终目录；序号已分配后的准备失败可留空号但不回收。pending只按归属与Store引用清理，不按年龄清理。提交后效果无法证明就准确报错停止。历史文件按提交字节恢复，状态卡按最新状态生成。引擎不自动清理旧根或用户数据；purge仅在显式确认后执行并保留根锁。
+`GF-32` **Trusted confined file identity.** Derive paths from root and verify managed handles for writes/recovery/deletion. Observation/limits/digest/sealing refer to one object. Reject Workbook digest/frozen identity mismatch; separate engine/worker files. D-039 shared memory is control data, not business state.
 
-`GF-32` **根内文件与身份可信。** 写路径从管理根派生并经受管句柄核验，覆盖恢复/删除；观察、限额、摘要和封存核同一文件对象。Workbook摘要/冻结副本身份不符即拒绝，engine/worker文件分目录。SQLite共享内存控制文件只按D-039例外，不是业务状态。
+### 5.7 Roadmap clauses
 
-### 5.7 路线图条款
+Unadopted directions retain IDs for questions, with [demand conditions](roadmap.md): GF-20 host installation/readiness; GF-21 version reminders/continuation; GF-22 isolation/permission evaluation; GF-23 MCP/multiple hosts; GF-24 cost measurement/gates; GF-25 parallel drafts/single-writer selection; GF-26 dynamic expansion templates.
 
-下列方向尚未作为当前能力采用。编号用于保留问题索引，需求条件见[路线图](roadmap.md)。
+## 6. Non-goals
 
-`GF-20` 宿主资源安装工具与就绪检查。`GF-21` 版本提醒与延续。`GF-22` 隔离与权限求值。`GF-23` MCP 接口与多宿主。`GF-24` 成本计量与门禁。`GF-25` 并行草稿与单写者选择。`GF-26` 动态展开模板。
+Do not introduce these for competitive parity:
 
-## 6. 非目标
+- Natural-language acceptance/edge inference or running-graph modification.
+- Coding-CLI adapter farms/resident session pools.
+- Generic buses/second execution databases/second advancing Work state.
+- Unauthorized installation or automatic isolation downgrade.
+- Agent/adapter counts as proof of efficiency.
 
-下列事情不做，也不为「追赶同类产品」开口子：
+## 7. Acceptance scenarios
 
-- 引擎内从自然语言推断通过、选边、热改运行中的图。
-- 多个 coding CLI 的适配器农场；常驻会话池。
-- 通用消息总线；第二套运行数据库；第二套可推进的 Work 状态。
-- 缺用户授权的自动安装、自动降级隔离。
-- 用并行 agent 数量或适配器数量证明提效。
+Every row requires at least one end-to-end test.
 
-## 7. 验收场景
-
-每一行对应至少一条端到端测试。
-
-| 场景 | 应观察到 | 不能出现 |
+| Scenario | Required observation | Must not occur |
 | --- | --- | --- |
-| 无审查两步 Flow | 两步各一次 Attempt 成功后 Work `succeeded`，两份产出在目录里 | 被任何全局审查规则阻断 |
-| 审查通过 | 工作 agent 把「通过」写进文档，协调者选 `main` 边 | 引擎替协调者判定通过 |
-| 审查不通过 | 协调者选 `back` 或 `branch` 边，修复后走 `re_review` 回到审查节点，审查节点出现第二个 Occurrence | 把执行成功当通过；旧产出被覆盖 |
-| 回环超限 | `max_visits` 到顶后 `next` 不再含该边 | 引擎把回退当错误；无限循环 |
-| 人工门槛 | Attempt 成功后 Work `blocked`，`gate approve` 后出边合法 | 未批准就能 `attempt begin` 下一节点 |
-| 输入被改 | 上游产出文件被改后，下游 `attempt begin` 报 `ARTIFACT_MODIFIED` | 换读新文件 |
-| 输出缺失 | 必需输出不存在时 `attempt submit` 报 `OUTPUT_MISSING`，Attempt 仍 `running` | 提交成功但目录空 |
-| 重放 | 同 `request_id` 重放得到原响应；不同载荷得 `REQUEST_CONFLICT` | 重复创建 Work 或 Attempt |
-| 中途被杀 | 任一写操作中途 kill 进程，重启后 `work status` 与磁盘一致 | 半写状态；状态卡与数据库不一致 |
-| 删除被引用的 Workbook | 有 `active` Work 时 `workbook remove` 报 `WORKBOOK_IN_USE`；该 Work 结束后可删；删后终态 Work 的 `work status` 仍完整 | 运行中的 Work 找不到说明书 |
-| 参考文件作输入 | `resource.<path>` 输入出现在任务书里，路径指向本 Work 的冻结副本；改 `workbooks/` 下原文件不影响 | 任务书内联文件正文；改原文件后下游读到新内容 |
-| 升级后回滚 | `self update` 到一个摘要不符的包被拒且旧二进制完好；成功升级后 `self rollback` 回到原版本 | 半替换的二进制；回滚后 `.prev` 与当前相同 |
-| 事实视图 | 跑过一次打回后 `work stats` 显示 `draft 2/3`、`review` 经 `draft×1` 进入；`engine.stats` 输入的文件摘要与状态里记录的一致 | 引擎输出任何「建议」；统计与状态卡不一致 |
-| 跨目标重放 | 同 `request_id` 先取消 A 再取消 B，第二次得 `REQUEST_CONFLICT`，B 保持原状态 | B 被误取消或返回 A 的响应 |
-| 提交后崩溃 | `COMMIT` 后、目录发布前进程被杀；下一次写操作先发布原件再执行，重放同请求返回原响应并附发布结果 | 原件被当垃圾清理；重放改写历史文件 |
-| 新管理根失败 start | 缺输入的 `work start` 在新管理根上失败后，根下没有任何文件与目录，当日序号未消耗 | 失败留下半建的管理根或空号 |
-| 新人上手 | 只读文档就能装 Workbook、开 Work、走完、拿到产出 | 需要作者口头补背景 |
+| No-review two-step | One successful Attempt each; succeeded Work/two files | Global-review blocking |
+| Accepted review | Worker writes acceptance; coordinator selects main | Engine acceptance judgment |
+| Rejected review | Back/branch then re_review; second review Occurrence | Success conflated with acceptance/old outputs overwritten |
+| Loop limit | Target at max_visits absent from next | Back treated as error/unbounded loop |
+| Human gate | Successful Attempt blocks; approve legalizes edges | Begin successor before approval |
+| Modified input | Downstream begin ARTIFACT_MODIFIED | Reading replacement |
+| Missing output | Submit OUTPUT_MISSING; remains running | Success with empty directory |
+| Replay | Same-ID original response; different payload conflict | Duplicate Work/Attempt |
+| Killed write | Restart status agrees with disk | Half state/card-DB disagreement |
+| Referenced removal | Nonterminal WORKBOOK_IN_USE; terminal removal/status remains complete | Lost running instructions |
+| Resource input | Brief points at Work frozen copy; installed changes irrelevant | Inline bodies/new downstream bytes |
+| Upgrade/rollback | Bad checksum rejected with intact old binary; successful rollback restores | Half replacement/identical current and prev after rollback |
+| Facts | After rework stats show draft2/3 and review via draft×1; stats digest matches recorded state | Engine recommendations/inconsistent stats |
+| Cross-target replay | Cancel A then same-ID B conflicts; B unchanged | Cancel B/return A as B |
+| Postcommit crash | Before publication kill; next write publishes originals; replay returns original plus publication outcome | Original discarded/history rewritten |
+| New-root rejected start | Missing input creates no files/directories or consumed sequence | Half root/sequence gap |
+| New user | Documentation alone enables install/start/complete/output retrieval | Oral background required |
 
-## 8. 对外用语
+## 8. External claims
 
-可以承诺：在声明并校验过的边界内，同样的输入走同样的规则；条件缺失时不会假称满足。
+May promise: identical inputs follow identical rules within declared/validated boundaries; missing conditions are never claimed satisfied.
 
-不能承诺：模型不会误判；任务一定完成；产出内容一定正确。
+Must not promise: models never misjudge, every task finishes, or content is always correct.
 
-报告分项写：「输出结构校验通过；审查由独立 agent 完成；门槛已由用户批准」。不用一句「安全等级高」代替具体范围。
+Report distinct facts: output structure validated; independent agent review completed; user authorized the gate. Generic “high security” does not replace concrete scope.

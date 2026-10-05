@@ -1,4 +1,4 @@
-//! Work 与 Workbook 共用的已提交效果校验、发布和恢复入口。
+//! Shared committed-effect validation, publication, and recovery entry points for Work and Workbook.
 
 use crate::effects::{CheckedEffects, execute, execute_with_observed_outputs};
 use crate::error::{Error, Result};
@@ -82,11 +82,11 @@ fn request_metadata(store: &Store, request_id: &str) -> Result<RequestMetadata> 
     store
         .inspect_request_metadata(request_id)?
         .ok_or_else(|| Error::StoreCorrupt {
-            detail: format!("缺少请求 {request_id} 的持久记录"),
+            detail: format!("Missing persistent record for request {request_id}"),
         })
 }
 
-/// 锁内、在新请求进入事务前恢复所有未完成请求。
+/// Under the lock, recover all unfinished requests before a new transaction.
 pub(crate) fn before_write(
     home: &Home,
     store: &Store,
@@ -180,7 +180,7 @@ pub(crate) fn before_write(
     Ok(())
 }
 
-/// 完成一个已提交请求。快照校验成功后，效果失败保留已核原响应。
+/// Finish a committed request; after snapshot validation, effect failure preserves the verified original response.
 pub(crate) fn finish_request(
     home: &Home,
     store: &Store,
@@ -211,7 +211,7 @@ pub(crate) fn finish_request(
     )
 }
 
-/// 调用者在同一写锁内核过快照与整组效果；复用已装入的上下文。
+/// The caller verified the snapshot and full effect closure under the same lock; reuse loaded context.
 pub(crate) fn finish_checked_request(
     home: &Home,
     store: &Store,
@@ -277,7 +277,7 @@ fn blocked_by_pending(
     }
 }
 
-/// 已通过元数据与业务绑定校验的Work快照转成协议原响应。
+/// Convert a Work snapshot with verified metadata and business bindings to its original protocol response.
 pub(crate) fn work_original_response(
     work: &sheltie_core::ids::WorkId,
     response: &crate::service::Response,
@@ -296,7 +296,7 @@ pub(crate) fn work_original_response(
     .to_string()
 }
 
-/// 已通过元数据与业务绑定校验的Workbook快照转成协议原响应。
+/// Convert a Workbook snapshot with verified metadata and business bindings to its original protocol response.
 pub(crate) fn workbook_original_response(request_id: &str, mut data: serde_json::Value) -> String {
     if let Some(object) = data.as_object_mut() {
         object.insert("replayed".to_string(), serde_json::Value::Bool(false));

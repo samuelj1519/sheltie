@@ -1,33 +1,33 @@
 ---
 source: crates/sheltie-core/src/work/render.rs
-expression: "render_brief(fx.state(), &fx.graph, a, \"用公司 API 做点事。\")"
+expression: "render_brief(fx.state(), &fx.graph, a, \"Use the company API.\")"
 ---
-# 任务书：唯一
+# Brief: Only node
 
-Work: 2026-09-24-001-t（t）
-节点: only#1，第 0 次尝试
-来自: 入口
-执行者: agent（standard）
+Work: 2026-09-24-001-t (t)
+Node: only#1, Attempt 0
+From: entry
+Executor: agent (standard)
 
-## 输入
+## Inputs
 
-| 名称 | 路径 | sha256 |
+| Name | Path | sha256 |
 | --- | --- | --- |
 
-## 需要的宿主资源
+## Required host resources
 
-| 类型 | 名称 | 版本 | 说明 |
+| Kind | Name | Version | Instructions |
 | --- | --- | --- | --- |
-| skill | company-api | - | 请确认你的宿主已装此 skill；未装请停下并告知用户 |
+| skill | company-api | - | Confirm your host has this skill installed; otherwise stop and inform the user |
 
-## 说明
+## Instructions
 
-用公司 API 做点事。
+Use the company API.
 
-## 输出要求
+## Output requirements
 
-| 名称 | 写到 | 必需 | 上限 |
+| Name | Write to | Required | Limit |
 | --- | --- | --- | --- |
-| out | /tmp/sheltie-test/works/2026-09-24-001-t/attempts/only/occurrence-001/attempt-000/outputs/out.md | 是 | 1 MiB |
+| out | /tmp/sheltie-test/works/2026-09-24-001-t/attempts/only/occurrence-001/attempt-000/outputs/out.md | yes | 1 MiB |
 
-完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。
+Do not modify input files after finishing. Summarize your conclusion for the coordinator and list the output files you wrote.

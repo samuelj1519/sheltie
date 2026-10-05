@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# 文档机械门禁：相对链接必须能解析；描述不存在代码的措辞与被禁概念零命中。
-# 用法：scripts/check-docs.sh [目录...]   默认检查仓库内全部 Markdown。
+# Documentation gate: resolve relative links and reject prohibited implementation wording.
+# Usage: scripts/check-docs.sh [directories...] (all repository Markdown by default).
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
@@ -14,34 +14,34 @@ fi
 
 status=0
 
-# 1. 相对链接可解析
+# 1. Resolve relative links.
 while IFS= read -r file; do
 	dir=$(dirname "$file")
 	links=$(grep -o '](\.\{0,2\}[^)#: ]*\(#[^)]*\)\{0,1\})' "$file" | sed 's/^](//; s/)$//; s/#.*$//' || true)
 	for target in $links; do
 		if [ ! -e "$dir/$target" ]; then
-			echo "断链  $file -> $target"
+			echo "Broken link  $file -> $target"
 			status=1
 		fi
 	done
 done <<<"$files"
 
-# 2. 禁用措辞。文档只描述目标形态，不得以「现有代码」为主语；命中即失败。
-# 代码标识符（Verdict、PackageId 等）由 scripts/check-core-vocab.sh 查源码，文档可以把它们当反例引用。
-blacklist='沿现有|复用现有|保留现有|沿当前|旧代码|历史代码|双 reader'
+# 2. Documentation describes the target; reject wording that makes inherited code the authority.
+# Source identifiers are checked by check-core-vocab.sh; documents may cite them as counterexamples.
+blacklist='沿现有|复用现有|保留现有|沿当前|旧代码|历史代码|双 reader|along existing|reuse existing|retain existing|along current|old code|historical code|dual reader'
 if grep -nE "$blacklist" $files; then
-	echo "禁用措辞命中（见上）"
+	echo "Prohibited wording found (see above)"
 	status=1
 fi
 
-# 3. 决策编号唯一。同号两条会让「见 D-nn」指向不明。
+# 3. Decision IDs must be unique so D-nn references are unambiguous.
 dup=$(grep -oE '^## D-[0-9]+' docs/explanation/decisions/mvp.md | sort | uniq -d || true)
 if [ -n "$dup" ]; then
-	echo "decisions.md 决策编号重复：${dup}"
+	echo "Duplicate decision IDs: ${dup}"
 	status=1
 fi
 
 if [ "$status" -eq 0 ]; then
-	echo "check-docs: OK ($(echo "$files" | wc -l | tr -d ' ') 个文件)"
+	echo "check-docs: OK ($(echo "$files" | wc -l | tr -d ' ') files)"
 fi
 exit "$status"

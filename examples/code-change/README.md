@@ -1,18 +1,20 @@
-# 使用最小代码变更方法
+# Run the minimal code-change method
 
-本方法适用于已经获准修改本地仓库、有明确验收标准和检查命令的代码任务。它提供固定阶段和冻结报告引用；实际代码仍在项目仓库，报告中的 commit、patch 和工具结果由执行者与审阅者核对。
+English | [简体中文](../code-change-zh-CN/README.md)
 
-当前源码候选为 0.3.0-rc.1，尚未发布；使用当前源码构建的 sheltie 与新的显式管理根。旧管理根和旧二进制保留，不修改或清空。方法默认没有 gate，不授予部署、合并或发布权限。
+For authorized local repository changes with clear acceptance/check commands. Fixed stages/frozen reports do not replace actual code in the project; workers/reviewers verify reported commit/patch/tool references.
 
-## 准备输入
+Current candidate0.3.0-rc.1 is unreleased. Build current sheltie and use a new explicit root, retaining old binaries/roots unchanged. Default method code-change@1.0.1 is English; code-change-zh-cn@1.0.0 is the maintained Chinese variant. Neither has a default gate or grants deployment/merge/publication authority.
 
-准备 task.md 和 project.md。task 写目标、约束、可接受成果和验收标准；project 写仓库绝对位置、允许范围、当前工作区前提和检查命令。两份材料会按字节冻结；目标改变时另开 Work，运行中不改图或输入。
+## Inputs
 
-方法是 implement → review → deliver；review 可经 back 回到 implement。实现和审查各最多到达 3 次、每次到达允许 1 次执行失败重试；deliver 最多到达 1 次。内容返工由显式边处理，执行失败才调用 fail。
+Task.md states goal/constraints/results/acceptance. Project.md identifies absolute repository/scope/worktree prerequisites/check commands. Both freeze by bytes; changed goals require new Work, never live graph/input edits.
 
-## 装入与开工
+Implement → review → deliver; review back returns to implement. Implement/review allow three arrivals, one business-failure retry per arrival; deliver one arrival. Content rework follows edges; execution failure uses fail.
 
-在仓库根，使用 cargo run 让 Cargo 定位真实二进制，不猜 target 路径。example_home 是本次新的绝对管理根；全部调用保持同一值。
+## Install/start
+
+Run Cargo from repository root to locate actual executable. Example_home is a new absolute root used consistently:
 
 ```bash
 example_home=/private/tmp/sheltie-code-change-example
@@ -21,43 +23,49 @@ cargo run -p sheltie-cli -- --home "$example_home" --json workbook show code-cha
 cargo run -p sheltie-cli -- --home "$example_home" --json work start --workbook code-change --flow default --input task=@/absolute/task.md --input project=@/absolute/project.md
 ```
 
-复用已装的同一 Workbook 版本时不用重复 add；只准备本次新 task/project 并新开 Work。show 的 start_inputs 应为 task、project。start 返回完整 work_id；下文的 <work> 替换为该值。给写操作显式 request-id 可以安全重试；只读命令不接受该参数。
+Reuse installed versions without add; supply fresh task/project for new Work. Show start_inputs should be task/project. Replace <work> below with returned full ID. Explicit write request-id enables safe retry; reads reject it.
 
-## 领取、提交与返工
+## Acquire/submit/rework
 
 ```bash
 cargo run -p sheltie-cli -- --home "$example_home" --json attempt begin <work> --node implement
 ```
 
-把 brief_path 交给执行者。执行者读取冻结输入，在 task/project 的授权范围内完成代码和检查，按 outputs.change 指定位置写 change.md。报告写清实际候选、检查原文、退出状态、未执行项和剩余问题。
+Delegate brief_path. Worker reads frozen inputs, changes/checks authorized project, writes outputs.change with actual candidate/raw checks/exit/unrun/remaining.
 
 ```bash
-cargo run -p sheltie-cli -- --home "$example_home" --json attempt submit <work> --attempt implement#1.0 --summary "说明实际完成程度"
+cargo run -p sheltie-cli -- --home "$example_home" --json attempt submit <work> --attempt implement#1.0 --summary "Actual completion status"
 cargo run -p sheltie-cli -- --home "$example_home" --json attempt begin <work> --node review
 ```
 
-审查者不参与被审代码编写，按 brief 和 task 的标准独立核对并写 review.md。完成审查后 submit；协调者读报告和当前 next 选择 back 返工或 main 交付。执行成功仅表示该次任务和输出合同完成，报告说“通过”不会自动选边。
+Independent reviewer did not author code; reads brief/task, writes review, submits. Coordinator reads report/current next and chooses back/main. Successful execution is not accepted content; Accepted text never automatically routes.
 
-返工产生 implement#2，再独立复核 review#2；每次以 begin 返回的实际 AttemptId 和路径提交。previous-review 是被冻结的具体报告，不根据目录里的最新文件猜来源。执行者崩溃或无法交付时，按 next 和 max_retries 处理 fail；普通内容问题仍走 submit 与显式 back。
+Rework creates implement#2/review#2. Use actual begin IDs/paths. Previous-review binds a particular frozen report, not guessed newest directory files. Crashed/unable executors use fail according to next/max_retries; content findings submit/back.
 
-## 中断后继续
+## Resume
 
 ```bash
 cargo run -p sheltie-cli -- --home "$example_home" --json work status <work>
 ```
 
-先核当前 revision、effects_pending、next 和 resume。resume 给当前 Attempt 的任务书、冻结输入与声明草稿位置；草稿路径不证明文件存在或已经封存。历史 request 重放返回当时的 next，当前操作必须以新查询为准。
+Check current revision/effects_pending/next/resume. Resume binds current brief/inputs/draft locations, not proof of draft existence/sealing. Replay next is historical; current action requires new status.
 
-确认旧执行者与共享工作区已妥善处理后，继续原 running Attempt。会话重开本身不改变状态，不调用 fail 或 begin 制造一次新尝试。effects_pending=true 时，查询不会自动恢复；通过既有写请求重放处理登记效果，错误持续就停止并保留准确原因。
+After handling old executor/shared workspace, continue original running Attempt. Reopening alone changes no state or creates a new Attempt through fail/begin. Reads do not recover pending effects; replay registered writes. Persistent errors stop with accurate cause.
 
-## 取得成果
+## Results
 
-独立审查完成且协调者选 deliver 后，执行者核 change/review 指向同一实际候选并写 delivery.md，再提交。
+After independent review/coordinator deliver selection, worker verifies same candidate in change/review, writes/submits delivery:
 
 ```bash
 cargo run -p sheltie-cli -- --home "$example_home" --json work result <work>
 ```
 
-只有 final=true 才展示明确选择：change、review 是该具体 deliver Attempt 绑定的冻结输入，delivery 是它封存的输出。每项给 path、sha256、bytes 与 source；source.attempt 表示终点绑定或封存者。结果查询列举引用，不重新证明源字节或报告内容。接受、复制、合并和发布按各自实际合同与授权核对。
+Final=true exposes change/review bound inputs and delivery sealed output of that deliver Attempt. Paths/sha256/bytes/source identify terminal binding/sealing. Ref queries do not reprove bytes/reports. Acceptance/copy/merge/publication require their actual contracts/authority.
 
-final=false 时集合为空。final=true 但方法未选择成果会明确为空；本方法已选择三个槽。读取报告内容和实际代码，核未完成义务，不能以 Work succeeded 替代用户接受或独立质量结论。
+Final=false is empty. Final=true without declarations is explicitly empty; this method selects three slots. Inspect reports/code/remaining obligations; succeeded does not replace acceptance/independent quality.
+
+## Evaluate English instructions
+
+Use fresh equivalent authorized tasks for English/Chinese variants in separate roots. Capture brief language/first-line routing, review independence, explicit rework, and final provenance; compare human questions/repair rounds/observable costs/independent quality with conditions fixed beforehand. Record actual outcomes in the active package. This procedure is not evidence that model/host comparative evaluation ran.
+
+Language links select repository source variants. Installed/frozen instructions and resources use the chosen language; sibling language directories are not included in that copy.

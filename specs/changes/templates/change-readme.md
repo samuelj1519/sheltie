@@ -1,28 +1,30 @@
-# Cnnn：<标题>
+# Cnnn: <title>
 
-状态：`proposed`
-目标版本：`待定`
-兼容性：`patch | minor | breaking | none`
-基线：`<commit>`
-Owner：`待采用时指定`
-权威性：未采用；不得据此修改产品代码
+English | [简体中文](change-readme.zh-CN.md)
 
-## 要解决的问题
+Status: `proposed`
+Target version: `undecided`
+Compatibility: `patch | minor | breaking | none`
+Baseline: `<commit>`
+Owner: `assigned on adoption`
+Authority: unadopted; does not authorize product-code changes
 
-<触发条件、可观察影响与证据链接。>
+## Problem
 
-## 成功判据
+<Trigger, observable impact, evidence links.>
 
-- <可验证结果。>
+## Success criteria
 
-## 不做什么
+- <Verifiable result.>
 
-- <明确排除项。>
+## Exclusions
 
-## 文档入口
+- <Explicitly excluded scope.>
 
-- <findings / spec / design / plan / validation。>
+## Document entry points
 
-## 采用条件
+- <findings / spec / design / plan / validation.>
 
-<人需要确认的范围、兼容策略与上游文档改动。>
+## Adoption conditions
+
+<Scope, compatibility strategy, and upstream changes requiring human confirmation.>

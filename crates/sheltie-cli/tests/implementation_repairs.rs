@@ -1,4 +1,4 @@
-//! C002-T31：实现审查发现的真实初始化与门槛事实回归。
+//! C002-T31: real initialization and gate-fact regressions found during implementation review.
 #![cfg(feature = "failpoint")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 

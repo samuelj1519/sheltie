@@ -1,22 +1,24 @@
-# 操作指南
+# How-to guides
 
-已有明确目标时从下表选择指南。命令面向当前源码；使用旧发布版先核[版本与兼容性](../reference/limitations.md)。第一次学习运行流程见[教程](../tutorials/README.md)，参数查询见[参考](../reference/README.md)。
+English | [简体中文](README.zh-CN.md)
 
-| 目标 | 指南 |
+Choose a guide for your goal. Commands target current source; check [compatibility](../reference/limitations.md) before using old releases. Learn basic execution in [tutorials](../tutorials/README.md); look up arguments in [reference](../reference/README.md).
+
+| Goal | Guide |
 | --- | --- |
-| 构建并取得可信二进制 | [从源码构建](build-from-source.md) |
-| 安装、更新、回滚或卸载 | [管理引擎安装](manage-installation.md) |
-| 装入、核验、升级或移除方法 | [管理 Workbook](manage-workbooks.md) |
-| 运行有界仓库修改 | [使用 code-change](run-code-change.md) |
-| 从规格、方案推进逐任务开发 | [使用 spec-dev](run-spec-dev.md) |
-| 把做事方法写成图与说明 | [编写 Workbook](write-workbook.md) |
-| 用画布编辑并下载方法副本 | [使用作者工具](edit-workbook.md) |
-| 中断后继续、返工或撤销资格 | [接续 Work](resume-work.md) |
-| 拿走可编辑成果副本 | [导出成果](export-results.md) |
-| 排查错误与受阻状态 | [故障排查](troubleshoot.md) |
-| 制定和实施已采用变更 | [实施变更](implement-change.md) |
-| 选择验证范围、预算与证据 | [验证变更](validate-change.md) |
-| 评估方法复用和实际收益 | [效果评估](evaluate-workflows.md) |
-| 维护文档或读取历史原件 | [维护文档](maintain-docs.md) |
+| Build a trusted binary | [Build from source](build-from-source.md) |
+| Install, update, roll back, uninstall | [Manage installation](manage-installation.md) |
+| Install, verify, upgrade, remove methods | [Manage Workbooks](manage-workbooks.md) |
+| Run a bounded repository change | [Use code-change](run-code-change.md) |
+| Develop task by task from specifications/plans | [Use spec-dev](run-spec-dev.md) |
+| Write methods as graphs/instructions | [Write a Workbook](write-workbook.md) |
+| Edit on a canvas and download copies | [Authoring tool](edit-workbook.md) |
+| Continue after interruption, rework, revoke qualification | [Resume a Work](resume-work.md) |
+| Obtain editable result copies | [Export results](export-results.md) |
+| Diagnose errors/blocked states | [Troubleshoot](troubleshoot.md) |
+| Prepare/implement adopted changes | [Implement changes](implement-change.md) |
+| Choose validation scope/budget/evidence | [Validate changes](validate-change.md) |
+| Evaluate method reuse/actual benefits | [Evaluate workflows](evaluate-workflows.md) |
+| Maintain docs/read historical originals | [Maintain docs](maintain-docs.md) |
 
-采用范围、当前进度和强制门禁仍由 [specs](../../specs/README.md) 定义。
+[specs](../../specs/README.md) defines adopted scope, current progress, and mandatory gates.

@@ -1,5 +1,5 @@
-//! C002-T04：管理路径、文件句柄、限额与安全原子写的边界反例（O01）。
-//! 所有外部哨兵的字节与权限在断言里逐项比较。
+//! C002-T04: managed-path, file-handle, limit, and safe atomic-write rejection boundaries (O01).
+//! Compare every external sentinel's bytes and permissions independently.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod common;
@@ -17,7 +17,7 @@ fn canonical_abs(path: &Path) -> sheltie_core::path::AbsPath {
     abs(&std::fs::canonicalize(path).unwrap())
 }
 
-/// works 被换成指向根外的软链后，start 不得沿它写整棵 Work（O01 复现的反面）。
+/// Replacing works with an external symlink must prevent start from writing a Work tree (O01 rejection).
 // Task: C002-T04
 #[test]
 fn works_parent_symlink_blocks_start_and_keeps_sentinel_untouched() {
@@ -29,7 +29,7 @@ fn works_parent_symlink_blocks_start_and_keeps_sentinel_untouched() {
     repo(&home)
         .add(&abs(&example_dir("two-step")), None)
         .unwrap();
-    // 把 works 换成指向根外的软链。
+    // Replace works with an external symlink.
     let works = home.works_dir();
     std::os::unix::fs::symlink(outside.path(), works.as_path()).unwrap();
 
@@ -40,15 +40,19 @@ fn works_parent_symlink_blocks_start_and_keeps_sentinel_untouched() {
         sheltie_core::ErrorCode::InvalidRequest,
         "{err:?}"
     );
-    assert!(err.to_string().contains("符号链接"), "{err:?}");
+    assert!(err.to_string().contains("symlink"), "{err:?}");
 
-    // 哨兵字节与权限完全不变；根外目录里没有 Work 目录。
+    // Sentinel bytes/permissions stay unchanged; no Work directory appears outside the root.
     assert_eq!(snapshot(&sent), before);
     let entries: Vec<_> = std::fs::read_dir(outside.path()).unwrap().collect();
-    assert_eq!(entries.len(), 1, "根外目录不得被写入：{entries:?}");
+    assert_eq!(
+        entries.len(),
+        1,
+        "Must not write outside the root: {entries:?}"
+    );
 }
 
-/// bin 被换成软链后，self install 拒绝，哨兵不动。
+/// Replacing bin with a symlink rejects self install, preserving the sentinel.
 // Task: C002-T04
 #[test]
 fn bin_parent_symlink_blocks_install_and_keeps_sentinel_untouched() {
@@ -60,13 +64,17 @@ fn bin_parent_symlink_blocks_install_and_keeps_sentinel_untouched() {
     std::os::unix::fs::symlink(outside.path(), home.bin_dir().as_path()).unwrap();
 
     let err = sheltie_runtime::selfmgmt::install(&home).unwrap_err();
-    assert!(err.to_string().contains("符号链接"), "{err:?}");
+    assert!(err.to_string().contains("symlink"), "{err:?}");
     assert_eq!(snapshot(&sent), before);
     let entries: Vec<_> = std::fs::read_dir(outside.path()).unwrap().collect();
-    assert_eq!(entries.len(), 1, "根外目录不得被写入：{entries:?}");
+    assert_eq!(
+        entries.len(),
+        1,
+        "Must not write outside the root: {entries:?}"
+    );
 }
 
-/// 输入文件被换成软链（指向根外哨兵）后，begin 的观察直接拒绝。
+/// Replacing input with an external-sentinel symlink rejects during begin observation.
 // Task: C002-T04
 #[test]
 fn leaf_symlink_input_rejected_at_observation() {
@@ -76,7 +84,7 @@ fn leaf_symlink_input_rejected_at_observation() {
 
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&svc.start(start_args(&[("topic", "t")]), None).unwrap());
-    // 有人把起始输入换成指向哨兵的软链。
+    // External actor replaces a start input with a sentinel symlink.
     let input = Path::new(home.work_dir(&wid).as_str()).join("start-inputs/topic");
     std::fs::remove_file(&input).unwrap();
     std::os::unix::fs::symlink(&sent, &input).unwrap();
@@ -88,12 +96,12 @@ fn leaf_symlink_input_rejected_at_observation() {
             None,
         )
         .unwrap_err();
-    assert!(err.to_string().contains("符号链接"), "{err:?}");
+    assert!(err.to_string().contains("symlink"), "{err:?}");
     assert_eq!(snapshot(&sent), before);
 }
 
-/// 预先放好的固定名临时软链（旧的 `status-card.md.tmp-pending` 攻击）不再能重定向
-/// 状态卡写入：临时名随机且独占创建，卡写到正确位置，哨兵不动。
+/// Preplanted fixed-name temporary symlinks (old status-card.md.tmp-pending attack) cannot redirect
+/// status writes: random exclusive temporary names preserve the correct card and untouched sentinel.
 // Task: C002-T04
 #[test]
 fn precreated_tmp_pending_symlink_cannot_redirect_status_card() {
@@ -104,17 +112,21 @@ fn precreated_tmp_pending_symlink_cannot_redirect_status_card() {
     let (_d, home, svc) = home_with_example("two-step");
     let wid = work_id_of(&svc.start(start_args(&[("topic", "t")]), None).unwrap());
     let work = std::path::PathBuf::from(home.work_dir(&wid).as_str());
-    // 攻击者按旧实现的固定临时名放软链。
+    // Plant a symlink at the old implementation's fixed temporary name.
     std::os::unix::fs::symlink(&sent, work.join("status-card.md.tmp-pending")).unwrap();
 
     svc.cancel(&wid, None).unwrap();
-    assert_eq!(snapshot(&sent), before, "外部哨兵不得被写");
+    assert_eq!(
+        snapshot(&sent),
+        before,
+        "Must not write the external sentinel"
+    );
     let card = std::fs::read_to_string(work.join("status-card.md")).unwrap();
     assert!(card.contains(&format!("# Work {wid}")), "{card}");
 }
 
-/// 句柄钉住被观察的对象：路径在观察后被换掉，已打开句柄读到的仍是原对象；
-/// 重新打开则拿到新对象并被身份核对发现内容变化。
+/// Handles pin observed objects; replacing a path after observation leaves the open handle bound to the original,
+/// while reopening sees the new object, with identity/content checks detecting the change.
 // Task: C002-T04
 #[test]
 fn safe_handle_pins_observed_object_across_path_swap() {
@@ -125,24 +137,24 @@ fn safe_handle_pins_observed_object_across_path_swap() {
     let (sha1, n1) = f.sha256_bounded(1024).unwrap();
     assert_eq!(n1, 8);
 
-    // 路径后面换成另一个文件；旧句柄仍读原对象。
+    // Replace the path later; the original handle still reads the original object.
     std::fs::remove_file(&p).unwrap();
     std::fs::write(&p, b"replacement").unwrap();
     let (sha2, n2) = f.sha256_bounded(1024).unwrap();
     assert_eq!(
         (sha2.clone(), n2),
         (sha1.clone(), n1),
-        "句柄钉住的是打开时的对象"
+        "Handle pins the object opened originally"
     );
 
-    // 新句柄观察到新内容：换过的对象不会冒充原对象通过封存核对。
+    // A new handle observes new content; replacements cannot impersonate the original during sealing.
     let g = ExternalReadFile::open_regular(&abs(&p)).unwrap();
     let (sha3, n3) = g.sha256_bounded(1024).unwrap();
     assert_ne!((sha3, n3), (sha1, n1));
 }
 
-/// 观察层限额：恰好 32 MiB 可读，多一字节在读取前拒绝（fsx 单元）；声明输出的
-/// 33 MiB 文件在 service.submit 观察步即按 `OUTPUT_TOO_LARGE` 拒绝，不整读进内存。
+/// Observation limits: accept exactly 32 MiB, reject one extra byte before reading (fsx unit); declared
+/// 33 MiB outputs yield OUTPUT_TOO_LARGE during service.submit observation, without full-memory reads.
 // Task: C002-T04
 #[test]
 fn bounded_read_accepts_exactly_cap_and_rejects_one_more() {
@@ -161,8 +173,8 @@ fn bounded_read_accepts_exactly_cap_and_rejects_one_more() {
     drop(f);
     let at = ExternalReadFile::open_regular(&abs(&over)).unwrap();
     match at.read_bounded(cap) {
-        Err(Error::InvalidRequest { reason }) => assert!(reason.contains("超过"), "{reason}"),
-        other => panic!("超限应当拒绝：{other:?}"),
+        Err(Error::InvalidRequest { reason }) => assert!(reason.contains("Exceeds"), "{reason}"),
+        other => panic!("Over-limit cases must be rejected: {other:?}"),
     }
 }
 
@@ -219,7 +231,7 @@ fn oversize_declared_output_rejected_at_observation_as_output_too_large() {
     );
 }
 
-/// 观察拒绝发生在 COMMIT 之前：Store 的完整行与外部哨兵均不变。
+/// Observation rejection precedes COMMIT; complete Store rows and external sentinels remain unchanged.
 // Task: C002-T40
 #[test]
 fn observation_rejection_before_commit_leaves_store_unchanged() {
@@ -236,7 +248,7 @@ fn observation_rejection_before_commit_leaves_store_unchanged() {
         sheltie_core::work::Reply::AttemptBegun { output_dir, .. } => output_dir.clone(),
         other => panic!("{other:?}"),
     };
-    // 输出被换成软链：观察即拒绝，提交与效果都不发生。
+    // Symlink-replaced outputs reject during observation, preventing commit and effects.
     let out = Path::new(output_dir.as_str()).join("outline.md");
     let outside = tempfile::tempdir().unwrap();
     let sent = sentinel(outside.path(), "keep-output");
@@ -257,16 +269,16 @@ fn observation_rejection_before_commit_leaves_store_unchanged() {
             None,
         )
         .unwrap_err();
-    assert!(err.to_string().contains("符号链接"), "{err:?}");
+    assert!(err.to_string().contains("symlink"), "{err:?}");
     assert_eq!(
         store_rows(&connection),
         before,
-        "观察拒绝不得改变revision、state_json、requests或audit"
+        "Observation rejection must preserve revision, state_json, requests, and audit"
     );
     assert_eq!(snapshot(&sent), sentinel_before);
 }
 
-/// 独占原子写的单元行为：不覆盖已有目标名之外，还拒绝在同目录预留的软链临时名。
+/// Atomic exclusive writes reject both existing destination names and preplanted same-directory temporary symlinks.
 // Task: C002-T04
 #[test]
 fn exclusive_atomic_write_creates_and_replaces_target_only() {
@@ -281,7 +293,7 @@ fn exclusive_atomic_write_creates_and_replaces_target_only() {
         std::fs::read(home.root().as_path().join("card.md")).unwrap(),
         b"v1"
     );
-    // 同名重写走 rename 替换；目录里不留临时文件。
+    // Same-name rewrites replace through rename without residual temporary files.
     fs.write_atomic(&lock, &target, b"v2").unwrap();
     assert_eq!(
         std::fs::read(home.root().as_path().join("card.md")).unwrap(),
@@ -292,7 +304,10 @@ fn exclusive_atomic_write_creates_and_replaces_target_only() {
         .map(|e| e.unwrap().file_name().to_string_lossy().into_owned())
         .filter(|n| n.starts_with(".card.md.tmp-"))
         .collect();
-    assert!(leftovers.is_empty(), "不留临时文件：{leftovers:?}");
+    assert!(
+        leftovers.is_empty(),
+        "No temporary files remain: {leftovers:?}"
+    );
 }
 
 // Task: C002-T19
@@ -375,7 +390,7 @@ fn readonly_rechecks_hardlink_count_before_chmod() {
     assert_eq!(snapshot(&external_alias), original);
 }
 
-/// ensure_dirs_under 的单元反例：根下的软链段与文件占位段都拒绝。
+/// ensure_dirs_under rejection cases: symlink and file-placeholder segments beneath the root.
 // Task: C002-T04
 #[test]
 fn ensure_dirs_rejects_symlink_and_file_placeholder_below_root() {
@@ -383,14 +398,14 @@ fn ensure_dirs_rejects_symlink_and_file_placeholder_below_root() {
     let home = sheltie_runtime::Home::resolve(Some((canonical_abs(dir.path())).as_str())).unwrap();
     let lock = home.acquire_lock().unwrap();
     let fs = ManagedFs::open_existing(&home).unwrap();
-    // 软链段。
+    // Symlink segment.
     let outside = tempfile::tempdir().unwrap();
     std::os::unix::fs::symlink(outside.path(), home.root().as_path().join("works")).unwrap();
     match fs.ensure_dir(&lock, &ManagedRelPath::new("works/w1").unwrap()) {
-        Err(Error::InvalidRequest { reason }) => assert!(reason.contains("符号链接"), "{reason}"),
-        other => panic!("软链段应当拒绝：{other:?}"),
+        Err(Error::InvalidRequest { reason }) => assert!(reason.contains("symlink"), "{reason}"),
+        other => panic!("Symlink segment must be rejected: {other:?}"),
     }
-    // 文件占位段。
+    // File-placeholder segment.
     let dir2 = tempfile::tempdir().unwrap();
     let home2 =
         sheltie_runtime::Home::resolve(Some((canonical_abs(dir2.path())).as_str())).unwrap();
@@ -398,19 +413,21 @@ fn ensure_dirs_rejects_symlink_and_file_placeholder_below_root() {
     let fs2 = ManagedFs::open_existing(&home2).unwrap();
     std::fs::write(home2.root().as_path().join("bin"), b"not a dir").unwrap();
     match fs2.ensure_dir(&lock2, &ManagedRelPath::new("bin/sheltie").unwrap()) {
-        Err(Error::InvalidRequest { reason }) => assert!(reason.contains("不是目录"), "{reason}"),
-        other => panic!("文件占位段应当拒绝：{other:?}"),
+        Err(Error::InvalidRequest { reason }) => {
+            assert!(reason.contains("is not a directory"), "{reason}")
+        }
+        other => panic!("File-placeholder segment must be rejected: {other:?}"),
     }
-    // 根外的目标拒绝。
+    // Reject external destinations.
     let elsewhere = tempfile::tempdir().unwrap();
     assert!(home.to_rel(&abs(elsewhere.path())).is_err());
-    // 合法嵌套创建。
+    // Valid nested creation.
     fs2.ensure_dir(&lock2, &ManagedRelPath::new("works/a/b").unwrap())
         .unwrap();
     assert!(home2.root().as_path().join("works/a/b").is_dir());
 }
 
-/// 正常链路回归：嵌套输出、显式 @file 由 CLI 层覆盖；这里覆盖嵌套目录下的原子写。
+/// Accepted regression: CLI covers nested outputs/explicit @file; this covers atomic writes beneath nested directories.
 // Task: C002-T04
 #[test]
 fn exclusive_atomic_write_creates_nested_parents() {
@@ -419,10 +436,11 @@ fn exclusive_atomic_write_creates_nested_parents() {
     let lock = home.acquire_lock().unwrap();
     let fs = ManagedFs::open_existing(&home).unwrap();
     let target = ManagedRelPath::new("works/w/attempts/d/0/brief.md").unwrap();
-    fs.write_atomic(&lock, &target, "嵌套".as_bytes()).unwrap();
+    fs.write_atomic(&lock, &target, "Nested".as_bytes())
+        .unwrap();
     assert_eq!(
         std::fs::read(home.root().as_path().join(target.as_str())).unwrap(),
-        "嵌套".as_bytes()
+        "Nested".as_bytes()
     );
 }
 

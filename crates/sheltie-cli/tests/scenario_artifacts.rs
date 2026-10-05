@@ -1,4 +1,4 @@
-//! T22：产物完整性场景。
+//! T22: artifact integrity scenarios.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod common;
@@ -20,7 +20,7 @@ fn modifying_upstream_output_makes_downstream_begin_fail_with_artifact_modified(
         .work_dir(&wid)
         .join("attempts/outline/occurrence-001/attempt-000/outputs/outline.md");
     make_writable(&outline);
-    std::fs::write(&outline, "偷偷改了").unwrap();
+    std::fs::write(&outline, "Secretly modified").unwrap();
     let (e, _) = env.fail(&["attempt", "begin", &wid, "--node", "summary"]);
     assert_eq!(e["error"]["code"], "ARTIFACT_MODIFIED");
     assert_eq!(e["error"]["detail"]["input"], "outline");
@@ -40,7 +40,7 @@ fn submit_without_required_output_is_output_missing_and_attempt_stays_running() 
         "--attempt",
         "outline#1.0",
         "--summary",
-        "空手",
+        "No output",
     ]);
     assert_eq!(e["error"]["code"], "OUTPUT_MISSING");
     assert_eq!(e["error"]["detail"]["output"], "outline");
@@ -95,7 +95,7 @@ fn submit_oversize_output_is_output_too_large() {
         "--attempt",
         "outline#1.0",
         "--summary",
-        "太大",
+        "Too large",
     ]);
     assert_eq!(e["error"]["code"], "OUTPUT_TOO_LARGE");
 }
@@ -124,7 +124,7 @@ fn submit_with_symlink_output_is_rejected() {
         "--attempt",
         "outline#1.0",
         "--summary",
-        "软链",
+        "symlink",
     ]);
     assert_eq!(code, 1);
     assert_eq!(e["ok"], false);
@@ -133,7 +133,7 @@ fn submit_with_symlink_output_is_rejected() {
         e["error"]["detail"]["reason"]
             .as_str()
             .unwrap()
-            .contains("符号链接")
+            .contains("symlink")
     );
     assert_eq!(store_rows(&env), before);
     assert_eq!(std::fs::read(&target).unwrap(), bytes);

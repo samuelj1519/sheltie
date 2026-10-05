@@ -1,51 +1,53 @@
-# 实现架构约束
+# Implementation architecture constraints
 
-本文规定实现必须守住的分层、状态、读取与文件效果约束。产品语义以[规格](spec.md)为准，精确字段与顺序以[合同](contracts/README.md)为准。架构的因果解释见[原理](../docs/explanation/architecture.md)，代码与类型定位见[源码导读](../docs/explanation/source-tour.md)和[数据模型](../docs/reference/data-model.md)。
+English | [简体中文](architecture.zh-CN.md)
 
-## 1. 分层与写入边界
+This document defines mandatory layering, state, reading, and file-effect boundaries. The [specification](spec.md) defines semantics; [contracts](contracts/README.md) define exact fields and ordering. See [architecture explanation](../docs/explanation/architecture.md), [source tour](../docs/explanation/source-tour.md), and [data model](../docs/reference/data-model.md) for rationale and locations.
 
-引擎为单二进制 sheltie，依赖单向 cli → runtime → core。
+## 1. Layers and write boundaries
 
-| 层 | 职责与必须守住的边界 |
+The engine is a single sheltie binary with downward dependencies: cli → runtime → core.
+
+| Layer | Responsibilities and mandatory boundaries |
 | --- | --- |
-| core | 解析、编译、decide、legal_next 与纯渲染；不做文件、数据库、时钟或随机数 I/O，已观察事实通过参数传入 |
-| runtime | 观察真实文件与 OS 主体、受管句柄、Store 事务、效果与恢复；不解释报告内容、不重算 core 的业务决定 |
-| cli | 参数、命令分派、文本／JSON 与错误码；不直接打开数据库，不拼出另一份业务状态 |
+| core | Parsing, compilation, decide, legal_next, and pure rendering; no filesystem, database, clock, or random I/O; observed facts arrive as parameters |
+| runtime | Real file and OS-principal observation, managed handles, Store transactions, effects, and recovery; no report interpretation or recomputation of core business decisions |
+| cli | Arguments, dispatch, text/JSON, and error codes; no direct database access or alternative business-state construction |
 
-引擎只写管理根，不写宿主配置或安装宿主资源。sheltie-export 是未发布外围工具，只通过公开 CLI 取源，不依赖 runtime 或直接开 Store，只在显式授权父目录发布新副本。作者工具在自有临时根物化草稿，通过可信 CLI 核同一字节集合；不改作者原目录、正式 Home、Work 冻结副本或引擎格式。
+The engine writes only its management root, never host configuration or host resources. Unreleased sheltie-export obtains sources solely through public CLI, without runtime dependency or direct Store access, and publishes a new copy only under an explicitly authorized parent. The author tool materializes drafts in its own temporary root and validates the same byte set through trusted CLI. It does not modify author originals, the production Home, frozen Work copies, or engine formats.
 
-## 2. 定义、身份与状态权威
+## 2. Definitions, identity, and state authority
 
-Workbook／Flow 经解析和编译后作为已校验定义使用；Work start 持有实际方法冻结副本，之后不从已装方法目录加载运行图。运行状态只存 SQLite，状态卡、目录和日志是投影。
+Parsed and compiled Workbook/Flow values are validated definitions. Work start owns the actual frozen method copy; later operations do not load graphs from the installed-method directory. SQLite alone stores execution state; cards, directories, and logs are projections.
 
-ID、路径、摘要与有界文本使用校验 newtype。WorkState 的公开字段不保证所有跨字段组合合法；生产转换由 decide 生成，持久装入须严格校状态、冻结图、gate 与路径归属，不用默认值解释缺失关键字段。
+IDs, paths, digests, and bounded text use validating newtypes. Public WorkState fields do not guarantee valid cross-field combinations. Production transitions come from decide; persisted loading strictly validates state, frozen graphs, gates, and path ownership. Missing critical fields must not be interpreted through defaults.
 
-Occurrence 表示节点到达，Attempt number 表示同一到达内的连续创建顺序。failed 才消耗业务失败额度，superseded 不消耗；撤销和接替在一次写操作中完成，每个 Occurrence 固定最多一次。非统计输入继承旧冻结绑定并核同句柄字节，统计输入按含新 Attempt 的状态生成；旧草稿不变成新冻结输入。
+An Occurrence is a node arrival; Attempt number is sequential creation within that arrival. Only failed consumes the business-failure allowance; superseded does not. Revocation and replacement occur in one write operation, at most once per Occurrence. Non-statistical inputs inherit old frozen bindings and verify bytes through the same handle; statistical inputs derive from state including the new Attempt. Old drafts do not become new frozen inputs.
 
-## 3. 读取与来源闭合
+## 3. Trusted reads and source closure
 
-单次状态、统计和结果查询必须使用同一可信读取上下文，revision、pending 事实和 next 不跨连接或快照拼接。Work 及关联 requests／audit／effects 在单一只读事务读取；完整载荷在消费业务文件前严格解码与核闭包。局部身份投影不替代完整合同解码。
+Each state, stats, or result query uses one trusted read context. Revision, pending facts, and next must not be assembled across connections or snapshots. Read Work and associated requests/audit/effects in one read-only transaction; strictly decode complete payloads and validate closure before consuming business files. Partial identity projections do not replace complete contract decoding.
 
-最终成果仅从使 Work 成功的具体终点 Attempt 选择；未经批准门槛、未完成效果或非成功状态不能授 final 资格。引用查询不声称再次核全部源字节。需要原字节时绑定同次 revision／key，核来源身份并通过同一受限文件句柄读、校大小与摘要。
+Final results come only from the particular terminal Attempt that made the Work succeed. Unapproved gates, unfinished effects, or non-success states cannot confer final qualification. Reference queries do not claim to reverify all source bytes. When original bytes are needed, bind revision/key from that same read, verify source identity, and read/validate size and digest through one confined handle.
 
-## 4. 请求、事务与恢复
+## 4. Requests, transactions, and recovery
 
-参数解析只确定 @file 源路径。历史 request-id 命中时先核完整操作、目标与原意图，不重新读取已提交请求的源文件或业务输出来决定历史回复。相同意图返回原响应；不同意图拒绝。历史 next 不作当前操作依据。
+Argument parsing determines only @file source paths. A historical request-id hit first verifies the complete operation, target, and original intent; it does not reread submitted request sources or business outputs to determine the historical response. The same intent returns the original response; different intent is rejected. Historical next is not current operation authority.
 
-确定性 work start 拒绝在创建管理根／锁、分配序号和创建业务目录前发生；Workbook add 的锁前粗检、锁内私有副本完整校验、失败清理按存储合同执行。start 序号在独立短事务分配，分配后失败允许留空号、不回收。
+Deterministic work start rejection occurs before creating the management root/lock, allocating a sequence, or creating business directories. Workbook add follows the storage contract for coarse pre-lock checks, complete locked private-copy validation, and failure cleanup. Allocate start sequences in an independent short transaction; later failure may leave a gap that is never reclaimed.
 
-合法写操作持管理根写锁，锁内重核前提并先恢复旧效果，再观察、decide 和 commit。一个事务登记 request 去重、revision CAS、状态、原响应、审计与效果；文件发布在提交后按登记完成。效果闭包在任一动作前整组校验；无法证明完成时停止新写，准确区分提交前拒绝与已提交恢复错误，保留已核合法 original。
+Legal writes hold the management-root write lock, recheck prerequisites inside it, recover previous effects, then observe, decide, and commit. One transaction records request deduplication, revision CAS, state, original response, audit, and effects. Publish files after commit according to registration. Validate the complete effect closure before any action. If completion cannot be proved, stop new writes, distinguish precommit rejection from committed recovery errors, and retain any verified legitimate original response.
 
-历史业务文件按提交字节恢复，状态卡按最新状态生成。pending 只按归属、身份和 Store 引用恢复／清理，不按年龄处理或接管不明目录。只读操作不补效果、不创建引擎锁；SQLite 控制文件例外按 D-039。
+Restore historical business files using committed bytes; regenerate cards from latest state. Recover/clean pending files by ownership, identity, and Store references, never age or takeover of unknown directories. Read-only operations do not repair effects or create engine locks; SQLite control-file exceptions follow D-039.
 
-## 5. 受管文件与外围发布
+## 5. Managed files and external publication
 
-受管路径从管理根派生，经 confine、真实祖先和句柄身份核验；观察、大小、摘要、封存与恢复使用同一对象。非法名称、链接、硬链接、替换、内容变化和无法证明的对象按各自准确错误停止，不把路径名当身份证明。
+Derive managed paths from the management root; verify confinement, real ancestors, and handle identity. Observation, size, digests, sealing, and recovery use the same object. Illegal names, links, hard links, replacements, changed content, and unprovable objects stop with their accurate errors. A path name does not establish identity.
 
-Workbook 冻结、状态／效果装入和发布校验共享可信快照义务。engine 文件与 worker 输出分目录；产物原地封存，下游读取核被冻结字节。purge 只在明确确认后删除数据，保留原根与原锁；部分失败和异常晚到文件不被静默清除。
+Workbook freezing, state/effect loading, and publication validation share trusted-snapshot obligations. Separate engine files and worker outputs. Seal artifacts in place; downstream reads verify frozen bytes. Purge requires explicit confirmation and retains the original root and lock; partial failure and unexpected late files must not disappear silently.
 
-外围导出先严格核一次最终选集，受限接收每项原字节，读回并生成 manifest、完成规定同步后，以同父 NOREPLACE 发布新目录。最终对象及父同步确认后才 complete，rename 后确认不足为 publication_unconfirmed，不删除最终目录作补偿。文件与进程限额、对象重叠及错误状态以协议合同为准；OS 同步不扩大为断电持久或同权限隔离承诺。
+External export first strictly validates one final selection, receives each original byte stream within limits, reads back and creates a manifest, performs required synchronization, then publishes a new directory with same-parent NOREPLACE. Only confirmation of the final object and parent sync establishes complete. Insufficient confirmation after rename is publication_unconfirmed; do not delete the final directory as compensation. The protocol defines file/process limits, overlaps, and errors. OS sync does not promise power-loss durability or same-permission isolation.
 
-## 6. 验证落点
+## 6. Verification obligations
 
-INV 和业务词汇边界由工程规范、core-vocab 及各层真实测试验证。身份、字节、并发读取、提交前后恢复和后继消费者是不同义务，精简不能合并掉其独立 oracle。当前源码入口见[实现基线](../docs/reference/implementation.md)，支持与历史边界见[验收](../docs/reference/acceptance.md)。
+Engineering rules, core-vocab, and actual layer tests verify invariants and vocabulary boundaries. Identity, bytes, concurrent reads, pre/postcommit recovery, and successor consumers are separate obligations; simplification must retain their independent oracles. See [implementation baseline](../docs/reference/implementation.md) and [acceptance boundaries](../docs/reference/acceptance.md).

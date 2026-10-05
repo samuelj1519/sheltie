@@ -1,6 +1,6 @@
-# C007 历史任务映射
+# C007 historical task mapping
 
-仅供工具核任务完成状态与测试归属；原任务正文从固定 Git 快照读取。
+Tooling only: verify task completion states and test ownership. Read original task bodies from the fixed Git snapshot.
 
 | C007-T00 | done |
 
@@ -14,7 +14,7 @@
 
 | C007-M2 | done |
 
-### C007-T00：采用技术准备与真实准入缺项交接
+### C007-T00: Adopt technical preparation and hand off missing real-entry conditions
 
 | C007-T04 | done |
 

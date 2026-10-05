@@ -1,4 +1,4 @@
-//! T11：三份样例与 spec-dev 都能按合同编译。
+//! T11: three examples and spec-dev compile under the contract.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use sheltie_core::flow::{Executor, Tier, compile, parse_flow};
@@ -51,7 +51,7 @@ fn article_review_draft_takes_optional_review_verdict_input() {
         .inputs()
         .iter()
         .find(|i| i.name() == "review")
-        .unwrap_or_else(|| panic!("draft 应声明 review 输入"));
+        .unwrap_or_else(|| panic!("draft should declare a review input"));
     assert_eq!(
         input.source(),
         &sheltie_core::flow::InputSource::Node {
@@ -95,7 +95,7 @@ fn spec_dev_binds_decision_into_scaffold_implement_verify() {
         let decision = inputs
             .iter()
             .find(|i| i.name() == "decision")
-            .unwrap_or_else(|| panic!("{node} 应声明 decision 输入"));
+            .unwrap_or_else(|| panic!("{node} should declare a decision input"));
         assert_eq!(
             decision.source(),
             &sheltie_core::flow::InputSource::Node {
@@ -103,11 +103,13 @@ fn spec_dev_binds_decision_into_scaffold_implement_verify() {
                 output: "decision".to_string(),
             }
         );
-        assert!(decision.required(), "{node} 的 decision 应是必需输入");
+        assert!(decision.required(), "{node} decision must be required");
         let spec = inputs
             .iter()
             .find(|i| i.name() == "spec")
-            .unwrap_or_else(|| panic!("{node} 应声明 spec 输入供批准版本核对"));
+            .unwrap_or_else(|| {
+                panic!("{node} should declare a spec input for approved-version comparison")
+            });
         assert_eq!(
             spec.source(),
             &sheltie_core::flow::InputSource::Node {
@@ -129,7 +131,7 @@ fn spec_dev_escalation_inputs_cover_return_edge_to_verify() {
             .inputs()
             .iter()
             .find(|i| i.name() == "escalation")
-            .unwrap_or_else(|| panic!("{node} 应声明 escalation 输入"));
+            .unwrap_or_else(|| panic!("{node} should declare an escalation input"));
         assert_eq!(
             escalation.source(),
             &sheltie_core::flow::InputSource::Node {
@@ -221,7 +223,7 @@ fn spec_dev_replanning_uses_required_review_copies_and_reachable_optional_histor
                 output: output.to_string()
             }
         );
-        assert_ne!(source, "plan", "保持既有禁止自来源规则");
+        assert_ne!(source, "plan", "Preserve the existing no-self-source rule");
     }
 }
 

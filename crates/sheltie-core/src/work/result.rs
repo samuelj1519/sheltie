@@ -1,4 +1,4 @@
-//! 从具体终点 Attempt 的冻结槽选择最终成果，不读取产物内容。
+//! Select final results from a specific terminal Attempt's frozen slots without reading artifact content.
 
 use serde::Serialize;
 
@@ -67,11 +67,11 @@ pub fn result_view(
     if state.status != WorkStatus::Succeeded {
         return Ok(view);
     }
-    let node = graph
-        .node(&state.current.node)
-        .ok_or_else(|| "成功 Work 的当前节点不在冻结图中".to_string())?;
+    let node = graph.node(&state.current.node).ok_or_else(|| {
+        "Succeeded Work's current node is absent from the frozen graph".to_string()
+    })?;
     if !graph.is_terminal(&state.current.node) {
-        return Err("成功 Work 的当前节点不是终点".to_string());
+        return Err("Succeeded Work's current node is not terminal".to_string());
     }
     let (terminal_index, terminal) = state
         .attempts
@@ -79,9 +79,9 @@ pub fn result_view(
         .enumerate()
         .rev()
         .find(|(_, attempt)| attempt.occurrence() == state.current)
-        .ok_or_else(|| "成功 Work 缺少对应终点 Attempt".to_string())?;
+        .ok_or_else(|| "Succeeded Work has no corresponding terminal Attempt".to_string())?;
     if terminal.status != AttemptStatus::Succeeded {
-        return Err("成功 Work 的终点 Attempt 未成功".to_string());
+        return Err("Succeeded Work's terminal Attempt did not succeed".to_string());
     }
 
     let mut artifacts = Vec::new();
@@ -90,7 +90,7 @@ pub fn result_view(
             .inputs
             .get(input.name())
             .and_then(Option::as_ref)
-            .ok_or_else(|| format!("最终输入 {} 缺少冻结引用", input.name()))?;
+            .ok_or_else(|| format!("Final input {} has no frozen reference", input.name()))?;
         validate_input(state, graph, terminal, terminal_index, input, reference)?;
         artifacts.push(selected(
             terminal,
@@ -103,7 +103,7 @@ pub fn result_view(
         let reference = terminal
             .outputs
             .get(&output.name)
-            .ok_or_else(|| format!("最终输出 {} 缺少封存引用", output.name))?;
+            .ok_or_else(|| format!("Final output {} has no sealed reference", output.name))?;
         validate_output(state, terminal, output, reference)?;
         artifacts.push(selected(
             terminal,
@@ -149,7 +149,7 @@ fn validate_output(
         || reference.bytes > output.max_bytes
     {
         return Err(format!(
-            "最终成果引用 {} 与输出归属或大小合同不一致",
+            "Final result reference {} violates output ownership or size constraints",
             output.name
         ));
     }
@@ -164,7 +164,12 @@ fn validate_input(
     input: &InputDecl,
     reference: &ArtifactRef,
 ) -> std::result::Result<(), String> {
-    let invalid = || format!("最终输入 {} 与冻结来源不一致", input.name());
+    let invalid = || {
+        format!(
+            "Final input {} differs from its frozen source",
+            input.name()
+        )
+    };
     match input.source() {
         InputSource::Start { key } => {
             if state.inputs.get(key) != Some(reference)
@@ -206,7 +211,7 @@ fn validate_input(
 
 pub fn render_result(view: &ResultView) -> String {
     let mut text = format!(
-        "# Work {} 的成果\n\nworkbook: {}@{}   flow: {}   status: {}\nrevision: {}   final: {}   effects_pending: {}\n",
+        "# Results for Work {}\n\nworkbook: {}@{}   flow: {}   status: {}\nrevision: {}   final: {}   effects_pending: {}\n",
         view.work_id,
         view.workbook.id,
         view.workbook.version,
@@ -217,11 +222,11 @@ pub fn render_result(view: &ResultView) -> String {
         view.effects_pending,
     );
     if !view.r#final {
-        text.push_str("\n最终成果尚未就绪。\n");
+        text.push_str("\nFinal results are not ready.\n");
     } else if view.artifacts.is_empty() {
-        text.push_str("\n未声明最终成果。\n");
+        text.push_str("\nNo final results are declared.\n");
     } else {
-        text.push_str("\n## 最终成果\n\n");
+        text.push_str("\n## Final results\n\n");
         for artifact in &view.artifacts {
             let kind = match artifact.source.kind {
                 ResultSlotKind::Input => "input",
@@ -336,7 +341,7 @@ kind = "main"
         assert!(!view.r#final);
         assert!(view.effects_pending);
         assert!(view.artifacts.is_empty());
-        assert!(render_result(&view).contains("最终成果尚未就绪"));
+        assert!(render_result(&view).contains("Final results are not ready"));
     }
 
     // Task: C004-T01
@@ -374,7 +379,7 @@ kind = "main"
         let view = result_view(fixture.state(), &fixture.graph, 3, false).unwrap();
         assert!(view.r#final);
         assert!(view.artifacts.is_empty());
-        assert!(render_result(&view).contains("未声明最终成果"));
+        assert!(render_result(&view).contains("No final results are declared"));
     }
 
     // Task: C004-T01

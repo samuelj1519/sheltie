@@ -1,32 +1,32 @@
-# 需求规格：<一句话标题>
+# Requirements: <one-sentence title>
 
-## 目标
+## Goal
 
-<做完后用户能做到什么新的事。一段话。>
+<One paragraph: new user capability.>
 
-## 范围
+## Scope
 
-做：
+Included:
 
-- <条目>
+- <item>
 
-不做：
+Excluded:
 
-- <条目>
+- <item>
 
-## 假设
+## Assumptions
 
-- <你替用户做的合理假设，每条一句>
+- <Reasonable decision made for the user.>
 
-## 验收标准
+## Acceptance criteria
 
-1. <运行 X，看到 Y>
-2. <…>
+1. <Run X, observe Y.>
+2. <...>
 
-## 开放问题
+## Open questions
 
-- <问题>？推荐答案：<…>
+- <Question>? Recommended answer: <...>
 
-## 修订记录
+## Revision history
 
-- <日期> 初版
+- <date> Initial version

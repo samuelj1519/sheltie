@@ -1,5 +1,5 @@
-# C001 历史任务映射
+# C001 historical task mapping
 
-仅供工具核任务完成状态与测试归属；原任务正文从固定 Git 快照读取。
+Tooling only: verify task completion states and test ownership. Read original task bodies from the fixed Git snapshot.
 
 | C001-T01 | done |

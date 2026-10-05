@@ -119,7 +119,7 @@ mod tests {
             let report = copy(&binary, &tested_home, &work, &tested_parent);
             assert!(
                 !marker.exists(),
-                "未验证的目录先执行了源二进制：home={tested_home:?}, parent={tested_parent:?}"
+                "Source binary executed before directory validation: home={tested_home:?}, parent={tested_parent:?}"
             );
             assert_eq!(report.status, Status::Rejected);
             assert_eq!(report.exit_code(), 2);

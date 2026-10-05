@@ -124,7 +124,7 @@ fn tmp_cleanup_failure_warns_without_changing_successful_replay() {
     assert!(
         String::from_utf8(output.stderr)
             .unwrap()
-            .contains("tmp维护")
+            .contains("tmp maintenance")
     );
     assert_eq!(std::fs::read(stale).unwrap(), b"stale bytes");
     assert_eq!(std::fs::read(linked).unwrap(), b"stale bytes");
@@ -194,7 +194,7 @@ fn special_tmp_entry_is_preserved_and_warned_after_successful_write() {
     assert!(
         String::from_utf8(output.stderr)
             .unwrap()
-            .contains("特殊文件")
+            .contains("special file")
     );
     assert!(
         std::fs::symlink_metadata(path)
@@ -241,7 +241,7 @@ fn replaced_expired_directory_is_preserved_and_warned_without_changing_the_reply
     assert!(
         String::from_utf8(output.stderr)
             .unwrap()
-            .contains("tmp维护")
+            .contains("tmp maintenance")
     );
     assert_eq!(
         std::fs::read(old.join("sentinel")).unwrap(),

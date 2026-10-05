@@ -2,30 +2,30 @@
 source: crates/sheltie-core/src/work/render.rs
 expression: "render_status_card(fx.state(), &fx.graph)"
 ---
-# Work 2026-09-24-001-t（t）
+# Work 2026-09-24-001-t (t)
 
-workbook: gated-release@1.0.0   flow: default   status: blocked(gate)
+workbook: gated-release@1.0.1   flow: default   status: blocked(gate)
 current: notes#1
 done: notes#1
 pending: archive
 visits: notes 1/1, archive 0/1
-blocked: gate: notes#1 需要 gate approve
+blocked: gate: notes#1 requires gate approve
 
-## 当前任务
+## Current task
 
 attempt: notes#1.0
 brief_path: /tmp/sheltie-test/works/2026-09-24-001-t/attempts/notes/occurrence-001/attempt-000/brief.md
 inputs:
   version → /tmp/sheltie-test/works/2026-09-24-001-t/start-inputs/version (sha256 d0ff5974b6aa52cf562bea5921840c032a860a91a3512f7fe8f768f6bbe005f6, 3 B)
 
-## 最近一次尝试
+## Latest Attempt
 
 notes#1.0 succeeded
-summary: 写好了
+summary: Written
 outputs:
   notes → /tmp/sheltie-test/works/2026-09-24-001-t/attempts/notes/occurrence-001/attempt-000/outputs/notes.md (sha256 fc11d6f28e59d3cc33c0b14ceb644bf0902ebd63d61218dffe9e7dac7c254542, 10 B)
 
-## 合法下一步
+## Legal next actions
 
 - sheltie gate approve 2026-09-24-001-t --node notes
 - sheltie work cancel 2026-09-24-001-t

@@ -1,31 +1,33 @@
-# D-035 管理根写锁用 fs4
+# D-035: Management-root write locking with `fs4`
 
-状态：`accepted`
-日期：2026-09-27
-关联 change：[C002](../../history/changes/C002-v0.2.0-reliability/README.md)
+English | [简体中文](D-035-root-write-lock-fs4.zh-CN.md)
 
-## 背景
+Status: `accepted`
+Date: 2026-09-27
+Related change: [C002](../../history/changes/C002-v0.2.0-reliability/README.md)
 
-`work start` / `workbook add` 的发布顺序是「事务提交 → rename pending 到最终目录」。两个本地写进程交错时，一个进程的清理可能删掉另一个进程已提交未发布的原件；若锁外因素替换管理根，等待者可能沿陈旧inode继续写。需要一个管理根级的文件生命周期串行化，且只读操作不能为它建任何文件（GF-30）。C002采用purge保留根与原锁，见D-038。
+## Context
 
-## 选择
+`work start` / `workbook add` publish by committing, then renaming pending into its final directory. Interleaved local writers could let cleanup delete another writer's committed but unpublished source. External root replacement could leave a waiter writing through a stale inode. Root-level file-lifecycle serialization is needed, without creating files for reads (GF-30). C002 purge retains root and original lock; see D-038.
 
-`<管理根>/.lock` 上的排他文件锁，用 `fs4`（MIT OR Apache-2.0）的 `fs_std::FileExt`：`lock_exclusive` 阻塞等待，进程退出由 OS 释放；无需轮询与超时框架。锁内依次做重核 schema、查重放、恢复未完成效果、准备、事务、发布与完成标记。`self uninstall --purge`持锁删除用户数据和二进制，保留空管理根与同一个`.lock`，不释放/删除锁文件后再建新锁。
+## Decision
 
-只读操作不取HomeLock；它们依D-039执行只读SQLite识别与受管对象核验。写操作取得锁后复核`.lock`与根的对象身份。正常purge不会移除根或锁，排队者沿同一锁对象继续：合法add/install可在锁内初始化；旧Work命令在Store/Work行已被purge删除后返回NOT_FOUND，不得建库重建旧Work。若锁外因素意外删除或替换根/锁，等待者不得沿陈旧身份写入，应释放并按受管根重试。API 已按工程规范核对：std `File` 加锁、`try_lock_exclusive` 可探测、跨平台（unix fcntl/flock、Windows LockFileEx），满足上述每一步。D-038记录purge范围与正常同锁等待语义。
+Use an exclusive file lock on `<management-root>/.lock`, through `fs4` (MIT OR Apache-2.0) fs_std::FileExt. `lock_exclusive` waits blocking; OS process exit releases it, without polling/timeouts. Under the lock, recheck schema, detect replay, recover effects, prepare, transact, publish, and mark completion. `self uninstall --purge` removes data and binaries while retaining the empty root and same `.lock`, without releasing/deleting it and creating another lock.
 
-锁只串行化本地协作进程，不声称约束同用户手工改文件；SQLite 的 revision CAS 保留为事务边界校验，不做自动业务重试。
+Read-only operations do not acquire HomeLock. They perform read-only SQLite identification and managed-object checks under D-039. Writers recheck root and `.lock` identity after acquisition. Normal purge retains both; queued writers continue with the same lock. Authorized add/install may initialize under it. Old Work commands return NOT_FOUND after purge removes Store/Work rows, without recreating them. If external interference removes/replaces root or lock, waiters must release and retry against the managed root instead of writing through stale identity. API checks confirmed std `File` locking, `try_lock_exclusive` probing, and cross-platform support (unix fcntl/flock, Windows LockFileEx) for these operations. D-038 defines purge scope and normal same-lock waiting.
 
-## 否决方案
+The lock serializes cooperating local processes only, without constraining manual changes by the same user. SQLite revision CAS remains a transaction check, without automatic business retry.
 
-- 只靠 SQLite `BEGIN IMMEDIATE`：它串行化事务，不覆盖事务后的 rename/删除窗口，也管不到 `bin/`、`pending/` 这些库外路径。
-- `fd-lock`：API 返回借用句柄的 guard，与「锁文件长期持有 + inode 复核」的用法绕；维护活跃度相当。
-- 自制锁（存在性标志文件）：崩溃后残留死锁，OS 不自动释放，还要手工恢复。
+## Rejected alternatives
 
-## 后果
+- SQLite `BEGIN IMMEDIATE` alone: covers transactions, not later rename/delete windows or paths outside the database such as `bin/` and pending/.
+- `fd-lock`: borrowed-handle guards complicate long-lived lock files and inode rechecks; maintenance activity is comparable.
+- Custom existence-marker locks: crashes leave deadlocks requiring manual recovery; OS does not release them.
 
-写操作之间在单机上完全串行；引擎只读操作不创建`.lock`。WAL读取可能维护SQLite共享内存控制文件，见D-039。purge成功后保留空管理根及原锁。新增一个传递依赖很小的直接依赖（`fs4`）。
+## Consequences
 
-## 确认方式
+Local writes are fully serialized; engine reads create no .lock. WAL reads may maintain SQLite shared-memory controls under D-039. Successful purge retains the empty root and original lock. `fs4` adds one direct dependency with few transitive dependencies.
 
-并发测试先批量启动再用同步点制造交错再 join。purge等待者测试断言purge保留并复用同一个根/.lock、旧Work不复活；另用独立外部替换测试验证陈旧锁身份被识破且不会误写新根。
+## Verification
+
+Start concurrent processes as a group, force interleaving with synchronization points, then join. Purge-waiter tests assert the same root/.lock is retained/reused and old Works do not revive. Separate external-replacement tests expose stale identities and prevent writing to a new root incorrectly.

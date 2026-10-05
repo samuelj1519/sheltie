@@ -1,4 +1,4 @@
-//! 已持久响应的数据形状校验；历史状态与当前业务归属分别校验。
+//! Validate persisted response shapes; verify historical state separately from current business ownership.
 
 use std::collections::BTreeMap;
 
@@ -120,7 +120,9 @@ fn attempt_from_text<'de, D: serde::Deserializer<'de>>(
     let text = String::deserialize(deserializer)?;
     let attempt = AttemptId::parse(&text).map_err(serde::de::Error::custom)?;
     if attempt.to_string() != text {
-        return Err(serde::de::Error::custom("Attempt不是规范表示"));
+        return Err(serde::de::Error::custom(
+            "Attempt representation is not canonical",
+        ));
     }
     Ok(attempt)
 }
@@ -132,14 +134,16 @@ fn canonical_status<'de, D: serde::Deserializer<'de>>(
     let status: WorkStatus =
         serde_json::from_value(value.clone()).map_err(serde::de::Error::custom)?;
     if serde_json::to_value(status).map_err(serde::de::Error::custom)? != value {
-        return Err(serde::de::Error::custom("WorkStatus不是规范表示"));
+        return Err(serde::de::Error::custom(
+            "WorkStatus representation is not canonical",
+        ));
     }
     Ok(status)
 }
 
 fn parse<T: DeserializeOwned>(value: &serde_json::Value) -> Result<T> {
     serde_json::from_value(value.clone()).map_err(|error| Error::StoreCorrupt {
-        detail: format!("响应快照data解不开：{error}"),
+        detail: format!("Cannot decode response snapshot data: {error}"),
     })
 }
 
@@ -233,7 +237,7 @@ pub(crate) fn check_data(
         }
     };
     checked.ok_or_else(|| Error::StoreCorrupt {
-        detail: "响应快照data与Reply/Work身份不一致".into(),
+        detail: "Response snapshot data differs from Reply/Work identity".into(),
     })
 }
 

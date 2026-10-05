@@ -1,26 +1,28 @@
-# 当前验收边界
+# Current acceptance boundaries
 
-本文保存采用范围的完成结论及仍未执行、未知的边界。当前实现定位见[实现基线](implementation.md)；支持承诺见[产品规格](../../specs/spec.md#当前产品环境)，使用与信任边界见[限制参考](limitations.md)。发布事实只看 release record。
+English | [简体中文](acceptance.zh-CN.md)
 
-## 验收与价值结论
+This page retains adopted-scope completion and boundaries still unexecuted or unknown. See [implementation](implementation.md), [product support](../../specs/spec.md#current-product-environment), and [use/trust limits](limitations.md). Release records alone establish releases.
 
-当前 macOS／APFS 采用范围的实施与限定验收已完成，没有 active 产品任务。作者工具已有实际用户接受和真正宿主重开后的同 Attempt 接续事实。它们不补造过去缺失的费用、计时或公平对照。
+## Acceptance and value conclusions
 
-| 事项 | 可以使用的结论 | 仍不能推导的结论 |
+Implementation and bounded acceptance for current macOS/APFS scope are complete, without active product tasks. The authoring tool has actual user acceptance and same-Attempt continuation after genuine host reopening. These do not fill missing historical cost, timing, or fair comparisons.
+
+| Area | Supported conclusion | Unsupported inference |
 | --- | --- | --- |
-| C002 可靠性 | 当前可构造输入的限定恢复验收与 215 项处置完成 | 215 个历史原生变异全执行、旧安全／Spec 例外自动撤销 |
-| C004 成果与接续 | 实际 agent 交付、冷接续和新消费者读取 | 原真人配对净收益、缺失的旧查询快照 |
-| C005 撤销 | 技术与 MSRV 验证、真实需求负前检 | 未发生的真实撤销已试用、引擎停止或隔离了旧执行者 |
-| C006 副本 | 实际消费、再导出与跨 APFS 载体验收 | 外置物理设备认证、人类手工复制的普遍节省比例 |
-| C007 体验 | 六次实际 agent 运行、4 次质量通过／2 次交付阻断与文档交付 | 严格公平对照、15% 改善、原代码／真人协议通过 |
-| C008 依赖 | 7 份方法／27 个 Node 的 requires 为 0 | 宿主 ready、探针已实现、未来任务没有依赖 |
-| C009／C010 精简 | 对各自固定候选的行为保持与工程审查 | 当前源码无需验证、产品收益或发布已合格 |
-| C011 作者工具 | 所测可用性、实际用户接受与同 Attempt 重开接续 | 已发布、个人分钟／费用／ROI 已知 |
+| C002 reliability | Bounded recovery acceptance on constructible inputs; 215 dispositions complete | All 215 historical native mutants executed; old security/Spec exceptions revoked |
+| C004 results/resume | Actual agent delivery, cold resume, new-consumer reading | Original human-paired net benefit or missing query snapshots |
+| C005 revocation | Technical/MSRV verification and real-demand negative preflight | Actual revocation tried without an event; old executor stopped/isolated by engine |
+| C006 copies | Actual consumption, repeat export, cross-APFS acceptance | External physical-device certification or general human-copy saving ratio |
+| C007 experience | Six actual runs, 4 quality passes/2 blocked deliveries, document delivery | Strict fair comparison, 15% improvement, original code/human protocol pass |
+| C008 dependencies | Zero requires across 7 methods/27 Nodes | Host ready, implemented probes, no future dependencies |
+| C009/C010 simplification | Behavior preservation/engineering review on each frozen candidate | Current source needs no validation; product benefit/release qualified |
+| C011 authoring | Tested usability, actual user acceptance, same-Attempt reopening/resume | Released; personal minutes/cost/ROI known |
 
-历史 LEAK、原生覆盖、查询取证与 SK01/SK02 以原记录为准。新运行无 LEAK 不解释旧因果；缺原件的过去事实保持 unknown 或 not_run。Attempt 时长包含等待和人工活动，不能换算为模型 usage；未知费用不能填 0。
+Historical LEAK, native coverage, query forensics, and SK01/SK02 follow original records. New LEAK-free runs do not explain past causes. Missing original facts remain unknown/not_run. Attempt durations include waiting/human activities and cannot become model usage; unknown costs are not zero.
 
-## 何时重新立项
+## When to initiate new work
 
-真实资格撤销事件出现时，先记录 Work／Attempt、撤销理由、同目标与质量、旧执行者处置、新执行者和成本。宿主依赖问题出现时，先确认必需 kind:name、对应 Node、重复摩擦、单宿主身份规则、获准读取范围与预算；探针目前未采用，不先扫描整个宿主寻找样本。
+For real revocation events, record Work/Attempt, reason, same target/quality, old-executor handling, successor, and costs first. For host dependencies, establish required kind:name, Node, repeated friction, single-host identity rules, authorized reads, and budget. Probes are not adopted; do not scan the entire host to seek samples.
 
-扩展平台或物理载体时，先采用对应支持范围，再执行实际环境的身份、完整性与错误路径验证。评估收益时使用新的未解决任务与预注册质量／成本标准，方法见[效果评估](../how-to/evaluate-workflows.md)。历史原件的固定入口见[变更档案](../history/changes/README.md)和[历史查阅](../how-to/maintain-docs.md#查阅历史原件)。
+Adopt support scope before extending platforms/media, then validate identity/integrity/error paths on actual environments. Measure value with new unresolved tasks and preregistered quality/cost criteria; see [evaluation](../how-to/evaluate-workflows.md). Fixed original records are in [change archives](../history/changes/README.md) and [historical lookup](../how-to/maintain-docs.md#read-original-historical-records).

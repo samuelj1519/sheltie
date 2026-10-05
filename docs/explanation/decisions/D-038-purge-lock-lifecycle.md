@@ -1,29 +1,31 @@
-# D-038 purge清除数据并保留根锁
+# D-038: Purge data while retaining the root lock
 
-状态：`accepted`
-日期：`2026-09-28`
-关联 change：[C002](../../history/changes/C002-v0.2.0-reliability/README.md)
+English | [简体中文](D-038-purge-lock-lifecycle.zh-CN.md)
 
-## 背景
+Status: `accepted`
+Date: `2026-09-28`
+Related change: [C002](../../history/changes/C002-v0.2.0-reliability/README.md)
 
-M1确认含0555冻结Workbook的正常purge会EACCES；原实现会先删`store.db`与`.lock`，再留下其他树。移除锁后才删除根会令等待者建新锁并写入，同时purge仍持有旧inode锁。
+## Context
 
-## 选择
+M1 confirmed normal purge of a frozen 0555 Workbook failed with EACCES. The original implementation deleted `store.db` and `.lock` first, leaving other trees. Removing the lock before the root let waiters create new locks and write while purge still held the old inode lock.
 
-`self uninstall --purge --yes`删除管理根下的用户数据、SQLite、workbooks、works、pending、tmp和bin，但保留空管理根和原`.lock`。purge在同一HomeLock内核将删对象及权限，按数据树→pending/tmp/bin→数据库次序删除；SQLite最后，`.lock`不删除。失败保留根/锁，准确报告部分清理，不能自动重建Store或Work；重复purge可继续清理。
+## Decision
 
-排队者沿同一根锁继续：合法`workbook add`或`self install`可初始化空Store；等待中的旧Work写命令若Store/Work行已删除则返回`NOT_FOUND`且不建库、不恢复旧Work。卸载协议明确根/.lock保留。
+`self uninstall --purge --yes` removes user data, SQLite, workbooks, works, pending, tmp, and bin, retaining the empty root and original .lock. Within the same HomeLock, verify objects/permissions and delete data trees → pending/tmp/bin → database. SQLite is last; `.lock` is never deleted. Failure retains root/lock and accurately reports partial cleanup, without recreating Store/Works. Repeating purge may continue cleanup.
 
-## 否决方案
+Waiters continue on the same root lock. Authorized workbook add/self install may initialize an empty Store. A waiting old Work write returns `NOT_FOUND` if Store/Work rows were removed, without creating a database or reviving old Works. The uninstall protocol explicitly retains root/.lock.
 
-- 先删`.lock`再删根，存在重新创建锁的并发窗口。
-- 把锁搬到根外，违反INV-3并新增第二管理位置。
-- 复制数据再补偿删除，扩大写入面且无法可靠恢复部分删除的SQLite唯一状态。
+## Rejected alternatives
 
-## 后果
+- Delete `.lock` before the root: a concurrency window permits lock recreation.
+- Move the lock outside the root: violates INV-3 and adds a second managed location.
+- Copy data and compensate by deletion: increases writes and cannot reliably recover partial deletion of the authoritative SQLite state.
 
-purge清掉全部用户工作数据与二进制，不再用“目录不存在”表示成功；根路径和锁对象保持稳定。
+## Consequences
 
-## 确认方式
+Purge removes all user Work data and binaries; missing directories no longer define success. Root path and lock object remain stable.
 
-对含冻结树/Store的临时Home运行正常清理、部分失败重试、install/add等待者与旧Work等待者；以同步点确认等待者已进入锁等待。
+## Verification
+
+Use temporary Homes with frozen trees/Store to test normal cleanup, retries after partial failure, waiting install/add, and waiting old Work commands. Synchronization points confirm waiters actually reached lock waiting.

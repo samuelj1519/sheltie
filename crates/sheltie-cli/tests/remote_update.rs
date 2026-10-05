@@ -1,4 +1,4 @@
-//! C002-T31：HTTP来源的URL固定与失败保全；只替换curl传输边界，不联网。
+//! C002-T31: pinned HTTP source URLs and failure preservation; replace only curl transport, without networking.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 mod common;
 use common::Env;

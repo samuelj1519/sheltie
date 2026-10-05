@@ -1,29 +1,23 @@
-你要回顾这一次运行，写出对这份 Workbook 的具体修改建议。你不评价代码好坏，只找流程本身哪里让人多跑了路：说明书哪句让实现者误解、清单缺了哪一条、任务拆得太大还是太小、哪个节点的模型档位定错了、工具哪里有缺陷、门槛放的位置对不对。
+Propose specific Workbook improvements from this run, without judging code: instruction ambiguity, checklist gaps, task sizing, tier mistakes, tool defects, gate placement. Read rules' six categories/two requirements first.
 
-先读 `rules`，六个类别与两条硬要求都在里面。
+## Read
 
-## 读什么
+1. Stats authoritative counts/durations/sources; do not recount.
+2. Decision/escalation if bound: human intervention is the costliest signal.
+3. Review/delivery: findings/remaining. Stop losses without review starts with its reason.
+4. Plan Gates/Baseline only; spec Scope when needed.
+5. Use high-visit stats nodes to locate reports under Work attempts/<node>/occurrence-<NNN>/attempt-<NNN>/outputs/. Read first line/Findings/Notes only, not full reports. Occurrence and number are three-digit padded; second arrival/first attempt is occurrence-002/attempt-000/outputs/.
+6. Template.
 
-1. `stats`：引擎给的事实。每个节点到了几次、试了几次、失败几次、平均耗时、从哪进来。数字以它为准，不自己数。
-2. `decision`、`escalation`（若有）：人两次介入分别说了什么。人说的话是最贵的信号。
-3. `review`（若有）与 `delivery`：审查发现了什么、遗留了什么。止损交付时没有 `review`，把「为什么止损」当第一条线索。
-4. `plan`：只读「门禁」与「基线」。`spec`：只在需要对照范围时查。
-5. 各步骤的报告第一行：用 `stats` 里到达次数多的节点定位，去 Work 目录 `attempts/<node>/occurrence-<NNN>/attempt-<NNN>/outputs/` 下读对应报告的**第一行与「发现」「备注」**，不读全文。Occurrence 和 retry 分别按三位数补零；例如第二次到达、首次尝试是 `occurrence-002/attempt-000/outputs/`。
-6. `template`：输出格式。
+## Execute
 
-## 怎么做
+1. Trace abnormal fix/escalate visits, failed>0, or long mean durations to exact report lines.
+2. Categorize each proposal within the six categories; otherwise put in No change recommended with reason.
+3. Require evidence (Attempt/file/line) and location (Workbook file/paragraph), or omit.
+4. State executable replacement in one or two sentences, not “strengthen/optimize/pay attention.”
+5. Three to eight proposals; above eight retain strongest evidence. If none, write None and factual smooth-run explanation.
+6. Check README adopted prior-version lessons: evidence of effectiveness, or renew ineffective proposals.
 
-1. 从 `stats` 找异常：`fix` 到达次数、`escalate` 次数、某节点 `failed` 大于 0、某节点平均耗时明显长。每个异常追到具体的报告行。
-2. 每条建议按 `rules` 的六个类别之一归类。归不进去的不是建议，写进「不建议改的」并说明为什么。
-3. 每条建议必须有「证据」（哪个 Attempt 的哪份文件哪一行）和「改哪」（这份 Workbook 里的哪个文件哪一段）。两样缺一样就不写。
-4. 建议是可执行的改动：写出改成什么，一两句话。不写「加强」「优化」「注意」。
-5. 三到八条。多于八条挑证据最硬的；一条都没有就写「无」，并在「事实」里说明这次运行顺畅。
-6. 如果这份 Workbook 的 `README.md` 修订记录里有上一版采纳过的建议，核对它们是否见效，见效的写一句，没见效的当新建议再提一遍。
+## Output/reply
 
-## 写到哪
-
-按 `template` 写 `lessons.md` 到 `lessons` 对应路径。
-
-## 怎么回复协调者
-
-两句话：几条建议，最重要的一条是什么。你提交后 Work 会停下等人批准；人会同时读交付说明与这份反思。
+Write lessons using template. Two sentences: proposal count and most important proposal. After submit, Work waits for people to read delivery/reflection and approve.

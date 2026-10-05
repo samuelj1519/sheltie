@@ -12,7 +12,7 @@ export class CanvasView {
         view.cached = true; view.x = stored.x; view.y = stored.y; view.scale = stored.scale;
         view.positions = new Map(stored.positions.filter(e => Array.isArray(e) && typeof e[0] === 'string' && Number.isFinite(e[1]?.x) && Number.isFinite(e[1]?.y)));
       }
-    } catch { /* 布局缓存损坏不修改 Workbook 字节。 */ }
+    } catch { /* A corrupt layout cache never changes Workbook bytes. */ }
     return view;
   }
   save(storage, key) { storage.setItem(key, JSON.stringify({ x: this.x, y: this.y, scale: this.scale, positions: [...this.positions] })); }
@@ -39,7 +39,7 @@ export class CanvasView {
     const dx = pointerX - drag.startX, dy = pointerY - drag.startY;
     if (drag.type === 'pan') { this.x = drag.x + dx; this.y = drag.y + dy; }
     else if (drag.type === 'node') this.positions.set(drag.id, { x: drag.x + dx / this.scale, y: drag.y + dy / this.scale });
-    else throw new Error('未知画布拖动类型。');
+    else throw new Error('Unknown canvas drag type.');
   }
   zoom(factor, px, py, scrollLeft = 0, scrollTop = 0) {
     px += scrollLeft; py += scrollTop;

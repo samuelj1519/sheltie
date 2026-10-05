@@ -1,7 +1,7 @@
-# 审查清单
+# Review checklist
 
-1. 论点在引言里一句话说清，全文没有偏离它。
-2. 至少两个论据，每个论据有例子或数据支撑。
-3. 结论回应了论点，没有引入新观点。
-4. 字数在 800 到 1200 之间。
-5. 没有事实性错误或无法验证的断言。
+1. Introduction states the thesis in one sentence; the article stays on topic.
+2. At least two supporting arguments, each with examples or data.
+3. Conclusion responds to the thesis without new points.
+4. Length is 800–1200 words.
+5. No factual errors or unverifiable assertions.

@@ -3,8 +3,8 @@ files = ["specs/README.md", "specs/roadmap.md", "specs/changes/README.md", "spec
 test_files = []
 allow_test_changes = true
 
-# 采用后生效。复杂作者先准备接口、原语与测试；简单实现者只启用和通过冻结用例。
-# 实现任务基准为M1骨架或独立测试修订完整SHA；文档/审查任务基准为各自开工候选。
+# Effective after adoption. Experienced authors prepare interfaces, primitives, and tests; implementers enable and pass frozen cases.
+# Implementation uses the full M1 skeleton/independent-test revision SHA; documentation/review uses its own starting candidate.
 
 [C004-T01]
 files = ["CONTEXT.md", "crates/sheltie-cli/src/commands/self_cmd.rs", "crates/sheltie-core/src/flow/compile.rs", "crates/sheltie-core/src/flow/def.rs", "crates/sheltie-core/src/flow/parse.rs", "crates/sheltie-core/src/testkit.rs", "crates/sheltie-core/src/work/mod.rs", "crates/sheltie-core/src/work/render.rs", "crates/sheltie-core/src/work/result.rs", "crates/sheltie-runtime/src/lib.rs", "crates/sheltie-runtime/src/load.rs", "crates/sheltie-runtime/src/result.rs", "crates/sheltie-runtime/src/service.rs", "crates/sheltie-runtime/src/store/mod.rs", "crates/sheltie-runtime/src/store/read.rs", "crates/sheltie-runtime/src/store/schema.rs", "examples/code-change", "specs/README.md", "specs/architecture.md", "specs/changes/active/C004-verifiable-delegation", "specs/contracts/protocol.md", "specs/contracts/storage.md", "specs/contracts/workbook.md", "specs/decisions/D-040-result-resume-format.md", "specs/decisions/README.md", "specs/spec.md"]

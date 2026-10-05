@@ -1,13 +1,13 @@
-//! 错误类型与错误码。
+//! Error types and codes.
 //!
-//! 错误码闭集见 `specs/contracts/protocol.md` §7。core 只产生其中与规则有关的那部分；
-//! 存储、更新、文件系统的错误由 `sheltie-runtime` 定义并映射到同一组码。
+//! The closed error-code set is defined in `specs/contracts/protocol.md` §7; core emits rule-related errors,
+//! while `sheltie-runtime` defines storage, update, and filesystem errors mapped to the same codes.
 
 use serde::Serialize;
 
 use crate::ids::{AttemptId, NodeId};
 
-/// 协议 §7 的全部错误码。CLI 用 `as_str` 输出 `SCREAMING_SNAKE_CASE`。
+/// All protocol §7 error codes; CLI uses `as_str` to emit `SCREAMING_SNAKE_CASE`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ErrorCode {
@@ -39,7 +39,7 @@ pub enum ErrorCode {
 }
 
 impl ErrorCode {
-    /// 协议里的字面形式，例如 `ILLEGAL_NEXT`。
+    /// Protocol literal, such as `ILLEGAL_NEXT`.
     pub fn as_str(self) -> &'static str {
         match self {
             Self::InvalidRequest => "INVALID_REQUEST",
@@ -77,87 +77,87 @@ impl std::fmt::Display for ErrorCode {
     }
 }
 
-/// core 产生的错误。每个变体带足够定位的字段。
+/// Core errors; each variant includes enough context to locate the problem.
 #[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
 pub enum Error {
-    /// ID 不合规。`field` 是字段路径，例如 `nodes[2].id`。
-    #[error("{field} 的值 {value:?} 不合规：{reason}")]
+    /// Invalid ID; `field` is a field path such as `nodes[2].id`.
+    #[error("Invalid {field} value {value:?}: {reason}")]
     InvalidId {
         field: String,
         value: String,
         reason: &'static str,
     },
-    /// 相对路径含 `..`、绝对、空段，或绝对路径不是绝对的。
-    #[error("路径 {path:?} 不合规：{reason}")]
+    /// A relative path contains `..`, an absolute prefix, or empty segments; or an absolute path is not absolute.
+    #[error("Invalid path {path:?}: {reason}")]
     InvalidPath { path: String, reason: &'static str },
-    /// 有界文本超限。按字节计。
-    #[error("{field} 超过 {max} 字节，实际 {actual}")]
+    /// Bounded text exceeds its byte limit.
+    #[error("{field} exceeds {max} bytes; actual {actual}")]
     TextTooLong {
         field: &'static str,
         max: usize,
         actual: usize,
     },
-    /// 摘要不是 64 位小写十六进制。
-    #[error("摘要 {value:?} 不是 64 位小写十六进制")]
+    /// Digest is not 64 lowercase hexadecimal digits.
+    #[error("Digest {value:?} must be 64 lowercase hexadecimal digits")]
     InvalidDigest { value: String },
-    /// `workbook.toml` 不合规（协议 `WORKBOOK_INVALID`）。
-    #[error("workbook.toml 的 {field} 不合规：{reason}")]
+    /// Invalid `workbook.toml` (protocol `WORKBOOK_INVALID`).
+    #[error("Invalid workbook.toml {field}: {reason}")]
     WorkbookInvalid { field: String, reason: String },
-    /// Flow 解析或编译失败（协议 `FLOW_INVALID`）。`rule` 是合同 §4 的规则编号，解析错误为 `"parse"`。
-    #[error("Flow 不合规（规则 {rule}，{path}）：{reason}")]
+    /// Flow parse or compilation failure (`FLOW_INVALID`); `rule` is the contract §4 number, or `"parse"`.
+    #[error("Invalid Flow (rule {rule}, {path}): {reason}")]
     FlowInvalid {
         rule: &'static str,
         path: String,
         reason: String,
     },
-    /// `work start` 的起始输入缺键或多键。
-    #[error("起始输入缺 {missing:?}，多 {extra:?}")]
+    /// `work start` inputs contain missing or extra keys.
+    #[error("Start inputs: missing {missing:?}, extra {extra:?}")]
     InputMissing {
         missing: Vec<String>,
         extra: Vec<String>,
     },
-    /// Work 已是终态。
-    #[error("Work 已结束（{status}）")]
+    /// Work is already terminal.
+    #[error("Work has ended ({status})")]
     WorkTerminal { status: String },
-    /// 操作不在当前 `next` 里。`next` 把当前合法集合列成命令行。
-    #[error("{requested} 不在合法下一步里")]
+    /// The operation is absent from current `next`, which lists legal actions as command lines.
+    #[error("{requested} is not a legal next action")]
     IllegalNext {
         requested: String,
         next: Vec<String>,
     },
-    /// 必需输入的上游还没有成功产出。
-    #[error("输入 {input} 的上游 {node} 还没有成功产出")]
+    /// The upstream node has not successfully produced a required input.
+    #[error("Upstream node {node} has not successfully produced input {input}")]
     InputUnavailable { input: String, node: NodeId },
-    /// 输入文件当前摘要与记录不符。
-    #[error("输入 {input} 的文件 {path} 已被修改")]
+    /// The input file's current digest differs from its recorded digest.
+    #[error("Input {input} file {path} has been modified")]
     ArtifactModified { input: String, path: String },
-    /// 对非 `running` 的 Attempt 提交或标失败。
-    #[error("Attempt {attempt} 不在运行中")]
+    /// Submission or failure reporting for a non-`running` Attempt.
+    #[error("Attempt {attempt} is not running")]
     AttemptNotRunning { attempt: AttemptId },
-    #[error("Attempt {attempt} 不存在")]
+    #[error("Attempt {attempt} does not exist")]
     AttemptNotFound { attempt: AttemptId },
-    #[error("Attempt {attempt} 所在 Occurrence 已用完替换机会")]
+    #[error("The Occurrence of Attempt {attempt} has exhausted its replacement allowance")]
     ReplacementsExhausted { attempt: AttemptId },
-    /// 摘要超过 4096 字节。
-    #[error("摘要超过 {max} 字节，实际 {actual}")]
+    /// Summary exceeds 4096 bytes.
+    #[error("Summary exceeds {max} bytes; actual {actual}")]
     SummaryTooLong { max: usize, actual: usize },
-    /// 必需输出文件不存在。
-    #[error("必需输出 {output} 不存在：{path}")]
+    /// A required output file is missing.
+    #[error("Required output {output} does not exist: {path}")]
     OutputMissing { output: String, path: String },
-    /// 输出超过 `max_bytes`。
-    #[error("输出 {output} 超过 {max_bytes} 字节，实际 {actual}")]
+    /// Output exceeds `max_bytes`.
+    #[error("Output {output} exceeds {max_bytes} bytes; actual {actual}")]
     OutputTooLarge {
         output: String,
         max_bytes: u64,
         actual: u64,
     },
-    /// 其他格式或取值错误。
+    /// Other format or value errors.
     #[error("{reason}")]
     InvalidRequest { reason: String },
 }
 
 impl Error {
-    /// 映射到协议错误码。
+    /// Map to a protocol error code.
     pub fn code(&self) -> ErrorCode {
         match self {
             Self::InvalidId { .. }

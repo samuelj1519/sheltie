@@ -1,4 +1,4 @@
-//! Flow TOML 到 `FlowDef` 的解析。只做结构与取值范围，不做图语义（那是 `compile`）。
+//! Parse Flow TOML into `FlowDef`; validate structure and ranges, leaving graph semantics to `compile`.
 
 use serde::Deserialize;
 
@@ -45,7 +45,7 @@ struct NodeDto {
     max_retries: Option<u32>,
 }
 
-/// `{ file = ... }` 或 `{ text = ... }`，恰一个。两个都给或都不给在 `convert` 里拒绝。
+/// Exactly one of `{ file = ... }` or `{ text = ... }`; `convert` rejects both or neither.
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct InstructionDto {
@@ -87,10 +87,10 @@ struct EdgeDto {
     kind: String,
 }
 
-/// 解析 Flow 文件。
+/// Parse a Flow file.
 ///
-/// TOML 语法错误与未知字段返回 `Error::FlowInvalid { rule: "parse", path: "toml", .. }`；
-/// 字段级错误 `rule = "parse"`，`path` 用 `nodes[2].inputs[0].from` 这类写法。
+/// TOML syntax errors and unknown fields return `Error::FlowInvalid { rule: "parse", path: "toml", .. }`;
+/// field errors use `rule = "parse"` and paths such as `nodes[2].inputs[0].from`.
 pub fn parse_flow(toml_text: &str) -> Result<FlowDef> {
     let dto: FlowDto = toml::from_str(toml_text).map_err(|e| Error::FlowInvalid {
         rule: "parse",
@@ -100,14 +100,14 @@ pub fn parse_flow(toml_text: &str) -> Result<FlowDef> {
     convert(dto)
 }
 
-/// 解析 `inputs[].from` 的四种写法。
+/// Parse the four forms of `inputs[].from`.
 ///
-/// - `start.<key>`：`key` 走 ID 字符规则。
-/// - `resource.<path>`：第一个 `.` 之后全部是路径，可含 `/`。
-/// - `engine.stats`：字面量，`engine.` 后只允许 `stats`。
-/// - `<node>.<output>`：恰好一个 `.`，两边都非空；`node` 走 ID 规则，`output` 走 ID 规则。
+/// - `start.<key>`: validate `key` as an ID.
+/// - `resource.<path>`: everything after the first `.` is a path that may contain `/`.
+/// - `engine.stats`: literal; only `stats` may follow `engine.`.
+/// - `<node>.<output>`: exactly one `.`, two nonempty IDs.
 ///
-/// 失败返回 `Error::FlowInvalid { rule: "parse", path, .. }`，`path` 由调用方传入。
+/// Return `Error::FlowInvalid { rule: "parse", path, .. }` on failure; the caller supplies `path`.
 pub fn parse_input_source(value: &str, path: &str) -> Result<InputSource> {
     let invalid = |reason: String| Error::FlowInvalid {
         rule: "parse",
@@ -116,13 +116,15 @@ pub fn parse_input_source(value: &str, path: &str) -> Result<InputSource> {
     };
     let (head, rest) = value.split_once('.').ok_or_else(|| {
         invalid(
-            "必须写成 start.<key>、resource.<path>、engine.stats 或 <node>.<output>".to_string(),
+            "Must be start.<key>, resource.<path>, engine.stats, or <node>.<output>".to_string(),
         )
     })?;
     match head {
         "start" => {
             if rest.contains('.') {
-                return Err(invalid("start. 之后只允许一段 key".to_string()));
+                return Err(invalid(
+                    "Only one key segment may follow start.".to_string(),
+                ));
             }
             validate_id(rest, "key").map_err(|e| invalid(e.to_string()))?;
             Ok(InputSource::Start {
@@ -130,20 +132,21 @@ pub fn parse_input_source(value: &str, path: &str) -> Result<InputSource> {
             })
         }
         "resource" => {
-            // 第一个 `.` 之后整段是路径，可以再含 `/`。
+            // Everything after the first `.` is a path and may contain `/`.
             let p = RelPath::new(rest).map_err(|e| invalid(e.to_string()))?;
             Ok(InputSource::Resource { path: p })
         }
         "engine" => {
             if rest != "stats" {
-                return Err(invalid("engine. 之后只允许 stats".to_string()));
+                return Err(invalid("Only stats may follow engine.".to_string()));
             }
             Ok(InputSource::EngineStats)
         }
         _ => {
             if rest.is_empty() || rest.contains('.') {
                 return Err(invalid(
-                    "<node>.<output> 必须恰好一个点，两边都非空".to_string(),
+                    "<node>.<output> requires exactly one dot and nonempty names on both sides"
+                        .to_string(),
                 ));
             }
             let node = NodeId::new(head).map_err(|e| invalid(e.to_string()))?;
@@ -156,14 +159,14 @@ pub fn parse_input_source(value: &str, path: &str) -> Result<InputSource> {
     }
 }
 
-/// DTO 到 `FlowDef` 的逐字段转换与取值校验。这是 T04 要填的函数。
+/// Convert DTO fields into `FlowDef` and validate their values (T04 implementation entry).
 ///
-/// 要做的检查（都是单字段，不看图）：`schema == "flow/v1"`；各 ID 合规；
-/// `executor` 二选一，`tier` 二选一或缺省；`instruction` 恰一个且 `text` 非空、≤ 8 KiB；
-/// `inputs[].name` 唯一，`required` 默认 `true`；`outputs[].name` 唯一、`path` 走
-/// workbook 合同 §3.2 的四条路径规则（可移植字符集、唯一、不互为祖先、ASCII 大小写
-/// 折叠后仍不得相同或互为祖先）；`max_bytes` 在 1..=32 MiB；`requires[]` 形如
-/// `kind:name`；`max_visits` 在 1..=32，`max_retries` 在 0..=8；`edges[].kind` 四选一。
+/// Field checks, independent of graph semantics: `schema == "flow/v1"`; valid IDs;
+/// valid executor/tier or omitted tier; exactly one instruction source, with nonblank text at most 8 KiB;
+/// unique input names, required defaulting to true; unique output names and paths satisfying
+/// the workbook contract §3.2 path rules: portable characters, unique, no ancestor conflicts, including ASCII
+/// case folding; max_bytes in 1..=32 MiB; requires entries in
+/// `kind:name` form; max_visits in 1..=32, max_retries in 0..=8, and one of four edge kinds.
 fn convert(dto: FlowDto) -> Result<FlowDef> {
     let invalid = |path: String, reason: String| Error::FlowInvalid {
         rule: "parse",
@@ -174,7 +177,7 @@ fn convert(dto: FlowDto) -> Result<FlowDef> {
     if dto.schema != "flow/v1" {
         return Err(invalid(
             "schema".to_string(),
-            format!("必须是 flow/v1，实际 {:?}", dto.schema),
+            format!("Must be flow/v1; actual {:?}", dto.schema),
         ));
     }
     let id = FlowId::new(&dto.id).map_err(|e| invalid("id".to_string(), e.to_string()))?;
@@ -188,7 +191,7 @@ fn convert(dto: FlowDto) -> Result<FlowDef> {
         if n.title.len() > NodeDef::TITLE_MAX_BYTES {
             return Err(invalid(
                 np("title"),
-                format!("超过 {} 字节", NodeDef::TITLE_MAX_BYTES),
+                format!("Exceeds {} bytes", NodeDef::TITLE_MAX_BYTES),
             ));
         }
         let executor = match n.executor.as_str() {
@@ -197,7 +200,7 @@ fn convert(dto: FlowDto) -> Result<FlowDef> {
             other => {
                 return Err(invalid(
                     np("executor"),
-                    format!("{other:?} 不是 agent 或 human"),
+                    format!("{other:?} must be agent or human"),
                 ));
             }
         };
@@ -208,15 +211,18 @@ fn convert(dto: FlowDto) -> Result<FlowDef> {
             Some(other) => {
                 return Err(invalid(
                     np("tier"),
-                    format!("{other:?} 不是 strong 或 standard"),
+                    format!("{other:?} must be strong or standard"),
                 ));
             }
         };
-        // human 节点根本没有档位可选，写出来就是错的（合同 §3.2、规则 9）。
+        // Human nodes cannot select a tier (contract §3.2, rule 9).
         let tier = match executor {
             Executor::Human => {
                 if tier_raw.is_some() {
-                    return Err(invalid(np("tier"), "human 节点不得声明 tier".to_string()));
+                    return Err(invalid(
+                        np("tier"),
+                        "Human nodes must not declare tier".to_string(),
+                    ));
                 }
                 None
             }
@@ -227,13 +233,13 @@ fn convert(dto: FlowDto) -> Result<FlowDef> {
             (Some(_), Some(_)) => {
                 return Err(invalid(
                     np("instruction"),
-                    "file 与 text 只能给一个".to_string(),
+                    "Specify only one of file and text".to_string(),
                 ));
             }
             (None, None) => {
                 return Err(invalid(
                     np("instruction"),
-                    "file 与 text 必须给一个".to_string(),
+                    "Specify either file or text".to_string(),
                 ));
             }
             (Some(file), None) => {
@@ -243,12 +249,15 @@ fn convert(dto: FlowDto) -> Result<FlowDef> {
             }
             (None, Some(text)) => {
                 if text.is_empty() {
-                    return Err(invalid(np("instruction.text"), "不能为空".to_string()));
+                    return Err(invalid(
+                        np("instruction.text"),
+                        "Must not be empty".to_string(),
+                    ));
                 }
                 if text.len() > NodeDef::TEXT_MAX_BYTES {
                     return Err(invalid(
                         np("instruction.text"),
-                        format!("超过 {} 字节", NodeDef::TEXT_MAX_BYTES),
+                        format!("Exceeds {} bytes", NodeDef::TEXT_MAX_BYTES),
                     ));
                 }
                 Instruction::Text(text)
@@ -258,9 +267,12 @@ fn convert(dto: FlowDto) -> Result<FlowDef> {
         let mut inputs = Vec::with_capacity(n.inputs.len());
         for (j, inp) in n.inputs.into_iter().enumerate() {
             let ip = |suffix: &str| format!("nodes[{i}].inputs[{j}].{suffix}");
-            // 合同 §3.2 对 `inputs[].name` 只要求节点内唯一，不走 ID 字符规则（D-26）。
+            // Contract §3.2 only requires input names to be unique within the node, without ID syntax (D-26).
             if inputs.iter().any(|x: &InputDecl| x.name == inp.name) {
-                return Err(invalid(ip("name"), "节点内输入名重复".to_string()));
+                return Err(invalid(
+                    ip("name"),
+                    "Duplicate input name within node".to_string(),
+                ));
             }
             let from = parse_input_source(&inp.from, &ip("from"))?;
             inputs.push(InputDecl {
@@ -276,7 +288,10 @@ fn convert(dto: FlowDto) -> Result<FlowDef> {
             let op = |suffix: &str| format!("nodes[{i}].outputs[{j}].{suffix}");
             validate_id(&out.name, "name").map_err(|e| invalid(op("name"), e.to_string()))?;
             if outputs.iter().any(|x: &OutputDecl| x.name == out.name) {
-                return Err(invalid(op("name"), "节点内输出名重复".to_string()));
+                return Err(invalid(
+                    op("name"),
+                    "Duplicate output name within node".to_string(),
+                ));
             }
             let path = RelPath::new(&out.path).map_err(|e| invalid(op("path"), e.to_string()))?;
             validate_output_portable(&path).map_err(|reason| invalid(op("path"), reason))?;
@@ -286,14 +301,15 @@ fn convert(dto: FlowDto) -> Result<FlowDef> {
             {
                 return Err(invalid(
                     op("path"),
-                    "节点内输出路径重复、互为祖先，或大小写折叠后相同或互为祖先".to_string(),
+                    "Output paths are duplicated, ancestors, or collide after ASCII case folding"
+                        .to_string(),
                 ));
             }
             let max_bytes = out.max_bytes.unwrap_or(OutputDecl::DEFAULT_MAX_BYTES);
             if !(1..=OutputDecl::MAX_MAX_BYTES).contains(&max_bytes) {
                 return Err(invalid(
                     op("max_bytes"),
-                    format!("必须在 1..={} 之间", OutputDecl::MAX_MAX_BYTES),
+                    format!("Must be in 1..={}", OutputDecl::MAX_MAX_BYTES),
                 ));
             }
             outputs.push(OutputDecl {
@@ -310,9 +326,12 @@ fn convert(dto: FlowDto) -> Result<FlowDef> {
             let rp = format!("nodes[{i}].requires[{j}]");
             let (kind_str, name) = raw
                 .split_once(':')
-                .ok_or_else(|| invalid(rp.clone(), "必须写成 <kind>:<name>".to_string()))?;
+                .ok_or_else(|| invalid(rp.clone(), "Must be <kind>:<name>".to_string()))?;
             let kind = RequireKind::parse(kind_str).ok_or_else(|| {
-                invalid(rp.clone(), format!("{kind_str:?} 不是 skill、agent 或 mcp"))
+                invalid(
+                    rp.clone(),
+                    format!("{kind_str:?} must be skill, agent, or mcp"),
+                )
             })?;
             validate_id(name, "name").map_err(|e| invalid(rp, e.to_string()))?;
             requires.push((kind, name.to_string()));
@@ -333,18 +352,18 @@ fn convert(dto: FlowDto) -> Result<FlowDef> {
         });
     }
 
-    // max_visits / max_retries 的取值范围按节点检查一次，免得默认值也走一遍。
+    // Check max_visits/max_retries ranges once per node, including defaults.
     for (i, node) in nodes.iter().enumerate() {
         if !(1..=NodeDef::MAX_MAX_VISITS).contains(&node.max_visits) {
             return Err(invalid(
                 format!("nodes[{i}].max_visits"),
-                format!("必须在 1..={} 之间", NodeDef::MAX_MAX_VISITS),
+                format!("Must be in 1..={}", NodeDef::MAX_MAX_VISITS),
             ));
         }
         if node.max_retries > NodeDef::MAX_MAX_RETRIES {
             return Err(invalid(
                 format!("nodes[{i}].max_retries"),
-                format!("必须在 0..={} 之间", NodeDef::MAX_MAX_RETRIES),
+                format!("Must be in 0..={}", NodeDef::MAX_MAX_RETRIES),
             ));
         }
     }
@@ -362,7 +381,7 @@ fn convert(dto: FlowDto) -> Result<FlowDef> {
             other => {
                 return Err(invalid(
                     ep("kind"),
-                    format!("{other:?} 不是 main、back、branch 或 re_review"),
+                    format!("{other:?} must be main, back, branch, or re_review"),
                 ));
             }
         };
@@ -377,32 +396,32 @@ fn convert(dto: FlowDto) -> Result<FlowDef> {
     })
 }
 
-/// 输出路径的可移植字符集（workbook 合同 §3.2 第 2 条）：每段非空、≤ 128 字节、
-/// 只含 `A-Z a-z 0-9 . _ -`。非 ASCII（含汉字、Unicode 变体）拒绝；这使 ASCII
-/// 大小写折叠成为完整的别名判定，不需要 Unicode 归一化猜测。
+/// Portable output paths (workbook contract §3.2, item 2): nonempty segments, at most 128 bytes,
+/// containing only `A-Z a-z 0-9 . _ -`. Reject non-ASCII (including Han and Unicode variants), making ASCII
+/// case folding sufficient for alias detection without Unicode normalization guesses.
 fn validate_output_portable(path: &RelPath) -> std::result::Result<(), String> {
     const SEGMENT_MAX_BYTES: usize = 128;
     for segment in path.as_path().components() {
         let seg = segment.as_str();
         if seg.is_empty() {
-            return Err("段不能为空".to_string());
+            return Err("Segments must not be empty".to_string());
         }
         if seg.len() > SEGMENT_MAX_BYTES {
-            return Err(format!("段超过 {SEGMENT_MAX_BYTES} 字节"));
+            return Err(format!("Segment exceeds {SEGMENT_MAX_BYTES} bytes"));
         }
         if !seg
             .bytes()
             .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'.' | b'_' | b'-'))
         {
-            return Err("每段只能含 A-Z、a-z、0-9、.、_ 与 -".to_string());
+            return Err("Segments may contain only A-Z, a-z, 0-9, ., _, and -".to_string());
         }
     }
     Ok(())
 }
 
-/// 两条节点内输出路径是否冲突：逐段先按 ASCII 小写折叠，再比较；完全相同或
-/// 一方是另一方的祖先（段前缀）即冲突。`OUT.md` 与 `out.md`、`Out` 与 `out/x.md`
-/// 都算（workbook 合同 §3.2 第 3、4 条）。
+/// Compare output paths segmentwise after ASCII lowercase folding; equal paths or
+/// ancestor segment prefixes conflict, including `OUT.md` vs `out.md` and `Out` vs `out/x.md`
+/// (workbook contract §3.2, items 3 and 4).
 fn output_paths_conflict(a: &RelPath, b: &RelPath) -> bool {
     let fold = |p: &RelPath| -> Vec<String> {
         p.as_path()
@@ -437,7 +456,7 @@ entry = "a"
 id = "a"
 title = "A"
 executor = "agent"
-instruction = {{ text = "做 A" }}
+instruction = {{ text = "Do A" }}
 {node_extra}
 "#
         )
@@ -461,14 +480,14 @@ instruction = {{ text = "做 A" }}
     #[test]
     fn instruction_requires_exactly_one_of_file_or_text() {
         let both = minimal("").replace(
-            "instruction = { text = \"做 A\" }",
+            "instruction = { text = \"Do A\" }",
             "instruction = { text = \"x\", file = \"i.md\" }",
         );
         assert!(matches!(
             parse_flow(&both),
             Err(Error::FlowInvalid { rule: "parse", .. })
         ));
-        let none = minimal("").replace("instruction = { text = \"做 A\" }", "instruction = { }");
+        let none = minimal("").replace("instruction = { text = \"Do A\" }", "instruction = { }");
         assert!(parse_flow(&none).is_err());
     }
 
@@ -580,8 +599,8 @@ instruction = {{ text = "做 A" }}
         assert!(parse_flow(&minimal("max_retries = 9")).is_err());
     }
 
-    // 引擎文件与 worker 输出分目录后，声明 brief.md 或 outputs/brief.md 都不再与
-    // Attempt 根的 brief.md 冲突（workbook 合同 §3.2 末段）。
+    // With engine files separate from worker outputs, declarations brief.md and outputs/brief.md do not conflict with
+    // brief.md at the Attempt root (workbook contract §3.2, final paragraph).
     // Task: C002-T03
     #[test]
     fn accepts_output_paths_named_brief_or_stats() {
@@ -594,7 +613,7 @@ instruction = {{ text = "做 A" }}
         ] {
             assert!(
                 parse_flow(&minimal(legal)).is_ok(),
-                "{legal} 应当合法（物理路径在 outputs/ 之下）"
+                "{legal} should be valid (physical path is beneath outputs/)"
             );
         }
     }
@@ -602,16 +621,16 @@ instruction = {{ text = "做 A" }}
     // Task: C002-T03
     #[test]
     fn rejects_output_path_outside_portable_charset() {
-        // 只改一个条件：合法路径的一个字符换成汉字。
+        // Change one condition: replace one character of a valid path with Han.
         for bad in ["说明.md", "out／x.md", "a b.md", "a+b.md"] {
             let text = minimal(&format!("outputs = [{{ name = \"o\", path = \"{bad}\" }}]"));
             assert!(
                 matches!(parse_flow(&text), Err(Error::FlowInvalid { rule: "parse", path, .. })
                     if path == "nodes[0].outputs[0].path"),
-                "{bad:?} 应当拒绝"
+                "{bad:?} should be rejected"
             );
         }
-        // 段恰好 128 字节接受，129 字节拒绝。
+        // Accept a 128-byte segment; reject 129 bytes.
         let at = "a".repeat(128);
         let over = "a".repeat(129);
         assert!(
@@ -637,15 +656,15 @@ instruction = {{ text = "做 A" }}
             ));
             matches!(parse_flow(&text), Err(Error::FlowInvalid { path, .. }) if path == "nodes[0].outputs[1].path")
         };
-        // 完全重复。
+        // Exact duplicates.
         assert!(rejects("out/x.md", "out/x.md"));
-        // 互为祖先：out 与 out/sub。
+        // Ancestor paths: out and out/sub.
         assert!(rejects("out", "out/sub"));
         assert!(rejects("out/sub", "out"));
-        // ASCII 大小写折叠后相同或互为祖先（支持平台默认文件系统大小写不敏感）。
+        // Equality or ancestry after ASCII case folding (default supported filesystems are case insensitive).
         assert!(rejects("OUT.md", "out.md"));
         assert!(rejects("Out", "out/x.md"));
-        // 只改一个条件的正侧：不同名且不互为祖先、大小写不同的段名不同文件。
+        // Accepted one-condition variants: distinct nonancestor names and distinct files under case-varied directory names.
         assert!(!rejects("out/x.md", "out/y.md"));
         assert!(!rejects("notes/a.md", "notes/a/b.md"));
         assert!(!rejects("Draft.md", "review.md"));
@@ -666,7 +685,7 @@ instruction = {{ text = "做 A" }}
         assert_eq!(parse_flow(&ok).unwrap().edges[0].kind, EdgeKind::ReReview);
     }
 
-    // ── M1 补测（上限：恰好上限接受，多一个字节拒绝） ─────────
+    // ── M1 additional limits: accept exactly the limit, reject one byte more ─────────
 
     // Task: T04
     #[test]
@@ -686,7 +705,7 @@ instruction = {{ text = "做 A" }}
     fn instruction_text_limit_is_8192_bytes() {
         let text = |n: usize| {
             minimal("").replace(
-                "{ text = \"做 A\" }",
+                "{ text = \"Do A\" }",
                 &format!("{{ text = \"{}\" }}", "a".repeat(n)),
             )
         };

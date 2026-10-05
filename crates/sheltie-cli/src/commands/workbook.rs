@@ -9,8 +9,8 @@ use crate::cli::{WorkbookCmd, parse_workbook_spec};
 use crate::commands::Ctx;
 use crate::output::{self, Outcome};
 
-/// 分派到五个子命令。每个子命令：打开存储、建 `WorkbookRepo`、调用、渲染文本、包成 `Outcome`。
-/// 错误经 `error_map::to_outcome`。
+/// Dispatch to five subcommands: open storage, construct `WorkbookRepo`, invoke, render text, and wrap in `Outcome`.
+/// Map errors through `error_map::to_outcome`.
 pub fn run(ctx: &Ctx, cmd: WorkbookCmd) -> Outcome {
     match cmd {
         WorkbookCmd::Add { dir } => add(ctx, &dir),
@@ -21,12 +21,12 @@ pub fn run(ctx: &Ctx, cmd: WorkbookCmd) -> Outcome {
     }
 }
 
-/// 相对目录按当前工作目录转成绝对路径；`AbsPath` 只收绝对的。
+/// Resolve relative directories against the working directory; `AbsPath` accepts only absolute paths.
 fn abs_arg(value: &str) -> Result<AbsPath, Error> {
     AbsPath::new(sheltie_runtime::request::lexical_abs(value)?).map_err(Error::from)
 }
 
-/// `workbook add <dir>`（协议 §3：成功返回 `{ id, version, digest, flows, requires }`）。
+/// `workbook add <dir>` (protocol §3: success returns `{ id, version, digest, flows, requires }`).
 fn add(ctx: &Ctx, dir: &str) -> Outcome {
     let dir = match abs_arg(dir) {
         Ok(p) => p,
@@ -35,7 +35,7 @@ fn add(ctx: &Ctx, dir: &str) -> Outcome {
     let repo = WorkbookRepo::new(ctx.home.clone());
     match repo.add(&dir, ctx.request_id.clone()) {
         Ok(snapshot) => {
-            // 响应字段全部来自提交时快照（cli-result/v2）；重放带 replayed。
+            // All response fields come from the commit-time snapshot (cli-result/v2); replay includes replayed.
             let data = output::replayed_data(snapshot.data, snapshot.replayed);
             let id = data["id"].as_str().unwrap_or_default().to_string();
             let version = data["version"].as_str().unwrap_or_default().to_string();
@@ -49,14 +49,14 @@ fn add(ctx: &Ctx, dir: &str) -> Outcome {
                         .join(", ")
                 })
                 .unwrap_or_default();
-            let text = format!("已装 {id}@{version}\ndigest: {digest}\nflows: {flows}\n");
+            let text = format!("Installed {id}@{version}\ndigest: {digest}\nflows: {flows}\n");
             output::ok(text, Some(snapshot.request_id), None, data, Vec::new())
         }
         Err(e) => crate::error_map::to_outcome(&e),
     }
 }
 
-/// `workbook list`：每个 id 的最高版本（字面排序）标 `latest`。
+/// `workbook list`: mark the highest lexicographic version of each ID as `latest`.
 fn list(ctx: &Ctx) -> Outcome {
     let repo = WorkbookRepo::new(ctx.home.clone());
     let rows = match repo.list() {
@@ -66,7 +66,7 @@ fn list(ctx: &Ctx) -> Outcome {
     let mut data = Vec::with_capacity(rows.len());
     let mut text = String::new();
     for (i, row) in rows.iter().enumerate() {
-        // rows 按 (id, version) 升序，同 id 的最后一行就是最高版本。
+        // rows are ordered by (id, version); the last row for each ID is its highest version.
         let latest = rows.get(i + 1).is_none_or(|next| next.id != row.id);
         data.push(json!({
             "id": row.id,
@@ -81,7 +81,7 @@ fn list(ctx: &Ctx) -> Outcome {
             row.version,
             if latest { "latest" } else { "" },
             if row.pending_publish {
-                "  待发布"
+                "  publication pending"
             } else {
                 ""
             },
@@ -90,7 +90,7 @@ fn list(ctx: &Ctx) -> Outcome {
     output::ok(text, None, None, data, Vec::new())
 }
 
-/// `workbook show <id>[@<version>]`：manifest、宿主资源声明与每个 Flow 的节点、边。
+/// `workbook show <id>[@<version>]`: manifest, host resource declarations, and Flow nodes and edges.
 fn show(ctx: &Ctx, spec: &str) -> Outcome {
     let (id, version) = match parse_workbook_spec(spec) {
         Ok(v) => v,
@@ -109,7 +109,7 @@ fn show(ctx: &Ctx, spec: &str) -> Outcome {
         loaded.manifest.name(),
         loaded.digest.as_str(),
         if loaded.manifest.requires().is_empty() {
-            "无".to_string()
+            "none".to_string()
         } else {
             loaded
                 .manifest
@@ -121,11 +121,11 @@ fn show(ctx: &Ctx, spec: &str) -> Outcome {
         },
     );
     if loaded.pending_publish {
-        text.push_str("发布状态：待完成（正在读取已提交的冻结副本）\n");
+        text.push_str("Publication status: pending (reading the committed frozen copy)\n");
     }
     for (def, graph) in &loaded.flows {
-        // 有序起始输入键（GF-30）：与 runtime preflight 同一份 start_requirements，
-        // 协调者第一次调用就能拿全开一个 Work 需要的键，不用失败 start 探测。
+        // Ordered start input keys (GF-30) share start_requirements with runtime preflight,
+        // so the coordinator obtains every required key without probing a failed start.
         let start_inputs = sheltie_core::work::start_requirements(graph);
         flows.push(json!({
             "id": def.id().as_str(),
@@ -143,11 +143,11 @@ fn show(ctx: &Ctx, spec: &str) -> Outcome {
                 "kind": e.kind().as_str(),
             })).collect::<Vec<_>>(),
         }));
-        text.push_str(&format!("\nflow {}（入口 {}）\n", def.id(), def.entry()));
+        text.push_str(&format!("\nflow {} (entry {})\n", def.id(), def.entry()));
         text.push_str(&format!(
-            "  起始输入: {}\n",
+            "  Start inputs: {}\n",
             if start_inputs.is_empty() {
-                "无".to_string()
+                "none".to_string()
             } else {
                 start_inputs.join(", ")
             }
@@ -183,7 +183,7 @@ fn show(ctx: &Ctx, spec: &str) -> Outcome {
     output::ok(text, None, None, data, Vec::new())
 }
 
-/// `workbook remove <id>@<version>`。版本必须给全，防误删。
+/// `workbook remove <id>@<version>`. Require an explicit version to prevent unintended deletion.
 fn remove(ctx: &Ctx, spec: &str) -> Outcome {
     let (id, version) = match parse_workbook_spec(spec) {
         Ok(v) => v,
@@ -191,21 +191,21 @@ fn remove(ctx: &Ctx, spec: &str) -> Outcome {
     };
     let Some(version) = version else {
         return output::param_error(format!(
-            "remove 必须给全版本，写 {id}@<version>；不接受「最高版本」默认"
+            "remove requires an explicit version, {id}@<version>; no highest-version default is accepted"
         ));
     };
     let repo = WorkbookRepo::new(ctx.home.clone());
     match repo.remove(&id, &version, ctx.request_id.clone()) {
         Ok(snapshot) => {
             let data = output::replayed_data(snapshot.data, snapshot.replayed);
-            let text = format!("已删除 {id}@{version}\n");
+            let text = format!("Removed {id}@{version}\n");
             output::ok(text, Some(snapshot.request_id), None, data, Vec::new())
         }
         Err(e) => crate::error_map::to_outcome(&e),
     }
 }
 
-/// `workbook verify [<id>@<version>]`。省略参数核对全部。任一非 `ok` 则 `WORKBOOK_TAMPERED`。
+/// `workbook verify [<id>@<version>]`. Verify all when omitted; any non-`ok` result yields `WORKBOOK_TAMPERED`.
 fn verify(ctx: &Ctx, spec: Option<&str>) -> Outcome {
     let filter = match spec {
         None => None,
@@ -213,7 +213,7 @@ fn verify(ctx: &Ctx, spec: Option<&str>) -> Outcome {
             Ok((id, Some(version))) => Some((id, version)),
             Ok((_, None)) => {
                 return output::param_error(format!(
-                    "verify 要么不带参数核对全部，要么写全 {s}@<version>"
+                    "verify requires either no argument for all versions or the full {s}@<version>"
                 ));
             }
             Err(m) => return output::param_error(m),
@@ -236,7 +236,7 @@ fn verify(ctx: &Ctx, spec: Option<&str>) -> Outcome {
                 sheltie_runtime::VerifyStatus::Missing => "missing",
             },
             if row.pending_publish {
-                "  待发布"
+                "  publication pending"
             } else {
                 ""
             },
@@ -250,7 +250,7 @@ fn verify(ctx: &Ctx, spec: Option<&str>) -> Outcome {
     } else {
         let mut out = crate::output::err(
             sheltie_core::ErrorCode::WorkbookTampered,
-            "已装 Workbook 与记录不符".to_string(),
+            "Installed Workbook does not match its stored record".to_string(),
             Some(json!({ "results": rows })),
         );
         out.text = text;

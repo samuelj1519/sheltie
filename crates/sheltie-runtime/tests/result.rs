@@ -141,7 +141,7 @@ fn status_read_reports_this_work_pending_effects_and_ignores_unrelated_corruptio
     assert_eq!(view.revision, 2);
     assert!(view.effects_pending);
     assert!(!view.pending_publish);
-    assert!(text.contains("文件效果待完成"));
+    assert!(text.contains("File effects are pending"));
     assert_eq!(store_rows(&connection), pending_before);
     assert_ne!(before, pending_before);
 }
@@ -163,7 +163,7 @@ fn status_read_uses_one_snapshot_when_a_new_attempt_commits_between_queries() {
     let reader_work = work.clone();
     let reader = std::thread::spawn(move || reader_service.status_read(&reader_work));
     let mut reader = RendezvousWorker::single(reader, rendezvous.path());
-    reader.wait("读transaction没有捕获Work状态");
+    reader.wait("Read transaction did not capture Work state");
     begin_outline(&service, &work);
     let (_, view) = reader.finish().unwrap().unwrap();
     assert_eq!(view.revision, 1);
@@ -405,7 +405,7 @@ fn all_read_payloads_reject_unknown_fields_before_frozen_workbook_io() {
             assert_eq!(error.code(), ErrorCode::StoreCorrupt, "{field}: {error}");
             assert!(
                 error.to_string().contains("unexpected_contract_field"),
-                "raw载荷错误必须先于冻结IO：{field}: {error}"
+                "Raw payload errors must precede frozen I/O: {field}: {error}"
             );
         }
         assert_eq!(store_rows(&connection), before);

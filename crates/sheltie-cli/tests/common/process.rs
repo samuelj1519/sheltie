@@ -45,9 +45,12 @@ impl Process {
         while !directory.join("reached").exists() {
             assert!(
                 self.child.as_mut().unwrap().try_wait().unwrap().is_none(),
-                "子进程在{point}之前结束"
+                "Subprocess exited before {point}"
             );
-            assert!(Instant::now() < deadline, "未到精确同步点{point}");
+            assert!(
+                Instant::now() < deadline,
+                "Did not reach exact synchronization point {point}"
+            );
             std::thread::sleep(Duration::from_millis(1));
         }
         assert_eq!(
@@ -61,7 +64,7 @@ impl Process {
     pub fn finish(mut self) -> Output {
         let deadline = Instant::now() + Duration::from_secs(10);
         while self.child.as_mut().unwrap().try_wait().unwrap().is_none() {
-            assert!(Instant::now() < deadline, "子进程完成超时");
+            assert!(Instant::now() < deadline, "Subprocess completion timed out");
             std::thread::sleep(Duration::from_millis(1));
         }
         self.child.take().unwrap().wait_with_output().unwrap()

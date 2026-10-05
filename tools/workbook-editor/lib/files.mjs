@@ -27,14 +27,14 @@ export async function readTree(root) {
       const stat = await lstat(full);
       if (stat.isDirectory()) await visit(full, path + '/');
       else if (stat.isFile()) entries.push([path, stat.size]);
-      else throw new Error(`物化集合含非普通文件：${path}`);
+      else throw new Error(`Materialized set contains a nonregular file: ${path}`);
     }
   }
   await visit(root, '');
   validateList(entries);
   for (const [path, size] of entries) {
     const bytes = await readFile(join(root, path));
-    if (bytes.length !== size) throw new Error(`文件读取中改变：${path}`);
+    if (bytes.length !== size) throw new Error(`File changed while reading: ${path}`);
     files.set(path, bytes);
   }
   validateMap(files);
@@ -42,8 +42,8 @@ export async function readTree(root) {
 }
 export async function verifyMaterialized(expected, root) {
   const actual = await readTree(root);
-  if (actual.size !== expected.size) throw new Error('物化后的文件集合不一致。');
+  if (actual.size !== expected.size) throw new Error('Materialized file set differs.');
   for (const [path, bytes] of expected) {
-    if (!actual.has(path) || !Buffer.from(bytes).equals(actual.get(path))) throw new Error(`物化后的路径或原字节不一致：${path}`);
+    if (!actual.has(path) || !Buffer.from(bytes).equals(actual.get(path))) throw new Error(`Materialized paths or original bytes differ: ${path}`);
   }
 }

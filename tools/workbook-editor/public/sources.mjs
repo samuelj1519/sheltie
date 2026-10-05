@@ -1,7 +1,7 @@
 import { WorkbookModel } from './model.mjs';
 const key = value => typeof value === 'string' && value.length <= 64 && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(value);
 export function sourceChoices(flow, files, owningNodeId) {
-  if (typeof owningNodeId !== 'string') throw new Error('来源选择必须指定所属步骤。');
+  if (typeof owningNodeId !== 'string') throw new Error('Source selection requires the owning step.');
   return { steps: (flow.nodes ?? []).filter(n => n.id !== owningNodeId && key(n.id) && !['start', 'resource', 'engine'].includes(n.id)), resources: [...files.keys()].sort() };
 }
 export function describeSource(value, flow, files, owningNodeId) {
@@ -27,7 +27,7 @@ export function composeSource(draft, flow, files, owningNodeId) {
 export function declarationBoolean(value) { return value === '' ? undefined : value === 'true' ? true : value === 'false' ? false : value; }
 export function declarationBytes(value) {
   if (value === '') return undefined;
-  if (!/^\d+$/.test(value)) throw new Error('大小上限请输入完整的非负整数字节数。');
+  if (!/^\d+$/.test(value)) throw new Error('Enter a complete nonnegative integer byte limit.');
   return BigInt(value);
 }
 
@@ -48,17 +48,17 @@ export function fixedReference(files, from, flowPath, ownerId) {
   } catch { return undefined; }
 }
 function inputReason(row, flow, files, ownerId) {
-  if (typeof row.name !== 'string') return '资料名称必须是文本。';
-  if (row.required !== undefined && typeof row.required !== 'boolean') return '提供要求无法表达。';
+  if (typeof row.name !== 'string') return 'Input names must be text.';
+  if (row.required !== undefined && typeof row.required !== 'boolean') return 'The required declaration cannot be represented.';
   const source = describeSource(row.from, flow, files, ownerId);
-  if (source.type === 'custom') return '来源缺失、指向自身或无法识别。';
-  if (source.type !== 'step' && row.required === false) return '该来源不能声明为可选资料。';
+  if (source.type === 'custom') return 'Source is missing, self-referential, or unknown.';
+  if (source.type !== 'step' && row.required === false) return 'This source cannot be optional.';
   if (source.type === 'step') {
     const output = flow.nodes.find(n => n.id === source.node)?.outputs?.find(o => o.name === source.output);
-    if (output?.required === false && row.required !== false) return '可选输出不能作为必需资料。';
+    if (output?.required === false && row.required !== false) return 'An optional output cannot supply a required input.';
     const visited = new Set([source.node]), queue = [source.node];
     for (let i = 0; i < queue.length; i++) for (const edge of flow.edges ?? []) if (edge.from === queue[i] && !visited.has(edge.to)) { visited.add(edge.to); queue.push(edge.to); }
-    if (!visited.has(ownerId)) return '该来源不能沿流程到达本步骤。';
+    if (!visited.has(ownerId)) return 'This source cannot reach this step through the Flow.';
   }
   return '';
 }
@@ -77,7 +77,7 @@ export function predecessorMaterials(flow, files, ownerId) {
   return result;
 }
 export function suggestedInputName(name, from, rows) {
-  const base = typeof name === 'string' ? name : '资料';
+  const base = typeof name === 'string' ? name : 'Input';
   if (!rows.some(row => row.name === base && row.from !== from)) return base;
   let index = 2, candidate;
   do { candidate = `${base}-${index++}`; } while (rows.some(row => row.name === candidate));
@@ -86,9 +86,9 @@ export function suggestedInputName(name, from, rows) {
 export function planInputRows(existing, requested) {
   const additions = [], skipped = [], conflicts = [];
   for (const input of requested) {
-    if (typeof input.name !== 'string') { conflicts.push({ name: input.name, reason: '名称必须是文本。' }); continue; }
+    if (typeof input.name !== 'string') { conflicts.push({ name: input.name, reason: 'Names must be text.' }); continue; }
     const same = [...existing, ...additions].find(row => row.name === input.name);
-    if (same) { if (same.from === input.from) skipped.push(input); else conflicts.push({ name: input.name, reason: '名称已被另一份资料使用，请改名。' }); continue; }
+    if (same) { if (same.from === input.from) skipped.push(input); else conflicts.push({ name: input.name, reason: 'This name is already used by another item; choose a different name.' }); continue; }
     const row = { name: input.name, from: input.from }; if (input.required !== undefined) row.required = input.required;
     additions.push(row);
   }
@@ -96,32 +96,32 @@ export function planInputRows(existing, requested) {
 }
 
 function writeReference(model, flowPath, ownerId, location, uuid) {
-  if (typeof location !== 'string' || !location.trim()) throw new Error('请输入非空的引用位置。');
+  if (typeof location !== 'string' || !location.trim()) throw new Error('Enter a nonempty reference location.');
   let id, path;
   for (let attempt = 0; attempt < 50; attempt++) {
-    id = uuid(); if (!uuidPattern.test(id)) throw new Error('生成的引用标识不合规。');
+    id = uuid(); if (!uuidPattern.test(id)) throw new Error('Invalid generated reference identity.');
     path = `${referencePrefix}${id}.txt`; if (!model.files.has(path)) break;
     path = undefined;
   }
-  if (!path) throw new Error('不能生成新的引用文件；原方法保持不变。');
+  if (!path) throw new Error('Cannot create a new reference file; the original Workbook is unchanged.');
   const data = { schema: 'sheltie-editor-reference/v1', id, owner: { flow: flowPath, node: ownerId }, location };
   model.writeText(path, referenceHeader + JSON.stringify(data) + '\n');
   return `resource.${path}`;
 }
 export function addMaterialInputs(model, flowPath, ownerId, requests, uuid = () => crypto.randomUUID()) {
   const candidate = new WorkbookModel(model.snapshot()), flow = candidate.flow(flowPath), node = flow.nodes.find(n => n.id === ownerId);
-  if (!node) throw new Error('所属步骤不存在。');
+  if (!node) throw new Error('The owning step does not exist.');
   const materials = predecessorMaterials(flow, candidate.files, ownerId), rows = node.inputs ?? [], inputs = [];
   for (const request of requests) {
     if (request.location !== undefined) {
       const same = [...rows, ...inputs].find(row => row.name === request.name && fixedReference(candidate.files, row.from, flowPath, ownerId)?.location === request.location);
       if (same) continue;
-      if ([...rows, ...inputs].some(row => row.name === request.name)) throw new Error(`资料名称 ${request.name} 已存在，请改名。`);
-      if (typeof request.name !== 'string') throw new Error('资料名称必须是文本。');
+      if ([...rows, ...inputs].some(row => row.name === request.name)) throw new Error(`Input name ${request.name} already exists; rename it.`);
+      if (typeof request.name !== 'string') throw new Error('Input names must be text.');
       inputs.push({ name: request.name, from: writeReference(candidate, flowPath, ownerId, request.location, uuid) });
     } else {
       const item = materials.find(m => m.key === request.key);
-      if (!item || item.reason) throw new Error(item?.reason || '所选资料已不存在。');
+      if (!item || item.reason) throw new Error(item?.reason || 'The selected input no longer exists.');
       inputs.push({ ...item, name: request.name });
     }
   }
@@ -134,7 +134,7 @@ export function addMaterialInputs(model, flowPath, ownerId, requests, uuid = () 
 export function editFixedReference(model, flowPath, ownerId, rowIndex, location, uuid = () => crypto.randomUUID()) {
   const node = model.flow(flowPath).nodes.find(n => n.id === ownerId), row = node?.inputs?.[rowIndex];
   const reference = fixedReference(model.files, row?.from, flowPath, ownerId);
-  if (!reference) throw new Error('这是普通参考文件来源，不能作为专用位置引用编辑。');
+  if (!reference) throw new Error('This ordinary resource cannot be edited as an owned location reference.');
   if (reference.location === location) return model;
   const candidate = new WorkbookModel(model.snapshot()), next = candidate.flow(flowPath).nodes.find(n => n.id === ownerId);
   next.inputs[rowIndex].from = writeReference(candidate, flowPath, ownerId, location, uuid); candidate.commit(flowPath); candidate.snapshot();
@@ -142,28 +142,28 @@ export function editFixedReference(model, flowPath, ownerId, rowIndex, location,
 }
 
 export function bindingSummary(row, kind, flow, files, flowPath, ownerId) {
-  if (kind === 'outputs') return row.path === undefined ? '尚未声明文件名' : String(row.path);
-  const reference = fixedReference(files, row.from, flowPath, ownerId); if (reference) return `固定引用：${reference.location}`;
+  if (kind === 'outputs') return row.path === undefined ? 'Filename not declared' : String(row.path);
+  const reference = fixedReference(files, row.from, flowPath, ownerId); if (reference) return `Fixed reference: ${reference.location}`;
   const source = describeSource(row.from, flow, files, ownerId);
-  if (source.type === 'start') return `开始时提供 · ${source.key}`;
+  if (source.type === 'start') return `Provided at start · ${source.key}`;
   if (source.type === 'step') return `${flow.nodes.find(n => n.id === source.node)?.title || source.node} · ${source.output}`;
-  if (source.type === 'resource') return `参考文件 · ${source.path}`;
-  if (source.type === 'stats') return '运行统计';
-  return `原来源 · ${row.from === undefined ? '尚未声明' : String(row.from)}`;
+  if (source.type === 'resource') return `Reference file · ${source.path}`;
+  if (source.type === 'stats') return 'Work statistics';
+  return `Original source · ${row.from === undefined ? 'not declared' : String(row.from)}`;
 }
 export function projectBindingGroups(node, kind, flow, files, flowPath, query = '') {
-  if (kind !== 'inputs' && kind !== 'outputs') throw new Error('请选择输入或输出。');
+  if (kind !== 'inputs' && kind !== 'outputs') throw new Error('Choose inputs or outputs.');
   const groups = new Map(), search = query.toLowerCase();
   (node[kind] ?? []).forEach((row, index) => {
     const summary = bindingSummary(row, kind, flow, files, flowPath, node.id);
     if (!`${row.name ?? ''} ${row.from ?? row.path ?? ''} ${summary}`.toLowerCase().includes(search)) return;
     let label;
-    if (kind === 'outputs') { const slash = typeof row.path === 'string' ? row.path.lastIndexOf('/') : -1; label = slash < 0 ? '输出文件' : `文件夹 · ${row.path.slice(0, slash)}`; }
-    else if (fixedReference(files, row.from, flowPath, node.id)) label = '固定引用';
+    if (kind === 'outputs') { const slash = typeof row.path === 'string' ? row.path.lastIndexOf('/') : -1; label = slash < 0 ? 'Output files' : `Folder · ${row.path.slice(0, slash)}`; }
+    else if (fixedReference(files, row.from, flowPath, node.id)) label = 'Fixed references';
     else {
       const source = describeSource(row.from, flow, files, node.id);
-      if (source.type === 'step') label = `前置步骤 · ${flow.nodes.find(n => n.id === source.node)?.title || source.node}`;
-      else label = { start: '开始时提供', resource: '方法参考文件', stats: '运行统计', custom: '自定义或原始来源' }[source.type];
+      if (source.type === 'step') label = `Predecessor · ${flow.nodes.find(n => n.id === source.node)?.title || source.node}`;
+      else label = { start: 'Provided at start', resource: 'Workbook reference files', stats: 'Work statistics', custom: 'Custom or original source' }[source.type];
     }
     if (!groups.has(label)) groups.set(label, []);
     groups.get(label).push({ index, row, summary });

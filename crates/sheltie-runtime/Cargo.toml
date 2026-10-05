@@ -1,6 +1,6 @@
 [package]
 name = "sheltie-runtime"
-description = "Sheltie 引擎的 I/O 层：管理根、SQLite、Workbook 仓库、Work 服务、自更新。不做业务判断。"
+description = "Sheltie engine I/O: management root, SQLite, Workbook repository, Work service, and self-updates. No business judgments."
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -8,7 +8,7 @@ license.workspace = true
 repository.workspace = true
 
 [features]
-# 崩溃测试用的故障注入点：设置 SHELTIE_FAILPOINT=<名字> 时在该处退出进程。
+# Crash-test fault injection: setting SHELTIE_FAILPOINT=<name> exits at that point.
 failpoint = []
 
 [dependencies]

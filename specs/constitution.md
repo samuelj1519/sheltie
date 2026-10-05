@@ -1,67 +1,69 @@
-# Sheltie 宪章
+# Sheltie constitution
 
-本文是全部文档中最短、最稳定的一份。它回答两个问题：Sheltie 为什么存在，哪些规则任何版本都不能破。其他文档与本文冲突时，以本文为准；要改本文，先改本文再改别处。
+English | [简体中文](constitution.zh-CN.md)
 
-## 1. 一句话
+This is the shortest and most stable authority. It defines why Sheltie exists and which rules no version may break. It takes precedence over conflicting documents. Amend this document before changing rules elsewhere.
 
-Sheltie 是一个本地运行的工作流引擎，**替协调者 agent 做重复的机械活，不替它做判断**。人把做事方法写成 Workbook，协调者 agent 读 Workbook 派活，工作 agent 干活，引擎负责记状态、发任务书、守规则。
+## 1. One sentence
 
-## 2. 三方分工
+Sheltie is a local workflow engine that **performs repetitive mechanical work for coordinator agents without making their judgments**. People write methods as Workbooks; coordinator agents read them and delegate; workers execute; the engine records state, generates briefs, and enforces rules.
 
-| 角色 | 做什么 | 不做什么 |
+## 2. Responsibilities
+
+| Role | Responsibilities | Boundaries |
 | --- | --- | --- |
-| 人（Workbook 作者、用户） | 写做事方法；批准门槛；批准安装 | 不在运行中改图 |
-| 协调者 agent | 读 Workbook，派发每一步，理解工作 agent 的回复，在合法下一步里选路 | 不绕过引擎给出的合法下一步 |
-| 工作 agent 或人 | 按一步的说明把输入变成输出，用自然语言回复结论 | 不改别人的产出、标准或记录 |
-| 引擎 | 解析图、记状态、绑输入、发任务书、限定合法下一步、守门槛、算上限 | 不判断内容好坏，不选路 |
+| People (Workbook authors and users) | Write methods; approve gates and installation | Do not change a running graph |
+| Coordinator agent | Read the Workbook, delegate each step, interpret worker responses, choose among legal next actions | Must follow engine-provided legal next actions |
+| Worker agent or person | Transform inputs into outputs according to instructions; report conclusions in natural language | Must not modify others' outputs, standards, or records |
+| Engine | Parse graphs, record state, bind inputs, generate briefs, compute legal next actions, enforce gates and limits | Does not judge quality or choose routes |
 
-判断引擎该不该做某件事的思考题：**如果没有引擎，协调者每次都得重复做这件机械事吗？** 是，就属于引擎；不是，就留给协调者或 Workbook。这道题帮助思考，不是自动裁决器。
+Ask: **Without the engine, would the coordinator have to repeat this mechanical operation each time?** If yes, it belongs in the engine; otherwise, leave it to the coordinator or Workbook. This question guides thinking; it is not an automatic adjudicator.
 
-## 3. 不变式（INV）
+## 3. Invariants (INV)
 
-违反任何一条即为设计错误，Review 直接打回。
+Any violation is a design error and must be rejected in review.
 
-| 编号 | 规则 | 反例 |
+| ID | Rule | Counterexample |
 | --- | --- | --- |
-| `INV-1` | 引擎不含业务判断。不判通过与否，不替协调者在合法边中选一条 | 引擎读 Review 文档看到「通过」就自动推进 |
-| `INV-2` | 引擎不从自然语言推断任何系统事实 | 从工作 agent 回复里解析出「已隔离」写进状态 |
-| `INV-3` | 引擎不写宿主配置，不把任何资源装进任何 agent。引擎只检查与通知。把 Workbook 复制进引擎自己的管理根不算安装 | 引擎发现缺 skill 后直接写 `~/.claude/` |
-| `INV-4` | Package 不是业务实体，只指 Cargo 包或外部依赖。业务方法只有 Workbook 一个词 | 出现 `PackageId`、`PackageCatalog` 类型 |
-| `INV-5` | Review 是普通 Node，没有专属状态机。引擎只有执行事实与结构校验结果 | 引擎里出现 `Verdict`、`Pass`、`Fail` 枚举 |
-| `INV-6` | 模型输出不得写入系统事实。系统事实包括：身份、时间、文件摘要、边的合法性、门槛批准、上限计数、产物归属 | 接受工作 agent 自报的「输出文件 sha256」 |
-| `INV-7` | 唯一状态权威。Work 状态只存一处（SQLite）；状态卡、目录、日志都是投影，不能反向推进状态 | 从目录名恢复 Work 身份 |
+| `INV-1` | The engine contains no business judgment. It neither determines acceptance nor chooses a legal edge for the coordinator | Automatically advancing after reading “accepted” in a review document |
+| `INV-2` | The engine infers no system facts from natural language | Parsing “isolated” from a worker response into state |
+| `INV-3` | The engine neither writes host configuration nor installs resources into agents. It only checks and informs. Copying a Workbook into its own management root is not host installation | Writing `~/.claude/` after discovering a missing skill |
+| `INV-4` | Package means a Cargo package or external dependency, never a business entity. Workbook is the sole name for a business method | Types named `PackageId` or `PackageCatalog` |
+| `INV-5` | Review is an ordinary Node with no dedicated state machine. The engine records execution facts and structural validation results | `Verdict`, `Pass`, or `Fail` enums in the engine |
+| `INV-6` | Model outputs must not become system facts: identity, time, file digests, edge legality, gate approvals, limit counters, or artifact ownership | Accepting a worker's self-reported output sha256 |
+| `INV-7` | There is one state authority. Work state resides only in SQLite; cards, directories, and logs are projections that cannot advance state | Recovering Work identity from a directory name |
 
-## 4. 三条硬规则
+## 4. Three hard rules
 
-引擎对协调者的三条约束，落在「合法下一步」的计算与提交校验里。
+These constraints govern legal next actions and submission validation.
 
-1. **边必须显式声明。** 合法下一步只来自 Flow 里写出来的边。没有「默认往下走」。
-2. **输入按字节冻结。** 任务书绑定的每个输入文件都记路径和摘要。开工后有人改了文件，引擎拒绝，不换读同名新文件。
-3. **门槛不可绕过。** 节点声明了 `gate = true`，就必须有真人批准记录才能走出这个节点。任何边、重试、恢复都不能绕过。
+1. **Edges must be explicit.** Legal next actions come only from declared Flow edges. There is no implicit next step.
+2. **Inputs freeze by bytes.** Each input bound in a brief has a path and digest. If modified after execution begins, the engine rejects it rather than reading a replacement with the same name.
+3. **Gates cannot be bypassed.** Leaving a node with `gate = true` requires a human approval record. Edges, retries, and recovery cannot bypass it.
 
-## 5. 人点头只出现在两处
+## 5. Human approval has two places
 
-1. **人工审核节点。** 执行者是人的节点，人的提交就是这个节点的结论。
-2. **门槛与外部授权。** `gate = true` 的节点要人批准才能离开；宿主、网络或工作区权限由宿主与操作者授权控制。当前引擎核合法操作和门槛，不求值任意宿主权限或提供隔离。
+1. **Human execution nodes.** A human executor's submission is that node's conclusion.
+2. **Gates and external authorization.** Leaving `gate = true` requires approval. Host, network, and workspace permissions are governed by the host and operator. The current engine validates legal operations and gates; it does not evaluate arbitrary host permissions or provide isolation.
 
-其他事都在 agent 权限内，由协调者自己处理，不打扰人。这与 OpenAI 与 Anthropic 的官方建议一致：人工介入放在高风险与失败超限两个触发点上，其余自动做。
+Other operations within agent authority belong to the coordinator. This follows OpenAI and Anthropic guidance to intervene for high risk and exceeded failure limits while automating the rest.
 
-批准记录只能如实记载「哪个操作系统账户在何时调用了批准」，这是记账事实。同一个 OS 账户环境下引擎不提供、也不声称提供独立真人认证；是否把调用权交给真人，由宿主与用户自己的授权机制负责。
+Approval records truthfully identify which operating-system account invoked approval and when. They are accounting facts. In a shared OS-account environment, the engine neither provides nor claims independent human authentication. The host and user decide whether invocation authority is reserved for a person.
 
-## 6. 成本纪律
+## 6. Cost discipline
 
-token 浪费在设计层避免。五条落地机制：
+Avoid token waste in the design.
 
-| 编号 | 机制 |
+| ID | Mechanism |
 | --- | --- |
-| `T-1` | 任务书骨架由人预写在 Workbook 里，引擎只投递一次并绑输入路径，不现场生成正文 |
-| `T-2` | 模型可见的内容一律走文件与路径引用，不把大段原文拼进 prompt |
-| `T-3` | 状态存引擎侧，协调者读紧凑状态卡，不重读历史 |
-| `T-4` | 工作 agent 的回复是有界摘要加输出文件引用，超限拒绝而不截断 |
-| `T-5` | 打回与修复回环只发问题文档和变过的文件 |
+| `T-1` | People prewrite brief skeletons in the Workbook; the engine delivers them once and binds paths without generating bodies |
+| `T-2` | Model-visible material travels through files and path references rather than large prompt excerpts |
+| `T-3` | The engine stores state; coordinators read compact cards rather than history |
+| `T-4` | Worker responses contain bounded summaries and output references; oversized responses are rejected, never truncated |
+| `T-5` | Rework and repair loops deliver only findings documents and changed files |
 
-每条成本指标必须配一条质量判据。只报省了多少、不报质量是否保住，不算数。
+Every cost metric requires a quality criterion. Savings without evidence that quality was preserved do not establish benefit.
 
-## 7. 演进方向
+## 7. Evolution
 
-模型越强，引擎越瘦。协调者能稳定做好的事，不再塞进引擎。引擎长期保留状态、合法边、不可变产物、门槛与上限。宿主就绪属于[路线图](roadmap.md)中需另行采用的方向，当前只传递 requires 声明，不将未来机制写成当前能力。产品叙事是「给协调者用的可复用工作方法引擎」，不是「无人公司操作系统」。
+As models improve, the engine becomes smaller. Do not move tasks coordinators reliably handle into the engine. Retain state, legal edges, immutable artifacts, gates, and limits. Host readiness is an unadopted [roadmap](roadmap.md) direction; currently the engine passes requires declarations only. Describe the product as a reusable-method engine for coordinators, rather than an autonomous-company operating system.

@@ -1,29 +1,29 @@
 ---
 source: crates/sheltie-core/src/work/render.rs
-expression: "render_brief(fx.state(), &fx.graph, a, \"审查这篇文章。\")"
+expression: "render_brief(fx.state(), &fx.graph, a, \"Review this article.\")"
 ---
-# 任务书：审查初稿
+# Brief: Review the draft
 
-Work: 2026-09-24-001-t（t）
-节点: review#1，第 0 次尝试
-来自: draft#1（main 边）
-执行者: agent（standard）
+Work: 2026-09-24-001-t (t)
+Node: review#1, Attempt 0
+From: draft#1 (main edge)
+Executor: agent (standard)
 
-## 输入
+## Inputs
 
-| 名称 | 路径 | sha256 |
+| Name | Path | sha256 |
 | --- | --- | --- |
 | article | /tmp/sheltie-test/works/2026-09-24-001-t/attempts/draft/occurrence-001/attempt-000/outputs/article.md | fc11d6f28e59d3cc33c0b14ceb644bf0902ebd63d61218dffe9e7dac7c254542 |
-| checklist | /tmp/sheltie-test/works/2026-09-24-001-t/workbook/resources/review-checklist.md | 887d65108d23a71b86f691183d2f9de26b8e45f864fc44e24c5e76ffbe96ed6a |
+| checklist | /tmp/sheltie-test/works/2026-09-24-001-t/workbook/resources/review-checklist.md | c80a32611bc6ecf5a485a531f4e80ba71fb4551861bc03c404f5a803159a3ebe |
 
-## 说明
+## Instructions
 
-审查这篇文章。
+Review this article.
 
-## 输出要求
+## Output requirements
 
-| 名称 | 写到 | 必需 | 上限 |
+| Name | Write to | Required | Limit |
 | --- | --- | --- | --- |
-| verdict | /tmp/sheltie-test/works/2026-09-24-001-t/attempts/review/occurrence-001/attempt-000/outputs/review.md | 是 | 64 KiB |
+| verdict | /tmp/sheltie-test/works/2026-09-24-001-t/attempts/review/occurrence-001/attempt-000/outputs/review.md | yes | 64 KiB |
 
-完成后不要自己修改输入文件。回复协调者时用几句话说明结论，并列出你写了哪些输出文件。
+Do not modify input files after finishing. Summarize your conclusion for the coordinator and list the output files you wrote.

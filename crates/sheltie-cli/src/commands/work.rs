@@ -25,8 +25,8 @@ pub(crate) fn result_artifact(ctx: &Ctx, work: &str, key: &str, revision: u64) -
     }
 }
 
-/// `start` 先用 `cli::parse_input_arg` 解析全部 `--input`，再调 `WorkService::start`。
-/// `status`、`result`、`stats` 与 `list` 只读打开。`<work>` 先经 `WorkService::resolve_work`。
+/// `start` parses all `--input` values with `cli::parse_input_arg`, then calls `WorkService::start`.
+/// `status`, `result`, `stats`, and `list` open read-only. Resolve `<work>` with `WorkService::resolve_work`.
 pub fn run(ctx: &Ctx, cmd: WorkCmd) -> Outcome {
     match cmd {
         WorkCmd::Start(args) => start(ctx, args),
@@ -38,12 +38,12 @@ pub fn run(ctx: &Ctx, cmd: WorkCmd) -> Outcome {
     }
 }
 
-/// 打开存储并建服务。只读或读写由调用方定。
+/// Open storage and construct the service; the caller chooses read-only or read-write access.
 pub(crate) fn service(ctx: &Ctx) -> WorkService {
     WorkService::new(ctx.home.clone())
 }
 
-/// `<work>` 前缀解析；零个或多个匹配都是错误Outcome。
+/// Resolve the `<work>` prefix; zero or multiple matches produce an error Outcome.
 pub(crate) fn resolve(
     svc: &WorkService,
     work: &str,
@@ -53,9 +53,9 @@ pub(crate) fn resolve(
         .map_err(|e| crate::error_map::to_outcome(&e))
 }
 
-/// `work start`（协议 §3 第 8 步的返回）。
+/// `work start` (protocol §3, step 8 response).
 fn start(ctx: &Ctx, args: crate::cli::StartArgs) -> Outcome {
-    // 参数解析错误先于任何存储访问，退出码 2。
+    // Parameter errors precede all storage access and return exit code 2.
     let mut inputs = BTreeMap::new();
     for raw in &args.inputs {
         match parse_input_arg(raw) {
@@ -69,8 +69,8 @@ fn start(ctx: &Ctx, args: crate::cli::StartArgs) -> Outcome {
         Ok(v) => v,
         Err(m) => return output::param_error(m),
     };
-    // 只读打开做预检（GF-30）：新管理根连 store.db 都没有，说明没有任何已装
-    // Workbook，按 NOT_FOUND 拒绝，不为失败的 start 建库；写路径由 runtime 重开读写库。
+    // Read-only preflight (GF-30): a new management root has no store.db or installed
+    // Workbook. Return NOT_FOUND without creating storage; runtime reopens read-write for writes.
     let svc = WorkService::new(ctx.home.clone());
     let rt_args = sheltie_runtime::StartArgs {
         workbook_id,
@@ -83,12 +83,12 @@ fn start(ctx: &Ctx, args: crate::cli::StartArgs) -> Outcome {
         Ok(r) => r,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    // 响应字段全部来自提交时快照（cli-result/v4）：CLI 不再回读 Store 拼数据（O04）。
+    // All response fields come from the commit-time snapshot (cli-result/v4); CLI does not reread Store (O04).
     let work_id = match &resp.reply {
         Reply::Started { work_id, .. } => work_id.clone(),
         other => return reply_mismatch("Started", other),
     };
-    let text = next_lines(format!("Work {work_id} 已创建\n"), &resp, &work_id);
+    let text = next_lines(format!("Work {work_id} created\n"), &resp, &work_id);
     output::ok_response(text, resp, &work_id)
 }
 
@@ -117,7 +117,7 @@ fn list(ctx: &Ctx) -> Outcome {
     output::ok(text, None, None, data, Vec::new())
 }
 
-/// `work status`：文本模式直接打状态卡。
+/// `work status`: print the status card in text mode.
 fn status(ctx: &Ctx, work: &str) -> Outcome {
     let svc = service(ctx);
     let wid = match resolve(&svc, work, None) {
@@ -128,7 +128,7 @@ fn status(ctx: &Ctx, work: &str) -> Outcome {
         Ok(t) => t,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    // next 已由 core 装配成协议形状，与 data.next 同源同形（O13）。
+    // Core assembles next in protocol form, from the same source and shape as data.next (O13).
     output::ok(text, None, None, json!(view), view.card.next.clone())
 }
 
@@ -150,14 +150,14 @@ fn result(ctx: &Ctx, work: &str) -> Outcome {
     output::ok(text, None, None, json!(view), next)
 }
 
-/// `work stats`：runtime返回同一次装入的事实视图与next。
+/// `work stats`: runtime returns facts and next from one load.
 fn stats(ctx: &Ctx, work: &str) -> Outcome {
     let svc = service(ctx);
     let wid = match resolve(&svc, work, None) {
         Ok(w) => w,
         Err(out) => return out,
     };
-    // stats 与 next 用同一次加载的事实视图（GF-29）；next 与状态卡同源同形。
+    // stats and next share one loaded fact view (GF-29); next matches the status card's source and shape.
     let (text, stats, ops) = match svc.stats(&wid) {
         Ok(t) => t,
         Err(e) => return crate::error_map::to_outcome(&e),
@@ -176,34 +176,34 @@ fn cancel(ctx: &Ctx, work: &str) -> Outcome {
         Ok(r) => r,
         Err(e) => return crate::error_map::to_outcome(&e),
     };
-    let mut text = format!("已取消 {wid}\n");
+    let mut text = format!("Cancelled {wid}\n");
     if resp.next.is_empty() {
-        text.push_str("Work 已结束，没有下一步。\n");
+        text.push_str("Work has ended; there are no next actions.\n");
     }
     output::ok_response(text, resp, &wid)
 }
 
-// ── attempt 与 gate 组共用的渲染 ───────────────────────────────
+// ── Rendering shared by attempt and gate commands ───────────────────────────────
 
-/// 文本模式的「下一步」段。写操作的文本都以它收尾。
+/// The text-mode next-actions section ends every write response.
 pub(crate) fn next_lines(head: String, resp: &Response, work: &WorkId) -> String {
     let mut text = head;
     if resp.next.is_empty() {
-        text.push_str("没有下一步（Work 已结束）。\n");
+        text.push_str("No next actions (Work has ended).\n");
         return text;
     }
-    text.push_str("下一步：\n");
+    text.push_str("Next actions:\n");
     for op in &resp.next {
         text.push_str(&format!("- {}\n", op.to_command_line(work)));
     }
     text
 }
 
-/// runtime 保证 reply 与命令对应；对不上说明两端不一致。
+/// Runtime guarantees the reply matches the command; a mismatch indicates an interface inconsistency.
 pub(crate) fn reply_mismatch(expected: &str, got: &Reply) -> Outcome {
     crate::output::err(
         sheltie_core::ErrorCode::StoreCorrupt,
-        format!("响应与命令不匹配（期望 {expected}，实际 {got:?}）"),
+        format!("Response does not match command (expected {expected}, got {got:?})"),
         None,
     )
 }

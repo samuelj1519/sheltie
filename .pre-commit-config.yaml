@@ -36,14 +36,21 @@ repos:
         description: Change lifecycle, ADR, release, and agent entry stay consistent.
         entry: scripts/check-specs.sh
         language: script
-        files: (AGENTS\.md|CHANGELOG\.md|Cargo\.toml|scripts/check-specs\.sh|specs/.*)
+        files: (AGENTS\.md|CHANGELOG\.md|Cargo\.toml|scripts/check-specs\.sh|specs/.*|docs/(history|reference/releases|explanation/decisions)/.*)
         pass_filenames: false
       - id: check-skill
         name: check sheltie skill
         description: Skill commands exist in the protocol; no storage internals.
         entry: scripts/check-skill.sh
         language: script
-        files: (skills/sheltie/SKILL\.md|specs/contracts/protocol\.md)$
+        files: (skills/sheltie/SKILL(\.zh-CN)?\.md|specs/contracts/.*\.md|scripts/(check-skill|skill-delivery)\.sh)$
+        pass_filenames: false
+      - id: check-language
+        name: check English defaults and language links
+        description: Declare meaningful Unicode literals and verify reciprocal language selection.
+        entry: python3 scripts/check-language.py
+        language: system
+        files: (\.md|\.rs|\.toml|\.mjs|\.html|\.css|\.sh|\.py|\.ya?ml|\.snap|scripts/language-exceptions\.json)$
         pass_filenames: false
       - id: check-core-vocab
         name: check engine vocabulary

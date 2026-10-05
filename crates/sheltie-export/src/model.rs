@@ -18,7 +18,7 @@ impl TryFrom<String> for ResultKey {
     type Error = String;
     fn try_from(value: String) -> std::result::Result<Self, Self::Error> {
         if value.as_bytes().contains(&0) {
-            return Err("result key包含argv不能表达的NUL".to_string());
+            return Err("Result key contains NUL, which argv cannot represent".to_string());
         }
         Ok(Self(value))
     }
@@ -77,14 +77,16 @@ impl SelectedResult {
             message: message.to_string(),
         };
         if self.format != "work-result/v1" || self.work_id != *expected_work || self.revision == 0 {
-            return Err(reject("结果格式、WorkId或revision不符"));
+            return Err(reject("Result format, WorkId, or revision does not match"));
         }
         if self.status != WorkStatus::Succeeded
             || !self.r#final
             || self.effects_pending
             || self.artifacts.is_empty()
         {
-            return Err(reject("需要无待完成效果且非空的明确最终成果"));
+            return Err(reject(
+                "Requires no pending effects and nonempty explicit final results",
+            ));
         }
         let version = &self.workbook.version;
         if version.is_empty()
@@ -94,14 +96,16 @@ impl SelectedResult {
                 .bytes()
                 .any(|byte| !byte.is_ascii_alphanumeric() && !b".+-".contains(&byte))
         {
-            return Err(reject("Workbook版本不是合同规定的安全目录段"));
+            return Err(reject(
+                "Workbook version is not a contract-valid safe directory segment",
+            ));
         }
         if self
             .artifacts
             .windows(2)
             .any(|pair| pair[0].key >= pair[1].key)
         {
-            return Err(reject("Artifact key必须严格排序且唯一"));
+            return Err(reject("Artifact keys must be strictly sorted and unique"));
         }
         let mut total = 0_u64;
         let terminal = &self.artifacts[0].source.attempt;
@@ -109,27 +113,27 @@ impl SelectedResult {
             let leaf = std::path::Path::new(artifact.path.as_str())
                 .file_name()
                 .and_then(|name| name.to_str())
-                .ok_or_else(|| reject("Artifact没有安全文件叶名"))?;
+                .ok_or_else(|| reject("Artifact has no safe file leaf name"))?;
             if leaf.is_empty() || matches!(leaf, "." | "..") || leaf.contains(['\0', '/', '\\']) {
-                return Err(reject("Artifact文件叶名不安全"));
+                return Err(reject("Artifact file leaf name is unsafe"));
             }
             let attempt = AttemptId::parse(&artifact.source.attempt)
-                .map_err(|_| reject("来源AttemptId非法"))?;
+                .map_err(|_| reject("Invalid source AttemptId"))?;
             if attempt.occurrence == 0
                 || artifact.source.attempt != *terminal
                 || attempt.to_string() != artifact.source.attempt
                 || artifact.source.name != artifact.key
             {
-                return Err(reject("来源槽或AttemptId非规范"));
+                return Err(reject("Source slot or AttemptId is not canonical"));
             }
             if artifact.bytes > MAX_FILE_BYTES {
-                return Err(reject("选定单文件超过32MiB"));
+                return Err(reject("Selected file exceeds 32 MiB"));
             }
             total = total
                 .checked_add(artifact.bytes)
-                .ok_or_else(|| reject("成果总量溢出"))?;
+                .ok_or_else(|| reject("Total result size overflow"))?;
             if total > MAX_TOTAL_BYTES {
-                return Err(reject("选定成果总量超过256MiB"));
+                return Err(reject("Selected results exceed 256 MiB in total"));
             }
         }
         Ok(())
@@ -154,7 +158,7 @@ where
         ("succeeded", None) => Ok(WorkStatus::Succeeded),
         ("cancelled", None) => Ok(WorkStatus::Cancelled),
         ("blocked", Some(Some(reason))) => Ok(WorkStatus::Blocked(reason)),
-        _ => Err(D::Error::custom("status字段与variant不相符")),
+        _ => Err(D::Error::custom("status field does not match variant")),
     }
 }
 

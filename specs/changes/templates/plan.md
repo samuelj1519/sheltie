@@ -1,21 +1,23 @@
-# Cnnn 实施计划
+# Cnnn implementation plan
 
-状态只使用 `todo | doing | blocked | done`。`done` 必须绑定候选与当前输入闭包下的验证；方案 PASS 或提交存在不等于任务完成。
+English | [简体中文](plan.zh-CN.md)
 
-| ID | 状态 | Owner | 依赖 | 结果 |
+Use only todo/doing/blocked/done. Done requires candidate-bound validation with the current input closure; design PASS or an existing commit is not completion.
+
+| ID | Status | Owner | Dependencies | Result |
 | --- | --- | --- | --- | --- |
-| Cnnn-T01 | todo | <一个 Owner> | 无 | <可观察结果> |
+| Cnnn-T01 | todo | <one owner> | none | <observable result> |
 
-## Cnnn-T01 <标题>
+## Cnnn-T01 <title>
 
-**文件。** <精确路径或 module。>
+**Files.** <Exact paths or module.>
 
-**步骤。**
+**Steps.**
 
-1. <动作；完成判据。>
+1. <Action and completion criterion.>
 
-**正例。** <合法输入与可观察结果。>
-**反例。** <只改变一个条件的拒绝结果。>
-**停止条件。** <必须回上游或找人的条件。>
-**验证。** <目标测试、影响链与门禁。>
-**提交。** `<type>(<scope>): <中文摘要>`
+**Accepted case.** <Legal input and observable result.>
+**Rejected case.** <Change one condition and state rejection.>
+**Stop conditions.** <When upstream or human resolution is required.>
+**Validation.** <Focused tests, consumer chain, gates.>
+**Commit.** `<type>(<scope>): <English summary>`

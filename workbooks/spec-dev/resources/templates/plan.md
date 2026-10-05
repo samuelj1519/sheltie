@@ -1,43 +1,43 @@
-# 技术方案：<一句话标题>
+# Technical plan: <one-sentence title>
 
-## 现状
+## Current state
 
-<相关代码现在怎么工作，给文件路径。三到八行。>
+<Relevant code/paths in three to eight lines.>
 
-## 改法
+## Approach
 
-- <新增或修改什么，一句话，文件路径>
+- <One-sentence addition/change and path.>
 
-## 门禁
+## Gates
 
-每个任务做完都要全部通过。命令在项目根目录运行。
+All commands must pass for every completed task, run at project root.
 
 ```bash
-<命令 1>
-<命令 2>
+<command 1>
+<command 2>
 ```
 
-## 基线
+## Baseline
 
-原始基线（Work 开始时的 `git rev-parse HEAD`；改方案从上一版原样抄这一行，不重设）：`<哈希>`
+Original baseline (Work-start git rev-parse HEAD; copy this line verbatim when replanning, never reset): `<hash>`
 
-## 风险
+## Risks
 
-- <不确定的地方，以及万一错了怎么退>
+- <Uncertainty and recovery if wrong.>
 
-## 修订记录
+## Revision history
 
-- <日期> 初版
+- <date> Initial version
 
-## 已验证任务
+## Verified tasks
 
-继承来源: <上一次验证报告和被审副本路径；首次写 无>
+Inheritance source: <previous report/reviewed-copy paths; none initially>
 
-保留已独立验证的原始行；实现者的自报不算验证。首次为空表。
+Preserve independently verified original rows; implementer claims are not verification. Initially empty.
 
-| 任务 | 任务基线 | 候选提交 | 审批来源 | 验证报告 | 原始证据 |
+| Task | Task baseline | Candidate commit | Approval source | Verification report | Raw evidence |
 | --- | --- | --- | --- | --- | --- |
 
-## 需重验事项
+## Revalidation required
 
-<验收条件修订影响了哪些旧任务、需要新增哪些重验任务；无则写 无。历史行不改写。>
+<Affected historical tasks/new rechecks for changed acceptance, or none. Do not rewrite history.>

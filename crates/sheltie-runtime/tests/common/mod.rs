@@ -1,4 +1,4 @@
-//! runtime 集成测试共用：临时管理根、样例目录、快捷构造。
+//! Shared runtime integration support: temporary roots, example directories, and constructors.
 #![allow(dead_code)]
 
 use std::path::{Path, PathBuf};
@@ -32,7 +32,7 @@ pub fn assert_effect_pending(
         ..
     } = error
     else {
-        panic!("请求错误必须保留EFFECT_PENDING归属：{error:?}");
+        panic!("Request errors must preserve EFFECT_PENDING ownership: {error:?}");
     };
     assert_eq!(actual_committed, committed);
     if let Some(request_id) = request_id {
@@ -74,7 +74,7 @@ pub fn assert_effect_pending_without_original(
         ..
     } = error
     else {
-        panic!("请求错误必须保留EFFECT_PENDING归属：{error:?}");
+        panic!("Request errors must preserve EFFECT_PENDING ownership: {error:?}");
     };
     assert_eq!(actual_committed, committed);
     assert_eq!(actual_request, request_id);
@@ -88,14 +88,14 @@ pub fn abs(p: &Path) -> AbsPath {
     AbsPath::new(p.to_str().unwrap()).unwrap()
 }
 
-/// 一个全新的临时管理根。返回 `TempDir` 保活。
+/// Fresh temporary management root; return TempDir to keep it alive.
 pub fn temp_home() -> (OwnedTempDir, Home) {
     let dir = OwnedTempDir::new();
     let home = Home::resolve(Some((abs(dir.path())).as_str())).unwrap();
     (dir, home)
 }
 
-/// 仓库里的 `examples/<name>` 目录。
+/// Repository examples/<name> directory.
 pub fn example_dir(name: &str) -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../examples")
@@ -104,7 +104,7 @@ pub fn example_dir(name: &str) -> PathBuf {
         .unwrap()
 }
 
-/// 把样例复制到临时目录，返回可写副本（便于篡改）。
+/// Copy an example into a writable temporary directory for tampering tests.
 pub fn copy_example(name: &str, into: &Path) -> PathBuf {
     let dst = into.join(name);
     copy_dir(&example_dir(name), &dst);
@@ -146,7 +146,7 @@ pub fn snapshot(path: &Path) -> (Vec<u8>, u32) {
     )
 }
 
-/// 装好一个样例并返回服务。
+/// Install an example and return its service.
 pub fn home_with_example(name: &str) -> (OwnedTempDir, Home, WorkService) {
     let (dir, home) = temp_home();
     repo(&home).add(&abs(&example_dir(name)), None).unwrap();
@@ -187,11 +187,11 @@ pub fn start_two_step(svc: &WorkService) -> sheltie_runtime::Response {
 pub fn work_id_of(resp: &sheltie_runtime::Response) -> sheltie_core::ids::WorkId {
     match &resp.reply {
         sheltie_core::work::Reply::Started { work_id, .. } => work_id.clone(),
-        other => panic!("不是 Started：{other:?}"),
+        other => panic!("Expected Started, got {other:?}"),
     }
 }
 
-/// 在 Attempt 输出目录写一个文件。
+/// Write a file in the Attempt output directory.
 pub fn write_output(output_dir: &AbsPath, rel: &str, content: &str) {
     let p = Path::new(output_dir.as_str()).join(rel);
     std::fs::create_dir_all(p.parent().unwrap()).unwrap();
@@ -201,7 +201,7 @@ pub fn write_output(output_dir: &AbsPath, rel: &str, content: &str) {
 pub fn output_dir_of(resp: &sheltie_runtime::Response) -> AbsPath {
     match &resp.reply {
         sheltie_core::work::Reply::AttemptBegun { output_dir, .. } => output_dir.clone(),
-        other => panic!("不是 AttemptBegun：{other:?}"),
+        other => panic!("Expected AttemptBegun, got {other:?}"),
     }
 }
 

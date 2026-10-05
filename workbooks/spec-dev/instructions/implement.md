@@ -1,75 +1,73 @@
-你要完成任务清单里的**一个**任务。类型、签名、注释、测试都已经在骨架里，你的工作是启用这个任务的测试，把占位的函数体填成实现，让测试变绿，过门禁，提交一次。只做一个任务。
+Complete **one** task: enable designed tests, fill placeholder bodies, make tests/gates pass, commit once. Types/signatures/comments/tests already exist. Read rules first; they are mandatory.
 
-先读 `rules`，那是硬规则。
+## Select task
 
-## 这轮做哪个任务
+Use the brief's From node:
 
-看任务书开头的「来自」一行：
-
-| 来自 | 做什么 |
+| From | Action |
 | --- | --- |
-| `scaffold` | 从当前 plan/tasks 的已验证任务表确定前缀，选择第一个尚未验证的任务；首次空表时是 `T01` |
-| `verify` | 读 `report`，做它第一行写的那个任务。报告里对前一个任务的提醒照做 |
-| `escalate` | 读 `escalation`。第一行 `继续`：重做你上次卡住的任务，「备注」里有人给的信息与授权。第一行 `跳过`：做它第二行指定的任务 |
+| scaffold | Derive verified prefix from current plan/tasks; choose first unverified task, T01 for initial empty prefix |
+| verify | Follow report's first-line next task and previous-task reminders |
+| escalate | Read escalation: Continue retries blocked task with human notes/authority; Skip follows second-line task |
 
-来自别处的 escalation/report 不用于选择本轮任务或替代人工决定。累计事实另按下面的交接规则读取，不能因为报告来自上一节点就丢弃已验证前缀。
+Stale escalation/report does not select current work or replace human decisions. Cumulative history still follows handoff rules; never lose prefixes because a report came from another predecessor.
 
-## 读什么
+## Read
 
-1. `approval_rules`：共享审批更正规则。需要更正或继承更正时读取；普通批准版本仍按本节点的步骤核对。
-2. `decision`：`plan-review` 的批准记录，开工前先核版本。它写的「批准的规格」「批准的方案」两个 sha256 必须分别等于任务书 `spec`、`plan` 输入文件的内容摘要（`shasum -a 256 <路径>`，Linux 是 `sha256sum`）。对不上说明方案在批准后被修订过、旧批准已失效：按卡住处理，把两个哈希写进「备注」，不按没批过的方案开工。人可以在 `escalate` 的决定里更正批准记录，那时按人的更正继续并把更正抄进报告。对得上时，「通过」附带的条件逐条照做。`spec` 只用来核摘要，内容不读。
-3. `tasks`：只读你这轮的那一条。记下「只改哪些文件」与「要变绿的测试」。
-4. `scaffold`：拿「单任务测试命令」；「给实现者的提醒」里若有你这个任务的，读。
-5. 「只改哪些文件」列出的源码。函数的文档注释就是你要实现的行为。
-6. 「要变绿的测试」的代码。它们是标准答案。
-7. `plan`：只在注释和测试都没说清时查「改法」相关几行与「门禁」一节。
-8. `project`：进入项目根工作。
+1. Approval_rules for correction/inheritance; ordinary approval checks below.
+2. Decision's Approved specification/plan digests against bound files (shasum -a 256, Linux sha256sum). Mismatch invalidates approval: Blocked with hashes, no unapproved work. Human escalation correction may authorize; record it. Apply Accepted conditions. Read spec only to hash it.
+3. Your task card only; note allowlisted files and tests.
+4. Scaffold's focused command/current task reminders.
+5. Allowlisted source; doc comments define behavior.
+6. Named tests as expectations.
+7. Relevant plan Approach lines only if tests/comments unclear, plus Gates.
+8. Project root.
 
-不读别的文件。
+No other implementation reading.
 
-## 交接已验证任务
+## Inherit verified tasks
 
-开工前读取 plan/tasks 的原始基线及已验证任务表。只要 report 已绑定，就核其原始基线和证据来源，以其独立验证过的累计表为最新事实，包括 escalate「继续/跳过」返回。plan/tasks 的旧表可以落后，但必须是该最新表未改写的前缀；重规划后的 scaffold 也核新 plan/tasks 已保留此前事实。没有 report 时，只能使用可证明来源的 plan/tasks 表。缺字段、漏行、没有可信来源或两份输入基线不一致时按卡住处理，不能退回一个更旧的空表。
+Before work read plan/tasks original baseline/tables. Any bound report must validate baseline/evidence and supplies latest independently verified cumulative facts, including return through Continue/Skip. Plan/tasks may lag only as unchanged prefixes. Replanned scaffold checks retained history. Without report use only provenance-proved plan/tasks. Missing fields/rows/trust or unequal baselines block; never fall back to older empty tables.
 
-change 必须记录原始基线、继承来源文件路径和完整旧表，包括卡住的报告。只携带已有验证事实；本轮提交仍是待验证候选，不由实现者自己追加到已验证表。后续 verify 会独立核 Git、审批与原始证据后追加。
+Change records original baseline, actual inheritance path, and full old table even when blocked. Current commit remains unverified; only later independent verify appends after Git/approval/raw-evidence checks.
 
-## 怎么做
+## Execute
 
-1. `git status`，工作区必须干净。不干净就按「卡住」处理，不动文件。
-2. 去掉本任务测试上的禁用标记（Rust 删 `#[ignore = "Tnn"]`，其他语言删对应标记）。跑单任务测试命令，看到它们全红。零个测试或编译不过，先修到能跑出红。
-3. 挑一个红的测试，读它的断言，填对应的占位体。跑，绿了再挑下一个。不一次改很多。
-4. 全绿后跑「门禁」全部命令，修到全过。
-5. 记下 `git rev-parse HEAD`，这是本任务的**任务基线**。然后 `git add` 白名单里的文件加去掉禁用标记的测试文件，`git commit`。提交信息格式见 `rules` 末尾「提交信息」。
-6. 提交后记下 `git rev-parse HEAD`，这是本任务的**候选提交**。
+1. Git status clean; otherwise Blocked without edits.
+2. Remove current test disable markers and run focused tests; establish all red. Zero tests/compilation failure are not red; first make tests runnable.
+3. One red test at a time: read assertion, fill body, run, then next.
+4. Run/fix every gate after green.
+5. Record precommit git rev-parse HEAD as task Baseline. Stage allowlisted files plus tests with removed disable markers; commit under rules.
+6. Record resulting HEAD as Commit candidate.
 
-## 什么时候算卡住
+## Blockage
 
-`rules` 第 9 条。另外三种：缺只有人知道的信息；要做任务外的高风险动作（装依赖、改 CI、删目录、访问网络、改数据库、改别的模块接口）；环境坏了。卡住就 `git checkout -- .` 恢复工作区，不提交，写报告。「难」不算卡住。
+Rules item9 plus human-only missing facts, out-of-task high-risk actions (dependencies/CI/directory deletion/network/database/other-module interfaces), or broken environment. Restore only your task edits, preserve others' work, do not commit, report Blocked. Difficulty alone is not blockage.
 
-## 人工更正批准版本
+## Approval correction
 
-需要更正批准版本或继承已有更正时，先读任务书输入 `approval_rules`，按其中的资格、引用、条件与停止规则处理。
+Read bound approval_rules and enforce qualification/references/conditions/stops.
 
-## 写到哪
+## Output
 
-把 `change.md` 写到 `change` 对应路径。**第一行只写 `完成 Tnn` 或 `卡住 Tnn`**，然后：
+First line exactly Complete Tnn or Blocked Tnn, followed by:
 
-```
-基线: <任务基线哈希，卡住时写 无>
-提交: <候选提交哈希，卡住时写 无>
-原始基线: <plan的整体原始基线，永不重设>
-继承来源: <最新验证报告或当前方案路径；首次也是当前方案>
-修复轮次: 0
-启用的测试: <数量>
-改动文件:
+```text
+Baseline: <task baseline, none when blocked>
+Commit: <candidate, none when blocked>
+Original baseline: <unchanged plan baseline>
+Inheritance source: <latest report or current plan; plan on first arrival>
+Repair round: 0
+Enabled tests: <count>
+Changed files:
 - path/a.rs
-门禁:
-- <命令>: 通过 | 失败（一行原因）
-备注: <卡在哪、需要什么信息或授权；完成时可空>
+Gates:
+- <command>: PASS | FAIL (one-line reason)
+Notes: <blockage/required facts/authorization; optional when complete>
 ```
 
-在元数据之后写「已验证任务」表，列为 `任务 / 任务基线 / 候选提交 / 审批来源 / 验证报告 / 原始证据`。所有继承行原样复制，不追加本轮任务；首次写空表。只保存引用，不复制日志正文，change 总量不得超过 32768 字节。
+Then Verified tasks columns Task/Task baseline/Candidate commit/Approval source/Verification report/Raw evidence. Copy old rows verbatim; no current task append; initial table empty. References only, no logs; total change ≤32768 bytes.
 
-## 怎么回复协调者
+## Reply
 
-一句话重复第一行。完成就说完成，卡住就说卡住并带一句原因。不说「基本完成」。
+Repeat first line in one sentence, with reason when blocked. No “mostly complete.”

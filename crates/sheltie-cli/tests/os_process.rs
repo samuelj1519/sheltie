@@ -1,4 +1,4 @@
-//! OS/CLI边界回归；从runtime迁入，保留原Task归属和oracle。
+//! OS/CLI boundary regression, moved from runtime with original Task ownership/oracles.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 #[path = "../../sheltie-runtime/tests/common/mod.rs"]
 mod runtime_common;
@@ -10,7 +10,7 @@ fn sheltie_bin() -> std::path::PathBuf {
 // Task: C002-T15
 #[test]
 fn install_modify_path_flag_is_rejected() {
-    // N05：写宿主 rc 的入口已删除（INV-3），`--modify-path` 不再是合法参数。
+    // N05: host-rc writing removed (INV-3); --modify-path is no longer valid.
     let (d, home) = temp_home();
     let fake_home = d.path().join("fakehome");
     std::fs::create_dir_all(&fake_home).unwrap();
@@ -28,20 +28,20 @@ fn install_modify_path_flag_is_rejected() {
         .unwrap();
     assert!(
         !out.status.success(),
-        "self install --modify-path 竟然成功了"
+        "self install --modify-path unexpectedly succeeded"
     );
     assert_eq!(
         out.status.code(),
         Some(2),
-        "未知参数按协议是退出码 2（clap 用法错误）"
+        "Unknown parameters yield protocol exit code 2 (clap usage error)"
     );
     assert!(
         !fake_home.join(".zshrc").exists(),
-        "被删的入口仍写了 shell rc"
+        "Removed entry still wrote shell rc"
     );
     assert!(
         !fake_home.join(".bashrc").exists(),
-        "被删的入口仍写了 shell rc"
+        "Removed entry still wrote shell rc"
     );
 }
 fn account_name_oracle() -> String {
@@ -53,8 +53,8 @@ fn account_name_oracle() -> String {
     String::from_utf8(out.stdout).unwrap().trim().to_string()
 }
 
-/// 主体取真实 OS 身份：伪造 `USER` 的子进程里跑真实 CLI 开 Work，audit 主体既不等于
-/// 伪造值、又与 `id -un` 的独立输出一致（D-036 的确认方式）。
+/// Use actual OS identity: start a Work through real CLI with forged USER; audit principal differs from
+/// the forgery and matches independent id -un output (D-036 verification).
 // Task: C002-T05
 #[test]
 fn audit_principal_ignores_spoofed_user_env() {
@@ -81,7 +81,7 @@ fn audit_principal_ignores_spoofed_user_env() {
         .unwrap();
     assert!(
         out.status.success(),
-        "start 失败：{}",
+        "start failed: {}",
         String::from_utf8_lossy(&out.stderr)
     );
 

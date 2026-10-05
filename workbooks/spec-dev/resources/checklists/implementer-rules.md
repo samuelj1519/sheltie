@@ -1,28 +1,28 @@
-# 实现者规则
+# Implementer rules
 
-你做的是填空：骨架已经定了类型、签名、注释和测试。每条都是硬规则。
+Types/signatures/comments/tests are already designed; fill bodies. Every rule is mandatory.
 
-1. **只读三样。** 任务卡（`tasks.md` 里你这一条）、任务卡「只改哪些文件」列出的源码、对应的测试代码。不读整个仓库。`decision`、`spec`、`plan` 只做批准版本与条件的核对，不当实现上下文。
-2. **先启用测试。** 去掉本任务测试上的禁用标记，用 `scaffold.md` 里的单任务测试命令跑，看到全红。编译不过不算红，先让它编译。
-3. **只填占位体。** 把 `todo!()`、`NotImplementedError` 这类占位换成实现，行尾的任务编号标记随它一起去掉。不改签名、不改类型定义、不加公开项、不加依赖、不新建文件。文档注释就是这个函数要做的事。别的任务标了编号的占位不填、不动。
-4. **不改测试，不改快照。** 测试红了改实现，不改断言。快照不一致改代码，不更新快照。
-5. **一次一个测试。** 挑一个红的让它绿，再挑下一个。
-6. **绿了跑门禁。** 全部命令通过才算完。
-7. **一次提交。** 只包含本任务白名单里的文件。
-8. **不顺手改。** 别的占位、别的任务的测试、觉得能优化的地方，都不碰。
-9. **卡住就停。** 两个测试互相矛盾；不改签名或测试就做不到；需要新依赖；同一个测试改了五次还红；任务卡和方案说的不一样。恢复工作区，写「卡住」报告。唯一例外：单任务测试命令或骨架附带的脚本本身有缺陷，让按规则做的任务无法通过。可以修脚本，单独一个提交，`Task: scaffold`，提交说明逐条写原来错在哪；不借机放松检查，不动测试、签名与方案。
-10. **不猜。** 注释、测试、方案都没说的行为，不自己发明。按第 9 条卡住。
+1. Read only your task card, its allowlisted sources, and corresponding tests. Decision/spec/plan are for approval/condition checks only, not implementation context. No whole-repository reading.
+2. Enable current tests first and run scaffold's command. Establish behavioral red, not compilation failure; make compilation succeed first.
+3. Fill only placeholders and remove their task labels. No signatures/types/public items/dependencies/new files. Comments define behavior. Leave other tasks' placeholders untouched.
+4. Never change tests/snapshots. Fix implementation, not assertions/goldens.
+5. Turn one red test green at a time.
+6. Run every gate once green; all must pass.
+7. One task commit, allowlisted files only.
+8. No incidental changes to other placeholders/tests/possible optimizations.
+9. Stop for conflicting tests, impossible unchanged interfaces/tests, new dependencies, five failed attempts on one test, or card/plan contradictions. Restore worktree and report Blocked. Sole exception: defective focused command/scaffold script prevents compliant work. Fix tool in a separate Task: scaffold commit, explaining each defect without weaker checks or test/signature/plan changes.
+10. Do not invent behavior absent from comments/tests/plan; use rule9.
 
-## 提交信息
+## Commit message
 
 ```text
-<type>(<scope>): <中文摘要，一行，不超过 50 字>
+<type>(<scope>): <English summary, one line, at most 72 characters>
 
-<正文：改了什么、为什么、怎么验证。>
+<English body: what changed, why, actual verification.>
 
 Task: T05
-Work: <work_id，任务书开头有>
-Agent: <你的模型名>
+Work: <work_id from brief>
+Agent: <actual model name>
 ```
 
-`type` 取 `feat | fix | refactor | test | docs | chore`，`scope` 是模块或目录名，这两项用英文。摘要与正文用中文。末尾三行原样保留，`Work` 填任务书开头那个 Work id。
+Type: feat/fix/refactor/test/docs/chore. Scope: module/directory. English summary/body. Preserve the trailer block and actual brief Work ID; follow stricter repository Change/Task trailer requirements when applicable.

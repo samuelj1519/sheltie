@@ -1,6 +1,6 @@
 export const CARD_WIDTH = 240, CARD_HEIGHT = 156;
-const edgeKindLabels = { main: '继续', back: '返工', branch: '分支', re_review: '重新检查' };
-export const edgeKindLabel = kind => Object.hasOwn(edgeKindLabels, kind) ? edgeKindLabels[kind] : `原类型：${kind}`;
+const edgeKindLabels = { main: 'Continue', back: 'Rework', branch: 'Branch', re_review: 'Re-review' };
+export const edgeKindLabel = kind => Object.hasOwn(edgeKindLabels, kind) ? edgeKindLabels[kind] : `Original type: ${kind}`;
 export function mainSkeleton(flow) {
   const nodes = flow.nodes ?? [], ids = new Set(nodes.map(n => n.id)), visited = new Set(), order = [], edges = [];
   if (!ids.has(flow.entry)) return { nodes: order, edges };
@@ -109,7 +109,7 @@ function clearOutsidePath(plan, start, end, preferredLane, top, bottom, cards) {
     const points = withoutExtraBends([...exit, ...entry.slice().reverse()]);
     if (clearPath(points, cards)) return { points, label: { x: (exit.at(-1).x + entry.at(-1).x) / 2, y: lane } };
   }
-  throw new Error('当前卡片位置没有可用的外侧走廊；请分开相互遮挡的卡片后重试。');
+  throw new Error('No outer corridor is available at the current card positions. Separate overlapping cards and retry.');
 }
 export function routeEdges(flow, positions, shown = flow.edges ?? []) {
   const nodes = flow.nodes ?? [], cards = new Map(nodes.filter(n => positions.has(n.id)).map(n => [n.id, positions.get(n.id)]));

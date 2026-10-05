@@ -22,8 +22,8 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-      # 治理检查要解析历史 tags/commits（release record 记的 tag 与 commit），
-      # 默认浅检出取不到老 tag，check-specs 只能报缺历史。
+      # Governance resolves historical tags/commits recorded by releases;
+      # a shallow checkout omits old tags, so check-specs can only report incomplete history.
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
@@ -35,6 +35,8 @@ jobs:
         run: scripts/check-specs.sh
       - name: Check skill
         run: scripts/check-skill.sh
+      - name: Check English defaults and language links
+        run: python3 scripts/check-language.py
       - name: Check typos
         uses: crate-ci/typos@master
 
@@ -70,8 +72,8 @@ jobs:
       - name: Check test names and owners
         run: scripts/check-tests.sh
 
-  # MSRV 1.85 locked gate（C002-T15）：stable 通过不能代替；失败时用证据决定
-  # 修依赖还是提高声明，不能默默跳过。
+  # MSRV 1.85 locked gate (C002-T15): stable success does not replace it.
+  # On failure, use evidence to fix dependencies or raise the declared MSRV; never skip it.
   msrv:
     runs-on: macos-14
     steps:

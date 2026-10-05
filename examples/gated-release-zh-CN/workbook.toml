@@ -1,0 +1,7 @@
+schema = "workbook/v1"
+id = "gated-release-zh-cn"
+version = "1.0.0"
+name = "带门槛的发布说明"
+description = "agent 生成发布说明，人批准后归档。证明门槛阻断与 gate approve。"
+
+flows = ["flows/default.toml"]

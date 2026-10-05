@@ -1,11 +1,11 @@
-//! `workbook-digest/v2` 的目录摘要单元（存储合同 §5.1）。
+//! Directory digest implementation for workbook-digest/v2 (storage contract §5.1).
 //!
-//! 精确字节流：域前缀、BE64 文件数、按规范 UTF-8 相对路径字节序排序的每个普通文件
-//! `BE64(路径长) || 路径 || BE64(内容长) || 内容`，最后只做一次 SHA256。流式读取并
-//! 准确计数，读取间的增长或收缩都会被拒，不能用更大的内容绕过限额。
+//! Exact byte stream: domain prefix, BE64 file count, then regular files sorted bytewise by canonical UTF-8 relative paths,
+//! framed as BE64(path length) || path || BE64(content length) || content; apply one SHA256. Stream and
+//! count exactly; reject growth/shrinkage while reading so larger content cannot evade limits.
 //!
-//! 生产调用方（`WorkbookRepo::digest_dir` 等 schema 1 路径）按 C002 计划在 T07 一次
-//! 切换到本单元；切换前旧算法不与新算法并存于同一字段。
+//! C002-T07 migrates production callers, including schema 1 WorkbookRepo::digest_dir paths,
+//! to this implementation together; never mix old/new algorithms in one field.
 
 use std::io::Read;
 
@@ -17,7 +17,7 @@ use sheltie_core::path::{AbsPath, RelPath};
 use crate::error::{Error, Result};
 use crate::fsx::{ExternalReadTree, MAX_FILE_BYTES};
 
-/// 目录摘要 `workbook-digest/v2`。
+/// Directory digest workbook-digest/v2.
 pub fn digest_dir_v2(dir: &AbsPath) -> Result<Sha256Hex> {
     let tree = ExternalReadTree::open(dir)?;
     digest_tree_v2(&tree)
@@ -41,7 +41,7 @@ pub(crate) fn inspect_tree_v2(
     std::collections::BTreeMap<RelPath, Sha256Hex>,
 )> {
     let files = tree.files();
-    // 元数据首轮先核完全部限额，再打开任何正文（storage §5.1）。
+    // Check all metadata limits before opening any content (storage §5.1).
     tree.validate_sizes()?;
 
     let mut hasher = sha2::Sha256::new();
@@ -50,13 +50,13 @@ pub(crate) fn inspect_tree_v2(
     let mut resources = std::collections::BTreeMap::new();
     let mut file_hashes = std::collections::BTreeMap::new();
     for file in files {
-        // 相对路径以 UTF-8 字节排序，不做 Unicode/大小写转换。
+        // Sort relative paths by UTF-8 bytes, without Unicode or case conversion.
         let path_bytes = file.relative.as_str().as_bytes();
         hasher.update(digest_v2_file_frame(path_bytes, file.bytes));
         if let Some(content) = captured.get(&file.relative) {
             if content.len() as u64 != file.bytes {
                 return Err(Error::InvalidRequest {
-                    reason: format!("{} 在读取间改变", file.relative),
+                    reason: format!("{} changed during reading", file.relative),
                 });
             }
             hasher.update(content);
@@ -87,7 +87,7 @@ pub(crate) fn inspect_tree_v2(
         }
     }
     tree.validate_unchanged()?;
-    // 单次 SHA256 收口：finalize 的输出直接转十六进制，不再二次哈希。
+    // Finalize one SHA256 directly to hexadecimal, without hashing again.
     Ok((
         Sha256Hex::from_sha256(hasher.finalize()),
         ResourceIndex { files: resources },
@@ -95,8 +95,8 @@ pub(crate) fn inspect_tree_v2(
     ))
 }
 
-/// 把一个文件的内容流式喂进哈希器，并核对实际字节数与帧头声明一致。
-/// 读取间增长或收缩都拒绝：帧头的长度是摘要流的一部分，事后无法补写。
+/// Stream one file into the hasher and compare actual bytes with the frame header's declared length.
+/// Reject growth/shrinkage: the length is already part of the digest stream and cannot be patched later.
 fn stream_file_into(
     file: &mut impl Read,
     path: &str,
@@ -115,11 +115,11 @@ fn stream_file_into(
         actual = actual
             .checked_add(n as u64)
             .ok_or_else(|| Error::InvalidRequest {
-                reason: format!("{path} 读取字节数溢出"),
+                reason: format!("{path} read byte count overflow"),
             })?;
         if actual > declared || actual > MAX_FILE_BYTES {
             return Err(Error::InvalidRequest {
-                reason: format!("{path} 在读取间变大，与帧头不符"),
+                reason: format!("{path} grew during reading, differing from the frame header"),
             });
         }
         hasher.update(&buf[..n]);
@@ -128,7 +128,9 @@ fn stream_file_into(
     }
     if actual != declared {
         return Err(Error::InvalidRequest {
-            reason: format!("{path} 实际 {actual} 字节与帧头声明 {declared} 不符（读取间变化）"),
+            reason: format!(
+                "{path} actual {actual} bytes differ from frame header {declared} (changed during reading)"
+            ),
         });
     }
     Ok((
@@ -197,8 +199,16 @@ mod tree_snapshot_tests {
         std::fs::write(dir.path().join("a.toml"), b"xyz").unwrap();
         std::fs::write(dir.path().join("asset.bin"), [0xff, 0xfe]).unwrap();
         let after = std::fs::metadata(dir.path().join("a.toml")).unwrap();
-        assert_eq!(before.ino(), after.ino(), "反例保持同一inode");
-        assert_eq!(before.len(), after.len(), "反例保持同一长度");
+        assert_eq!(
+            before.ino(),
+            after.ino(),
+            "Rejected case retains the same inode"
+        );
+        assert_eq!(
+            before.len(),
+            after.len(),
+            "Rejected case retains the same length"
+        );
 
         let captured = std::collections::BTreeMap::from([(path, captured)]);
         let (digest, resources, _) = inspect_tree_v2(&tree, &captured).unwrap();
@@ -227,17 +237,26 @@ mod tree_snapshot_tests {
         let mut first = vec![b'a'; 65_535];
         first.push(0xe4);
         valid.push(&first);
-        assert!(!valid.is_valid(), "尚未收到续字节时暂不算完整UTF-8");
+        assert!(
+            !valid.is_valid(),
+            "Incomplete UTF-8 until continuation bytes arrive"
+        );
         valid.push(&[0xb8, 0xad]);
-        assert!(valid.is_valid(), "跨64KiB边界的字符应当接受");
+        assert!(
+            valid.is_valid(),
+            "Accept a character across a 64 KiB boundary"
+        );
 
         let mut bad_continuation = Utf8State::default();
         bad_continuation.push(&[0xe4, b'A']);
-        assert!(!bad_continuation.is_valid(), "错误续字节应拒绝");
+        assert!(
+            !bad_continuation.is_valid(),
+            "Reject invalid continuation bytes"
+        );
 
         let mut truncated = Utf8State::default();
         truncated.push(&[0xe4, 0xb8]);
-        assert!(!truncated.is_valid(), "EOF残尾应拒绝");
+        assert!(!truncated.is_valid(), "Reject a truncated sequence at EOF");
     }
 }
 
@@ -323,7 +342,10 @@ mod bounded_stream_contract_tests {
                 let Error::InvalidRequest { reason } = error else {
                     panic!("the already observed invalid frame must be refused before another Read")
                 };
-                assert_eq!(reason, "data 在读取间变大，与帧头不符");
+                assert_eq!(
+                    reason,
+                    "data grew during reading, differing from the frame header"
+                );
                 assert_eq!(std::fs::read(&path).unwrap(), b"data+");
             } else {
                 let Error::Io {

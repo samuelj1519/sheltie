@@ -47,7 +47,7 @@ pub fn concurrent_store_init(
         if !first_sync.path().join("reached").exists() {
             let _ = std::fs::write(first_sync.path().join("release"), b"release");
             let _ = first.join();
-            panic!("首个真实写入口未停在Store初始化窗口");
+            panic!("First real write entry did not pause at Store initialization");
         }
 
         runtime::failpoint::disarm_rendezvous().unwrap();
@@ -69,7 +69,7 @@ pub fn concurrent_store_init(
             let _ = std::fs::write(second_sync.path().join("release"), b"release");
             let _ = first.join();
             let _ = second.join();
-            panic!("第二个真实写入口没有等待初始化者持有的同一把锁");
+            panic!("Second real write entry did not wait on the initializer's same lock");
         }
 
         std::fs::write(first_sync.path().join("release"), b"release").unwrap();
