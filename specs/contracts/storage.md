@@ -78,7 +78,7 @@ status/result 的 `Store::read_work_bundle` 在单一只读 SQLite 事务取得 
 
 从同一 bundle 的 Start 快照/发布登记定位冻结原件，核 Workbook 身份、图、gate、路径、历史响应与效果，不能回查另一连接拼接较新状态。并发发布后可读已核 final 原件，但仍保留该读快照的效果事实；同快照 published=false 的 Start 无论读取 pending 或 final 均核 owner，不能用已完成清理的例外绕过。若并发完成发布和 owner 清理，只能有限重取整份 bundle 并重新严格装入，不能拼接两版事实。结果投影只接明确 state/graph/revision/effects_pending 参数，不新增状态来源。
 
-schema4包含number/superseded/replacement_reason及新response的单一严格载荷；旧schema1/2/3保留并拒绝，不迁移。结果/接续采用决定仍见D-040，当前替换格式见D-041。目录摘要算法与既有写事务/效果格式保持不变。当前格式决定见 [D-041](../decisions/D-041-attempt-number-and-replacement.md)。
+schema4包含number/superseded/replacement_reason及新response的单一严格载荷；旧schema1/2/3保留并拒绝，不迁移。结果/接续采用决定仍见D-040，当前替换格式见D-041。目录摘要算法与既有写事务/效果格式保持不变。当前格式决定见 [D-041](../../docs/explanation/decisions/D-041-attempt-number-and-replacement.md)。
 
 ## 2. 写操作与锁
 

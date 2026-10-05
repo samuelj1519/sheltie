@@ -50,7 +50,7 @@ sheltie [--json] [--home <dir>] <group> <verb> [args]
 
 ### `self` 组
 
-`self install`。把 `std::env::current_exe()` 复制到 `bin/sheltie`，先创建管理根目录（含父目录）再建 `store.db`。已存在且字节相同则直接返回 `data.already_installed = true`（与[存储合同 §9](storage.md) 同一口径，见 [v0.1.0 decision log](../releases/v0.1.0/decisions.md) D-31）。只打印一行「把 `~/.sheltie/bin` 加进 PATH」的提示文本，不写任何 shell 配置文件（引擎只写管理根，`INV-3`）。
+`self install`。把 `std::env::current_exe()` 复制到 `bin/sheltie`，先创建管理根目录（含父目录）再建 `store.db`。已存在且字节相同则直接返回 `data.already_installed = true`（与[存储合同 §9](storage.md) 同一口径，见 [v0.1.0 decision log](../../docs/explanation/decisions/mvp.md) D-31）。只打印一行「把 `~/.sheltie/bin` 加进 PATH」的提示文本，不写任何 shell 配置文件（引擎只写管理根，`INV-3`）。
 
 `self update [--version <v>]`。发布身份先固定：未给版本用 latest，给了版本则锁定 tag `v<v>`，清单与资产都取自同一 tag（[存储合同 §9](storage.md)）。此后按存储合同的顺序：下载到 `tmp/`、核对 sha256、`sheltie` 挪到 `sheltie.prev`、`rename` 新文件到位。没有对应平台或版本的发布报 `UPDATE_UNAVAILABLE`；摘要不符报 `UPDATE_CHECKSUM_MISMATCH` 并删下载文件。成功返回 `{ from, to }`。已是最新返回 `data.up_to_date = true`。
 

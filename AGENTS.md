@@ -12,6 +12,7 @@ Sheltie 是给协调者 agent 用的本地工作流引擎。人把做事方法�
 2. 读 `specs/README.md`，确认当前 release、active change 与文档权威。
 3. 只有存在 active change 时，读 `specs/changes/README.md` 指向的 package；按 package plan 找任务和验证入口。
 4. 写代码、测试或提交前，读 `specs/engineering.md`。
+5. 写使用文档或理解源码时，按 `docs/README.md` 选择教程、操作、参考或解释；字段与行为依据仍读 `specs/`，当前实现定位见 `docs/reference/implementation.md`。
 
 没有 active change 时，不从 `proposed/` 自行选择方案实施。提案采用、任务开始和对外发布都由人决定。
 
@@ -44,4 +45,4 @@ scripts/check-task.sh <task>    # package plan 要求时运行
 
 ## 遇到缺口
 
-产品问题改 `specs/spec.md`；机制问题改架构或合同；跨任务的重要选择新增 `specs/decisions/D-*.md`；任务顺序改 active package plan。问题尚未采用时留在 `changes/proposed/`，不得写成当前行为。不要为了让任务编译通过发明第二套状态、兼容层或临时事实来源。
+产品问题改 `specs/spec.md`；机制问题改架构或合同；跨任务的重要选择新增 `docs/explanation/decisions/D-*.md`；任务顺序改 active package plan。问题尚未采用时留在 `changes/proposed/`，不得写成当前行为。不要为了让任务编译通过发明第二套状态、兼容层或临时事实来源。

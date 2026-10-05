@@ -4,4 +4,4 @@
 
 tasks.toml 从清理前文件逐字保留；ledger.md 只提取任务状态、任务标题和 **测试。** 行，不保存实施正文、review 或运行证据。原件快照为 `f38954d543ff01eb5a798be48f29060b80d5952c`。当前实施只看 active change plan；历史工具通过不证明当前产品能力或原执行环境。
 
-内容维护与历史查阅见[文档维护指南](../../specs/guides/documentation.md)。
+内容维护与历史查阅见[文档维护指南](../../docs/how-to/maintain-docs.md)。

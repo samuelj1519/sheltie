@@ -51,7 +51,7 @@ original_plan_file="specs/releases/v0.1.0/plan.md"
 case "$task" in
 C[0-9][0-9][0-9]-T[0-9][0-9]|C[0-9][0-9][0-9]-M[0-9]*)
 	change_id="${task%%-*}"
-	change_dir="$(find specs/changes/active specs/changes/completed -mindepth 1 -maxdepth 1 -type d -name "${change_id}-*" -print)"
+	change_dir="$(find specs/changes/active specs/changes/completed docs/history/changes -mindepth 1 -maxdepth 1 -type d -name "${change_id}-*" -print)"
 	if [ -z "$change_dir" ] || [ "$(printf '%s\n' "$change_dir" | grep -c .)" -ne 1 ]; then
 		echo "check-task: active/completed change $change_id 不存在或不唯一" >&2
 		exit 2
@@ -60,6 +60,12 @@ C[0-9][0-9][0-9]-T[0-9][0-9]|C[0-9][0-9][0-9]-M[0-9]*)
 	plan_file="$change_dir/plan.md"
 	original_task_table="$task_table"
 	original_plan_file="$plan_file"
+	case "$change_dir" in
+	docs/history/changes/*)
+		original_task_table="specs/changes/completed/$(basename "$change_dir")/tasks.toml"
+		original_plan_file="specs/changes/completed/$(basename "$change_dir")/plan.md"
+		;;
+	esac
 	if grep -q '^记录形式：`reference`$' "$change_dir/README.md"; then
 		task_table="scripts/task-history/$change_id/tasks.toml"
 		plan_file="scripts/task-history/$change_id/ledger.md"

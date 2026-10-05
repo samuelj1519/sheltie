@@ -1,16 +1,16 @@
 # Sheltie
 
-当前源码开发候选为 `0.3.0-rc.1`，本开发线目标为 schema 4，实现进度见当前 plan；尚未发布。下述远端安装是已发布的 v0.2.0；开发功能使用从当前源码构建的二进制与新的显式管理根，参见 [当前实施入口](specs/README.md)。
+当前源码开发候选为 `0.3.0-rc.1`，本开发线使用 schema 4，当前功能与限定验收见[实现基线](docs/reference/implementation.md)；尚未发布。下述远端安装是已发布的 v0.2.0；开发功能使用从当前源码构建的二进制与新的显式管理根，参见 [当前实施入口](specs/README.md)。
 
 v0.2.0 的发布范围为 macOS aarch64；其余平台按用户决定排除，以后有需求再增加，历史 v0.1.0 Linux 资产保持原样。
 
 本地运行的工作流引擎，给协调者 agent 用。人把做事方法写成 Workbook（TOML 图加自然语言说明），协调者 agent 按图派活，引擎记状态、发任务书、限定合法下一步、守门槛。引擎不判断内容好坏。
 
-词汇见 [CONTEXT.md](CONTEXT.md)；规格见 [specs/README.md](specs/README.md)；agent 入口见 [AGENTS.md](AGENTS.md)。
+学习、操作与源码解释见 [docs](docs/README.md)；行为、合同与验收依据见 [specs](specs/README.md)；统一词汇见 [CONTEXT](CONTEXT.md)，agent 入口见 [AGENTS.md](AGENTS.md)。
 
 ## 快速开始
 
-使用当前 `0.3.0-rc.1` / schema 4 源码候选，先读 [当前源码快速开始](specs/guides/source-quick-start.md)：从源码构建，以新的显式管理根运行 `code-change` 并取得成果。
+使用当前开发源码，第一次学习先读[第一个 Work 教程](docs/tutorials/first-work.md)；已有实际仓库任务时使用 [code-change 指南](docs/how-to/run-code-change.md)。二者均从源码构建，并使用新的显式管理根。
 
 装引擎（本版本 macOS aarch64）：
 

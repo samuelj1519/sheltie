@@ -29,10 +29,11 @@ for path in \
 	specs/changes/active \
 	specs/changes/completed \
 	specs/changes/rejected \
-	specs/decisions/README.md \
-	specs/releases/README.md \
-	specs/releases/v0.1.0/README.md \
-	specs/releases/v0.1.0/decisions.md; do
+	docs/explanation/decisions/README.md \
+	docs/reference/releases/README.md \
+	docs/reference/releases/v0.1.0/README.md \
+	docs/explanation/decisions/mvp.md \
+	docs/history/changes/README.md; do
 	[ -e "$path" ] || fail "缺 $path"
 done
 
@@ -40,13 +41,13 @@ for legacy_root in specs/plan.md specs/decisions.md specs/t25-t26-runbook.md tas
 	[ ! -e "$legacy_root" ] || fail "MVP 历史仍留在一级目录：$legacy_root"
 done
 
-outdated_release_refs="$(grep -RInE 'releases/(v[0-9]+\.[0-9]+\.[0-9]+|<version>)\.md' specs --include='*.md' || true)"
+outdated_release_refs="$(grep -RInE 'releases/(v[0-9]+\.[0-9]+\.[0-9]+|<version>)\.md' specs docs --include='*.md' || true)"
 if [ -n "$outdated_release_refs" ]; then
 	printf '%s\n' "$outdated_release_refs" >&2
 	fail "文档仍引用旧式 release record 路径"
 fi
 
-packages="$(find specs/changes/proposed specs/changes/active specs/changes/completed specs/changes/rejected \
+packages="$(find specs/changes/proposed specs/changes/active specs/changes/completed specs/changes/rejected docs/history/changes \
 	-mindepth 1 -maxdepth 1 -type d -name 'C*' | sort)"
 
 ids=""
@@ -54,6 +55,10 @@ while IFS= read -r package; do
 	[ -n "$package" ] || continue
 	name="$(basename "$package")"
 	state="$(basename "$(dirname "$package")")"
+	index="specs/changes/README.md"
+	case "$package" in
+	docs/history/changes/*) state=completed; index="docs/history/changes/README.md" ;;
+	esac
 	case "$name" in
 	C[0-9][0-9][0-9]-*) ;;
 	*) fail "$package 的目录名不是 Cnnn-<slug>" ;;
@@ -67,9 +72,10 @@ while IFS= read -r package; do
 	for field in 目标版本 兼容性 基线 Owner; do
 		head -15 "$package/README.md" | grep -q "^${field}：" || fail "$package/README.md 首屏缺 ${field}"
 	done
-	grep -qF "$package/README.md" specs/changes/README.md ||
-		grep -qF "${package#specs/changes/}/README.md" specs/changes/README.md ||
-		fail "$package 没登记在 specs/changes/README.md"
+	grep -qF "$package/README.md" "$index" ||
+		grep -qF "$(basename "$package")/README.md" "$index" ||
+		grep -qF "${package#specs/changes/}/README.md" "$index" ||
+		fail "$package 没登记在 $index"
 	ids="${ids}${name%%-*}
 "
 done <<<"$packages"
@@ -95,9 +101,13 @@ else
 	grep -q "$active_name" specs/changes/README.md || fail "change 索引没有指向 active package $active_name"
 fi
 
-for package in specs/changes/completed/C*; do
+for package in specs/changes/completed/C* docs/history/changes/C*; do
 	[ -d "$package" ] || continue
 	qualification="$package"
+	source_package="$package"
+	case "$package" in
+	docs/history/changes/*) source_package="specs/changes/completed/$(basename "$package")" ;;
+	esac
 	if grep -q '^记录形式：`reference`$' "$package/README.md"; then
 		for section in 变化与理由 验证与限制 参考; do
 			grep -q "^## $section$" "$package/README.md" || fail "$package/README.md 缺参考摘要段 $section"
@@ -110,7 +120,7 @@ for package in specs/changes/completed/C*; do
 		qualification="$qualification_root/$(basename "$package")"
 		mkdir -p "$qualification"
 		for file in README.md plan.md validation.md review.md tasks.toml; do
-			git show "$snapshot:$package/$file" > "$qualification/$file" 2>/dev/null || fail "$package 快照缺 $file"
+			git show "$snapshot:$source_package/$file" > "$qualification/$file" 2>/dev/null || fail "$package 快照缺 $file"
 		done
 		grep -q '^状态：`completed`' "$qualification/README.md" || fail "$package 快照不是 completed"
 		if grep -q '^记录形式：`reference`$' "$qualification/README.md"; then
@@ -205,26 +215,26 @@ for package in specs/changes/rejected/C*; do
 	' "$package/README.md" | grep -Eq '\]\(|^无[。]?$' || fail "$package/README.md 的替代说明既无链接也未写无"
 done
 
-adr_dups="$(find specs/decisions -maxdepth 1 -type f -name 'D-[0-9][0-9][0-9]-*.md' \
+adr_dups="$(find docs/explanation/decisions -maxdepth 1 -type f -name 'D-[0-9][0-9][0-9]-*.md' \
 	-exec basename {} \; | cut -d- -f1-2 | sort | uniq -d)"
 [ -z "$adr_dups" ] || fail "ADR 编号重复：$(printf '%s' "$adr_dups" | tr '\n' ' ')"
 
-for adr in specs/decisions/D-[0-9][0-9][0-9]-*.md; do
+for adr in docs/explanation/decisions/D-[0-9][0-9][0-9]-*.md; do
 	[ -f "$adr" ] || continue
 	grep -Eq '^状态：`(proposed|accepted|rejected|deprecated|superseded by D-[0-9]{3})`' "$adr" ||
 		fail "$adr 的状态不合法"
-	grep -qF "$(basename "$adr")" specs/decisions/README.md || fail "$adr 没登记在 decisions/README.md"
+	grep -qF "$(basename "$adr")" docs/explanation/decisions/README.md || fail "$adr 没登记在 decisions/README.md"
 	superseded="$(sed -n 's/^状态：`superseded by \(D-[0-9][0-9][0-9]\)`.*/\1/p' "$adr")"
-	if [ -n "$superseded" ] && ! find specs/decisions -maxdepth 1 -type f -name "${superseded}-*.md" | grep -q .; then
+	if [ -n "$superseded" ] && ! find docs/explanation/decisions -maxdepth 1 -type f -name "${superseded}-*.md" | grep -q .; then
 		fail "$adr 指向不存在的 $superseded"
 	elif [ -n "$superseded" ]; then
-		target="$(find specs/decisions -maxdepth 1 -type f -name "${superseded}-*.md" | head -1)"
+		target="$(find docs/explanation/decisions -maxdepth 1 -type f -name "${superseded}-*.md" | head -1)"
 		current="$(basename "$adr" | cut -d- -f1-2)"
 		grep -q "$current" "$target" || fail "$target 没有反向链接 $current"
 	fi
 done
 
-for release in specs/releases/v*/README.md; do
+for release in docs/reference/releases/v*/README.md; do
 	[ -f "$release" ] || continue
 	release_name="$(basename "$(dirname "$release")")"
 	tag="$(sed -n 's/^Git tag：`\([^`]*\)`.*/\1/p' "$release")"
@@ -236,7 +246,7 @@ for release in specs/releases/v*/README.md; do
 	elif [ -n "$release_commit" ] && [ "$(git rev-list -n 1 "$tag")" != "$release_commit" ]; then
 		fail "$release 的 Release commit 与 tag $tag 不一致"
 	fi
-	grep -qF "${release_name}/README.md" specs/releases/README.md || fail "$release 没登记在 releases/README.md"
+	grep -qF "${release_name}/README.md" docs/reference/releases/README.md || fail "$release 没登记在 releases/README.md"
 	grep -Eq '^Release commit：`[0-9a-f]{40}`' "$release" || fail "$release 缺 Release commit"
 	grep -Eq '^.+闭包：`[0-9a-f]{40}`' "$release" || fail "$release 缺验收闭包 commit"
 	grep -q '^## 验收' "$release" || fail "$release 缺验收证据段"
@@ -271,7 +281,7 @@ if [ -z "$version" ]; then
 fi
 
 # 开发目标来自文档地图首屏；active plan 管进度，非产品实验不替换版本权威。
-current_release="specs/releases/v${version}/README.md"
+current_release="docs/reference/releases/v${version}/README.md"
 development_target=""
 authority_valid=""
 base_pattern='(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)'

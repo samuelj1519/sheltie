@@ -1,6 +1,6 @@
 # 工程规范
 
-给在本仓库写代码、写文档、做 Review 的人和 agent。目标读者具备 Rust 基础但第一次接触项目。本文只讲怎么干活；产品语义见 [规格](spec.md)，机制见 [架构](architecture.md) 与 [contracts/](contracts/)。
+给在本仓库写代码、写文档、做 Review 的人和 agent。目标读者具备 Rust 基础但第一次接触项目。本文只讲怎么干活；产品语义见 [规格](spec.md)，机制见 [架构](architecture.md) 与 [contracts/](contracts)。
 
 ## 1. 工作方式：spec 先于代码
 
@@ -9,28 +9,13 @@
 3. 文档描述目标，不描述进度。代码进度只看 active change plan 的任务状态与 git 历史。没有 active change 时不得从 proposed package 自行开工。不得把计划中的能力写成「已支持」。
 4. 一个事实只在一处定义，别处链接。`scripts/check-docs.sh` 检查断链与禁用词。
 
-未发布Cargo候选的基础版本以[specs入口](README.md)首屏唯一`开发目标`字段为准；数值产品active目标必须一致。已完成产品、非产品实验或暂无active都不把候选变成release。已发布版本继续核release/tag/历史和CHANGELOG，见[D-043](decisions/D-043-development-target-authority.md)。
+未发布Cargo候选的基础版本以[specs入口](README.md)首屏唯一`开发目标`字段为准；数值产品active目标必须一致。已完成产品、非产品实验或暂无active都不把候选变成release。已发布版本继续核release/tag/历史和CHANGELOG，见[D-043](../docs/explanation/decisions/D-043-development-target-authority.md)。
 
 ## 2. Rust 约定
 
 ### 2.1 Workspace
 
-```text
-Cargo.toml            虚拟 workspace；[workspace.dependencies] 统一版本
-crates/sheltie-core
-crates/sheltie-runtime
-crates/sheltie-cli    引擎二进制名 sheltie
-crates/sheltie-export 未发布外围工具；publish=false、dist=false，仅公开CLI读源
-examples/             样例 Workbook（同时是测试 fixture）
-workbooks/            可分发的业务 Workbook（spec-dev）
-skills/sheltie/       SKILL.md
-scripts/              check-docs.sh、check-core-vocab.sh、check-tests.sh、check-skill.sh、task.sh、check-task.sh、mutants.sh
-scripts/task-history/ 历史任务白名单、状态与测试声明；仅工具映射
-specs/changes/        后续迭代 package；active change 自带 plan、progress、validation 与 tasks.toml
-.config/nextest.toml  测试运行配置（crash 测试串行）
-dist 配置            根 Cargo.toml 的 [workspace.metadata.dist]（T25 起；0.32.0 不认 T20 手写的 dist-workspace.toml）
-AGENTS.md             agent 入口；CLAUDE.md 只含 @AGENTS.md
-```
+目录与源码入口见[实现定位](../docs/reference/implementation.md)。依赖统一在 `[workspace.dependencies]` 管理；发布配置在根 Cargo.toml，变更须核实际分发消费者。
 
 引擎依赖方向只能向下：`cli → runtime → core`；exporter只可依赖纯core与公共安全库，不依赖runtime。`sheltie-core` 的 `Cargo.toml` 不得出现 `rusqlite`、`tokio`、`rand`、任何文件系统或时钟库。
 
@@ -71,11 +56,19 @@ cargo nextest run --all-features --no-tests=pass
 
 ### 3.1 循环
 
-后续任务按[完整行为实施指南](guides/proposal-implementation.md)准备接口、独立期望与真实消费者。复杂模型或同等经验作者完成高风险原语和必要测试，实施者在冻结接口上完成有界主体；由未参与准备或实现的 Reviewer 核对应行为。
+后续任务按[完整行为实施指南](../docs/how-to/implement-change.md)准备接口、独立期望与真实消费者。复杂模型或同等经验作者完成高风险原语和必要测试，实施者在冻结接口上完成有界主体；由未参与准备或实现的 Reviewer 核对应行为。
 
-缺陷先复现，新行为先核预期失败，再实现并验证；编译失败、环境拒绝和零测试不算行为红。MVP 的全仓骨架填空方法已关闭，完整协议从[历史快照](guides/documentation.md#查阅历史原件)读取，不作为当前实施步骤。
+缺陷先复现，新行为先核预期失败，再实现和验证；编译失败、环境拒绝与零测试不算行为红。
 
-测试作者遵守：测试名写「条件 → 行为」，例如 `begin_rejects_node_not_in_next`，不带任务编号，归属写在上方的 `// Task: Tnn` 注释里；每条能力至少一对：一个合法例，一个只改一个条件的拒绝例；期望值来自合同、手写字节或独立计算，不调用被测代码生成同一个答案。另外五条（M1 教训）：每个大小或个数上限有一对测试，恰好上限接受、多一个拒绝；快照与断言里出现的每个数值字段至少有一条非零、非默认值的断言（夹具时钟固定时，时间差单独造数据测）；合同里每句「不得」「必须」都有一条拒绝例；骨架函数的文档注释要用到的每个值都必须能从参数得到，做不到就改签名，不留给实现者在函数里重算；查表与换算类函数（日期、进位、修正项）的用例要覆盖每个修正项生效的区段，找不到判定输入时穷举可达定义域找第一个判定点（`from_unix_secs` 的世纪修正项在 1970 到 2100 年的用例下全部摸不到，判定点是 1970-03-01）。第六条（M2 教训）：重放与恢复类测试要断言重建出的内容与提交时逐字节一致（或摘要相等），只断言「文件存在」不够——`stats.json` 的重建口径与提交口径不一致就是这样漏掉的。
+测试要求：
+
+- 名称描述行为，不带任务编号；Task 注释紧贴测试属性，任务归属由工具核对。
+- 每项能力有合法例与只改一个条件的拒绝例；每条强制或禁止规则均有拒绝 oracle。
+- 期望来自合同、手写字节或独立计算，不调用被测代码生成同一答案。
+- 每个大小／数量上限有 exact 与 +1；每个数值字段至少一次非零、非默认断言，时间差单独构造。
+- 接口文档要求的值必须从参数取得；不能留给实现者在函数内猜测或重算。
+- 查表、日期、进位与修正项覆盖其生效区段；必要时在可达定义域寻找判定输入。
+- 重放与恢复断言原内容逐字节一致或摘要相等，不只断言文件存在。
 
 ### 3.2 分层
 
@@ -86,9 +79,9 @@ cargo nextest run --all-features --no-tests=pass
 | CLI 端到端 | `crates/sheltie-cli/tests/` | 用 `examples/` 三份 Workbook 走完整场景；`--json` 输出可解析；退出码 | `assert_cmd` + `tempfile` |
 | 崩溃 | `crates/sheltie-runtime/tests/crash.rs` | 在 `COMMIT` 前后注入失败（feature `fail-points` 或子进程 kill），重启后状态一致 | 子进程 + 临时目录 |
 
-测试要构建产物（如带特性的二进制）时问 cargo 要路径（`cargo build --message-format=json` 里的 `executable`），不要按相对路径猜 target 目录——全局 `~/.cargo/config.toml` 可能把它指到别处（M3 教训）。
+测试构建产物时从 `cargo build --message-format=json` 的 `executable` 取得真实路径，不猜 target 目录。
 
-期望值来自合同、手写字节或独立计算，不调用被测代码生成同一个答案。fake 只替换外部边界（时钟、ID、文件观察），不直接写「成功」进状态。
+fake 只替换外部边界（时钟、ID、文件观察），不直接写「成功」进状态。
 
 ### 3.3 什么不算验证
 
@@ -118,22 +111,11 @@ cargo nextest run --all-features --no-tests=pass
 
   `type` 取 `feat | fix | refactor | test | docs | chore | perf | revert`，`scope` 是 crate 名或目录名（`core`、`runtime`、`cli`、`specs`、`workbook`）。类型与范围用英文，`git-cliff` 按它分组生成变更日志；摘要与正文用中文。末尾是 git trailer：新迭代的 `Change` 与 `Task` 对应 active package；`Work` 只在 Sheltie Work 里运行时填 `work_id`；`Agent` 必填，写实际提交者。MVP T01–T26 保留只有 `Task` 的 legacy 格式。不适用的 trailer 省略，不填占位符。`Co-Authored-By` 等其他 trailer 与它们放在同一段，中间不空行。
 
-  ```text
-  feat(core): 把 Flow 编译成校验过的图
-
-  按 contracts/workbook.md §4 实现规则 1 到 9。可达性用 BFS。每条规则一个拒绝测试，
-  另有 proptest 证明任意 2 到 8 节点的图编译不会 panic。
-
-  Change: C002
-  Task: C002-T05
-  Agent: Claude
-  ```
-
 - 提交后核对 `git show --stat`，范围只包含本任务的文件。
 
 ## 5. Review 检查表
 
-审查者不参与被审代码的编写。按下表逐项打钩，不适用项写原因。
+审查者不参与被审代码的编写。按下表逐项核对，不适用项写原因。
 
 | 项 | 问什么 |
 | --- | --- |
@@ -150,9 +132,9 @@ cargo nextest run --all-features --no-tests=pass
 
 结论只有三种：通过、需修改（列出每条与依据）、阻断（缺的输入是什么）。
 
-全仓措辞清扫（改名、去翻译腔）不得动 `#[cfg(test)]` 模块：测试是合同，`check-task.sh` 按「测试零改动」核对。非动不可时，由复核者逐处核实改动只是文字，然后重打 `tNN-review` 基准 tag（M1 第三轮 N1）。
+措辞清扫不得混改冻结测试。确需改动时，由独立复核者核对应合同和测试基准，按任务计划重新冻结；MVP 的 tNN-review 方法只用于历史任务。
 
-MVP 的逐任务与 M1–M3 审查规则从[历史快照](guides/documentation.md#查阅历史原件)读取。后续 change 的逐任务与里程碑审查范围由 package plan 定义；最终 review、候选 hash 和输入闭包写入 package `review.md` 与 `validation.md`；完成后按[文档维护指南](guides/documentation.md)收敛，原完成资格仍可核验。
+逐任务与里程碑审查范围由 package plan 定义；最终 review、候选 hash 和输入闭包写入 package `review.md` 与 `validation.md`；完成后按[文档维护指南](../docs/how-to/maintain-docs.md)收敛，原完成资格仍可核验。
 
 ## 6. 文档写法
 
@@ -167,7 +149,7 @@ MVP 的逐任务与 M1–M3 审查规则从[历史快照](guides/documentation.m
 
 | 发现 | 去哪 |
 | --- | --- |
-| 产品该不该做某事、边界在哪 | proposed change 写问题与候选；采用后改 `spec.md`，重要选择新增 `decisions/D-nnn-*.md` |
+| 产品该不该做某事、边界在哪 | proposed change 写问题与候选；采用后改 `spec.md`，重要选择新增 `docs/explanation/decisions/D-nnn-*.md` |
 | 字段、命令、表结构、状态转换没定义 | 改对应合同 |
 | 任务顺序不对、依赖缺失 | 改 active change 的 `plan.md` |
 | 已定义的东西实现错了 | 直接修，补拒绝例 |

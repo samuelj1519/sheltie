@@ -9,4 +9,4 @@
 - [review.md](review.md)：独立审查结论、阻断项与建议。
 - [tasks.toml](tasks.toml)：任务文件白名单与测试文件。
 
-完成资格先在完整 package 中保存，再按[文档维护指南](../../guides/documentation.md)提炼参考摘要。模板用于未来变更，不作为当前实施授权。
+完成资格先在完整 package 中保存，再按[文档维护指南](../../../docs/how-to/maintain-docs.md)提炼参考摘要。模板用于未来变更，不作为当前实施授权。
