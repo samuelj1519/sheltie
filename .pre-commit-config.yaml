@@ -55,7 +55,7 @@ repos:
         name: check test names and owners
         entry: scripts/check-tests.sh
         language: script
-        files: (\.rs|plan\.md)$
+        files: (\.rs|plan\.md|scripts/check-tests\.sh|scripts/task-history/.*)$
         pass_filenames: false
       - id: cargo-fmt
         name: cargo fmt

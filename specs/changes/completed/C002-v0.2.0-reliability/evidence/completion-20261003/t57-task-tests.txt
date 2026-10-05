@@ -1,9 +1,0 @@
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.21s
-────────────
- Nextest run ID 613f792f-9ccb-46d8-8977-e4e863b3cd4e with nextest profile: default
-    Starting 3 tests across 60 binaries (945 tests skipped)
-        PASS [   0.115s] (1/3) sheltie-runtime fsx::failpoint_lifecycle_contract_tests::disarmed_rendezvous_does_not_reactivate_a_real_atomic_write_callback
-        PASS [   0.126s] (2/3) sheltie-runtime fsx::failpoint_lifecycle_contract_tests::disarmed_sync_failure_does_not_reject_a_real_new_atomic_write
-        PASS [   2.120s] (3/3) sheltie-cli::reliability_crash subprocess_rendezvous_reaches_only_the_configured_name_and_scope
-────────────
-     Summary [   2.126s] 3 tests run: 3 passed, 945 skipped

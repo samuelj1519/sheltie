@@ -698,6 +698,102 @@ fn set_completed_validation(fx: &Fixture, text: &str) -> PathBuf {
     path
 }
 
+fn compact_completed(fx: &Fixture, snapshot: &str) {
+    let package = fx
+        .root
+        .join("specs/changes/completed/C002-v0.2.0-reliability");
+    let readme = package.join("README.md");
+    let original = fs::read_to_string(&readme).unwrap();
+    fs::write(
+        &readme,
+        format!(
+            "{original}\n记录形式：`reference`\n历史快照：`{snapshot}`\n\n\
+             ## 变化与理由\n\n固定参考。\n\n## 验证与限制\n\n固定范围。\n\n\
+             ## 参考\n\n固定入口。\n"
+        ),
+    )
+    .unwrap();
+    for file in ["plan.md", "validation.md", "review.md", "tasks.toml"] {
+        fs::remove_file(package.join(file)).unwrap();
+    }
+}
+
+// Task: C002-T17
+#[test]
+fn check_specs_reference_rechecks_completed_snapshot_without_loose_records() {
+    let fx = completed_fixture();
+    let snapshot = git_ok(&fx.root, &["rev-parse", "HEAD"]);
+    compact_completed(&fx, &snapshot);
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(ok, "{text}");
+    assert!(
+        !fx.root
+            .join("specs/changes/completed/C002-v0.2.0-reliability/validation.md")
+            .exists()
+    );
+}
+
+// Task: C002-T17
+#[test]
+fn check_specs_reference_rejects_missing_snapshot_history() {
+    let fx = completed_fixture();
+    compact_completed(&fx, "1111111111111111111111111111111111111111");
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(!ok, "缺历史不能默认为通过：{text}");
+    assert!(text.contains("不能核原完成记录"), "{text}");
+}
+
+// Task: C002-T17
+#[test]
+fn check_specs_reference_rejects_failed_qualification_in_snapshot() {
+    let fx = completed_fixture();
+    set_completed_validation(&fx, &final_validation("FAIL"));
+    let snapshot = git_commit(&fx.root, "fixture: 最终验证失败");
+    compact_completed(&fx, &snapshot);
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(!ok, "摘要不能掩盖最终 FAIL：{text}");
+    assert!(text.contains("非 PASS"), "{text}");
+}
+
+// Task: C002-T17
+#[test]
+fn check_specs_reference_rejects_snapshot_missing_original_records() {
+    let fx = completed_fixture();
+    fs::remove_file(
+        fx.root
+            .join("specs/changes/completed/C002-v0.2.0-reliability/review.md"),
+    )
+    .unwrap();
+    let snapshot = git_commit(&fx.root, "fixture: 缺独立审查");
+    fs::write(
+        fx.root
+            .join("specs/changes/completed/C002-v0.2.0-reliability/review.md"),
+        "placeholder",
+    )
+    .unwrap();
+    compact_completed(&fx, &snapshot);
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(!ok, "缺原审查不能通过：{text}");
+    assert!(text.contains("快照缺 review.md"), "{text}");
+}
+
+// Task: C002-T17
+#[test]
+fn check_specs_reference_rejects_snapshot_of_another_reference() {
+    let fx = completed_fixture();
+    let package = fx
+        .root
+        .join("specs/changes/completed/C002-v0.2.0-reliability/README.md");
+    let original = fs::read_to_string(&package).unwrap();
+    fs::write(&package, format!("{original}\n记录形式：`reference`\n")).unwrap();
+    let snapshot = git_commit(&fx.root, "fixture: 另一份摘要");
+    fs::write(&package, original).unwrap();
+    compact_completed(&fx, &snapshot);
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(!ok, "摘要不能代替完整原件：{text}");
+    assert!(text.contains("不能再指向摘要"), "{text}");
+}
+
 // Task: C002-T17
 #[test]
 fn check_specs_completed_accepts_final_pass_without_active_change() {

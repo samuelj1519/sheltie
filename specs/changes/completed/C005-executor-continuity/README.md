@@ -1,48 +1,25 @@
-# C005：撤销运行中 Attempt 的提交资格
+# C005：Attempt 资格撤销
 
-状态：`completed`（2026-10-04当前macOS aarch64技术补验与负前检）
+状态：`completed`
 目标版本：`v0.3.0`（开发目标，尚未发布）
 兼容性：`不保留格式兼容；旧 Store 保留并拒绝自动迁移`
 基线：`23932afc1577a0b20a6b1cf7ad23ab8ac6186571`
 Owner：`Codex /root`
-权威性：已由用户采用全范围；实施进度只看 plan，验证、授权例外与发布按实际记录。
+记录形式：`reference`
+历史快照：`f38954d543ff01eb5a798be48f29060b80d5952c`
 
-普通会话恢复和换人接续可以继续同一个 `running` Attempt。只有操作者必须撤销旧 Attempt 的正式提交资格时，才需要引擎提供替换。本方案用一个原子操作把旧 Attempt 结束为 `superseded`，在同一 Occurrence 开始新 Attempt。一个 Occurrence 最多替换一次，不增加 Workbook 配置。
+## 变化与理由
 
-## 产品目标
+以 attempt replace 在一次写操作中将旧 running Attempt 标为 superseded，并开始新 Attempt。number 是创建顺序号，业务失败只统计 failed；每个 Occurrence 固定最多一次替换。非统计输入继承旧冻结绑定，统计输入按含新 Attempt 的状态重新生成。
 
-让接手者按原来的冻结方法和输入完成任务，同时使旧执行者的迟到 `submit`、`fail` 被正式接口拒绝。替换不伪造执行失败，不消耗业务重试，不放宽门槛，也不删除历史。
+schema 4 与 cli-result/v4 整组切换；旧 Store 保留并拒绝自动迁移。
 
-紧凑状态、当前任务书与结果读取见 [C004](../../completed/C004-verifiable-delegation/README.md)。读取这些材料即可继续原 Attempt；没有撤销需求时不调用替换。引擎不停止进程、不隔离工作区、不认证执行者、不管理模型额度。
+## 验证与限制
 
-## 采用条件
+已完成原生／MSRV 技术验证与真实需求负前检。没有真实资格撤销事件时继续普通 resume，不制造事故。引擎不停止旧进程、不认证接手者、不隔离宿主，也不撤销已发生的外部副作用；真实撤销价值、真人成本与原 LEAK 因果仍无充分证据。
 
-1. [C007 的共同体验实验](../../completed/C007-pre-run-workbook-generation/README.md)或真实使用记录出现了需要撤销旧提交资格的任务。仅需恢复上下文时，使用已有状态与任务书。
-2. 操作者能确认旧进程停止，或为新执行者提供隔离的宿主工作区。替换命令本身不能替代这项检查。
-3. 人决定采用、指定 Owner 与独立 Reviewer，核对当前源码和格式边界。C004 提供接续体验，但其完成不是新增状态转换的技术前提；C005、C006 不相互依赖。
+本页保留设计与结果摘要；当前行为以根规格和合同为准。历史验证不能直接复用为当前候选 PASS。
 
-历史完整机械行为采用依据见 [adoption](adoption.md)，不主张已经发生撤销事故或宿主处置。前述条件仍用于真实使用验证；进度只看 [plan](plan.md)，T01 已同步上游规格与合同。机制实现与验证已经执行，具体候选和证据见 plan/validation；原真实撤销验证仍为 not_run；当前Rust1.85全量实际测试与需求负前检已独立验收，见本轮T05/T06/M3。
+## 参考
 
-## 成功判据
-
-- 一次提交同时形成旧 `superseded`、新 `running`；最多新增一个 Attempt。
-- 新 Attempt 继承原冻结输入与进入来源；仅 `engine.stats` 按此次提交后的状态生成并冻结。
-- 旧 `submit`、`fail` 被拒绝；提交与替换竞争时至多一个成功。
-- 顺序号、真实失败数与替换事实各自正确；第二次替换被拒绝，当前 Attempt 仍可继续。
-- 重放与效果恢复返回原任务书字节和原新 Attempt；历史 `next` 不冒充当前合法操作。
-- 真实接续保留原约束，并说明撤销资格解决了什么具体需求。机制测试通过不能替代真实需求证据。
-
-## 实施分工
-
-复杂模型先确定全局接口和阶段 oracle，完整实现高风险原语，交独立复杂模型审实现准备。简单模型或初级开发者按固定接口完成纯业务与接线，再按冻结手册验证真实使用；独立复杂模型最后核完整结果。分工只服务本方案的实际风险，产品范围不变。
-
-## 阅读入口
-
-| 文件 | 回答什么 |
-| --- | --- |
-| [spec.md](spec.md) | 哪些场景需要替换；精确状态、计数与拒绝规则 |
-| [design.md](design.md) | 真实 caller、原子写链、历史校验与恢复 |
-| [plan.md](plan.md) | 3 个任务与 2 次独立里程碑审阅 |
-| [tasks.toml](tasks.toml) | 采用后的修改范围与测试归属 |
-| [validation.md](validation.md) | 正反 oracle、故障窗口与真实使用证据 |
-| [review.md](review.md)、[progress.md](progress.md) | 审查记录与跨会话交接 |
+[接续与撤销](../../../guides/continuity-choices.md)、[D-041](../../../decisions/D-041-attempt-number-and-replacement.md)、[当前限制](../../../limitations.md)。完整任务、审查与运行原件按[历史查阅指南](../../../guides/documentation.md#查阅历史原件)从上述快照读取。

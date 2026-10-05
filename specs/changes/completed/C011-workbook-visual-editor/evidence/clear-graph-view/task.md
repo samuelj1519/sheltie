@@ -1,5 +1,0 @@
-# 清晰显示与统一多选资料迭代
-
-用户最新目标：input支持前置outputs多选、前置inputs沿用原来源多选、多个外部自定义引用固定写方法；明确统一“选择或输入资料”可编辑框，不单独path/url区域。图需清晰简洁：不fixed右出左入，不标签重叠，不高亮多出折回尾巴。完整采用设计在Root C011/evidence/clear-graph-view/design.md（最新紧凑折行阅读主流程，端口自动按方向；Default8主骨架不是25全铺，节点邻接/全部mode，标签hover/selected仅1，高亮同d）。Root截图及old4311版本已确认，完成单一canonical4311，旧实例退役；Root换服务/保草稿不由你kill。
-生产可见subset-only最近线/fit，所有25定义与11nodes可访问，hiddenedge列表选中显+fit两端保positions，hover不重建hit。缓存位置仍保留，显式整理用新图，native scroll/nearest/pan/zoom不回退。统一可编辑multi chooser的sources输出=node.output、沿用inputfrom不pretend frozen previousdata、required三态保尤其false、禁生成不可表达self/缺失/不允许optional但保原值，冲突预览/customname/同namefrom去重不overwrite。同一框directtype自由外部引用，真实owned文本resource保存用既有from，位置不fetch/readhost，不unknownFlow字段/额外注册表；假标记原resource不overwritten、共享resources不覆盖。原其它来源start/stats/普通resource/custom可高级保持不迁移。
-真实11/25 main/subset/count；all25 actual鼠标 path/list/selectedlabel-right高亮等，drag/native_scroll世界换算；27原byte view-onlyZIP；批量optional/input/data和literal相对/绝对/url正负真实CLI消费者，新增和编辑引用fullZip保真。准备审查已PASS，fields/glyph具体小写法自己定，无框架/新依赖/引擎格式/Rust改变。先生产共享独立期待repro再实现，全工具npm一次必要，后caller改仅必要affected复核。禁止当前green测试/engine成功代人易用性。

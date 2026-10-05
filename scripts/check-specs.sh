@@ -6,6 +6,8 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$root"
 
 status=0
+qualification_root="$(mktemp -d "${TMPDIR:-/tmp}/sheltie-specs.XXXXXX")"
+trap 'rm -rf "$qualification_root"' EXIT
 fail() {
 	echo "check-specs: $*" >&2
 	status=1
@@ -30,10 +32,7 @@ for path in \
 	specs/decisions/README.md \
 	specs/releases/README.md \
 	specs/releases/v0.1.0/README.md \
-	specs/releases/v0.1.0/plan.md \
-	specs/releases/v0.1.0/decisions.md \
-	specs/releases/v0.1.0/runbook.md \
-	specs/releases/v0.1.0/tasks.toml; do
+	specs/releases/v0.1.0/decisions.md; do
 	[ -e "$path" ] || fail "缺 $path"
 done
 
@@ -98,20 +97,41 @@ fi
 
 for package in specs/changes/completed/C*; do
 	[ -d "$package" ] || continue
+	qualification="$package"
+	if grep -q '^记录形式：`reference`$' "$package/README.md"; then
+		for section in 变化与理由 验证与限制 参考; do
+			grep -q "^## $section$" "$package/README.md" || fail "$package/README.md 缺参考摘要段 $section"
+		done
+		snapshot="$(sed -n 's/^历史快照：`\([0-9a-f]\{40\}\)`$/\1/p' "$package/README.md")"
+		if [ -z "$snapshot" ] || ! git cat-file -e "${snapshot}^{commit}" 2>/dev/null; then
+			fail "$(missing_history_diag "参考快照 ${snapshot:-未指定}")；$package 不能核原完成记录"
+			continue
+		fi
+		qualification="$qualification_root/$(basename "$package")"
+		mkdir -p "$qualification"
+		for file in README.md plan.md validation.md review.md tasks.toml; do
+			git show "$snapshot:$package/$file" > "$qualification/$file" 2>/dev/null || fail "$package 快照缺 $file"
+		done
+		grep -q '^状态：`completed`' "$qualification/README.md" || fail "$package 快照不是 completed"
+		if grep -q '^记录形式：`reference`$' "$qualification/README.md"; then
+			fail "$package 快照必须指向完整完成记录，不能再指向摘要"
+			continue
+		fi
+	fi
 	for file in README.md plan.md validation.md review.md tasks.toml; do
-		[ -f "$package/$file" ] || fail "$package 缺 completed 必需文件 $file"
+		[ -f "$qualification/$file" ] || fail "$package 缺 completed 必需文件 $file"
 	done
-	if [ -f "$package/plan.md" ]; then
+	if [ -f "$qualification/plan.md" ]; then
 		unfinished="$(awk -F'|' '
 			/^\| C[0-9][0-9][0-9]-(T[0-9][0-9]|M[0-9]+) / {
 				state = $3; gsub(/^[[:space:]]+|[[:space:]]+$/, "", state)
 				if (state != "done") print $0
 			}
-		' "$package/plan.md")"
+		' "$qualification/plan.md")"
 		[ -z "$unfinished" ] || fail "$package/plan.md 还有非 done 任务"
 	fi
-	if [ -f "$package/validation.md" ]; then
-		grep -Eq '^Candidate: `(SELF|[0-9a-f]{7,40})`' "$package/validation.md" ||
+	if [ -f "$qualification/validation.md" ]; then
+		grep -Eq '^Candidate: `(SELF|[0-9a-f]{7,40})`' "$qualification/validation.md" ||
 			fail "$package/validation.md 缺固定候选"
 		# 历史事实表保留其原结果；只检查 validation 模板定义的最终验证表（C002-T17）。
 		validation_errors="$(awk -F'|' '
@@ -166,11 +186,11 @@ for package in specs/changes/completed/C*; do
 				finish_table()
 				if (tables == 0) print "缺最终验证表"
 			}
-		' "$package/validation.md")"
+		' "$qualification/validation.md")"
 		[ -z "$validation_errors" ] || fail "$package/validation.md 最终验证表不合格：$validation_errors"
 	fi
-	if [ -f "$package/review.md" ]; then
-		grep -q '^结论：`PASS`' "$package/review.md" || fail "$package/review.md 没有 final PASS"
+	if [ -f "$qualification/review.md" ]; then
+		grep -q '^结论：`PASS`' "$qualification/review.md" || fail "$package/review.md 没有 final PASS"
 	fi
 done
 

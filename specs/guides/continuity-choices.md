@@ -2,7 +2,7 @@
 
 本指南面向协调者与操作者。重开会话、等待后继续或更换执行者时，先查询当前 Work，再判断是继续原 Attempt、记录真实执行失败、按 Workbook 回边返工，还是撤销旧 Attempt 的正式提交资格。选择依据是实际发生的事实；引擎不从审查文案判断内容好坏。
 
-命令示例中的尖括号占位符必须替换为实际值。新试用选择一个未使用的独立管理根；已有 Work 则始终使用创建它时的同一个显式 `--home`，重开后也不能回落默认管理根。只读查询不带 `--request-id`；写操作先保存一个 UUID，重试保持同一 ID 与同一意图。完整字段和命令以[公开协议](../contracts/protocol.md)为准，接续指针的范围见 [C004](../changes/completed/C004-verifiable-delegation/README.md)，行政撤销的采用规则见 [C005](../changes/completed/C005-executor-continuity/spec.md)。
+命令示例中的尖括号占位符必须替换为实际值。新试用选择一个未使用的独立管理根；已有 Work 则始终使用创建它时的同一个显式 `--home`，重开后也不能回落默认管理根。只读查询不带 `--request-id`；写操作先保存一个 UUID，重试保持同一 ID 与同一意图。完整字段和命令以[公开协议](../contracts/protocol.md)为准，接续指针的范围见 [C004](../changes/completed/C004-verifiable-delegation/README.md)，行政撤销的采用规则见 [D-041](../decisions/D-041-attempt-number-and-replacement.md)。
 
 ## 先查询当前状态
 

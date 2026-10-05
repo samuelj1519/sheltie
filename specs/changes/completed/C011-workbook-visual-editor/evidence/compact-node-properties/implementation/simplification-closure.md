@@ -1,1 +1,0 @@
-独立code-simplifier复核stale-chip修复已在源码层闭合：实际剔除后重绘chips，旧回调index<0不删其它项；回归覆盖A被剔除后B保持。无需额外简化，未编辑/测试。其后Root natural-click消费者缺陷由DOM原位更新单独修复并获真实native红绿，最终Spec/Standards仍另行独审。

@@ -1,6 +1,6 @@
 # Decision records
 
-MVP 的 D-01–D-31、里程碑复核与首次真实运行保存在 [v0.1.0 legacy decision log](../releases/v0.1.0/decisions.md)。该文件已关闭，不再追加。
+MVP 的 D-01–D-31 设计理由见 [MVP 摘要](../releases/v0.1.0/decisions.md)。里程碑复核与首次运行原件从[历史快照](../guides/documentation.md#查阅历史原件)读取，不再追加。
 
 MVP 之后，一个重要决定使用一个 Markdown 文件。旧决定被取代时保留原文，状态改为 `superseded by D-nnn`，并与新决定互相链接。
 

@@ -1,9 +1,0 @@
-{
-  "reviewer": "/root/c005_preflight_review",
-  "result": "needs_changes_before_execution",
-  "finding": "timeout group leader exit may leave children; send finalKILL to owned group after grace regardless of leader wait",
-  "fixed_before_run": true,
-  "MSRV_execution_started": false,
-  "same_finding_supplement": "Continuous budget reserves8s; timeout retains actual leaderreturncode separate flag and grouptermination request",
-  "all_fixed_before_MSRV": true
-}

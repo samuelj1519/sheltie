@@ -1,1 +1,0 @@
-只读自查：仅本次 owningNodeId 上下文和未知kind own-key映射；保持生产共享函数及原模型提交路径。没有新增框架、状态层或默认来源。所有来源helper强制所属步骤，不靠可选参数猜上下文。仅排除自引用候选，已有非法自引用仍custom原文；未完成返回undefined，由调用者保持原row.from。未知kind只查own property，不把Object原型名称当已知类型。未改其他模块或测试要求，不称独立审查。子agent线程上限的既有fallback记录保持，Root独审另行执行。

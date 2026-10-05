@@ -17,8 +17,8 @@ Release commit：`8455aed2bcd9ac1739852be3987091a0975e7ac3`
 ## 验收
 
 - [正式 Release](https://github.com/samuelj1519/sheltie/releases/tag/v0.2.0) 的 tag 与源码固定到上述 Release commit。[发布工作流 37037558064](https://github.com/samuelj1519/sheltie/actions/runs/37037558064) 实际完成 quality、构建、host 与 announce，结论 `success`。
-- 同一源码 SHA 的 quality 实际通过工程、文档、规格、skill、测试治理、依赖与 MSRV 1.85 locked 门禁。Nextest 为 700/700、0 skipped、1 slow，测试阶段 156.541 秒；原始运行与范围见 [C002 validation](../../changes/completed/C002-v0.2.0-reliability/validation.md)。
-- T16 在本机实际完成样例、`spec-dev` 四任务、独立审查、真实关闭并重开会话后的 Work006 续接，以及获具体批准后的 Work003 最终 retro gate。闭包固定到上述 T16 提交，详见 [C002 review](../../changes/completed/C002-v0.2.0-reliability/review.md)。
+- 同一源码 SHA 的 quality 实际通过工程、文档、规格、skill、测试治理、依赖与 MSRV 1.85 locked 门禁。Nextest 为 700/700、0 skipped、1 slow，测试阶段 156.541 秒；原始运行与范围见 [C002 历史原件](../../guides/documentation.md#查阅历史原件)。
+- T16 在本机实际完成样例、`spec-dev` 四任务、独立审查、真实关闭并重开会话后的 Work006 续接，以及获具体批准后的 Work003 最终 retro gate。闭包固定到上述 T16 提交，详见 [C002 历史审查](../../guides/documentation.md#查阅历史原件)。
 - 正式发布后重新下载并核验实际包、manifest 与二进制，不复用 PR 构建字节。使用默认 GitHub 来源在独立管理根执行指定 `0.2.0` 的远端 update 与 rollback；回退后二进制逐字相同、Store 不变、prev 移除。更新来源为 T16 的 C002/schema 2 构建，其显示版本为 `0.1.0`；这次验证不证明 legacy schema 1 迁移。
 
 | 实物 | SHA256 |
@@ -36,4 +36,4 @@ v0.2.0 使用 schema 2、`workbook-digest/v2`、新 Work 目录布局与 `cli-re
 - M1 按授权例外完成：SK01 缺最终 Spec 批准；SK02 的 215 个精确变异 ID 缺额外执行。完整变异验证、安全验证与最终 Spec 批准仍未通过，既有 FAIL、暂停与缺失原文保留。
 - Linux 原生验收与跨平台验证没有因本次发布变为 PASS；Linux、x86_64 包不在本版范围。
 - T16 使用手动提供的 skill，本机 Host 窗口访问限制保留。模型 usage 为 `null`；Work/Attempt 时长含人工、会话关闭和等待，不能换算为模型用量或成本。
-- OS 主体与本地 gate 不构成独立真人认证。完整限制、证据入口与任务完成范围见 [C002 validation](../../changes/completed/C002-v0.2.0-reliability/validation.md) 和 [review](../../changes/completed/C002-v0.2.0-reliability/review.md)。
+- OS 主体与本地 gate 不构成独立真人认证。完整限制、证据入口与任务完成范围见 [C002 历史原件](../../guides/documentation.md#查阅历史原件) 和 [历史审查入口](../../guides/documentation.md#查阅历史原件)。

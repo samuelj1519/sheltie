@@ -1,48 +1,40 @@
-# Change 索引
+# 变更索引
 
-当前 release：[`v0.2.0`](../releases/v0.2.0/README.md)
 Active change：无
 
-C002与C004当前恢复采用范围已完成，C005当前技术及负前检已完成，C006当前实际副本与APFS验收完成，C007当前agent观察/文档交付限定完成，C008当前条件复核完成。
+此目录用于采用前的提案、进行中的实施与完成后的参考摘要。当前行为见[规格](../spec.md)，发布事实见[发布记录](../releases/README.md)。
 
-只执行 active package 的计划。proposed package 尚未采用，不得自行实施。
+## Proposed 与 Active
 
-## Proposed
-
-无未采用候选。
-
-优先采用 C007 的共同试用，完整观察用户结果、质量和总成本；根据证据选择 C004 的最小增量。明确的同等近期需求也可直接支持采用，不要求先发生事故。C005/C006 依赖实际通用合同但不相互依赖；C008 只由真实宿主资源问题触发。本次用户已明确授权 C004–C008 按顺序实施；一次只执行一个 active package，实际证据与 `not_run` 分开记录。任务以完整行为和实际风险划分，流程见[共同指南](../guides/proposal-implementation.md)。
-
-
-## Active
-
-无。
+目前无未采用提案、无 active change。人采用后才执行 package plan；一次只允许一个 active change。模板见 [templates/](templates/)，准备和实施方法见[实施指南](../guides/proposal-implementation.md)。
 
 ## Completed
 
-| Change | 结果 | 入口 |
-| --- | --- | --- |
-| C011 | 本地作者工具与真实 CLI/ZIP/浏览器可用性闭环；72/72 工具测试、独审、真人接受及同 Attempt 宿主重开通过，费用/分钟未知 | [README](completed/C011-workbook-visual-editor/README.md) |
-| C010 | 收敛局部实现与完整测试后继，spec-dev 0.2.2 共享规则/明确成果；948/5doc及限定独审通过 | [README](completed/C010-local-simplification/README.md) |
-| C009 | 收敛重复投影/交付/响应与测试支持；948/948、5doc、MSRV及限定独审通过 | [README](completed/C009-project-simplification/README.md) |
-| C008 | 当前七副本/27 Node/0 requires 与实际自然事件负前检完成；probe未采用，原机制/host/value not_run | [README](completed/C008-dependency-readiness/README.md) |
-| C007 | 六实际agentrun/负结果/4质量通过2交付阻断与三真实文档交付限定完成，严格公平/15%/原codehuman不授PASS | [README](completed/C007-pre-run-workbook-generation/README.md) |
-| C006 | 真实agent副本/两组同质量/编辑与newcopy/跨APFS导出卸载和完整限定链通过；原真人/费用/物理盘/旧unknown留原 | [README](completed/C006-result-delivery/README.md) |
-| C005 | 当前macARM真实1.85新951/5doc及EX01–08同源工程和需求负前检通过；原真实撤销/真人/费用/旧LEAK因果留原 | [README](completed/C005-executor-continuity/README.md) |
-| C004 | 当前agent实际质量/同Attempt冷接续/三refs与新消费者逐查询和实际使用通过；旧真人/成本/取证偏差留原 | [README](completed/C004-verifiable-delegation/README.md) |
-| C002 | 当前采用恢复义务完整Spec/工程scoped PASS；macOS aarch64/APFS可构造输入，215处分与旧未执行限制分列 | [README](completed/C002-v0.2.0-reliability/README.md) |
-| C003 | 统一归档 v0.1.0 MVP 文档与历史任务检查 | [README](completed/C003-archive-v0.1.0/README.md) |
-| C001 | 建立 specs、change、decision 与 release 文档治理 | [README](completed/C001-specs-governance/README.md) |
+下列页面保留变化、设计理由、验证范围与阅读入口。completed 表示各自采用范围已关闭，不表示所有实验目标、平台或发布均通过。跨变更的支持与未知事项集中在[当前限制](../limitations.md)。
+
+| Change | 长期参考 |
+| --- | --- |
+| C001 | [文档治理](completed/C001-specs-governance/README.md) |
+| C002 | [可靠性修复](completed/C002-v0.2.0-reliability/README.md) |
+| C003 | [MVP 文档归档](completed/C003-archive-v0.1.0/README.md) |
+| C004 | [明确成果与可靠接续](completed/C004-verifiable-delegation/README.md) |
+| C005 | [Attempt 资格撤销](completed/C005-executor-continuity/README.md) |
+| C006 | [可编辑成果副本](completed/C006-result-delivery/README.md) |
+| C007 | [完整任务体验实验](completed/C007-pre-run-workbook-generation/README.md) |
+| C008 | [宿主依赖前检](completed/C008-dependency-readiness/README.md) |
+| C009 | [实现与测试精简](completed/C009-project-simplification/README.md) |
+| C010 | [局部精简与方法交付](completed/C010-local-simplification/README.md) |
+| C011 | [Workbook 可视化作者工具](completed/C011-workbook-visual-editor/README.md) |
 
 ## Rejected
 
 无。
 
-## 生命周期
+## 生命周期与完成后收敛
 
 ```text
 proposed ──人采用──▶ active ──实现、验证、独立 review──▶ completed ──纳入──▶ release
     └──人否决──▶ rejected
 ```
 
-目录位置就是状态。默认只允许一个 active change。模板见 [templates/](templates/)。
+目录位置表示状态。active 的 plan 是当前进度唯一权威；完成时先保存完整资格记录，再按[文档维护指南](../guides/documentation.md)收敛为参考摘要。任务流水和运行原件从固定 Git 快照读取，摘要不能改写原结果。

@@ -1,9 +1,8 @@
-# Research notes
+# 外部参考
 
-Research notes 保存一手来源、适用范围和推导，供 change/ADR 引用。它们不具有产品、机制或进度权威性。
+此目录保留对理解项目仍有用的一手来源和推论。它们不具有产品、机制、进度或发布权威性；历史核查时点不代表链接内容已在当前日期重新验证。
 
-| 日期 | 主题 | 入口 |
-| --- | --- | --- |
-| 2026-10-03 | 以用户结果制定方案与 Rust 工程裁决 | [来源笔记](2026-10-03-product-rust-design.md) |
-| 2026-09-27 | specs 与版本迭代文档治理 | [来源笔记](2026-09-27-document-governance-sources.md) |
-| 2026-09-27 | C004–C007 agent 工作流与 Rust 工程一手资料 | [来源笔记](2026-09-27-agent-rust-guidance.md) |
+- [设计与维护阅读线索](design-sources.md)：工作流、文档职责、ADR、版本与 Rust／SQLite 的来源入口。
+- [产品与 Rust 设计笔记](product-rust-design.md)：用户结果、接口取舍、外围工具与发布配置的具体推论。
+
+已关闭提案的阶段编号、来源矩阵和逐项执行材料从[历史快照](../guides/documentation.md#查阅历史原件)读取。

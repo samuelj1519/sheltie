@@ -1,6 +1,0 @@
-baseline: Ok(())
-invalid_workbook_version: Err(Rejected { code: "INVALID_RESULT", message: "Workbook版本不是合同规定的安全目录段" })
-zero_occurrence: Err(Rejected { code: "INVALID_RESULT", message: "来源槽或AttemptId非规范" })
-mixed_terminal_binders: Err(Rejected { code: "INVALID_RESULT", message: "来源槽或AttemptId非规范" })
-noncanonical_succeeded: decode rejected status字段与variant不相符
-backslash_leaf: Ok(())

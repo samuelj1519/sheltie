@@ -1,67 +1,49 @@
-# 文档地图
-
-## 当前状态
+# Sheltie 文档
 
 Released：[`v0.2.0`](releases/v0.2.0/README.md)，发布目标为 `aarch64-apple-darwin`
 开发目标：`v0.3.0`
 Active change：无
 
-当前产品环境与验收边界见 [产品规格](spec.md#当前产品环境)；超出该范围的环境覆盖按实际需求另行采用。
+这里收集 Sheltie 的产品定义、实现原理、精确合同和维护方法。Sheltie 是给协调者使用的本地工作流引擎：人把方法写成 Workbook，引擎记状态、发任务书、限定合法下一步、守门槛，内容判断由人或 agent 完成。
 
-C002与C004当前采用恢复义务已按限定范围独审完成；C005当前技术与需求负前检也已完成，C006当前实际副本与APFS载体验收已完成，C007当前agent观察/文档交付限定完成，C008当前条件复核完成。
-Completed：[`C011 Workbook 可视化作者工具`](changes/completed/C011-workbook-visual-editor/README.md)（72/72 工具测试、独立审查、真人接受与同 Attempt 宿主重开通过；未发布），[`C010 局部精简与方法交付`](changes/completed/C010-local-simplification/README.md)（948测试/5doc/独立审查通过；方法0.2.2），[`C009 实现与测试精简`](changes/completed/C009-project-simplification/README.md)（行为保持、948测试/5doc/独立审查通过），[`C007 当前真实agent观察与三文档交付`](changes/completed/C007-pre-run-workbook-generation/README.md)（4质量过/2交付阻断，严格公平与15%条件未满足，原code/human未执行）、[`C006 当前真实agent副本与跨APFS验收`](changes/completed/C006-result-delivery/README.md)（原真人/费用/物理外置盘/其他OS/旧LEAK因果留原）、[`C005 当前原生/MSRV技术与负前检`](changes/completed/C005-executor-continuity/README.md)（原真实撤销、真人/费用及旧LEAK因果未执行/未知留原）、[`C004 当前自动agent交付与冷接续验收`](changes/completed/C004-verifiable-delegation/README.md)（原真人/净收益/费用/旧取证偏差留原）、[`C002 当前恢复验收`](changes/completed/C002-v0.2.0-reliability/README.md)（当前macOS aarch64/APFS可构造输入scoped PASS，物理/旧native未执行限制留原）、[`C008 条件前检与缺项交接`](changes/completed/C008-dependency-readiness/README.md)（probe未采用/真实价值not_run）。C002 的已发布历史和本轮补验见 completed package [plan.md](changes/completed/C002-v0.2.0-reliability/plan.md)
-Proposed：无。本轮自动恢复工作已归档；原真实条件未满足的义务保留，见 [C001–C008 总交接](changes/completed/C008-dependency-readiness/evidence/resume-20261004/completion-report.md)。
+当前源码包含尚未发布的开发能力。产品定位与支持范围见[产品规格](spec.md#当前产品环境)；验收与价值边界见[当前限制](limitations.md)。已完成变更不表示版本已发布。
 
-剩余验收、责任与真人操作入口见 [C001–C011 剩余验收清单](changes/completed/C008-dependency-readiness/remaining-acceptance.md)；各项执行记录仍保存于对应 package。
+## 从哪里开始
 
-此前 C004–C008 的限定实施已归档。2026-10-03 用户恢复全部跳过义务；一次只激活一个 package，缺真实输入时继续可独立执行的工作，未执行项保持 `not_run`。原生 Git 检查不作为通用结果/接续的前置条件。产品目标与采用顺序见[路线图](roadmap.md)，实施方式见[按完整行为制定和实施方案](guides/proposal-implementation.md)。
-
-首屏开发目标指定当前源码候选的基础版本，尚未发布。数值产品 active 目标必须与它一致；非产品实验或暂无 active 时，该权威仍有效。已发布版本继续按 release record、tag 和验收证据核对，不由开发目标推断发布完成。
-
-C005 已采用的 schema 4、`cli-result/v4`、number/superseded、`work-result/v1` 和 `workbook-digest/v2` 保持。C006的raw与完整副本实现已限定验收，实际范围见[当前 plan](changes/completed/C006-result-delivery/plan.md)，旧 schema 原件保留。C002 的验收范围、授权例外与已知限制见 release record 和 completed package。没有 active change 时，不从 proposed package 自行选择方案实施。
-
-## 权威文档
-
-第一次接触项目时按任务需要渐进读取，不要求每次通读全部文件。
-
-| 文件 | 回答什么 | 何时读 |
-| --- | --- | --- |
-| [constitution.md](constitution.md) | 为什么存在；哪些规则永远不破 | 改产品边界或架构前 |
-| [../CONTEXT.md](../CONTEXT.md) | 一个概念叫什么 | 写代码或文档前 |
-| [spec.md](spec.md) | 当前开发线的产品目标与验收 | 改行为前 |
-| [architecture.md](architecture.md) | crate、类型、状态机、目录 | 改 module/interface 前 |
-| [contracts/](contracts/) | Workbook、CLI、Store 的精确 reference | 改字段、命令、错误或持久格式前 |
-| [engineering.md](engineering.md) | 怎么写代码、测试、验证、提交与 review | 开始实现前 |
-| [roadmap.md](roadmap.md) | 未立项方向与立项条件 | 评估未来工作时 |
-| [decisions/](decisions/README.md) | 当前决定及其理由 | 需要理解取舍时 |
-
-冲突时按“宪章 → 规格 → 架构 → 合同”裁决。active change 在实施前先更新这些上游权威；package plan 只规定执行顺序，不能反向改变产品含义。
-
-## 迭代与历史
-
-| 入口 | 用途 |
+| 读者与目的 | 建议阅读路径 |
 | --- | --- |
-| [changes/README.md](changes/README.md) | proposed、active、completed、rejected change 及当前进度入口 |
-| [releases/README.md](releases/README.md) | tag、候选、验收闭包与已知限制 |
-| [guides/README.md](guides/README.md) | 仍可执行的 how-to 与 runbook |
-| [research/README.md](research/README.md) | 一手来源笔记；不具有项目权威性 |
+| 第一次了解项目 | [项目 README](../README.md) → [领域词汇](../CONTEXT.md) → [产品规格](spec.md) |
+| 想从源码运行一次任务 | [源码快速开始](guides/source-quick-start.md) → [接续与错误处理](guides/continuity-choices.md) |
+| 想了解源码如何工作 | [源码导读](guides/source-tour.md) → [架构](architecture.md) → 对应合同与测试 |
+| 想编写或编辑方法 | [Workbook 合同](contracts/workbook.md) → [样例](../examples/)／[spec-dev](../workbooks/spec-dev/README.md) → [可视化作者工具](../tools/workbook-editor/README.md) |
+| 维护代码或准备变更 | [工程规范](engineering.md) → [change 索引](changes/README.md) → [完整行为实施指南](guides/proposal-implementation.md) |
+| 理解设计取舍或旧版本 | [设计决定](decisions/README.md) → [变更摘要](changes/README.md)／[发布记录](releases/README.md) |
 
-MVP 历史统一保存在 [v0.1.0 release archive](releases/v0.1.0/README.md)，不作为后续版本入口。
+## 当前权威
 
-## 文档职责
+| 文档 | 职责 |
+| --- | --- |
+| [constitution.md](constitution.md) | 产品存在的理由与不可破坏的不变式 |
+| [../CONTEXT.md](../CONTEXT.md) | 全仓库统一的领域词汇 |
+| [spec.md](spec.md) | 当前开发线的产品行为、环境和验收要求 |
+| [architecture.md](architecture.md) | crate 边界、类型、状态机与文件布局 |
+| [contracts/workbook.md](contracts/workbook.md) | Workbook／Flow 格式、引用与编译规则 |
+| [contracts/protocol.md](contracts/protocol.md) | CLI、响应、错误与协调者操作合同 |
+| [contracts/storage.md](contracts/storage.md) | Store、请求身份、事务和文件恢复合同 |
+| [engineering.md](engineering.md) | 编码、测试、验证、提交与审查规则 |
 
-- 根规格与合同描述当前目标，不描述任务进度。
-- active package 的 `plan.md` 是当前实施进度的唯一权威。
-- `progress.md` 只保存跨会话交接，不复制任务状态。
-- ADR 解释“为什么”；architecture/contracts 定义“现在是什么”。
-- review 与 validation 保存候选和证据，不替代完成状态。
-- `CHANGELOG.md` 只记录已采用、用户可感知的版本变化。
+冲突时按「宪章 → 规格 → 架构 → 合同」裁决。实施前先同步上游定义，active change 的 plan 只规定执行顺序与进度。没有 active change 时，不从 proposed 自行选择方案实施。
 
-## 检查
+开发目标描述当前源码候选的基础版本；数值产品 active 目标必须与它一致。发布事实始终按 release record、tag 和验收闭包核对。
 
-修改文档后运行：
+## 操作、解释与历史
 
-```bash
-scripts/check-docs.sh
-scripts/check-specs.sh
-```
+- [guides/](guides/README.md)：可执行教程、操作指南和维护方法。
+- [decisions/](decisions/README.md)：重要选择的背景、备选方案与后果。
+- [roadmap.md](roadmap.md)：未来方向及其需求条件。
+- [limitations.md](limitations.md)：支持、信任、兼容性与仍未知的价值边界。
+- [changes/](changes/README.md)：提案／实施入口和已完成变更的参考摘要。
+- [releases/](releases/README.md)：已发布版本、固定源码、实物与已知限制。
+- [research/](research/README.md)：外部来源与阅读线索，不具有项目权威性。
+
+文档维护、完成后收敛与历史原件读取见[文档维护指南](guides/documentation.md)。修改后运行 `scripts/check-docs.sh` 和 `scripts/check-specs.sh`。

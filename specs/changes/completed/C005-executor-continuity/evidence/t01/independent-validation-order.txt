@@ -1,9 +1,0 @@
-info: overriding version check (required: 0.9.145, current: 0.9.140)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
-────────────
- Nextest run ID 2eafb8b2-0230-4f89-a797-cf6b3880c276 with nextest profile: default
-    Starting 2 tests across 50 binaries (772 tests skipped)
-        PASS [   0.008s] (1/2) sheltie-core::attempt_replace persisted_replacement_rejects_reason_combinations_number_gaps_and_second_superseded
-        PASS [   0.013s] (2/2) sheltie-runtime store::tests::load_rejects_running_attempt_on_different_current_occurrence
-────────────
-     Summary [   0.014s] 2 tests run: 2 passed, 772 skipped

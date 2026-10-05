@@ -1,1 +1,0 @@
-独立 code-simplifier /root/c011_edge_repair/simplify只读复核本轮app/sources/style/test增量，不编辑、不跑测试。发现实质stale chip风险：refreshMaterialOptions将已用A从staged剔除但未重绘旧A chip；其indexOf=-1移除会误删B。已经提取原production prune/remove行为共享helper并由真实独立断言RED复现；最小修为有prune时重绘、missing item不splice，48消费者GREEN。其余无需cosmetic；不做非必要源码漂移。原报告及修后闭合复核另留，不能当最终Spec/Standards或真人接受。

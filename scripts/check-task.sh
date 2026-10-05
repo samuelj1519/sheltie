@@ -44,8 +44,10 @@ if [ -z "$task" ]; then
 fi
 cd "$(dirname "$0")/.."
 
-task_table="specs/releases/v0.1.0/tasks.toml"
-plan_file="specs/releases/v0.1.0/plan.md"
+task_table="scripts/task-history/MVP/tasks.toml"
+plan_file="scripts/task-history/MVP/ledger.md"
+original_task_table="specs/releases/v0.1.0/tasks.toml"
+original_plan_file="specs/releases/v0.1.0/plan.md"
 case "$task" in
 C[0-9][0-9][0-9]-T[0-9][0-9]|C[0-9][0-9][0-9]-M[0-9]*)
 	change_id="${task%%-*}"
@@ -56,6 +58,12 @@ C[0-9][0-9][0-9]-T[0-9][0-9]|C[0-9][0-9][0-9]-M[0-9]*)
 	fi
 	task_table="$change_dir/tasks.toml"
 	plan_file="$change_dir/plan.md"
+	original_task_table="$task_table"
+	original_plan_file="$plan_file"
+	if grep -q '^记录形式：`reference`$' "$change_dir/README.md"; then
+		task_table="scripts/task-history/$change_id/tasks.toml"
+		plan_file="scripts/task-history/$change_id/ledger.md"
+	fi
 	for required in "$task_table" "$plan_file"; do
 		[ -f "$required" ] || {
 			echo "check-task: 缺 $required" >&2
@@ -109,7 +117,7 @@ fi
 
 in_list() {
 	local path="$1"; shift
-	for allowed in "$@" "$plan_file" "$task_table"; do
+	for allowed in "$@" "$plan_file" "$task_table" "$original_plan_file" "$original_task_table"; do
 		case "$path" in
 			"$allowed" | "$allowed"/*) return 0 ;;
 		esac

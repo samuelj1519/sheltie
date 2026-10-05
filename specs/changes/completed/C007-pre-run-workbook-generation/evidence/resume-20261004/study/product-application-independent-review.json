@@ -1,8 +1,0 @@
-{
-  "reviewer": "/root/c007_final_quality",
-  "actual_session": "/Users/shushu/.codex/sessions/2026/10/04/rollout-2026-10-04T05-43-16-01a103b8-aaae-7763-b2c6-e3db8a930ad7.jsonl",
-  "source_line": 256,
-  "actual_message_utc": "2026-10-03T21:59:11.935Z",
-  "exact_report": "**PASS，T07 当前应用增量无必修项。**\n\n- 三份实际原 patch 与原中性材料逐字节一致；Root 的 README 和三份 guide 均与选定候选字节、SHA 相同。\n- 指南索引只新增三个入口；链接存在，明确区分 `00e010` 冻结交接卡与最新 specs 状态。\n- 原样本质量结论保持；未修改文件，未运行新 Rust 或 CLI 验证。本结论不代替用户接受或发布批准。",
-  "scope": "PASSactualapplication incremental; originalquality limits unchanged"
-}

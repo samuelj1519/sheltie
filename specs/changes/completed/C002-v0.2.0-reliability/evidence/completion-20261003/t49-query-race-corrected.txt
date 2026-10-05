@@ -1,9 +1,0 @@
-   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/orca/workspaces/sheltie/codex/crates/sheltie-runtime)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.54s
-────────────
- Nextest run ID c3161250-9e58-46d6-b512-6c2b646a73cc with nextest profile: default
-    Starting 2 tests across 19 binaries (346 tests skipped)
-        PASS [   0.310s] (1/2) sheltie-runtime::workbook_txn workbook_reader_rejects_audit_drift_after_qualifying_the_publisher
-        PASS [   0.938s] (2/2) sheltie-runtime::workbook_txn readers_reject_start_and_workbook_effect_drift_after_their_reference_index
-────────────
-     Summary [   0.939s] 2 tests run: 2 passed, 346 skipped

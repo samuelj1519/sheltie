@@ -1,8 +1,0 @@
-{
-  "source": "user clarification",
-  "message": "左侧面板隐藏后，无法重新打开",
-  "root_repro": "wide viewport nav display:none; main grid auto-placement into 0px first column; aside covers toggle, hit text 方法属性",
-  "red_oracle": "mainWidth=0 and toggleReachable=false after hiding nav",
-  "initial_narrow_repro": "also real; not sole explanation of original report",
-  "acceptance": null
-}

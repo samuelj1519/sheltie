@@ -6,7 +6,7 @@
 
 ## 背景与选择
 
-用户明确确认「产品定位就是当前 macOS／APFS 使用场景」。此前剩余清单将不可在当前APFS构造的物理非UTF-8名称、外置物理盘专项验收列为待提供环境，容易与当前交付所需验收混淆。采用原话和原件保持范围见 [当前采用记录](../changes/completed/C008-dependency-readiness/evidence/scope-macos-apfs-20261005/user-scope-adoption.json)。
+用户明确确认「产品定位就是当前 macOS／APFS 使用场景」。此前剩余清单将不可在当前APFS构造的物理非UTF-8名称、外置物理盘专项验收列为待提供环境，容易与当前交付所需验收混淆。采用原话和原件保持范围见 [固定历史快照](../guides/documentation.md#查阅历史原件)中的 C008 采用记录。
 
 产品环境的单一权威在 [产品规格](../spec.md#当前产品环境)。现有macOS aarch64范围保持；非APFS、其他OS/架构和外置物理设备专项认证不属于当前交付的必需验收。E01/E02按当前范围记为无需执行，历史not_run/environment_blocked仍保留。以后出现真实应用需求时另行采用对应目标和载体。
 

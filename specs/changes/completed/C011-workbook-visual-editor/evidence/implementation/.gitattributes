@@ -1,5 +1,0 @@
-# 原始命令流可能含 reporter 的空格；按二进制原件保留，不改变或删掉原字节。
-*.stdout binary
-*.stderr binary
-# 此目录仅含命令 metadata；Git binary patch 无损压缩 JSON 原字节。
-*.json binary
