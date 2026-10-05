@@ -1,0 +1,118 @@
+{
+  "pass": false,
+  "scope": "new/current authored Markdown only; opaque exporter artifact payloads and old backup raw bytes are preserved, not edited",
+  "checks": [
+    {
+      "path": "specs/changes/completed/C008-dependency-readiness/remaining-acceptance.md",
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/remaining-acceptance.md"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "specs/changes/completed/C007-pre-run-workbook-generation/evidence/human-acceptance-20261004/README.md",
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/human-acceptance-20261004/README.md"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/README.md",
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/README.md"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/README.md",
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/README.md"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005/README.md",
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005/README.md"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005/history-and-qualification.md",
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005/history-and-qualification.md"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005/writer-report.md",
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005/writer-report.md"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    }
+  ]
+}

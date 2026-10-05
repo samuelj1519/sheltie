@@ -1,0 +1,13 @@
+{
+  "recorded_utc": "2026-10-05T08:01:12.641378+00:00",
+  "argv": [
+    "/usr/sbin/diskutil",
+    "list",
+    "-plist"
+  ],
+  "exit": 1,
+  "stdout": "",
+  "stderr_from_actual_tool_result": "Unable to run because unable to use the DiskManagement framework.\nCommon reasons include, but are not limited to, the DiskArbitration\nframework being unavailable due to being booted in single-user mode.",
+  "classification": "sandbox observation; does not establish absent physical drives or boot mode",
+  "next": "same read-only metadata request in host context; no mounts or file writes"
+}

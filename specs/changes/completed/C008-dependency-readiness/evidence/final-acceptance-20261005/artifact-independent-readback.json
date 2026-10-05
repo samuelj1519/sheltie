@@ -1,0 +1,1003 @@
+{
+  "recorded_utc": "2026-10-05T10:51:39.816392+00:00",
+  "reviewer": "/root/translation_batch_1",
+  "scope": "current macOS aarch64/APFS adopted artifact qualification only; no new end-to-end model/GUI/platform claims",
+  "authorship_disclosure": "not Rust/C011/DSH code or current aggregate checks author; did write translation batch-1 and prior DSH reviews. This is independent live placement/export/result bytes verification, not independent translation semantics or final blind quality review.",
+  "public_results": {
+    "pass": true,
+    "trusted_binary_sha256": "04dba0274004bd46b35e68a2e5fc8f26387cf009b07c33f2e38e3caf75fb45d8",
+    "home": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+    "actual_readonly_commands": [
+      {
+        "argv": [
+          "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+          "--home",
+          "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+          "work",
+          "result",
+          "2026-10-04-007-workbook-compact-properties",
+          "--json"
+        ],
+        "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+        "environment": {
+          "LANG": "en_US.UTF-8",
+          "LC_ALL": "C.UTF-8",
+          "SHELTIE_HOME": null,
+          "explicit_home": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home"
+        },
+        "exit": 0,
+        "stdout": "{\"data\":{\"artifacts\":[{\"bytes\":5131,\"key\":\"change\",\"path\":\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/implement/occurrence-002/attempt-000/outputs/change.md\",\"sha256\":\"b7e9adca19d0e4c1ebd1d99a7d4b04cf25c5d89a9443ee511c1d3bdc97b8e725\",\"source\":{\"attempt\":\"deliver#1.0\",\"kind\":\"input\",\"name\":\"change\"}},{\"bytes\":2488,\"key\":\"checks\",\"path\":\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/implement/occurrence-002/attempt-000/outputs/checks.md\",\"sha256\":\"992a2325ca1919ae07a0ac2607a2126ed908b0ff8e9899e27fa0a0a0b82b94c3\",\"source\":{\"attempt\":\"deliver#1.0\",\"kind\":\"input\",\"name\":\"checks\"}},{\"bytes\":9548,\"key\":\"delivery\",\"path\":\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\",\"sha256\":\"52a13edfc0e4abd9f7cf47e2daad41147448d47b21de51b4f96d5b44d1e4383f\",\"source\":{\"attempt\":\"deliver#1.0\",\"kind\":\"output\",\"name\":\"delivery\"}},{\"bytes\":189457,\"key\":\"patch\",\"path\":\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch\",\"sha256\":\"6ee6412735a35515fc33439341827dcd1a318e920259c55ee462f43b54ff1aa6\",\"source\":{\"attempt\":\"deliver#1.0\",\"kind\":\"output\",\"name\":\"patch\"}},{\"bytes\":4523,\"key\":\"review\",\"path\":\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/review/occurrence-002/attempt-000/outputs/review.md\",\"sha256\":\"2efcdf8c0d7123297a66e83f9525844a9cde994ff2b5dcc402c3104f46abef09\",\"source\":{\"attempt\":\"deliver#1.0\",\"kind\":\"input\",\"name\":\"review\"}}],\"effects_pending\":false,\"final\":true,\"flow\":\"default\",\"format\":\"work-result/v1\",\"revision\":11,\"status\":{\"kind\":\"succeeded\"},\"work_id\":\"2026-10-04-007-workbook-compact-properties\",\"workbook\":{\"digest\":\"0d66bee3391522be7858130951dd979e2a7ee69b4a435e8968ac676153b21d86\",\"id\":\"code-task-study\",\"version\":\"1.0.0\"}},\"next\":[],\"ok\":true}\n",
+        "stderr": "",
+        "stdout_sha256": "bf018ce034871cdd9a9861500e59ef2b2a2713d99169f02ead038e7a2f62a71f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+          "--home",
+          "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+          "work",
+          "result",
+          "2026-10-04-008-agents-markdown-translation",
+          "--json"
+        ],
+        "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+        "environment": {
+          "LANG": "en_US.UTF-8",
+          "LC_ALL": "C.UTF-8",
+          "SHELTIE_HOME": null,
+          "explicit_home": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home"
+        },
+        "exit": 0,
+        "stdout": "{\"data\":{\"artifacts\":[{\"bytes\":4428,\"key\":\"change\",\"path\":\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/implement/occurrence-002/attempt-000/outputs/change.md\",\"sha256\":\"64b8185e0639aaaf18faf8e3900d347fb498865d046d1209ff1edf408395c664\",\"source\":{\"attempt\":\"deliver#1.0\",\"kind\":\"input\",\"name\":\"change\"}},{\"bytes\":3386,\"key\":\"checks\",\"path\":\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/implement/occurrence-002/attempt-000/outputs/checks.md\",\"sha256\":\"224a1aac0373165461973cf9ca8c448c7804016b0bdf2879bba1bc2369e3f08c\",\"source\":{\"attempt\":\"deliver#1.0\",\"kind\":\"input\",\"name\":\"checks\"}},{\"bytes\":7296,\"key\":\"delivery\",\"path\":\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\",\"sha256\":\"3e294665ecd056c2cb044bbd1693fbad255b80dfb9b33d34021ccc2304050836\",\"source\":{\"attempt\":\"deliver#1.0\",\"kind\":\"output\",\"name\":\"delivery\"}},{\"bytes\":270746,\"key\":\"patch\",\"path\":\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch\",\"sha256\":\"ff415138db9f938235174e5aa648a6a24d01f0bebfb86ee663c7ce5314ee7a1a\",\"source\":{\"attempt\":\"deliver#1.0\",\"kind\":\"output\",\"name\":\"patch\"}},{\"bytes\":7115,\"key\":\"review\",\"path\":\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/review/occurrence-002/attempt-000/outputs/review.md\",\"sha256\":\"b35ac23c4e62f0aaa5c5dd15666a1e9c92154395dfa77b614c0831939d537ffc\",\"source\":{\"attempt\":\"deliver#1.0\",\"kind\":\"input\",\"name\":\"review\"}}],\"effects_pending\":false,\"final\":true,\"flow\":\"default\",\"format\":\"work-result/v1\",\"revision\":11,\"status\":{\"kind\":\"succeeded\"},\"work_id\":\"2026-10-04-008-agents-markdown-translation\",\"workbook\":{\"digest\":\"0d66bee3391522be7858130951dd979e2a7ee69b4a435e8968ac676153b21d86\",\"id\":\"code-task-study\",\"version\":\"1.0.0\"}},\"next\":[],\"ok\":true}\n",
+        "stderr": "",
+        "stdout_sha256": "9d39f720fefd2e4245840a3294a90db1769a25fa207eae518926b993037d925c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+          "--home",
+          "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+          "work",
+          "result",
+          "2026-10-05-001-dsh-desktop-client",
+          "--json"
+        ],
+        "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+        "environment": {
+          "LANG": "en_US.UTF-8",
+          "LC_ALL": "C.UTF-8",
+          "SHELTIE_HOME": null,
+          "explicit_home": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home"
+        },
+        "exit": 0,
+        "stdout": "{\"data\":{\"artifacts\":[{\"bytes\":12846,\"key\":\"change\",\"path\":\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/implement/occurrence-002/attempt-000/outputs/change.md\",\"sha256\":\"afdbfc73ce6df3c726acaff891370a585a69abf0953db5bb0e3a1c367890b6af\",\"source\":{\"attempt\":\"deliver#1.0\",\"kind\":\"input\",\"name\":\"change\"}},{\"bytes\":17351,\"key\":\"checks\",\"path\":\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/implement/occurrence-002/attempt-000/outputs/checks.md\",\"sha256\":\"622a09fb447e930e1c482f8bf0537febaf2d21f9bf3525ebbb60055a072041f5\",\"source\":{\"attempt\":\"deliver#1.0\",\"kind\":\"input\",\"name\":\"checks\"}},{\"bytes\":8670,\"key\":\"delivery\",\"path\":\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\",\"sha256\":\"5b2e266549af7d3376fb41bb6befe05801bd8799eb1766afdd8e09ad08b8300a\",\"source\":{\"attempt\":\"deliver#1.0\",\"kind\":\"output\",\"name\":\"delivery\"}},{\"bytes\":64598,\"key\":\"patch\",\"path\":\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch\",\"sha256\":\"ca23e583f1a75ea4e676ab92f7758c0ee8d60592233588e86a5b090bbc195466\",\"source\":{\"attempt\":\"deliver#1.0\",\"kind\":\"output\",\"name\":\"patch\"}},{\"bytes\":12245,\"key\":\"review\",\"path\":\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/review/occurrence-002/attempt-000/outputs/review.md\",\"sha256\":\"f7ae973953df0a5f146cd66351de5bb6187f0e5c2f2bf5be255869f055cc5621\",\"source\":{\"attempt\":\"deliver#1.0\",\"kind\":\"input\",\"name\":\"review\"}}],\"effects_pending\":false,\"final\":true,\"flow\":\"default\",\"format\":\"work-result/v1\",\"revision\":11,\"status\":{\"kind\":\"succeeded\"},\"work_id\":\"2026-10-05-001-dsh-desktop-client\",\"workbook\":{\"digest\":\"0d66bee3391522be7858130951dd979e2a7ee69b4a435e8968ac676153b21d86\",\"id\":\"code-task-study\",\"version\":\"1.0.0\"}},\"next\":[],\"ok\":true}\n",
+        "stderr": "",
+        "stdout_sha256": "9b08a7bcaf329793d26895daa4d1acdd63cc83653f3ca6f4f1c723e00656fb79",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "results": [
+      {
+        "work_id": "2026-10-04-007-workbook-compact-properties",
+        "public_result_matches_previous": true,
+        "final": true,
+        "revision": 11,
+        "artifact_count": 5,
+        "terminal_attempts": [
+          "deliver#1.0"
+        ]
+      },
+      {
+        "work_id": "2026-10-04-008-agents-markdown-translation",
+        "public_result_matches_previous": true,
+        "final": true,
+        "revision": 11,
+        "artifact_count": 5,
+        "terminal_attempts": [
+          "deliver#1.0"
+        ]
+      },
+      {
+        "work_id": "2026-10-05-001-dsh-desktop-client",
+        "public_result_matches_previous": true,
+        "final": true,
+        "revision": 11,
+        "artifact_count": 5,
+        "terminal_attempts": [
+          "deliver#1.0"
+        ]
+      }
+    ],
+    "selected_artifacts": [
+      {
+        "bytes": 5131,
+        "key": "change",
+        "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/implement/occurrence-002/attempt-000/outputs/change.md",
+        "sha256": "b7e9adca19d0e4c1ebd1d99a7d4b04cf25c5d89a9443ee511c1d3bdc97b8e725",
+        "source": {
+          "attempt": "deliver#1.0",
+          "kind": "input",
+          "name": "change"
+        },
+        "actual_mode": 292,
+        "identity_matches": true
+      },
+      {
+        "bytes": 2488,
+        "key": "checks",
+        "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/implement/occurrence-002/attempt-000/outputs/checks.md",
+        "sha256": "992a2325ca1919ae07a0ac2607a2126ed908b0ff8e9899e27fa0a0a0b82b94c3",
+        "source": {
+          "attempt": "deliver#1.0",
+          "kind": "input",
+          "name": "checks"
+        },
+        "actual_mode": 292,
+        "identity_matches": true
+      },
+      {
+        "bytes": 9548,
+        "key": "delivery",
+        "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md",
+        "sha256": "52a13edfc0e4abd9f7cf47e2daad41147448d47b21de51b4f96d5b44d1e4383f",
+        "source": {
+          "attempt": "deliver#1.0",
+          "kind": "output",
+          "name": "delivery"
+        },
+        "actual_mode": 292,
+        "identity_matches": true
+      },
+      {
+        "bytes": 189457,
+        "key": "patch",
+        "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch",
+        "sha256": "6ee6412735a35515fc33439341827dcd1a318e920259c55ee462f43b54ff1aa6",
+        "source": {
+          "attempt": "deliver#1.0",
+          "kind": "output",
+          "name": "patch"
+        },
+        "actual_mode": 292,
+        "identity_matches": true
+      },
+      {
+        "bytes": 4523,
+        "key": "review",
+        "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/review/occurrence-002/attempt-000/outputs/review.md",
+        "sha256": "2efcdf8c0d7123297a66e83f9525844a9cde994ff2b5dcc402c3104f46abef09",
+        "source": {
+          "attempt": "deliver#1.0",
+          "kind": "input",
+          "name": "review"
+        },
+        "actual_mode": 292,
+        "identity_matches": true
+      },
+      {
+        "bytes": 4428,
+        "key": "change",
+        "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/implement/occurrence-002/attempt-000/outputs/change.md",
+        "sha256": "64b8185e0639aaaf18faf8e3900d347fb498865d046d1209ff1edf408395c664",
+        "source": {
+          "attempt": "deliver#1.0",
+          "kind": "input",
+          "name": "change"
+        },
+        "actual_mode": 292,
+        "identity_matches": true
+      },
+      {
+        "bytes": 3386,
+        "key": "checks",
+        "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/implement/occurrence-002/attempt-000/outputs/checks.md",
+        "sha256": "224a1aac0373165461973cf9ca8c448c7804016b0bdf2879bba1bc2369e3f08c",
+        "source": {
+          "attempt": "deliver#1.0",
+          "kind": "input",
+          "name": "checks"
+        },
+        "actual_mode": 292,
+        "identity_matches": true
+      },
+      {
+        "bytes": 7296,
+        "key": "delivery",
+        "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md",
+        "sha256": "3e294665ecd056c2cb044bbd1693fbad255b80dfb9b33d34021ccc2304050836",
+        "source": {
+          "attempt": "deliver#1.0",
+          "kind": "output",
+          "name": "delivery"
+        },
+        "actual_mode": 292,
+        "identity_matches": true
+      },
+      {
+        "bytes": 270746,
+        "key": "patch",
+        "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch",
+        "sha256": "ff415138db9f938235174e5aa648a6a24d01f0bebfb86ee663c7ce5314ee7a1a",
+        "source": {
+          "attempt": "deliver#1.0",
+          "kind": "output",
+          "name": "patch"
+        },
+        "actual_mode": 292,
+        "identity_matches": true
+      },
+      {
+        "bytes": 7115,
+        "key": "review",
+        "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/review/occurrence-002/attempt-000/outputs/review.md",
+        "sha256": "b35ac23c4e62f0aaa5c5dd15666a1e9c92154395dfa77b614c0831939d537ffc",
+        "source": {
+          "attempt": "deliver#1.0",
+          "kind": "input",
+          "name": "review"
+        },
+        "actual_mode": 292,
+        "identity_matches": true
+      },
+      {
+        "bytes": 12846,
+        "key": "change",
+        "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/implement/occurrence-002/attempt-000/outputs/change.md",
+        "sha256": "afdbfc73ce6df3c726acaff891370a585a69abf0953db5bb0e3a1c367890b6af",
+        "source": {
+          "attempt": "deliver#1.0",
+          "kind": "input",
+          "name": "change"
+        },
+        "actual_mode": 292,
+        "identity_matches": true
+      },
+      {
+        "bytes": 17351,
+        "key": "checks",
+        "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/implement/occurrence-002/attempt-000/outputs/checks.md",
+        "sha256": "622a09fb447e930e1c482f8bf0537febaf2d21f9bf3525ebbb60055a072041f5",
+        "source": {
+          "attempt": "deliver#1.0",
+          "kind": "input",
+          "name": "checks"
+        },
+        "actual_mode": 292,
+        "identity_matches": true
+      },
+      {
+        "bytes": 8670,
+        "key": "delivery",
+        "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md",
+        "sha256": "5b2e266549af7d3376fb41bb6befe05801bd8799eb1766afdd8e09ad08b8300a",
+        "source": {
+          "attempt": "deliver#1.0",
+          "kind": "output",
+          "name": "delivery"
+        },
+        "actual_mode": 292,
+        "identity_matches": true
+      },
+      {
+        "bytes": 64598,
+        "key": "patch",
+        "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch",
+        "sha256": "ca23e583f1a75ea4e676ab92f7758c0ee8d60592233588e86a5b090bbc195466",
+        "source": {
+          "attempt": "deliver#1.0",
+          "kind": "output",
+          "name": "patch"
+        },
+        "actual_mode": 292,
+        "identity_matches": true
+      },
+      {
+        "bytes": 12245,
+        "key": "review",
+        "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/review/occurrence-002/attempt-000/outputs/review.md",
+        "sha256": "f7ae973953df0a5f146cd66351de5bb6187f0e5c2f2bf5be255869f055cc5621",
+        "source": {
+          "attempt": "deliver#1.0",
+          "kind": "input",
+          "name": "review"
+        },
+        "actual_mode": 292,
+        "identity_matches": true
+      }
+    ],
+    "selected_count": 15,
+    "historical_six_works": "not mutated or cancelled; only three explicitly selected work result reads",
+    "sqlite_control_file_boundary": "no business mutation claimed; read-only public result does not prove zero SQLite internal physical maintenance"
+  },
+  "C006": {
+    "capsules": [
+      {
+        "work_id": "2026-10-04-007-workbook-compact-properties",
+        "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/final-report-copies/2026-10-04-007-workbook-compact-properties-01a10b12-5a69-7353-9f59-064c2afb622e",
+        "manifest_sha256": "d4e1c13e4c84cef8be324ce93230bb8dc9e75495dc72e3fef9167f69856b13d3",
+        "source_five_matches": true,
+        "extra_files": [
+          "completion-audit-notes.txt"
+        ]
+      },
+      {
+        "work_id": "2026-10-04-008-agents-markdown-translation",
+        "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/final-report-copies/2026-10-04-008-agents-markdown-translation-01a10b12-5b22-73f1-a7d7-5e78cd34c247",
+        "manifest_sha256": "748b841943f2aeedf9fc8d8ddcc29e225e9cfd74461fc531365ac40ce8e90d98",
+        "source_five_matches": true,
+        "extra_files": []
+      },
+      {
+        "work_id": "2026-10-05-001-dsh-desktop-client",
+        "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/final-report-copies/2026-10-05-001-dsh-desktop-client-01a10b12-5baf-7663-a745-191232088dec",
+        "manifest_sha256": "adc66a1710d640823fba911865e3afa8b3b5644b3d65a87f1804e975d3df00cc",
+        "source_five_matches": true,
+        "extra_files": []
+      }
+    ],
+    "fourth_clean_copy": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/final-report-copies/2026-10-04-007-workbook-compact-properties-01a10b17-4dbe-7107-bafd-715ae144bf95",
+    "manifest_sha256": "d4e1c13e4c84cef8be324ce93230bb8dc9e75495dc72e3fef9167f69856b13d3",
+    "original_annotation": {
+      "path": "completion-audit-notes.txt",
+      "bytes": 92,
+      "sha256": "eb5948316bc864cd35644925aa8d4164d19d75c9b4551ea64404014ad14c9e76"
+    },
+    "annotation_retained": true,
+    "clean_copy_extra_files": [],
+    "source_artifacts_unchanged": true,
+    "export_or_write_command_executed": "not_run",
+    "human_manual_or_physical_media": "not claimed"
+  },
+  "translation": {
+    "candidate_tree": "e25913bc8b53cdc7d749f823dcf80dd4147faa19",
+    "live_root": "/Users/shushu/.agents",
+    "target_count": 73,
+    "targets": [
+      {
+        "path": "skills/ask-matt/PHASE-BOUNDARIES.zh-CN.md",
+        "sha256": "c9ca150969b4466bcaab709420e32c34d2e380fc4c314ce6cf54806afdfb228a",
+        "bytes": 4444,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/ask-matt/SKILL.zh-CN.md",
+        "sha256": "81cf30497d7f6e633323fdb717608117fb217dc02c4ae25fac103d581e929620",
+        "bytes": 11657,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/claude-handoff/SKILL.zh-CN.md",
+        "sha256": "1079f7f54296430dd808a4b4b3c15083b355ce2200d3ae79a90180095f44d189",
+        "bytes": 1105,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/code-review/SKILL.zh-CN.md",
+        "sha256": "1605c95f98f24798c68bf7b8bc6f51542f361daaa43c9296da551b087eb7ce46",
+        "bytes": 6519,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/code-review-pr/SKILL.zh-CN.md",
+        "sha256": "ecccb396792a2bc3785741a8ed197adcc191cb20f08fc539db1466f90ff9b9f6",
+        "bytes": 8848,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/code-simplifier/SKILL.zh-CN.md",
+        "sha256": "0e8c7b60a450d226a8f8def0812a9d23b515547b503ea0e35b21558e2cdeeca2",
+        "bytes": 1174,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/codebase-design/DEEPENING.zh-CN.md",
+        "sha256": "f0125f388acbf8ab747773591af60f36cf3af333355d19611fcbe243f92b228f",
+        "bytes": 2252,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/codebase-design/DESIGN-IT-TWICE.zh-CN.md",
+        "sha256": "4dbc5cb9bd67e05c84a769060c44fa8078c14a8b5aa0617cb214d35ec2dd111d",
+        "bytes": 2468,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/codebase-design/SKILL.zh-CN.md",
+        "sha256": "defa97c042d96d5cbb1b7d35da458ab1831bf189439a8edccb69d7a38c6b2b6f",
+        "bytes": 6074,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/diagnosing-bugs/SKILL.zh-CN.md",
+        "sha256": "aa67bb6b08749eec455a71d9a90ab1cf37327189a08f1810fd6d9d9865e9f07e",
+        "bytes": 8314,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/domain-modeling/ADR-FORMAT.zh-CN.md",
+        "sha256": "e07a54c9fdc715c2562cafdd62d9b2d760fdd63ed965da95046cb6ddde321081",
+        "bytes": 2642,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/domain-modeling/CONTEXT-FORMAT.zh-CN.md",
+        "sha256": "3a467bcddfe5e3ea901971bfb1b7aa5f0c532636b2150b6579c950c9b726f408",
+        "bytes": 2269,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/domain-modeling/SKILL.zh-CN.md",
+        "sha256": "118492f3d288e703e8ec7d7a504c089b27c38f7d9892ec9b02b9e9b48521c400",
+        "bytes": 3040,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/frontend-design/SKILL.zh-CN.md",
+        "sha256": "e1b24f2a27fa60699baba0edfa17de66a1665c0f962b1c7c83323b1381b172b5",
+        "bytes": 8072,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/git-guardrails-claude-code/SKILL.zh-CN.md",
+        "sha256": "42e248d6dc89b58c30aae8917756369de23c981c99697ae805e9275d73dc93c9",
+        "bytes": 2303,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/grill-me/SKILL.zh-CN.md",
+        "sha256": "8f952f92717ad259134b4d902bad8f618c0fbfa4846c77ff6ff4fd97066aef69",
+        "bytes": 157,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/grill-with-docs/SKILL.zh-CN.md",
+        "sha256": "896c42f7fa755e59fb49b05dc9e0354642d082285a88cbfafd47f1a1300eb315",
+        "bytes": 255,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/grilling/SKILL.zh-CN.md",
+        "sha256": "8dca93acf30e9ea6b76de6f7be35e25b7895996545067ef43ef6962cfec4149b",
+        "bytes": 1862,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/handoff/SKILL.zh-CN.md",
+        "sha256": "8e01decd2dac990a3de67c910505f44dd85f8ca4b48de5d764a330f6f4686a0e",
+        "bytes": 782,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/implement/SKILL.zh-CN.md",
+        "sha256": "ec81d414c86f8085273a96b4151f4e9c19ca3503952ea6ef2c9d3403faed39f2",
+        "bytes": 427,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/implement-spec/SKILL.zh-CN.md",
+        "sha256": "a80be276f3e4a1caf2555ecc6e375cc575bd20990bd52fac4b49aad83e8d8176",
+        "bytes": 1671,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/improve-codebase-architecture/HTML-REPORT.zh-CN.md",
+        "sha256": "7fcf987e7a9c296430ac431bb713b972148bee4f72fda9872be43bef0eb9cb6b",
+        "bytes": 6739,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/improve-codebase-architecture/SKILL.zh-CN.md",
+        "sha256": "2993b9808c96470211a65a7dc72f8741f4880b41a5b8d8caef8c0b84150df0e0",
+        "bytes": 5586,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/loop-me/SKILL.zh-CN.md",
+        "sha256": "85c4fd38ebe63e1248907010ec7a2cc405710d5bb49cbf58f6140bffa4094c7b",
+        "bytes": 2386,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/migrate-to-shoehorn/SKILL.zh-CN.md",
+        "sha256": "cf55972169502aade9fe5ad0a2bfa0c727622d76e74a6ec07a7516fe4fc733d2",
+        "bytes": 2887,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/personal-intelligence-os/SKILL.zh-CN.md",
+        "sha256": "a9aee3038e02d54afce1688f7b863746c6dc3ef1cd7b55d4663706eec4030526",
+        "bytes": 5443,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/personal-intelligence-os/references/a-share-coverage.zh-CN.md",
+        "sha256": "aacefb4b846ad341a5b8e73f9710da5f5675dbe68cdf62283a0f69fb2d931a5d",
+        "bytes": 1967,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/personal-intelligence-os/references/ai-coverage.zh-CN.md",
+        "sha256": "563044a16e64072a326717a4935d78f583cfb872260818face57a19dc0c22429",
+        "bytes": 2134,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/personal-intelligence-os/references/evidence-policy.zh-CN.md",
+        "sha256": "d8679fe4991b78f8fcdc29c21dcc65119c9d308f8a7e1f3ac24e2ae402fe03c9",
+        "bytes": 2051,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/personal-intelligence-os/references/health-coverage.zh-CN.md",
+        "sha256": "9ab5a7b3969f7d87f6601c86e37eb689a44c7d862fd0228b02e1ef506229e96d",
+        "bytes": 1405,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/personal-intelligence-os/references/markets-coverage.zh-CN.md",
+        "sha256": "7b01a87e56dd320c4d5a1bd168f6430edb72b80783eb11f7eeacdba9adfff961",
+        "bytes": 1712,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/personal-intelligence-os/references/ranking-framework.zh-CN.md",
+        "sha256": "8c593e329f971dfd0e52f82ef7c67dbe3b4b1892c6f8901b09e9a68c9ee581d7",
+        "bytes": 1940,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/personal-intelligence-os/references/review-checklist.zh-CN.md",
+        "sha256": "e75b6821dbbc6869b356f17a6d63196b4472d005e644dcb2eb41982e7837f676",
+        "bytes": 1518,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/personal-intelligence-os/references/workspace-contract.zh-CN.md",
+        "sha256": "ca9490bfe329ba91a82881f720a852a40f3265132e0496a5f944d81b1d55cfb4",
+        "bytes": 1639,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/pr/CREDITS.zh-CN.md",
+        "sha256": "26357cb7d675d4da23084a2d646011761ac8e7edaf4a011849198117f991ea21",
+        "bytes": 438,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/pr/SKILL.zh-CN.md",
+        "sha256": "9a594fbfb0d1dbfcbe2d1d5b64b86cbb3c8de43da84bcff47b04121aa0bb4089",
+        "bytes": 3966,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/prototype/LOGIC.zh-CN.md",
+        "sha256": "ac5c77b5359b56ffce3ec54539dd6b8fc9275989be5dc542d3a09cd6a365831e",
+        "bytes": 5624,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/prototype/SKILL.zh-CN.md",
+        "sha256": "c55f538a72566384629c579170c09a70035a1fa063897c62e99bda13aeff1ec5",
+        "bytes": 2596,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/prototype/UI.zh-CN.md",
+        "sha256": "a9db8593c18cf560cd6f566fc2242f9f7813b36a06a900fbb1e21d21cce64782",
+        "bytes": 6477,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/research/SKILL.zh-CN.md",
+        "sha256": "765a20898f553c2abd6d0f1ed75ea76e9938c407d2dba78d96947652cee13f66",
+        "bytes": 747,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/resolving-merge-conflicts/SKILL.zh-CN.md",
+        "sha256": "8eeda54ad59ab5a0321739702de50a8bc4fae7f2753d0eed56fc56051e6ff8d6",
+        "bytes": 858,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/retro/SKILL.zh-CN.md",
+        "sha256": "ef42e4f44ea4f6974d42be3418d949b2ef6ae096112ecb9584e021f36b57f743",
+        "bytes": 3868,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/scaffold-exercises/SKILL.zh-CN.md",
+        "sha256": "c8da451fbeafc6980d64c12d81043b5006b6fda11af897438a6269f93a30ee0f",
+        "bytes": 3600,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/setup-matt-pocock-skills/SKILL.zh-CN.md",
+        "sha256": "e9aed1e585c48a60fea0b3b961db7a24b901a4b075c0f9c817b6ba33d0ce7458",
+        "bytes": 6776,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/setup-matt-pocock-skills/domain.zh-CN.md",
+        "sha256": "4347ef65af6dab0ff81aede7e074582a0b97e382ff60892e24a5a97917c30b9f",
+        "bytes": 2016,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/setup-matt-pocock-skills/issue-tracker-github.zh-CN.md",
+        "sha256": "d4efa2d37ccb349e75e7f37249dca8a2d71341ccd754f2d75b12565c24ec2445",
+        "bytes": 3924,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/setup-matt-pocock-skills/issue-tracker-gitlab.zh-CN.md",
+        "sha256": "6628743bd19c6760b1e6b3a4359c5c7f69a90f810a22e89060534e6f8e77e0a4",
+        "bytes": 3928,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/setup-matt-pocock-skills/issue-tracker-local.zh-CN.md",
+        "sha256": "950905a19ed6e94d111fe5cab8e2d5fbd10113646e054565c0e4608bc5e51bc7",
+        "bytes": 1815,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/setup-matt-pocock-skills/triage-labels.zh-CN.md",
+        "sha256": "d5522de9b073f5eb03d1aebd066f1f128150640d9ea18a928b3bfa1f5e0da03e",
+        "bytes": 1003,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/setup-pre-commit/SKILL.zh-CN.md",
+        "sha256": "b3630bed2ca8c0689523368365bb29d9dd5d299b67a21804af9d1b80ba0410de",
+        "bytes": 2330,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/setup-ts-deep-modules/SKILL.zh-CN.md",
+        "sha256": "6a8630ddf5e45f95741f805971e8cc0655034a61f72a49e8d932865e3744998c",
+        "bytes": 7238,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/tdd/SKILL.zh-CN.md",
+        "sha256": "eca3757cdbf108092ec6b4547e2eccc5f0712f32ca7864cfbe6c3d54fb842a6d",
+        "bytes": 3195,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/tdd/mocking.zh-CN.md",
+        "sha256": "83a561703c34f36021dec8e0446520b06bc7a956d531ccc57bf0c9fd11338849",
+        "bytes": 1456,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/tdd/tests.zh-CN.md",
+        "sha256": "752b4441edbcf246db22c79545479d842e0f0169424a7f9090bcb4c68230bded",
+        "bytes": 2160,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/teach/GLOSSARY-FORMAT.zh-CN.md",
+        "sha256": "c05599db1fb2fe0bed4ce11adadb5e04bc0b3890b515b15649826e509048a90c",
+        "bytes": 2020,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/teach/LEARNING-RECORD-FORMAT.zh-CN.md",
+        "sha256": "aec236a90b739f53f25b7a87493db0aa5978f655bc6223576eeabdc5bca61f3b",
+        "bytes": 2531,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/teach/MISSION-FORMAT.zh-CN.md",
+        "sha256": "34cb4ae336569698310bb7af3983b47aa85962c6bc51003c7ccd39993ad2a3ec",
+        "bytes": 1514,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/teach/RESOURCES-FORMAT.zh-CN.md",
+        "sha256": "3801c7aba2205cf5e6a660aebd150ca1496fbae418ca8f07032661c054f6ba70",
+        "bytes": 1838,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/teach/SKILL.zh-CN.md",
+        "sha256": "4000444750b7fed0980f04b447a6b9c5ff449f08d57b6c065d642135ff1fbd2b",
+        "bytes": 7832,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/to-questionnaire/SKILL.zh-CN.md",
+        "sha256": "8e032ce3d4bd2da9daed7a2f656ed31c299e8bcd15ea095d58cdbd74465cbbf3",
+        "bytes": 2652,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/to-spec/SKILL.zh-CN.md",
+        "sha256": "fc119c48a07e6ad8d7a27ed29a1a1234e355a7309edd90a225207508ee37f4f7",
+        "bytes": 2523,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/to-tickets/SKILL.zh-CN.md",
+        "sha256": "1ffa6bcef6d6d774d63b76fe9c24dfe38fe822ae83199c46b152a8efe41df2cd",
+        "bytes": 5270,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/triage/AGENT-BRIEF.zh-CN.md",
+        "sha256": "ff35d163951d8553b4fbfa74d3c8fef77f886e3cd8c647960b14713fbc8ac653",
+        "bytes": 7728,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/triage/OUT-OF-SCOPE.zh-CN.md",
+        "sha256": "780f99f55aae77e5094f2880e4552102a57515c55713044be564e4a7851212f4",
+        "bytes": 4304,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/triage/SKILL.zh-CN.md",
+        "sha256": "94b9ef59a487772000ec7d21cfbbbacbbc404bd07b3626d8aa4d786323253ef0",
+        "bytes": 6430,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/wait-what/SKILL.zh-CN.md",
+        "sha256": "57e1645a2e92944de639855624c73adc5a762f83e61059efecc922b425342dcd",
+        "bytes": 391,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/wayfinder/SKILL.zh-CN.md",
+        "sha256": "0ef3a1d591652870e2381bd98933c29bb7c8a31b843bc8ae251dc6f8335e6ccf",
+        "bytes": 11682,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/wizard/SKILL.zh-CN.md",
+        "sha256": "ec74b699c5d97014b25fb353c9e01bf26964036512e1a4aa0eee7ac1e6573c8e",
+        "bytes": 4060,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/writing-beats/SKILL.zh-CN.md",
+        "sha256": "d23b1ab1b02992f8d4eda000d443876971b09ecee4ffce1c11258197eaf888c1",
+        "bytes": 5021,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/writing-for-agents/SKILL-MECHANICS.zh-CN.md",
+        "sha256": "4ef671959c2a90d3406127864b3d7a4040b8d755f7a3a528bd54b6506028a3fa",
+        "bytes": 2588,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/writing-for-agents/SKILL.zh-CN.md",
+        "sha256": "c8e5fb58ab3b396f39f62e3e3acbc999f24c72d7d391c057bedd9e4ee7c07854",
+        "bytes": 10444,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/writing-fragments/SKILL.zh-CN.md",
+        "sha256": "96126281a045ba2d0f150faae205fffa393a8fba0582061acb4ab6358743af75",
+        "bytes": 3312,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      },
+      {
+        "path": "skills/writing-shape/SKILL.zh-CN.md",
+        "sha256": "c72e4d6417cab48145081f091ab13ac48cac1fb2a4e968b01687bb0a49191a47",
+        "bytes": 5921,
+        "mode": 420,
+        "live_and_reviewed_candidate_match": true
+      }
+    ],
+    "immutable_original_count": 145,
+    "existing_original_backup_count": 5,
+    "backups_all_original_bytes_modes_match": true,
+    "source145_unchanged": true,
+    "live_bytes_semantics_boundary": "same reviewed bytes; no new semantic review or new per-document human reading acceptance",
+    "global_writes": "not_run"
+  },
+  "DSH": {
+    "target": "/Users/shushu/tools/dsh/dsh-desktop",
+    "source29_tree": "ff0ba3f4f81f9a88a6a5d7ca15d99bb70acb8c35",
+    "source_bytes_modes_match": true,
+    "application_entries": 582,
+    "application_all_bytes_modes_symlinks_match": true,
+    "exact_target_entries": 619,
+    "extra_entries": [],
+    "missing_entries": [],
+    "asar_sha256": "c96b81af40f4710eeddfe74800f4ae56121613b01c7cd21392d656c395574091",
+    "executable_sha256": "ca7e3290800255f5018160cff99cf6ecc58eae299c66148de1374a70e2715c83",
+    "no_stage_owner_leftovers": true,
+    "new_GUI_model_OS_execution": "not_run"
+  },
+  "actual_acceptance_receipts": {
+    "C011": {
+      "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C011-workbook-visual-editor/evidence/completion-queue-20261005/human-acceptance.json",
+      "sha256": "2429409904829ba333d654a9fb1deaf976a1d73e519cfbde0577a64271d20608",
+      "quote": "已复测，接受这版界面",
+      "candidate_tree": "011ec67375aed79e6bf17aab60c9607471982d57",
+      "source_of_acceptance": "actual user report; not repeated or inferred by reviewer"
+    },
+    "C011_host_reopen": {
+      "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C011-workbook-visual-editor/evidence/host-reopen-20261005/readback.json",
+      "sha256": "1ec376b7c4bacf27987c5cefa540109df32a094a85ab125ceca8f07ba9e0825e",
+      "status_sha256": "6624ed0da7917c3f609a5d04deb8511ed9d7298118b0cb616cac29745ccbb898",
+      "user_quote": "已关闭并重开。继续 C011，读取 specs/changes/active/C011-workbook-visual-editor/resume-card.md。",
+      "same_attempt": "deliver#1.0",
+      "frozen_inputs_and_outputs_bytes_match": true,
+      "host_session_ids": "unknown; not inferred"
+    },
+    "DSH": {
+      "path": "/private/tmp/sheltie-dsh-desktop-20261005-uz_h1s9b/control/human-app-acceptance.json",
+      "sha256": "c2899e358bd24aca58acbd2ba4ef04e41308a1176858ceade9678648b48df1f2",
+      "quote": "已实际体验，接受这版客户端",
+      "candidate_tree": "ff0ba3f4f81f9a88a6a5d7ca15d99bb70acb8c35",
+      "source_of_acceptance": "actual user report; no new GUI/model use"
+    },
+    "H01": {
+      "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/guide-human-acceptance.json",
+      "sha256": "280f41d7478513efaf09a2d3f240ef2f339b0600608958877b9536d7945a1572",
+      "quote": "已阅读，接受三份指南",
+      "scope": "these exact current three guide bytes; frozen handoff guide is accepted as its declared historical snapshot, not approval of unknown future candidates",
+      "files": [
+        {
+          "path": "specs/guides/source-quick-start.md",
+          "bytes": 12450,
+          "sha256": "d5bda458d7bda78450005d9c98af933c2a3508f554d8e182d043debde60cb850"
+        },
+        {
+          "path": "specs/guides/continuity-choices.md",
+          "bytes": 13959,
+          "sha256": "d7f53c99fae26656972b941b604cb2547fe5461790a973a7cb3dffed8cbc91aa"
+        },
+        {
+          "path": "specs/guides/current-acceptance-handoff.md",
+          "bytes": 14866,
+          "sha256": "c73f6d7bc7e386bc2689ef1fd284caa1f36c755d74be89991890971179d6abad"
+        }
+      ],
+      "current_exact_bytes_match": true,
+      "not_fresh_human_acceptance": true
+    }
+  },
+  "root_engineering_frozen_inputs": {
+    "count": 232,
+    "source_inputs_sha256": "8dfac6cdd21982ba0d55f33dcd7f6c8675cab36b8dd9e5240c2ab5794af5741a",
+    "drift": [],
+    "engineering_tests_by_this_checker": "not_run; Root owns current execution",
+    "symlink_handling": "honor frozen symlink_target plus followed target bytes/mode/SHA; no implicit reject of declared source symlinks",
+    "declared_symlinks": [
+      {
+        "path": "crates/sheltie-cli/LICENSE-MIT",
+        "expected_symlink_target": "../../LICENSE-MIT",
+        "actual_symlink_target": "../../LICENSE-MIT",
+        "resolved_target_bytes": 1065,
+        "resolved_target_mode": 420,
+        "resolved_target_sha256": "286fdcfdf7af41f3bed3becc8875ac27d6f915c866f70646b960c584f3387f04",
+        "matches": true
+      },
+      {
+        "path": "crates/sheltie-core/LICENSE-MIT",
+        "expected_symlink_target": "../../LICENSE-MIT",
+        "actual_symlink_target": "../../LICENSE-MIT",
+        "resolved_target_bytes": 1065,
+        "resolved_target_mode": 420,
+        "resolved_target_sha256": "286fdcfdf7af41f3bed3becc8875ac27d6f915c866f70646b960c584f3387f04",
+        "matches": true
+      },
+      {
+        "path": "crates/sheltie-runtime/LICENSE-MIT",
+        "expected_symlink_target": "../../LICENSE-MIT",
+        "actual_symlink_target": "../../LICENSE-MIT",
+        "resolved_target_bytes": 1065,
+        "resolved_target_mode": 420,
+        "resolved_target_sha256": "286fdcfdf7af41f3bed3becc8875ac27d6f915c866f70646b960c584f3387f04",
+        "matches": true
+      }
+    ]
+  },
+  "pass_": true,
+  "errors": [],
+  "fees": "unknown",
+  "user_activity_minutes": "unknown",
+  "other_OS_or_physical_media": "not_run/not_required under D-044; never relabelled PASS",
+  "old_Native_fair_ROI_blind": "unknown/not_evaluable preserved",
+  "mutation_boundary": "only these two authorized C008 reports written; no CLI lifecycle writes, exports, GUI, models, installs, media operations, config or credentials reads",
+  "check_history": [
+    {
+      "stage": "initial checker draft",
+      "classification": "checker_assumption_failure, not product drift",
+      "initial_errors": [
+        "aggregate source drift crates/sheltie-cli/LICENSE-MIT",
+        "aggregate source drift crates/sheltie-core/LICENSE-MIT",
+        "aggregate source drift crates/sheltie-runtime/LICENSE-MIT"
+      ],
+      "reason": "initial independent auxiliary source-closure checker incorrectly rejected all symlinks, despite frozen source-inputs explicitly declaring three LICENSE-MIT symlink_target values",
+      "original_json_sha256": "843b9565088679c8fa4f097fbe67c448049d96b30e92a2752bad7ffae00a6689",
+      "original_json_bytes": 45173,
+      "original_json_utf8": "{\n  \"recorded_utc\": \"2026-10-05T10:50:41.481551+00:00\",\n  \"reviewer\": \"/root/translation_batch_1\",\n  \"scope\": \"current macOS aarch64/APFS adopted artifact qualification only; no new end-to-end model/GUI/platform claims\",\n  \"authorship_disclosure\": \"not Rust/C011/DSH code or current aggregate checks author; did write translation batch-1 and prior DSH reviews. This is independent live placement/export/result bytes verification, not independent translation semantics or final blind quality review.\",\n  \"public_results\": {\n    \"pass\": true,\n    \"trusted_binary_sha256\": \"04dba0274004bd46b35e68a2e5fc8f26387cf009b07c33f2e38e3caf75fb45d8\",\n    \"home\": \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home\",\n    \"actual_readonly_commands\": [\n      {\n        \"argv\": [\n          \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie\",\n          \"--home\",\n          \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home\",\n          \"work\",\n          \"result\",\n          \"2026-10-04-007-workbook-compact-properties\",\n          \"--json\"\n        ],\n        \"cwd\": \"/Users/shushu/orca/workspaces/sheltie/codex\",\n        \"environment\": {\n          \"LANG\": \"en_US.UTF-8\",\n          \"LC_ALL\": \"C.UTF-8\",\n          \"SHELTIE_HOME\": null,\n          \"explicit_home\": \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home\"\n        },\n        \"exit\": 0,\n        \"stdout\": \"{\\\"data\\\":{\\\"artifacts\\\":[{\\\"bytes\\\":5131,\\\"key\\\":\\\"change\\\",\\\"path\\\":\\\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/implement/occurrence-002/attempt-000/outputs/change.md\\\",\\\"sha256\\\":\\\"b7e9adca19d0e4c1ebd1d99a7d4b04cf25c5d89a9443ee511c1d3bdc97b8e725\\\",\\\"source\\\":{\\\"attempt\\\":\\\"deliver#1.0\\\",\\\"kind\\\":\\\"input\\\",\\\"name\\\":\\\"change\\\"}},{\\\"bytes\\\":2488,\\\"key\\\":\\\"checks\\\",\\\"path\\\":\\\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/implement/occurrence-002/attempt-000/outputs/checks.md\\\",\\\"sha256\\\":\\\"992a2325ca1919ae07a0ac2607a2126ed908b0ff8e9899e27fa0a0a0b82b94c3\\\",\\\"source\\\":{\\\"attempt\\\":\\\"deliver#1.0\\\",\\\"kind\\\":\\\"input\\\",\\\"name\\\":\\\"checks\\\"}},{\\\"bytes\\\":9548,\\\"key\\\":\\\"delivery\\\",\\\"path\\\":\\\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\\\",\\\"sha256\\\":\\\"52a13edfc0e4abd9f7cf47e2daad41147448d47b21de51b4f96d5b44d1e4383f\\\",\\\"source\\\":{\\\"attempt\\\":\\\"deliver#1.0\\\",\\\"kind\\\":\\\"output\\\",\\\"name\\\":\\\"delivery\\\"}},{\\\"bytes\\\":189457,\\\"key\\\":\\\"patch\\\",\\\"path\\\":\\\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch\\\",\\\"sha256\\\":\\\"6ee6412735a35515fc33439341827dcd1a318e920259c55ee462f43b54ff1aa6\\\",\\\"source\\\":{\\\"attempt\\\":\\\"deliver#1.0\\\",\\\"kind\\\":\\\"output\\\",\\\"name\\\":\\\"patch\\\"}},{\\\"bytes\\\":4523,\\\"key\\\":\\\"review\\\",\\\"path\\\":\\\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/review/occurrence-002/attempt-000/outputs/review.md\\\",\\\"sha256\\\":\\\"2efcdf8c0d7123297a66e83f9525844a9cde994ff2b5dcc402c3104f46abef09\\\",\\\"source\\\":{\\\"attempt\\\":\\\"deliver#1.0\\\",\\\"kind\\\":\\\"input\\\",\\\"name\\\":\\\"review\\\"}}],\\\"effects_pending\\\":false,\\\"final\\\":true,\\\"flow\\\":\\\"default\\\",\\\"format\\\":\\\"work-result/v1\\\",\\\"revision\\\":11,\\\"status\\\":{\\\"kind\\\":\\\"succeeded\\\"},\\\"work_id\\\":\\\"2026-10-04-007-workbook-compact-properties\\\",\\\"workbook\\\":{\\\"digest\\\":\\\"0d66bee3391522be7858130951dd979e2a7ee69b4a435e8968ac676153b21d86\\\",\\\"id\\\":\\\"code-task-study\\\",\\\"version\\\":\\\"1.0.0\\\"}},\\\"next\\\":[],\\\"ok\\\":true}\\n\",\n        \"stderr\": \"\",\n        \"stdout_sha256\": \"bf018ce034871cdd9a9861500e59ef2b2a2713d99169f02ead038e7a2f62a71f\",\n        \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n      },\n      {\n        \"argv\": [\n          \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie\",\n          \"--home\",\n          \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home\",\n          \"work\",\n          \"result\",\n          \"2026-10-04-008-agents-markdown-translation\",\n          \"--json\"\n        ],\n        \"cwd\": \"/Users/shushu/orca/workspaces/sheltie/codex\",\n        \"environment\": {\n          \"LANG\": \"en_US.UTF-8\",\n          \"LC_ALL\": \"C.UTF-8\",\n          \"SHELTIE_HOME\": null,\n          \"explicit_home\": \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home\"\n        },\n        \"exit\": 0,\n        \"stdout\": \"{\\\"data\\\":{\\\"artifacts\\\":[{\\\"bytes\\\":4428,\\\"key\\\":\\\"change\\\",\\\"path\\\":\\\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/implement/occurrence-002/attempt-000/outputs/change.md\\\",\\\"sha256\\\":\\\"64b8185e0639aaaf18faf8e3900d347fb498865d046d1209ff1edf408395c664\\\",\\\"source\\\":{\\\"attempt\\\":\\\"deliver#1.0\\\",\\\"kind\\\":\\\"input\\\",\\\"name\\\":\\\"change\\\"}},{\\\"bytes\\\":3386,\\\"key\\\":\\\"checks\\\",\\\"path\\\":\\\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/implement/occurrence-002/attempt-000/outputs/checks.md\\\",\\\"sha256\\\":\\\"224a1aac0373165461973cf9ca8c448c7804016b0bdf2879bba1bc2369e3f08c\\\",\\\"source\\\":{\\\"attempt\\\":\\\"deliver#1.0\\\",\\\"kind\\\":\\\"input\\\",\\\"name\\\":\\\"checks\\\"}},{\\\"bytes\\\":7296,\\\"key\\\":\\\"delivery\\\",\\\"path\\\":\\\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\\\",\\\"sha256\\\":\\\"3e294665ecd056c2cb044bbd1693fbad255b80dfb9b33d34021ccc2304050836\\\",\\\"source\\\":{\\\"attempt\\\":\\\"deliver#1.0\\\",\\\"kind\\\":\\\"output\\\",\\\"name\\\":\\\"delivery\\\"}},{\\\"bytes\\\":270746,\\\"key\\\":\\\"patch\\\",\\\"path\\\":\\\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch\\\",\\\"sha256\\\":\\\"ff415138db9f938235174e5aa648a6a24d01f0bebfb86ee663c7ce5314ee7a1a\\\",\\\"source\\\":{\\\"attempt\\\":\\\"deliver#1.0\\\",\\\"kind\\\":\\\"output\\\",\\\"name\\\":\\\"patch\\\"}},{\\\"bytes\\\":7115,\\\"key\\\":\\\"review\\\",\\\"path\\\":\\\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/review/occurrence-002/attempt-000/outputs/review.md\\\",\\\"sha256\\\":\\\"b35ac23c4e62f0aaa5c5dd15666a1e9c92154395dfa77b614c0831939d537ffc\\\",\\\"source\\\":{\\\"attempt\\\":\\\"deliver#1.0\\\",\\\"kind\\\":\\\"input\\\",\\\"name\\\":\\\"review\\\"}}],\\\"effects_pending\\\":false,\\\"final\\\":true,\\\"flow\\\":\\\"default\\\",\\\"format\\\":\\\"work-result/v1\\\",\\\"revision\\\":11,\\\"status\\\":{\\\"kind\\\":\\\"succeeded\\\"},\\\"work_id\\\":\\\"2026-10-04-008-agents-markdown-translation\\\",\\\"workbook\\\":{\\\"digest\\\":\\\"0d66bee3391522be7858130951dd979e2a7ee69b4a435e8968ac676153b21d86\\\",\\\"id\\\":\\\"code-task-study\\\",\\\"version\\\":\\\"1.0.0\\\"}},\\\"next\\\":[],\\\"ok\\\":true}\\n\",\n        \"stderr\": \"\",\n        \"stdout_sha256\": \"9d39f720fefd2e4245840a3294a90db1769a25fa207eae518926b993037d925c\",\n        \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n      },\n      {\n        \"argv\": [\n          \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie\",\n          \"--home\",\n          \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home\",\n          \"work\",\n          \"result\",\n          \"2026-10-05-001-dsh-desktop-client\",\n          \"--json\"\n        ],\n        \"cwd\": \"/Users/shushu/orca/workspaces/sheltie/codex\",\n        \"environment\": {\n          \"LANG\": \"en_US.UTF-8\",\n          \"LC_ALL\": \"C.UTF-8\",\n          \"SHELTIE_HOME\": null,\n          \"explicit_home\": \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home\"\n        },\n        \"exit\": 0,\n        \"stdout\": \"{\\\"data\\\":{\\\"artifacts\\\":[{\\\"bytes\\\":12846,\\\"key\\\":\\\"change\\\",\\\"path\\\":\\\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/implement/occurrence-002/attempt-000/outputs/change.md\\\",\\\"sha256\\\":\\\"afdbfc73ce6df3c726acaff891370a585a69abf0953db5bb0e3a1c367890b6af\\\",\\\"source\\\":{\\\"attempt\\\":\\\"deliver#1.0\\\",\\\"kind\\\":\\\"input\\\",\\\"name\\\":\\\"change\\\"}},{\\\"bytes\\\":17351,\\\"key\\\":\\\"checks\\\",\\\"path\\\":\\\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/implement/occurrence-002/attempt-000/outputs/checks.md\\\",\\\"sha256\\\":\\\"622a09fb447e930e1c482f8bf0537febaf2d21f9bf3525ebbb60055a072041f5\\\",\\\"source\\\":{\\\"attempt\\\":\\\"deliver#1.0\\\",\\\"kind\\\":\\\"input\\\",\\\"name\\\":\\\"checks\\\"}},{\\\"bytes\\\":8670,\\\"key\\\":\\\"delivery\\\",\\\"path\\\":\\\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\\\",\\\"sha256\\\":\\\"5b2e266549af7d3376fb41bb6befe05801bd8799eb1766afdd8e09ad08b8300a\\\",\\\"source\\\":{\\\"attempt\\\":\\\"deliver#1.0\\\",\\\"kind\\\":\\\"output\\\",\\\"name\\\":\\\"delivery\\\"}},{\\\"bytes\\\":64598,\\\"key\\\":\\\"patch\\\",\\\"path\\\":\\\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch\\\",\\\"sha256\\\":\\\"ca23e583f1a75ea4e676ab92f7758c0ee8d60592233588e86a5b090bbc195466\\\",\\\"source\\\":{\\\"attempt\\\":\\\"deliver#1.0\\\",\\\"kind\\\":\\\"output\\\",\\\"name\\\":\\\"patch\\\"}},{\\\"bytes\\\":12245,\\\"key\\\":\\\"review\\\",\\\"path\\\":\\\"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/review/occurrence-002/attempt-000/outputs/review.md\\\",\\\"sha256\\\":\\\"f7ae973953df0a5f146cd66351de5bb6187f0e5c2f2bf5be255869f055cc5621\\\",\\\"source\\\":{\\\"attempt\\\":\\\"deliver#1.0\\\",\\\"kind\\\":\\\"input\\\",\\\"name\\\":\\\"review\\\"}}],\\\"effects_pending\\\":false,\\\"final\\\":true,\\\"flow\\\":\\\"default\\\",\\\"format\\\":\\\"work-result/v1\\\",\\\"revision\\\":11,\\\"status\\\":{\\\"kind\\\":\\\"succeeded\\\"},\\\"work_id\\\":\\\"2026-10-05-001-dsh-desktop-client\\\",\\\"workbook\\\":{\\\"digest\\\":\\\"0d66bee3391522be7858130951dd979e2a7ee69b4a435e8968ac676153b21d86\\\",\\\"id\\\":\\\"code-task-study\\\",\\\"version\\\":\\\"1.0.0\\\"}},\\\"next\\\":[],\\\"ok\\\":true}\\n\",\n        \"stderr\": \"\",\n        \"stdout_sha256\": \"9b08a7bcaf329793d26895daa4d1acdd63cc83653f3ca6f4f1c723e00656fb79\",\n        \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n      }\n    ],\n    \"results\": [\n      {\n        \"work_id\": \"2026-10-04-007-workbook-compact-properties\",\n        \"public_result_matches_previous\": true,\n        \"final\": true,\n        \"revision\": 11,\n        \"artifact_count\": 5,\n        \"terminal_attempts\": [\n          \"deliver#1.0\"\n        ]\n      },\n      {\n        \"work_id\": \"2026-10-04-008-agents-markdown-translation\",\n        \"public_result_matches_previous\": true,\n        \"final\": true,\n        \"revision\": 11,\n        \"artifact_count\": 5,\n        \"terminal_attempts\": [\n          \"deliver#1.0\"\n        ]\n      },\n      {\n        \"work_id\": \"2026-10-05-001-dsh-desktop-client\",\n        \"public_result_matches_previous\": true,\n        \"final\": true,\n        \"revision\": 11,\n        \"artifact_count\": 5,\n        \"terminal_attempts\": [\n          \"deliver#1.0\"\n        ]\n      }\n    ],\n    \"selected_artifacts\": [\n      {\n        \"bytes\": 5131,\n        \"key\": \"change\",\n        \"path\": \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/implement/occurrence-002/attempt-000/outputs/change.md\",\n        \"sha256\": \"b7e9adca19d0e4c1ebd1d99a7d4b04cf25c5d89a9443ee511c1d3bdc97b8e725\",\n        \"source\": {\n          \"attempt\": \"deliver#1.0\",\n          \"kind\": \"input\",\n          \"name\": \"change\"\n        },\n        \"actual_mode\": 292,\n        \"identity_matches\": true\n      },\n      {\n        \"bytes\": 2488,\n        \"key\": \"checks\",\n        \"path\": \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/implement/occurrence-002/attempt-000/outputs/checks.md\",\n        \"sha256\": \"992a2325ca1919ae07a0ac2607a2126ed908b0ff8e9899e27fa0a0a0b82b94c3\",\n        \"source\": {\n          \"attempt\": \"deliver#1.0\",\n          \"kind\": \"input\",\n          \"name\": \"checks\"\n        },\n        \"actual_mode\": 292,\n        \"identity_matches\": true\n      },\n      {\n        \"bytes\": 9548,\n        \"key\": \"delivery\",\n        \"path\": \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\",\n        \"sha256\": \"52a13edfc0e4abd9f7cf47e2daad41147448d47b21de51b4f96d5b44d1e4383f\",\n        \"source\": {\n          \"attempt\": \"deliver#1.0\",\n          \"kind\": \"output\",\n          \"name\": \"delivery\"\n        },\n        \"actual_mode\": 292,\n        \"identity_matches\": true\n      },\n      {\n        \"bytes\": 189457,\n        \"key\": \"patch\",\n        \"path\": \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch\",\n        \"sha256\": \"6ee6412735a35515fc33439341827dcd1a318e920259c55ee462f43b54ff1aa6\",\n        \"source\": {\n          \"attempt\": \"deliver#1.0\",\n          \"kind\": \"output\",\n          \"name\": \"patch\"\n        },\n        \"actual_mode\": 292,\n        \"identity_matches\": true\n      },\n      {\n        \"bytes\": 4523,\n        \"key\": \"review\",\n        \"path\": \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/review/occurrence-002/attempt-000/outputs/review.md\",\n        \"sha256\": \"2efcdf8c0d7123297a66e83f9525844a9cde994ff2b5dcc402c3104f46abef09\",\n        \"source\": {\n          \"attempt\": \"deliver#1.0\",\n          \"kind\": \"input\",\n          \"name\": \"review\"\n        },\n        \"actual_mode\": 292,\n        \"identity_matches\": true\n      },\n      {\n        \"bytes\": 4428,\n        \"key\": \"change\",\n        \"path\": \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/implement/occurrence-002/attempt-000/outputs/change.md\",\n        \"sha256\": \"64b8185e0639aaaf18faf8e3900d347fb498865d046d1209ff1edf408395c664\",\n        \"source\": {\n          \"attempt\": \"deliver#1.0\",\n          \"kind\": \"input\",\n          \"name\": \"change\"\n        },\n        \"actual_mode\": 292,\n        \"identity_matches\": true\n      },\n      {\n        \"bytes\": 3386,\n        \"key\": \"checks\",\n        \"path\": \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/implement/occurrence-002/attempt-000/outputs/checks.md\",\n        \"sha256\": \"224a1aac0373165461973cf9ca8c448c7804016b0bdf2879bba1bc2369e3f08c\",\n        \"source\": {\n          \"attempt\": \"deliver#1.0\",\n          \"kind\": \"input\",\n          \"name\": \"checks\"\n        },\n        \"actual_mode\": 292,\n        \"identity_matches\": true\n      },\n      {\n        \"bytes\": 7296,\n        \"key\": \"delivery\",\n        \"path\": \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\",\n        \"sha256\": \"3e294665ecd056c2cb044bbd1693fbad255b80dfb9b33d34021ccc2304050836\",\n        \"source\": {\n          \"attempt\": \"deliver#1.0\",\n          \"kind\": \"output\",\n          \"name\": \"delivery\"\n        },\n        \"actual_mode\": 292,\n        \"identity_matches\": true\n      },\n      {\n        \"bytes\": 270746,\n        \"key\": \"patch\",\n        \"path\": \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch\",\n        \"sha256\": \"ff415138db9f938235174e5aa648a6a24d01f0bebfb86ee663c7ce5314ee7a1a\",\n        \"source\": {\n          \"attempt\": \"deliver#1.0\",\n          \"kind\": \"output\",\n          \"name\": \"patch\"\n        },\n        \"actual_mode\": 292,\n        \"identity_matches\": true\n      },\n      {\n        \"bytes\": 7115,\n        \"key\": \"review\",\n        \"path\": \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/review/occurrence-002/attempt-000/outputs/review.md\",\n        \"sha256\": \"b35ac23c4e62f0aaa5c5dd15666a1e9c92154395dfa77b614c0831939d537ffc\",\n        \"source\": {\n          \"attempt\": \"deliver#1.0\",\n          \"kind\": \"input\",\n          \"name\": \"review\"\n        },\n        \"actual_mode\": 292,\n        \"identity_matches\": true\n      },\n      {\n        \"bytes\": 12846,\n        \"key\": \"change\",\n        \"path\": \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/implement/occurrence-002/attempt-000/outputs/change.md\",\n        \"sha256\": \"afdbfc73ce6df3c726acaff891370a585a69abf0953db5bb0e3a1c367890b6af\",\n        \"source\": {\n          \"attempt\": \"deliver#1.0\",\n          \"kind\": \"input\",\n          \"name\": \"change\"\n        },\n        \"actual_mode\": 292,\n        \"identity_matches\": true\n      },\n      {\n        \"bytes\": 17351,\n        \"key\": \"checks\",\n        \"path\": \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/implement/occurrence-002/attempt-000/outputs/checks.md\",\n        \"sha256\": \"622a09fb447e930e1c482f8bf0537febaf2d21f9bf3525ebbb60055a072041f5\",\n        \"source\": {\n          \"attempt\": \"deliver#1.0\",\n          \"kind\": \"input\",\n          \"name\": \"checks\"\n        },\n        \"actual_mode\": 292,\n        \"identity_matches\": true\n      },\n      {\n        \"bytes\": 8670,\n        \"key\": \"delivery\",\n        \"path\": \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md\",\n        \"sha256\": \"5b2e266549af7d3376fb41bb6befe05801bd8799eb1766afdd8e09ad08b8300a\",\n        \"source\": {\n          \"attempt\": \"deliver#1.0\",\n          \"kind\": \"output\",\n          \"name\": \"delivery\"\n        },\n        \"actual_mode\": 292,\n        \"identity_matches\": true\n      },\n      {\n        \"bytes\": 64598,\n        \"key\": \"patch\",\n        \"path\": \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch\",\n        \"sha256\": \"ca23e583f1a75ea4e676ab92f7758c0ee8d60592233588e86a5b090bbc195466\",\n        \"source\": {\n          \"attempt\": \"deliver#1.0\",\n          \"kind\": \"output\",\n          \"name\": \"patch\"\n        },\n        \"actual_mode\": 292,\n        \"identity_matches\": true\n      },\n      {\n        \"bytes\": 12245,\n        \"key\": \"review\",\n        \"path\": \"/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/review/occurrence-002/attempt-000/outputs/review.md\",\n        \"sha256\": \"f7ae973953df0a5f146cd66351de5bb6187f0e5c2f2bf5be255869f055cc5621\",\n        \"source\": {\n          \"attempt\": \"deliver#1.0\",\n          \"kind\": \"input\",\n          \"name\": \"review\"\n        },\n        \"actual_mode\": 292,\n        \"identity_matches\": true\n      }\n    ],\n    \"selected_count\": 15,\n    \"historical_six_works\": \"not mutated or cancelled; only three explicitly selected work result reads\",\n    \"sqlite_control_file_boundary\": \"no business mutation claimed; read-only public result does not prove zero SQLite internal physical maintenance\"\n  },\n  \"C006\": {\n    \"capsules\": [\n      {\n        \"work_id\": \"2026-10-04-007-workbook-compact-properties\",\n        \"path\": \"/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/final-report-copies/2026-10-04-007-workbook-compact-properties-01a10b12-5a69-7353-9f59-064c2afb622e\",\n        \"manifest_sha256\": \"d4e1c13e4c84cef8be324ce93230bb8dc9e75495dc72e3fef9167f69856b13d3\",\n        \"source_five_matches\": true,\n        \"extra_files\": [\n          \"completion-audit-notes.txt\"\n        ]\n      },\n      {\n        \"work_id\": \"2026-10-04-008-agents-markdown-translation\",\n        \"path\": \"/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/final-report-copies/2026-10-04-008-agents-markdown-translation-01a10b12-5b22-73f1-a7d7-5e78cd34c247\",\n        \"manifest_sha256\": \"748b841943f2aeedf9fc8d8ddcc29e225e9cfd74461fc531365ac40ce8e90d98\",\n        \"source_five_matches\": true,\n        \"extra_files\": []\n      },\n      {\n        \"work_id\": \"2026-10-05-001-dsh-desktop-client\",\n        \"path\": \"/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/final-report-copies/2026-10-05-001-dsh-desktop-client-01a10b12-5baf-7663-a745-191232088dec\",\n        \"manifest_sha256\": \"adc66a1710d640823fba911865e3afa8b3b5644b3d65a87f1804e975d3df00cc\",\n        \"source_five_matches\": true,\n        \"extra_files\": []\n      }\n    ],\n    \"fourth_clean_copy\": \"/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/final-report-copies/2026-10-04-007-workbook-compact-properties-01a10b17-4dbe-7107-bafd-715ae144bf95\",\n    \"manifest_sha256\": \"d4e1c13e4c84cef8be324ce93230bb8dc9e75495dc72e3fef9167f69856b13d3\",\n    \"original_annotation\": {\n      \"path\": \"completion-audit-notes.txt\",\n      \"bytes\": 92,\n      \"sha256\": \"eb5948316bc864cd35644925aa8d4164d19d75c9b4551ea64404014ad14c9e76\"\n    },\n    \"annotation_retained\": true,\n    \"clean_copy_extra_files\": [],\n    \"source_artifacts_unchanged\": true,\n    \"export_or_write_command_executed\": \"not_run\",\n    \"human_manual_or_physical_media\": \"not claimed\"\n  },\n  \"translation\": {\n    \"candidate_tree\": \"e25913bc8b53cdc7d749f823dcf80dd4147faa19\",\n    \"live_root\": \"/Users/shushu/.agents\",\n    \"target_count\": 73,\n    \"targets\": [\n      {\n        \"path\": \"skills/ask-matt/PHASE-BOUNDARIES.zh-CN.md\",\n        \"sha256\": \"c9ca150969b4466bcaab709420e32c34d2e380fc4c314ce6cf54806afdfb228a\",\n        \"bytes\": 4444,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/ask-matt/SKILL.zh-CN.md\",\n        \"sha256\": \"81cf30497d7f6e633323fdb717608117fb217dc02c4ae25fac103d581e929620\",\n        \"bytes\": 11657,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/claude-handoff/SKILL.zh-CN.md\",\n        \"sha256\": \"1079f7f54296430dd808a4b4b3c15083b355ce2200d3ae79a90180095f44d189\",\n        \"bytes\": 1105,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/code-review/SKILL.zh-CN.md\",\n        \"sha256\": \"1605c95f98f24798c68bf7b8bc6f51542f361daaa43c9296da551b087eb7ce46\",\n        \"bytes\": 6519,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/code-review-pr/SKILL.zh-CN.md\",\n        \"sha256\": \"ecccb396792a2bc3785741a8ed197adcc191cb20f08fc539db1466f90ff9b9f6\",\n        \"bytes\": 8848,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/code-simplifier/SKILL.zh-CN.md\",\n        \"sha256\": \"0e8c7b60a450d226a8f8def0812a9d23b515547b503ea0e35b21558e2cdeeca2\",\n        \"bytes\": 1174,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/codebase-design/DEEPENING.zh-CN.md\",\n        \"sha256\": \"f0125f388acbf8ab747773591af60f36cf3af333355d19611fcbe243f92b228f\",\n        \"bytes\": 2252,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/codebase-design/DESIGN-IT-TWICE.zh-CN.md\",\n        \"sha256\": \"4dbc5cb9bd67e05c84a769060c44fa8078c14a8b5aa0617cb214d35ec2dd111d\",\n        \"bytes\": 2468,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/codebase-design/SKILL.zh-CN.md\",\n        \"sha256\": \"defa97c042d96d5cbb1b7d35da458ab1831bf189439a8edccb69d7a38c6b2b6f\",\n        \"bytes\": 6074,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/diagnosing-bugs/SKILL.zh-CN.md\",\n        \"sha256\": \"aa67bb6b08749eec455a71d9a90ab1cf37327189a08f1810fd6d9d9865e9f07e\",\n        \"bytes\": 8314,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/domain-modeling/ADR-FORMAT.zh-CN.md\",\n        \"sha256\": \"e07a54c9fdc715c2562cafdd62d9b2d760fdd63ed965da95046cb6ddde321081\",\n        \"bytes\": 2642,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/domain-modeling/CONTEXT-FORMAT.zh-CN.md\",\n        \"sha256\": \"3a467bcddfe5e3ea901971bfb1b7aa5f0c532636b2150b6579c950c9b726f408\",\n        \"bytes\": 2269,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/domain-modeling/SKILL.zh-CN.md\",\n        \"sha256\": \"118492f3d288e703e8ec7d7a504c089b27c38f7d9892ec9b02b9e9b48521c400\",\n        \"bytes\": 3040,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/frontend-design/SKILL.zh-CN.md\",\n        \"sha256\": \"e1b24f2a27fa60699baba0edfa17de66a1665c0f962b1c7c83323b1381b172b5\",\n        \"bytes\": 8072,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/git-guardrails-claude-code/SKILL.zh-CN.md\",\n        \"sha256\": \"42e248d6dc89b58c30aae8917756369de23c981c99697ae805e9275d73dc93c9\",\n        \"bytes\": 2303,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/grill-me/SKILL.zh-CN.md\",\n        \"sha256\": \"8f952f92717ad259134b4d902bad8f618c0fbfa4846c77ff6ff4fd97066aef69\",\n        \"bytes\": 157,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/grill-with-docs/SKILL.zh-CN.md\",\n        \"sha256\": \"896c42f7fa755e59fb49b05dc9e0354642d082285a88cbfafd47f1a1300eb315\",\n        \"bytes\": 255,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/grilling/SKILL.zh-CN.md\",\n        \"sha256\": \"8dca93acf30e9ea6b76de6f7be35e25b7895996545067ef43ef6962cfec4149b\",\n        \"bytes\": 1862,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/handoff/SKILL.zh-CN.md\",\n        \"sha256\": \"8e01decd2dac990a3de67c910505f44dd85f8ca4b48de5d764a330f6f4686a0e\",\n        \"bytes\": 782,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/implement/SKILL.zh-CN.md\",\n        \"sha256\": \"ec81d414c86f8085273a96b4151f4e9c19ca3503952ea6ef2c9d3403faed39f2\",\n        \"bytes\": 427,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/implement-spec/SKILL.zh-CN.md\",\n        \"sha256\": \"a80be276f3e4a1caf2555ecc6e375cc575bd20990bd52fac4b49aad83e8d8176\",\n        \"bytes\": 1671,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/improve-codebase-architecture/HTML-REPORT.zh-CN.md\",\n        \"sha256\": \"7fcf987e7a9c296430ac431bb713b972148bee4f72fda9872be43bef0eb9cb6b\",\n        \"bytes\": 6739,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/improve-codebase-architecture/SKILL.zh-CN.md\",\n        \"sha256\": \"2993b9808c96470211a65a7dc72f8741f4880b41a5b8d8caef8c0b84150df0e0\",\n        \"bytes\": 5586,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/loop-me/SKILL.zh-CN.md\",\n        \"sha256\": \"85c4fd38ebe63e1248907010ec7a2cc405710d5bb49cbf58f6140bffa4094c7b\",\n        \"bytes\": 2386,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/migrate-to-shoehorn/SKILL.zh-CN.md\",\n        \"sha256\": \"cf55972169502aade9fe5ad0a2bfa0c727622d76e74a6ec07a7516fe4fc733d2\",\n        \"bytes\": 2887,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/personal-intelligence-os/SKILL.zh-CN.md\",\n        \"sha256\": \"a9aee3038e02d54afce1688f7b863746c6dc3ef1cd7b55d4663706eec4030526\",\n        \"bytes\": 5443,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/personal-intelligence-os/references/a-share-coverage.zh-CN.md\",\n        \"sha256\": \"aacefb4b846ad341a5b8e73f9710da5f5675dbe68cdf62283a0f69fb2d931a5d\",\n        \"bytes\": 1967,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/personal-intelligence-os/references/ai-coverage.zh-CN.md\",\n        \"sha256\": \"563044a16e64072a326717a4935d78f583cfb872260818face57a19dc0c22429\",\n        \"bytes\": 2134,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/personal-intelligence-os/references/evidence-policy.zh-CN.md\",\n        \"sha256\": \"d8679fe4991b78f8fcdc29c21dcc65119c9d308f8a7e1f3ac24e2ae402fe03c9\",\n        \"bytes\": 2051,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/personal-intelligence-os/references/health-coverage.zh-CN.md\",\n        \"sha256\": \"9ab5a7b3969f7d87f6601c86e37eb689a44c7d862fd0228b02e1ef506229e96d\",\n        \"bytes\": 1405,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/personal-intelligence-os/references/markets-coverage.zh-CN.md\",\n        \"sha256\": \"7b01a87e56dd320c4d5a1bd168f6430edb72b80783eb11f7eeacdba9adfff961\",\n        \"bytes\": 1712,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/personal-intelligence-os/references/ranking-framework.zh-CN.md\",\n        \"sha256\": \"8c593e329f971dfd0e52f82ef7c67dbe3b4b1892c6f8901b09e9a68c9ee581d7\",\n        \"bytes\": 1940,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/personal-intelligence-os/references/review-checklist.zh-CN.md\",\n        \"sha256\": \"e75b6821dbbc6869b356f17a6d63196b4472d005e644dcb2eb41982e7837f676\",\n        \"bytes\": 1518,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/personal-intelligence-os/references/workspace-contract.zh-CN.md\",\n        \"sha256\": \"ca9490bfe329ba91a82881f720a852a40f3265132e0496a5f944d81b1d55cfb4\",\n        \"bytes\": 1639,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/pr/CREDITS.zh-CN.md\",\n        \"sha256\": \"26357cb7d675d4da23084a2d646011761ac8e7edaf4a011849198117f991ea21\",\n        \"bytes\": 438,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/pr/SKILL.zh-CN.md\",\n        \"sha256\": \"9a594fbfb0d1dbfcbe2d1d5b64b86cbb3c8de43da84bcff47b04121aa0bb4089\",\n        \"bytes\": 3966,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/prototype/LOGIC.zh-CN.md\",\n        \"sha256\": \"ac5c77b5359b56ffce3ec54539dd6b8fc9275989be5dc542d3a09cd6a365831e\",\n        \"bytes\": 5624,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/prototype/SKILL.zh-CN.md\",\n        \"sha256\": \"c55f538a72566384629c579170c09a70035a1fa063897c62e99bda13aeff1ec5\",\n        \"bytes\": 2596,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/prototype/UI.zh-CN.md\",\n        \"sha256\": \"a9db8593c18cf560cd6f566fc2242f9f7813b36a06a900fbb1e21d21cce64782\",\n        \"bytes\": 6477,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/research/SKILL.zh-CN.md\",\n        \"sha256\": \"765a20898f553c2abd6d0f1ed75ea76e9938c407d2dba78d96947652cee13f66\",\n        \"bytes\": 747,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/resolving-merge-conflicts/SKILL.zh-CN.md\",\n        \"sha256\": \"8eeda54ad59ab5a0321739702de50a8bc4fae7f2753d0eed56fc56051e6ff8d6\",\n        \"bytes\": 858,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/retro/SKILL.zh-CN.md\",\n        \"sha256\": \"ef42e4f44ea4f6974d42be3418d949b2ef6ae096112ecb9584e021f36b57f743\",\n        \"bytes\": 3868,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/scaffold-exercises/SKILL.zh-CN.md\",\n        \"sha256\": \"c8da451fbeafc6980d64c12d81043b5006b6fda11af897438a6269f93a30ee0f\",\n        \"bytes\": 3600,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/setup-matt-pocock-skills/SKILL.zh-CN.md\",\n        \"sha256\": \"e9aed1e585c48a60fea0b3b961db7a24b901a4b075c0f9c817b6ba33d0ce7458\",\n        \"bytes\": 6776,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/setup-matt-pocock-skills/domain.zh-CN.md\",\n        \"sha256\": \"4347ef65af6dab0ff81aede7e074582a0b97e382ff60892e24a5a97917c30b9f\",\n        \"bytes\": 2016,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/setup-matt-pocock-skills/issue-tracker-github.zh-CN.md\",\n        \"sha256\": \"d4efa2d37ccb349e75e7f37249dca8a2d71341ccd754f2d75b12565c24ec2445\",\n        \"bytes\": 3924,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/setup-matt-pocock-skills/issue-tracker-gitlab.zh-CN.md\",\n        \"sha256\": \"6628743bd19c6760b1e6b3a4359c5c7f69a90f810a22e89060534e6f8e77e0a4\",\n        \"bytes\": 3928,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/setup-matt-pocock-skills/issue-tracker-local.zh-CN.md\",\n        \"sha256\": \"950905a19ed6e94d111fe5cab8e2d5fbd10113646e054565c0e4608bc5e51bc7\",\n        \"bytes\": 1815,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/setup-matt-pocock-skills/triage-labels.zh-CN.md\",\n        \"sha256\": \"d5522de9b073f5eb03d1aebd066f1f128150640d9ea18a928b3bfa1f5e0da03e\",\n        \"bytes\": 1003,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/setup-pre-commit/SKILL.zh-CN.md\",\n        \"sha256\": \"b3630bed2ca8c0689523368365bb29d9dd5d299b67a21804af9d1b80ba0410de\",\n        \"bytes\": 2330,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/setup-ts-deep-modules/SKILL.zh-CN.md\",\n        \"sha256\": \"6a8630ddf5e45f95741f805971e8cc0655034a61f72a49e8d932865e3744998c\",\n        \"bytes\": 7238,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/tdd/SKILL.zh-CN.md\",\n        \"sha256\": \"eca3757cdbf108092ec6b4547e2eccc5f0712f32ca7864cfbe6c3d54fb842a6d\",\n        \"bytes\": 3195,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/tdd/mocking.zh-CN.md\",\n        \"sha256\": \"83a561703c34f36021dec8e0446520b06bc7a956d531ccc57bf0c9fd11338849\",\n        \"bytes\": 1456,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/tdd/tests.zh-CN.md\",\n        \"sha256\": \"752b4441edbcf246db22c79545479d842e0f0169424a7f9090bcb4c68230bded\",\n        \"bytes\": 2160,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/teach/GLOSSARY-FORMAT.zh-CN.md\",\n        \"sha256\": \"c05599db1fb2fe0bed4ce11adadb5e04bc0b3890b515b15649826e509048a90c\",\n        \"bytes\": 2020,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/teach/LEARNING-RECORD-FORMAT.zh-CN.md\",\n        \"sha256\": \"aec236a90b739f53f25b7a87493db0aa5978f655bc6223576eeabdc5bca61f3b\",\n        \"bytes\": 2531,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/teach/MISSION-FORMAT.zh-CN.md\",\n        \"sha256\": \"34cb4ae336569698310bb7af3983b47aa85962c6bc51003c7ccd39993ad2a3ec\",\n        \"bytes\": 1514,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/teach/RESOURCES-FORMAT.zh-CN.md\",\n        \"sha256\": \"3801c7aba2205cf5e6a660aebd150ca1496fbae418ca8f07032661c054f6ba70\",\n        \"bytes\": 1838,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/teach/SKILL.zh-CN.md\",\n        \"sha256\": \"4000444750b7fed0980f04b447a6b9c5ff449f08d57b6c065d642135ff1fbd2b\",\n        \"bytes\": 7832,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/to-questionnaire/SKILL.zh-CN.md\",\n        \"sha256\": \"8e032ce3d4bd2da9daed7a2f656ed31c299e8bcd15ea095d58cdbd74465cbbf3\",\n        \"bytes\": 2652,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/to-spec/SKILL.zh-CN.md\",\n        \"sha256\": \"fc119c48a07e6ad8d7a27ed29a1a1234e355a7309edd90a225207508ee37f4f7\",\n        \"bytes\": 2523,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/to-tickets/SKILL.zh-CN.md\",\n        \"sha256\": \"1ffa6bcef6d6d774d63b76fe9c24dfe38fe822ae83199c46b152a8efe41df2cd\",\n        \"bytes\": 5270,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/triage/AGENT-BRIEF.zh-CN.md\",\n        \"sha256\": \"ff35d163951d8553b4fbfa74d3c8fef77f886e3cd8c647960b14713fbc8ac653\",\n        \"bytes\": 7728,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/triage/OUT-OF-SCOPE.zh-CN.md\",\n        \"sha256\": \"780f99f55aae77e5094f2880e4552102a57515c55713044be564e4a7851212f4\",\n        \"bytes\": 4304,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/triage/SKILL.zh-CN.md\",\n        \"sha256\": \"94b9ef59a487772000ec7d21cfbbbacbbc404bd07b3626d8aa4d786323253ef0\",\n        \"bytes\": 6430,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/wait-what/SKILL.zh-CN.md\",\n        \"sha256\": \"57e1645a2e92944de639855624c73adc5a762f83e61059efecc922b425342dcd\",\n        \"bytes\": 391,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/wayfinder/SKILL.zh-CN.md\",\n        \"sha256\": \"0ef3a1d591652870e2381bd98933c29bb7c8a31b843bc8ae251dc6f8335e6ccf\",\n        \"bytes\": 11682,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/wizard/SKILL.zh-CN.md\",\n        \"sha256\": \"ec74b699c5d97014b25fb353c9e01bf26964036512e1a4aa0eee7ac1e6573c8e\",\n        \"bytes\": 4060,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/writing-beats/SKILL.zh-CN.md\",\n        \"sha256\": \"d23b1ab1b02992f8d4eda000d443876971b09ecee4ffce1c11258197eaf888c1\",\n        \"bytes\": 5021,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/writing-for-agents/SKILL-MECHANICS.zh-CN.md\",\n        \"sha256\": \"4ef671959c2a90d3406127864b3d7a4040b8d755f7a3a528bd54b6506028a3fa\",\n        \"bytes\": 2588,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/writing-for-agents/SKILL.zh-CN.md\",\n        \"sha256\": \"c8e5fb58ab3b396f39f62e3e3acbc999f24c72d7d391c057bedd9e4ee7c07854\",\n        \"bytes\": 10444,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/writing-fragments/SKILL.zh-CN.md\",\n        \"sha256\": \"96126281a045ba2d0f150faae205fffa393a8fba0582061acb4ab6358743af75\",\n        \"bytes\": 3312,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      },\n      {\n        \"path\": \"skills/writing-shape/SKILL.zh-CN.md\",\n        \"sha256\": \"c72e4d6417cab48145081f091ab13ac48cac1fb2a4e968b01687bb0a49191a47\",\n        \"bytes\": 5921,\n        \"mode\": 420,\n        \"live_and_reviewed_candidate_match\": true\n      }\n    ],\n    \"immutable_original_count\": 145,\n    \"existing_original_backup_count\": 5,\n    \"backups_all_original_bytes_modes_match\": true,\n    \"source145_unchanged\": true,\n    \"live_bytes_semantics_boundary\": \"same reviewed bytes; no new semantic review or new per-document human reading acceptance\",\n    \"global_writes\": \"not_run\"\n  },\n  \"DSH\": {\n    \"target\": \"/Users/shushu/tools/dsh/dsh-desktop\",\n    \"source29_tree\": \"ff0ba3f4f81f9a88a6a5d7ca15d99bb70acb8c35\",\n    \"source_bytes_modes_match\": true,\n    \"application_entries\": 582,\n    \"application_all_bytes_modes_symlinks_match\": true,\n    \"exact_target_entries\": 619,\n    \"extra_entries\": [],\n    \"missing_entries\": [],\n    \"asar_sha256\": \"c96b81af40f4710eeddfe74800f4ae56121613b01c7cd21392d656c395574091\",\n    \"executable_sha256\": \"ca7e3290800255f5018160cff99cf6ecc58eae299c66148de1374a70e2715c83\",\n    \"no_stage_owner_leftovers\": true,\n    \"new_GUI_model_OS_execution\": \"not_run\"\n  },\n  \"actual_acceptance_receipts\": {\n    \"C011\": {\n      \"path\": \"/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C011-workbook-visual-editor/evidence/completion-queue-20261005/human-acceptance.json\",\n      \"sha256\": \"2429409904829ba333d654a9fb1deaf976a1d73e519cfbde0577a64271d20608\",\n      \"quote\": \"已复测，接受这版界面\",\n      \"candidate_tree\": \"011ec67375aed79e6bf17aab60c9607471982d57\",\n      \"source_of_acceptance\": \"actual user report; not repeated or inferred by reviewer\"\n    },\n    \"C011_host_reopen\": {\n      \"path\": \"/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C011-workbook-visual-editor/evidence/host-reopen-20261005/readback.json\",\n      \"sha256\": \"1ec376b7c4bacf27987c5cefa540109df32a094a85ab125ceca8f07ba9e0825e\",\n      \"status_sha256\": \"6624ed0da7917c3f609a5d04deb8511ed9d7298118b0cb616cac29745ccbb898\",\n      \"user_quote\": \"已关闭并重开。继续 C011，读取 specs/changes/active/C011-workbook-visual-editor/resume-card.md。\",\n      \"same_attempt\": \"deliver#1.0\",\n      \"frozen_inputs_and_outputs_bytes_match\": true,\n      \"host_session_ids\": \"unknown; not inferred\"\n    },\n    \"DSH\": {\n      \"path\": \"/private/tmp/sheltie-dsh-desktop-20261005-uz_h1s9b/control/human-app-acceptance.json\",\n      \"sha256\": \"c2899e358bd24aca58acbd2ba4ef04e41308a1176858ceade9678648b48df1f2\",\n      \"quote\": \"已实际体验，接受这版客户端\",\n      \"candidate_tree\": \"ff0ba3f4f81f9a88a6a5d7ca15d99bb70acb8c35\",\n      \"source_of_acceptance\": \"actual user report; no new GUI/model use\"\n    },\n    \"H01\": {\n      \"path\": \"/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/guide-human-acceptance.json\",\n      \"sha256\": \"280f41d7478513efaf09a2d3f240ef2f339b0600608958877b9536d7945a1572\",\n      \"quote\": \"已阅读，接受三份指南\",\n      \"scope\": \"these exact current three guide bytes; frozen handoff guide is accepted as its declared historical snapshot, not approval of unknown future candidates\",\n      \"files\": [\n        {\n          \"path\": \"specs/guides/source-quick-start.md\",\n          \"bytes\": 12450,\n          \"sha256\": \"d5bda458d7bda78450005d9c98af933c2a3508f554d8e182d043debde60cb850\"\n        },\n        {\n          \"path\": \"specs/guides/continuity-choices.md\",\n          \"bytes\": 13959,\n          \"sha256\": \"d7f53c99fae26656972b941b604cb2547fe5461790a973a7cb3dffed8cbc91aa\"\n        },\n        {\n          \"path\": \"specs/guides/current-acceptance-handoff.md\",\n          \"bytes\": 14866,\n          \"sha256\": \"c73f6d7bc7e386bc2689ef1fd284caa1f36c755d74be89991890971179d6abad\"\n        }\n      ],\n      \"current_exact_bytes_match\": true,\n      \"not_fresh_human_acceptance\": true\n    }\n  },\n  \"root_engineering_frozen_inputs\": {\n    \"count\": 232,\n    \"source_inputs_sha256\": \"8dfac6cdd21982ba0d55f33dcd7f6c8675cab36b8dd9e5240c2ab5794af5741a\",\n    \"drift\": [\n      \"crates/sheltie-cli/LICENSE-MIT\",\n      \"crates/sheltie-core/LICENSE-MIT\",\n      \"crates/sheltie-runtime/LICENSE-MIT\"\n    ],\n    \"engineering_tests_by_this_checker\": \"not_run; Root owns current execution\"\n  },\n  \"pass_\": false,\n  \"errors\": [\n    \"aggregate source drift crates/sheltie-cli/LICENSE-MIT\",\n    \"aggregate source drift crates/sheltie-core/LICENSE-MIT\",\n    \"aggregate source drift crates/sheltie-runtime/LICENSE-MIT\"\n  ],\n  \"fees\": \"unknown\",\n  \"user_activity_minutes\": \"unknown\",\n  \"other_OS_or_physical_media\": \"not_run/not_required under D-044; never relabelled PASS\",\n  \"old_Native_fair_ROI_blind\": \"unknown/not_evaluable preserved\",\n  \"mutation_boundary\": \"only these two authorized C008 reports written; no CLI lifecycle writes, exports, GUI, models, installs, media operations, config or credentials reads\"\n}\n",
+      "original_markdown_sha256": "eafb35880e5087cf1d25209ff4a33f3fca52f9ad58b6363ed269a85c2bd6b815",
+      "original_markdown_bytes": 2203,
+      "original_markdown_utf8": "需修改：发现下列身份漂移，停止相关项目资格，不复原他人改动。\n\n本次仅核实际字节、mode、tree、public result与既有用户报告，不是新模型/GUI/其他平台端到端或最终质量盲审。本人非Rust/C011/DSH代码和当前工程checks作者；曾承担翻译batch1及DSH内容审查，故不把本次译文放置字节核对冒独立语义审阅。\n\n- 三个明确终点public work result实际exit0，与先前result完全一致；每个revision11/final/succeeded、deliver#1.0选择五份，15原件bytes/SHA读前后保持。可信binarySHA `04dba0274004bd46b35e68a2e5fc8f26387cf009b07c33f2e38e3caf75fb45d8`，actualargv/cwd/env/stdout/stderr/exit完整嵌入JSON，没有cancel/submit或历史六Work写操作。\n- C006三个副本的各五份成果与原件一致；第一份92byte审计note保持，第四份clean copy与原manifest同、无note或其他额外文件。没有再次export。\n- 已交译文73/73实际bytes/mode同reviewedcandidate `e25913bc8b53cdc7d749f823dcf80dd4147faa19`；145原英文/资源保持，5份旧译文backup完整。此处不新增逐篇真人阅读接受或语义PASS。\n- DSH source29纯Python重构tree `ff0ba3f4f81f9a88a6a5d7ca15d99bb70acb8c35`，App582完整bytes/mode/symlink与manifest同；target619无extra/missing，ASAR/executableSHA同，无stage/owner遗留。不重GUI/model/build。\n- C011真人接受与同deliver#1.0宿主重开，DSH真人接受，H01三指南接受均按原receipt SHA及当前被接受字节核；用户quote来源保持，不替用户重复体验。\n- Root232 frozen source inputs读回drift=3；Root工程测试仍归Root，本报告不授尚未完成的checks结果。\n\n范围：D-044使E01/E02不属于当前必需验收，历史未执行/未知不改成PASS。旧Native/fair/费用/盲审/15%ROI不推断。费用与人活动分钟unknown。\n\n详细原件、十五SHA、四export、73target、actualCLI stdout/stderr及身份见 [artifact-independent-readback.json](artifact-independent-readback.json)。\n\naggregate source drift crates/sheltie-cli/LICENSE-MIT\naggregate source drift crates/sheltie-core/LICENSE-MIT\naggregate source drift crates/sheltie-runtime/LICENSE-MIT\n",
+      "correction": "honor exact frozen symlink target and referenced regular file bytes/mode/SHA; no source modification or repeated CLI/model/consumer tests"
+    }
+  ]
+}

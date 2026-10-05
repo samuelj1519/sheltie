@@ -1,6 +1,10 @@
 # C004 实施计划
 
-状态：`active`（本轮恢复自动agent实际使用，原完成范围保留）。用户已采用，原真实试用与环境义务按授权延期；采用范围见 [adoption](adoption.md)，验收与缺项见 [validation](validation.md)。
+## 当前采用范围完成结论
+
+当前状态：`completed`。当前任务表全部为done，已采用的macOS aarch64／APFS范围无待实施或验收阻断。范围以[根规格](../../../spec.md#当前产品环境)和[D-044](../../../decisions/D-044-macos-apfs-product-scope.md)为准；[最终实跑与独立总审](../C008-dependency-readiness/evidence/final-acceptance-20261005/README.md)已核全部必需项。C005/C008未来需求触发入口与原历史未执行/费用/公平标签保留，不转成执行PASS；发布仍单独治理。
+
+恢复开工时点状态：`active`（本轮恢复自动agent实际使用，原完成范围保留）。用户已采用，原真实试用与环境义务按授权延期；采用范围见 [adoption](adoption.md)，验收与缺项见 [validation](validation.md)。
 
 ## 1. 首次读者与采用范围
 

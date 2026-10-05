@@ -1,0 +1,93 @@
+{
+  "checked_utc": "2026-10-04T06:34:07.938944+00:00",
+  "current_head": "100a6f845e619f95d2f112d2adc5637fdf00801f",
+  "prior_implementation_candidate": "d744bd77180e8baeb6b31d07d844b62b9810e002",
+  "original_closure_count": 378,
+  "unchanged_input_count": 369,
+  "differences": [
+    {
+      "path": "specs/README.md",
+      "kind": "changed"
+    },
+    {
+      "path": "specs/changes/README.md",
+      "kind": "changed"
+    },
+    {
+      "path": "specs/changes/active/C010-local-simplification/README.md",
+      "kind": "archive_path_absent"
+    },
+    {
+      "path": "specs/changes/active/C010-local-simplification/plan.md",
+      "kind": "archive_path_absent"
+    },
+    {
+      "path": "specs/changes/active/C010-local-simplification/progress.md",
+      "kind": "archive_path_absent"
+    },
+    {
+      "path": "specs/changes/active/C010-local-simplification/review.md",
+      "kind": "archive_path_absent"
+    },
+    {
+      "path": "specs/changes/active/C010-local-simplification/tasks.toml",
+      "kind": "archive_path_absent"
+    },
+    {
+      "path": "specs/changes/active/C010-local-simplification/test-disposition.md",
+      "kind": "archive_path_absent"
+    },
+    {
+      "path": "specs/changes/active/C010-local-simplification/validation.md",
+      "kind": "archive_path_absent"
+    }
+  ],
+  "symlink_rule": "C010 original closure hashes dereferenced file content and stat mode; new execution closures additionally preserve symlink literal",
+  "verified_raw_records": [
+    {
+      "record": "t02-tools.json",
+      "exit": 0,
+      "streams": "verified_uncompressed_bytes_and_sha256"
+    },
+    {
+      "record": "t02-nextest.json",
+      "exit": 0,
+      "streams": "verified_uncompressed_bytes_and_sha256"
+    },
+    {
+      "record": "t02-msrv.json",
+      "exit": 0,
+      "streams": "verified_uncompressed_bytes_and_sha256"
+    },
+    {
+      "record": "t02-check.json",
+      "exit": 0,
+      "streams": "verified_uncompressed_bytes_and_sha256"
+    },
+    {
+      "record": "t02-clippy.json",
+      "exit": 0,
+      "streams": "verified_uncompressed_bytes_and_sha256"
+    },
+    {
+      "record": "t02-fmt.json",
+      "exit": 0,
+      "streams": "verified_uncompressed_bytes_and_sha256"
+    },
+    {
+      "record": "t02-doctest.json",
+      "exit": 0,
+      "streams": "verified_uncompressed_bytes_and_sha256"
+    },
+    {
+      "record": "t03-governance.json",
+      "exit": 0,
+      "streams": "verified_uncompressed_bytes_and_sha256"
+    }
+  ],
+  "reused_native_run_id": "244c3674-e087-431d-a796-a63338ac7cd8",
+  "reused_native_count": 948,
+  "reused_doctests": 5,
+  "archive_governance_run_id": "97c47f41-e913-49ab-a5d0-87addeb49edb",
+  "boundary": "Original native engineering evidence plus separately executed archive governance; this is qualification, not a new native test execution; current MSRV execution recorded separately."
+}

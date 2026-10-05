@@ -1,5 +1,9 @@
 # C005 实施计划
 
+## 当前采用范围完成结论
+
+当前任务表全部为done，已采用的macOS aarch64／APFS范围无待实施或验收阻断。范围以[根规格](../../../spec.md#当前产品环境)和[D-044](../../../decisions/D-044-macos-apfs-product-scope.md)为准；[最终实跑与独立总审](../C008-dependency-readiness/evidence/final-acceptance-20261005/README.md)已核全部必需项。C005/C008未来需求触发入口与原历史未执行/费用/公平标签保留，不转成执行PASS；发布仍单独治理。
+
 状态：`completed`（2026-10-04当前技术与真实需求负前检，旧限定结论不改）。用户已明确采用，按本计划实施；环境无法执行的义务记录后延期。共同规则见 [方案实施指南](../../../guides/proposal-implementation.md)，工程门禁见 [工程规范](../../../engineering.md)。本方案跨状态、协议与持久化，采用两阶段交付；产品范围只由 spec/design 定义。
 
 阶段交接时，T01 作者在本 plan 的对应实现任务卡写 `**测试。**` 与已存在的真实测试名，手册链接同一清单；任务标题使用 `### Cnnn-Tnn` 供 check-tests 识别。尚未建立的用例只写“验收用例”，不提前声称测试已经存在。

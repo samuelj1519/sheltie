@@ -1,0 +1,14 @@
+{
+  "recorded_utc": "2026-10-04T06:54:10.065359+00:00",
+  "user_request": "翻译 /Users/shushu/.agents 中的英文 markdown 文件为简体中文，输出在文件同级目录下的 *.zh-CN.* 中。",
+  "context": "second real task supplied during acceptance preparation",
+  "source_root": "/Users/shushu/.agents",
+  "target_naming": "Insert .zh-CN before the Markdown extension, beside the original file",
+  "status": "candidate_requirements_not_frozen",
+  "formal_sample_id": null,
+  "formal_run_id": null,
+  "budget": null,
+  "existing_translation_policy": "review_and_complete_preserve_correct_backup_before_repair",
+  "write_authority_note": "Source and destination are outside current writable roots; authorized destination writes require narrow sandbox escalation at delivery; no such write attempted during preparation.",
+  "existing_translation_policy_ref": "user-policy.json"
+}

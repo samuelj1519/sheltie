@@ -1,0 +1,27 @@
+{
+  "recorded_utc": "2026-10-05T10:42:42.233153+00:00",
+  "head": "fcff75bf1cbc634cb7c2b84a6fac7d37f57b9910",
+  "scope": "current macOS aarch64/APFS, D-044 and adopted completed mixed three tasks",
+  "run_directory": "/private/tmp/sheltie-final-acceptance-20261005-e9h98_vz",
+  "source_inputs": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/source-inputs.json",
+  "source_input_count": 232,
+  "rust_target": "/private/tmp/sheltie-final-acceptance-20261005-e9h98_vz/cargo-target",
+  "checks": [
+    "fresh fmt/check/clippy",
+    "actual948nextest with pinned0.9.145",
+    "actual5doctests",
+    "current dependency deny",
+    "actualWorkbook editor72tests/realCLI/HTTP/ZIP",
+    "independent live final artifacts/translation/DSH readback",
+    "docs/spec/tests/skill/core vocabulary governance",
+    "independent final acceptance judgment"
+  ],
+  "actual_human_acceptance": "previous exact explicit reports retained if identical delivered input",
+  "E01_E02": "not required by adopted scope; not relabelled PASS",
+  "cost_ROI_old_native_pairs": "unknown/not_evaluable retained, outside current completion criterion",
+  "source_modifications": "none before checks; confirmed in-scope failures repaired then independently reviewed",
+  "single_rust_build_pipeline": true,
+  "no_other_builds_in_this_target_during_nextest": true,
+  "per_command_feedback_timeout_seconds": 720,
+  "new_formal_experiment_runs": "not started; completed user samples remain selected"
+}

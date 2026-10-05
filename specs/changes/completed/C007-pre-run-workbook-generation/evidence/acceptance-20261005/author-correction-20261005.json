@@ -1,0 +1,41 @@
+{
+  "recorded_utc": "2026-10-05T08:16:35.695444+00:00",
+  "reason": "Root doc gate actual blacklist hit along-current phrase; Chinese reader title refinement",
+  "before": [
+    {
+      "path": "specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005/README.md",
+      "bytes": 6322,
+      "sha256": "50d76760c1f4ccc960fea28a2170742d4fe2636dacc126ac66c628141fd3fe8f"
+    },
+    {
+      "path": "specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005/history-and-qualification.md",
+      "bytes": 7692,
+      "sha256": "89302495957bd5c9a8b8e9d0dfd32b3dcdc6256e0903d541ef59fd3f8785a429"
+    },
+    {
+      "path": "specs/changes/completed/C007-pre-run-workbook-generation/evidence/human-acceptance-20261004/README.md",
+      "bytes": 4043,
+      "sha256": "bb969f2e4df8967bedda05f7780ed0f07315f6cb53db9a4c6389d143fee6c754"
+    }
+  ],
+  "after": [
+    {
+      "path": "specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005/README.md",
+      "bytes": 6323,
+      "sha256": "9a55e09300405ae23e2a090c72fdd063b20912fa4539c368ef5c3fa2693f1b4e"
+    },
+    {
+      "path": "specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005/history-and-qualification.md",
+      "bytes": 7686,
+      "sha256": "3fa895f2bdd5547517a78e4fc70afcda1ac8b2dab16c8b1b86d38a88530a7b6f"
+    },
+    {
+      "path": "specs/changes/completed/C007-pre-run-workbook-generation/evidence/human-acceptance-20261004/README.md",
+      "bytes": 4044,
+      "sha256": "7f883b5afcbe76046e5d7950188116dbc096b57e785120f0347653c6b539e5e9"
+    }
+  ],
+  "scope": "one new history sentence and two README titles only; no checker/raw/protocol/body-whitespace changes",
+  "old_gate_failure": "Root preserves current-gates.json; not overwritten",
+  "whitespace_diagnostic": "Root identified no-index implicit difference exit semantics; no whitespace changes required"
+}

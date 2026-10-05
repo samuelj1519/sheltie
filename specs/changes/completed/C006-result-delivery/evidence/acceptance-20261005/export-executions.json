@@ -1,0 +1,400 @@
+{
+  "recorded_utc": "2026-10-05T07:58:35.005521+00:00",
+  "purpose": "durable real selected final report copies for current Sheltie completion audit; independent reviewer to consume them",
+  "human_manual_arm": "not_run; Root tool operations are not manual human copying",
+  "copies": [
+    {
+      "work_id": "2026-10-04-007-workbook-compact-properties",
+      "source_result": {
+        "data": {
+          "artifacts": [
+            {
+              "bytes": 5131,
+              "key": "change",
+              "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/implement/occurrence-002/attempt-000/outputs/change.md",
+              "sha256": "b7e9adca19d0e4c1ebd1d99a7d4b04cf25c5d89a9443ee511c1d3bdc97b8e725",
+              "source": {
+                "attempt": "deliver#1.0",
+                "kind": "input",
+                "name": "change"
+              }
+            },
+            {
+              "bytes": 2488,
+              "key": "checks",
+              "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/implement/occurrence-002/attempt-000/outputs/checks.md",
+              "sha256": "992a2325ca1919ae07a0ac2607a2126ed908b0ff8e9899e27fa0a0a0b82b94c3",
+              "source": {
+                "attempt": "deliver#1.0",
+                "kind": "input",
+                "name": "checks"
+              }
+            },
+            {
+              "bytes": 9548,
+              "key": "delivery",
+              "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md",
+              "sha256": "52a13edfc0e4abd9f7cf47e2daad41147448d47b21de51b4f96d5b44d1e4383f",
+              "source": {
+                "attempt": "deliver#1.0",
+                "kind": "output",
+                "name": "delivery"
+              }
+            },
+            {
+              "bytes": 189457,
+              "key": "patch",
+              "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch",
+              "sha256": "6ee6412735a35515fc33439341827dcd1a318e920259c55ee462f43b54ff1aa6",
+              "source": {
+                "attempt": "deliver#1.0",
+                "kind": "output",
+                "name": "patch"
+              }
+            },
+            {
+              "bytes": 4523,
+              "key": "review",
+              "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/review/occurrence-002/attempt-000/outputs/review.md",
+              "sha256": "2efcdf8c0d7123297a66e83f9525844a9cde994ff2b5dcc402c3104f46abef09",
+              "source": {
+                "attempt": "deliver#1.0",
+                "kind": "input",
+                "name": "review"
+              }
+            }
+          ],
+          "effects_pending": false,
+          "final": true,
+          "flow": "default",
+          "format": "work-result/v1",
+          "revision": 11,
+          "status": {
+            "kind": "succeeded"
+          },
+          "work_id": "2026-10-04-007-workbook-compact-properties",
+          "workbook": {
+            "digest": "0d66bee3391522be7858130951dd979e2a7ee69b4a435e8968ac676153b21d86",
+            "id": "code-task-study",
+            "version": "1.0.0"
+          }
+        },
+        "next": [],
+        "ok": true
+      },
+      "export_response": {
+        "format": "work-export/v1",
+        "status": "complete",
+        "work_id": "2026-10-04-007-workbook-compact-properties",
+        "revision": 11,
+        "target_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/final-report-copies/2026-10-04-007-workbook-compact-properties-01a10b12-5a69-7353-9f59-064c2afb622e",
+        "staging_path": null,
+        "error": null
+      }
+    },
+    {
+      "work_id": "2026-10-04-008-agents-markdown-translation",
+      "source_result": {
+        "data": {
+          "artifacts": [
+            {
+              "bytes": 4428,
+              "key": "change",
+              "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/implement/occurrence-002/attempt-000/outputs/change.md",
+              "sha256": "64b8185e0639aaaf18faf8e3900d347fb498865d046d1209ff1edf408395c664",
+              "source": {
+                "attempt": "deliver#1.0",
+                "kind": "input",
+                "name": "change"
+              }
+            },
+            {
+              "bytes": 3386,
+              "key": "checks",
+              "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/implement/occurrence-002/attempt-000/outputs/checks.md",
+              "sha256": "224a1aac0373165461973cf9ca8c448c7804016b0bdf2879bba1bc2369e3f08c",
+              "source": {
+                "attempt": "deliver#1.0",
+                "kind": "input",
+                "name": "checks"
+              }
+            },
+            {
+              "bytes": 7296,
+              "key": "delivery",
+              "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md",
+              "sha256": "3e294665ecd056c2cb044bbd1693fbad255b80dfb9b33d34021ccc2304050836",
+              "source": {
+                "attempt": "deliver#1.0",
+                "kind": "output",
+                "name": "delivery"
+              }
+            },
+            {
+              "bytes": 270746,
+              "key": "patch",
+              "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch",
+              "sha256": "ff415138db9f938235174e5aa648a6a24d01f0bebfb86ee663c7ce5314ee7a1a",
+              "source": {
+                "attempt": "deliver#1.0",
+                "kind": "output",
+                "name": "patch"
+              }
+            },
+            {
+              "bytes": 7115,
+              "key": "review",
+              "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/review/occurrence-002/attempt-000/outputs/review.md",
+              "sha256": "b35ac23c4e62f0aaa5c5dd15666a1e9c92154395dfa77b614c0831939d537ffc",
+              "source": {
+                "attempt": "deliver#1.0",
+                "kind": "input",
+                "name": "review"
+              }
+            }
+          ],
+          "effects_pending": false,
+          "final": true,
+          "flow": "default",
+          "format": "work-result/v1",
+          "revision": 11,
+          "status": {
+            "kind": "succeeded"
+          },
+          "work_id": "2026-10-04-008-agents-markdown-translation",
+          "workbook": {
+            "digest": "0d66bee3391522be7858130951dd979e2a7ee69b4a435e8968ac676153b21d86",
+            "id": "code-task-study",
+            "version": "1.0.0"
+          }
+        },
+        "next": [],
+        "ok": true
+      },
+      "export_response": {
+        "format": "work-export/v1",
+        "status": "complete",
+        "work_id": "2026-10-04-008-agents-markdown-translation",
+        "revision": 11,
+        "target_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/final-report-copies/2026-10-04-008-agents-markdown-translation-01a10b12-5b22-73f1-a7d7-5e78cd34c247",
+        "staging_path": null,
+        "error": null
+      }
+    },
+    {
+      "work_id": "2026-10-05-001-dsh-desktop-client",
+      "source_result": {
+        "data": {
+          "artifacts": [
+            {
+              "bytes": 12846,
+              "key": "change",
+              "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/implement/occurrence-002/attempt-000/outputs/change.md",
+              "sha256": "afdbfc73ce6df3c726acaff891370a585a69abf0953db5bb0e3a1c367890b6af",
+              "source": {
+                "attempt": "deliver#1.0",
+                "kind": "input",
+                "name": "change"
+              }
+            },
+            {
+              "bytes": 17351,
+              "key": "checks",
+              "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/implement/occurrence-002/attempt-000/outputs/checks.md",
+              "sha256": "622a09fb447e930e1c482f8bf0537febaf2d21f9bf3525ebbb60055a072041f5",
+              "source": {
+                "attempt": "deliver#1.0",
+                "kind": "input",
+                "name": "checks"
+              }
+            },
+            {
+              "bytes": 8670,
+              "key": "delivery",
+              "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md",
+              "sha256": "5b2e266549af7d3376fb41bb6befe05801bd8799eb1766afdd8e09ad08b8300a",
+              "source": {
+                "attempt": "deliver#1.0",
+                "kind": "output",
+                "name": "delivery"
+              }
+            },
+            {
+              "bytes": 64598,
+              "key": "patch",
+              "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch",
+              "sha256": "ca23e583f1a75ea4e676ab92f7758c0ee8d60592233588e86a5b090bbc195466",
+              "source": {
+                "attempt": "deliver#1.0",
+                "kind": "output",
+                "name": "patch"
+              }
+            },
+            {
+              "bytes": 12245,
+              "key": "review",
+              "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/review/occurrence-002/attempt-000/outputs/review.md",
+              "sha256": "f7ae973953df0a5f146cd66351de5bb6187f0e5c2f2bf5be255869f055cc5621",
+              "source": {
+                "attempt": "deliver#1.0",
+                "kind": "input",
+                "name": "review"
+              }
+            }
+          ],
+          "effects_pending": false,
+          "final": true,
+          "flow": "default",
+          "format": "work-result/v1",
+          "revision": 11,
+          "status": {
+            "kind": "succeeded"
+          },
+          "work_id": "2026-10-05-001-dsh-desktop-client",
+          "workbook": {
+            "digest": "0d66bee3391522be7858130951dd979e2a7ee69b4a435e8968ac676153b21d86",
+            "id": "code-task-study",
+            "version": "1.0.0"
+          }
+        },
+        "next": [],
+        "ok": true
+      },
+      "export_response": {
+        "format": "work-export/v1",
+        "status": "complete",
+        "work_id": "2026-10-05-001-dsh-desktop-client",
+        "revision": 11,
+        "target_path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/final-report-copies/2026-10-05-001-dsh-desktop-client-01a10b12-5baf-7663-a745-191232088dec",
+        "staging_path": null,
+        "error": null
+      }
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+        "--home",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+        "work",
+        "result",
+        "2026-10-04-007-workbook-compact-properties",
+        "--json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/01.stdout.json",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/01.stderr",
+      "start_end_clock": "capture based on current call; detailed activity unknown"
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie-export",
+        "--sheltie",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+        "--home",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+        "--work",
+        "2026-10-04-007-workbook-compact-properties",
+        "--to",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/final-report-copies",
+        "--json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/02.stdout.json",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/02.stderr",
+      "start_end_clock": "capture based on current call; detailed activity unknown"
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+        "--home",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+        "work",
+        "result",
+        "2026-10-04-008-agents-markdown-translation",
+        "--json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/03.stdout.json",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/03.stderr",
+      "start_end_clock": "capture based on current call; detailed activity unknown"
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie-export",
+        "--sheltie",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+        "--home",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+        "--work",
+        "2026-10-04-008-agents-markdown-translation",
+        "--to",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/final-report-copies",
+        "--json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/04.stdout.json",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/04.stderr",
+      "start_end_clock": "capture based on current call; detailed activity unknown"
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+        "--home",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+        "work",
+        "result",
+        "2026-10-05-001-dsh-desktop-client",
+        "--json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/05.stdout.json",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/05.stderr",
+      "start_end_clock": "capture based on current call; detailed activity unknown"
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie-export",
+        "--sheltie",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+        "--home",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+        "--work",
+        "2026-10-05-001-dsh-desktop-client",
+        "--to",
+        "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/final-report-copies",
+        "--json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/06.stdout.json",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/06.stderr",
+      "start_end_clock": "capture based on current call; detailed activity unknown"
+    }
+  ],
+  "parent": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/final-report-copies",
+  "physical_disk": "not_claimed",
+  "fees": "unknown",
+  "source_snapshot": {
+    "sheltie-export": {
+      "cargo_executable": "/private/tmp/sheltie-c010-target/debug/sheltie-export",
+      "frozen_path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie-export",
+      "sha256": "200fa4020e19cc645a6a5930d0b0e34dba4e43247a127caf8369c3be53b3289a",
+      "bytes": 5944720,
+      "mode": "0o755"
+    },
+    "sheltie": {
+      "cargo_executable": "/private/tmp/sheltie-c010-target/debug/sheltie",
+      "frozen_path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+      "sha256": "04dba0274004bd46b35e68a2e5fc8f26387cf009b07c33f2e38e3caf75fb45d8",
+      "bytes": 21977976,
+      "mode": "0o755"
+    }
+  }
+}

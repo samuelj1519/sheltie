@@ -1,0 +1,1382 @@
+{
+  "recorded_utc": "2026-10-05T07:56:22.796953+00:00",
+  "pass": true,
+  "binary": {
+    "cargo_executable": "/private/tmp/sheltie-c010-target/debug/sheltie",
+    "frozen_path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+    "sha256": "04dba0274004bd46b35e68a2e5fc8f26387cf009b07c33f2e38e3caf75fb45d8",
+    "bytes": 21977976,
+    "mode": "0o755"
+  },
+  "home": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+  "works": [
+    {
+      "current": "deliver#1",
+      "name": "workbook-visual-editor",
+      "status": {
+        "kind": "active"
+      },
+      "updated_at": "2026-10-04T08:57:24Z",
+      "work_id": "2026-10-04-001-workbook-visual-editor"
+    },
+    {
+      "current": "deliver#1",
+      "name": "workbook-edge-repair",
+      "status": {
+        "kind": "active"
+      },
+      "updated_at": "2026-10-04T10:17:24Z",
+      "work_id": "2026-10-04-002-workbook-edge-repair"
+    },
+    {
+      "current": "deliver#1",
+      "name": "workbook-navigation-repair",
+      "status": {
+        "kind": "active"
+      },
+      "updated_at": "2026-10-04T10:33:36Z",
+      "work_id": "2026-10-04-003-workbook-navigation-repair"
+    },
+    {
+      "current": "review#3",
+      "name": "workbook-usability-refinement",
+      "status": {
+        "kind": "active"
+      },
+      "updated_at": "2026-10-04T11:58:46Z",
+      "work_id": "2026-10-04-004-workbook-usability-refinement"
+    },
+    {
+      "current": "review#1",
+      "name": "workbook-viewport-scroll-repair",
+      "status": {
+        "kind": "active"
+      },
+      "updated_at": "2026-10-04T12:04:49Z",
+      "work_id": "2026-10-04-005-workbook-viewport-scroll-repair"
+    },
+    {
+      "current": "review#2",
+      "name": "workbook-clear-graph-view",
+      "status": {
+        "kind": "active"
+      },
+      "updated_at": "2026-10-04T13:59:10Z",
+      "work_id": "2026-10-04-006-workbook-clear-graph-view"
+    },
+    {
+      "current": "deliver#1",
+      "name": "workbook-compact-properties",
+      "status": {
+        "kind": "succeeded"
+      },
+      "updated_at": "2026-10-04T17:14:36Z",
+      "work_id": "2026-10-04-007-workbook-compact-properties"
+    },
+    {
+      "current": "deliver#1",
+      "name": "agents-markdown-translation",
+      "status": {
+        "kind": "succeeded"
+      },
+      "updated_at": "2026-10-04T17:59:44Z",
+      "work_id": "2026-10-04-008-agents-markdown-translation"
+    },
+    {
+      "current": "deliver#1",
+      "name": "dsh-desktop-client",
+      "status": {
+        "kind": "succeeded"
+      },
+      "updated_at": "2026-10-05T07:37:03Z",
+      "work_id": "2026-10-05-001-dsh-desktop-client"
+    }
+  ],
+  "work_status": [
+    {
+      "blocked": null,
+      "current": "deliver#1",
+      "done": [
+        "implement#1",
+        "review#1",
+        "implement#2",
+        "review#2"
+      ],
+      "effects_pending": false,
+      "flow": "default",
+      "last_attempt": {
+        "attempt": "deliver#1.0",
+        "outputs": {},
+        "reason": null,
+        "status": "running",
+        "summary": null
+      },
+      "name": "workbook-visual-editor",
+      "next": [
+        {
+          "args": {
+            "attempt": "deliver#1.0",
+            "work": "2026-10-04-001-workbook-visual-editor"
+          },
+          "op": "attempt submit"
+        },
+        {
+          "args": {
+            "attempt": "deliver#1.0",
+            "work": "2026-10-04-001-workbook-visual-editor"
+          },
+          "op": "attempt fail"
+        },
+        {
+          "args": {
+            "attempt": "deliver#1.0",
+            "work": "2026-10-04-001-workbook-visual-editor"
+          },
+          "op": "attempt replace"
+        },
+        {
+          "args": {
+            "work": "2026-10-04-001-workbook-visual-editor"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "pending": [],
+      "pending_publish": false,
+      "resume": {
+        "attempt": "deliver#1.0",
+        "brief_path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-001-workbook-visual-editor/attempts/deliver/occurrence-001/attempt-000/brief.md",
+        "draft_outputs": {
+          "delivery": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-001-workbook-visual-editor/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md",
+          "patch": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-001-workbook-visual-editor/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch"
+        },
+        "inputs": {
+          "change": {
+            "bytes": 7828,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-001-workbook-visual-editor/attempts/implement/occurrence-002/attempt-000/outputs/change.md",
+            "sha256": "c90077ede12db1b8782e625066212effd7424a36de18dc0886449a6b922afc94"
+          },
+          "checks": {
+            "bytes": 9373,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-001-workbook-visual-editor/attempts/implement/occurrence-002/attempt-000/outputs/checks.md",
+            "sha256": "46793e0a901cc3cf013c4955c6a2bba99cdddd2e66ced46ab2e9e1d819190258"
+          },
+          "review": {
+            "bytes": 10572,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-001-workbook-visual-editor/attempts/review/occurrence-002/attempt-000/outputs/review.md",
+            "sha256": "50dc046357c541c8cd38317eae509ef9137b3f5329f7750001db3527c7f13d36"
+          },
+          "task": {
+            "bytes": 2691,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-001-workbook-visual-editor/start-inputs/task",
+            "sha256": "738958b85f082c17594d9271a202de567d268d90f9f98e82153d0b81924f170b"
+          }
+        }
+      },
+      "revision": 10,
+      "status": {
+        "kind": "active"
+      },
+      "visits": {
+        "deliver": "1/1",
+        "implement": "2/3",
+        "review": "2/3"
+      },
+      "work_id": "2026-10-04-001-workbook-visual-editor",
+      "workbook": "code-task-study@1.0.0"
+    },
+    {
+      "blocked": null,
+      "current": "deliver#1",
+      "done": [
+        "implement#1",
+        "review#1"
+      ],
+      "effects_pending": false,
+      "flow": "default",
+      "last_attempt": {
+        "attempt": "deliver#1.0",
+        "outputs": {},
+        "reason": null,
+        "status": "running",
+        "summary": null
+      },
+      "name": "workbook-edge-repair",
+      "next": [
+        {
+          "args": {
+            "attempt": "deliver#1.0",
+            "work": "2026-10-04-002-workbook-edge-repair"
+          },
+          "op": "attempt submit"
+        },
+        {
+          "args": {
+            "attempt": "deliver#1.0",
+            "work": "2026-10-04-002-workbook-edge-repair"
+          },
+          "op": "attempt fail"
+        },
+        {
+          "args": {
+            "attempt": "deliver#1.0",
+            "work": "2026-10-04-002-workbook-edge-repair"
+          },
+          "op": "attempt replace"
+        },
+        {
+          "args": {
+            "work": "2026-10-04-002-workbook-edge-repair"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "pending": [],
+      "pending_publish": false,
+      "resume": {
+        "attempt": "deliver#1.0",
+        "brief_path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-002-workbook-edge-repair/attempts/deliver/occurrence-001/attempt-000/brief.md",
+        "draft_outputs": {
+          "delivery": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-002-workbook-edge-repair/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md",
+          "patch": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-002-workbook-edge-repair/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch"
+        },
+        "inputs": {
+          "change": {
+            "bytes": 3828,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-002-workbook-edge-repair/attempts/implement/occurrence-001/attempt-000/outputs/change.md",
+            "sha256": "a9674456030f0b91d495517715b425630636ce39e716f62005acdaba0a840e73"
+          },
+          "checks": {
+            "bytes": 3452,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-002-workbook-edge-repair/attempts/implement/occurrence-001/attempt-000/outputs/checks.md",
+            "sha256": "c9f1f6e6f447717313839dd8d22cc77d269aa0ba3610888a3989047b7fe47476"
+          },
+          "review": {
+            "bytes": 4032,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-002-workbook-edge-repair/attempts/review/occurrence-001/attempt-000/outputs/review.md",
+            "sha256": "0d16248081eba89cc340e0ecfc964123f6c92622ed09a370b7dabc6e0f8f589f"
+          },
+          "task": {
+            "bytes": 633,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-002-workbook-edge-repair/start-inputs/task",
+            "sha256": "afefa5da0bc317f0b7d48964c815b1d5578ff9de77501ce9e07ebb9b3bee4a3d"
+          }
+        }
+      },
+      "revision": 6,
+      "status": {
+        "kind": "active"
+      },
+      "visits": {
+        "deliver": "1/1",
+        "implement": "1/3",
+        "review": "1/3"
+      },
+      "work_id": "2026-10-04-002-workbook-edge-repair",
+      "workbook": "code-task-study@1.0.0"
+    },
+    {
+      "blocked": null,
+      "current": "deliver#1",
+      "done": [
+        "implement#1",
+        "review#1"
+      ],
+      "effects_pending": false,
+      "flow": "default",
+      "last_attempt": {
+        "attempt": "deliver#1.0",
+        "outputs": {},
+        "reason": null,
+        "status": "running",
+        "summary": null
+      },
+      "name": "workbook-navigation-repair",
+      "next": [
+        {
+          "args": {
+            "attempt": "deliver#1.0",
+            "work": "2026-10-04-003-workbook-navigation-repair"
+          },
+          "op": "attempt submit"
+        },
+        {
+          "args": {
+            "attempt": "deliver#1.0",
+            "work": "2026-10-04-003-workbook-navigation-repair"
+          },
+          "op": "attempt fail"
+        },
+        {
+          "args": {
+            "attempt": "deliver#1.0",
+            "work": "2026-10-04-003-workbook-navigation-repair"
+          },
+          "op": "attempt replace"
+        },
+        {
+          "args": {
+            "work": "2026-10-04-003-workbook-navigation-repair"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "pending": [],
+      "pending_publish": false,
+      "resume": {
+        "attempt": "deliver#1.0",
+        "brief_path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-003-workbook-navigation-repair/attempts/deliver/occurrence-001/attempt-000/brief.md",
+        "draft_outputs": {
+          "delivery": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-003-workbook-navigation-repair/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md",
+          "patch": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-003-workbook-navigation-repair/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch"
+        },
+        "inputs": {
+          "change": {
+            "bytes": 4331,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-003-workbook-navigation-repair/attempts/implement/occurrence-001/attempt-000/outputs/change.md",
+            "sha256": "092388290bbca55caef32e83c29a41b2344b787b67b8b8db0c5698d345f41cc1"
+          },
+          "checks": {
+            "bytes": 2692,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-003-workbook-navigation-repair/attempts/implement/occurrence-001/attempt-000/outputs/checks.md",
+            "sha256": "f444bc8c66e460e68484cf4601a3c40d0ac4f20d309454674cf6b2199122fcc9"
+          },
+          "review": {
+            "bytes": 6415,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-003-workbook-navigation-repair/attempts/review/occurrence-001/attempt-000/outputs/review.md",
+            "sha256": "e25324c5ca5b8a5ffdc7f12d0fab956529cbf8d6f0668c100ff735cf6d738c83"
+          },
+          "task": {
+            "bytes": 636,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-003-workbook-navigation-repair/start-inputs/task",
+            "sha256": "e4d014bd7cd989244e8b7c9f98a46b917ca076d796b02e71fb3bfe27b1922933"
+          }
+        }
+      },
+      "revision": 6,
+      "status": {
+        "kind": "active"
+      },
+      "visits": {
+        "deliver": "1/1",
+        "implement": "1/3",
+        "review": "1/3"
+      },
+      "work_id": "2026-10-04-003-workbook-navigation-repair",
+      "workbook": "code-task-study@1.0.0"
+    },
+    {
+      "blocked": null,
+      "current": "review#3",
+      "done": [
+        "implement#1",
+        "review#1",
+        "implement#2",
+        "review#2",
+        "implement#3",
+        "review#3"
+      ],
+      "effects_pending": false,
+      "flow": "default",
+      "last_attempt": {
+        "attempt": "review#3.0",
+        "outputs": {
+          "review": {
+            "bytes": 1831,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-004-workbook-usability-refinement/attempts/review/occurrence-003/attempt-000/outputs/review.md",
+            "sha256": "397967e06ba8d862f852dd6f99a32eb9bdfd261adf1554f1c8f085a2376425b8"
+          }
+        },
+        "reason": null,
+        "status": "succeeded",
+        "summary": "需修改U3：拖动后的scroll251遗漏坐标；原75选择/旧工程过保留，访问额已尽，另启窄修复不改冻结报告"
+      },
+      "name": "workbook-usability-refinement",
+      "next": [
+        {
+          "args": {
+            "node": "deliver",
+            "work": "2026-10-04-004-workbook-usability-refinement"
+          },
+          "edge": "main",
+          "executor": "agent",
+          "op": "attempt begin",
+          "tier": "strong"
+        },
+        {
+          "args": {
+            "work": "2026-10-04-004-workbook-usability-refinement"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "pending": [
+        "deliver"
+      ],
+      "pending_publish": false,
+      "resume": {
+        "attempt": "review#3.0",
+        "brief_path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-004-workbook-usability-refinement/attempts/review/occurrence-003/attempt-000/brief.md",
+        "draft_outputs": {},
+        "inputs": {
+          "change": {
+            "bytes": 4968,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-004-workbook-usability-refinement/attempts/implement/occurrence-003/attempt-000/outputs/change.md",
+            "sha256": "636965785f48c5d7b3b53b498f34fdbebd3dd05397ef6c5adf3351d9597ba626"
+          },
+          "checks": {
+            "bytes": 3192,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-004-workbook-usability-refinement/attempts/implement/occurrence-003/attempt-000/outputs/checks.md",
+            "sha256": "4a16ca258d92626580801213e2d33071a13c253b9f81813c0a32d46c8f30e883"
+          },
+          "project": {
+            "bytes": 1594,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-004-workbook-usability-refinement/start-inputs/project",
+            "sha256": "3e981480bd4839d439683507b164947b7dae0f16e2216609c6cf59da9bd0c34e"
+          },
+          "task": {
+            "bytes": 1180,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-004-workbook-usability-refinement/start-inputs/task",
+            "sha256": "8eb0edb7920b8a6ece8b1a08e60a00ac9e124a02d1671d9a154520c909faf089"
+          }
+        }
+      },
+      "revision": 13,
+      "status": {
+        "kind": "active"
+      },
+      "visits": {
+        "deliver": "0/1",
+        "implement": "3/3",
+        "review": "3/3"
+      },
+      "work_id": "2026-10-04-004-workbook-usability-refinement",
+      "workbook": "code-task-study@1.0.0"
+    },
+    {
+      "blocked": null,
+      "current": "review#1",
+      "done": [
+        "implement#1"
+      ],
+      "effects_pending": false,
+      "flow": "default",
+      "last_attempt": {
+        "attempt": "review#1.0",
+        "outputs": {},
+        "reason": null,
+        "status": "running",
+        "summary": null
+      },
+      "name": "workbook-viewport-scroll-repair",
+      "next": [
+        {
+          "args": {
+            "attempt": "review#1.0",
+            "work": "2026-10-04-005-workbook-viewport-scroll-repair"
+          },
+          "op": "attempt submit"
+        },
+        {
+          "args": {
+            "attempt": "review#1.0",
+            "work": "2026-10-04-005-workbook-viewport-scroll-repair"
+          },
+          "op": "attempt fail"
+        },
+        {
+          "args": {
+            "attempt": "review#1.0",
+            "work": "2026-10-04-005-workbook-viewport-scroll-repair"
+          },
+          "op": "attempt replace"
+        },
+        {
+          "args": {
+            "work": "2026-10-04-005-workbook-viewport-scroll-repair"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "pending": [
+        "deliver"
+      ],
+      "pending_publish": false,
+      "resume": {
+        "attempt": "review#1.0",
+        "brief_path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-005-workbook-viewport-scroll-repair/attempts/review/occurrence-001/attempt-000/brief.md",
+        "draft_outputs": {
+          "review": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-005-workbook-viewport-scroll-repair/attempts/review/occurrence-001/attempt-000/outputs/review.md"
+        },
+        "inputs": {
+          "change": {
+            "bytes": 4846,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-005-workbook-viewport-scroll-repair/attempts/implement/occurrence-001/attempt-000/outputs/change.md",
+            "sha256": "5d44e7f7cea33d8c4349c7619cea728beb18b1875d45529504326e6b57a47e38"
+          },
+          "checks": {
+            "bytes": 3078,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-005-workbook-viewport-scroll-repair/attempts/implement/occurrence-001/attempt-000/outputs/checks.md",
+            "sha256": "e9ca7cd54aa74911fab9b33462d9fb68f7da881604b484dc03cad09f006acae6"
+          },
+          "project": {
+            "bytes": 1211,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-005-workbook-viewport-scroll-repair/start-inputs/project",
+            "sha256": "563227507d8bbc8da77e42ede76682b573fc79bb93bc151fda9939fd4c64340f"
+          },
+          "task": {
+            "bytes": 772,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-005-workbook-viewport-scroll-repair/start-inputs/task",
+            "sha256": "5cbb34dc5ba8f47c621461a2e9ab749f82da392a70e810f0426dbfe3c753f189"
+          }
+        }
+      },
+      "revision": 4,
+      "status": {
+        "kind": "active"
+      },
+      "visits": {
+        "deliver": "0/1",
+        "implement": "1/3",
+        "review": "1/3"
+      },
+      "work_id": "2026-10-04-005-workbook-viewport-scroll-repair",
+      "workbook": "code-task-study@1.0.0"
+    },
+    {
+      "blocked": null,
+      "current": "review#2",
+      "done": [
+        "implement#1",
+        "review#1",
+        "implement#2"
+      ],
+      "effects_pending": false,
+      "flow": "default",
+      "last_attempt": {
+        "attempt": "review#2.0",
+        "outputs": {},
+        "reason": null,
+        "status": "running",
+        "summary": null
+      },
+      "name": "workbook-clear-graph-view",
+      "next": [
+        {
+          "args": {
+            "attempt": "review#2.0",
+            "work": "2026-10-04-006-workbook-clear-graph-view"
+          },
+          "op": "attempt submit"
+        },
+        {
+          "args": {
+            "attempt": "review#2.0",
+            "work": "2026-10-04-006-workbook-clear-graph-view"
+          },
+          "op": "attempt fail"
+        },
+        {
+          "args": {
+            "attempt": "review#2.0",
+            "work": "2026-10-04-006-workbook-clear-graph-view"
+          },
+          "op": "attempt replace"
+        },
+        {
+          "args": {
+            "work": "2026-10-04-006-workbook-clear-graph-view"
+          },
+          "op": "work cancel"
+        }
+      ],
+      "pending": [
+        "deliver"
+      ],
+      "pending_publish": false,
+      "resume": {
+        "attempt": "review#2.0",
+        "brief_path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-006-workbook-clear-graph-view/attempts/review/occurrence-002/attempt-000/brief.md",
+        "draft_outputs": {
+          "review": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-006-workbook-clear-graph-view/attempts/review/occurrence-002/attempt-000/outputs/review.md"
+        },
+        "inputs": {
+          "change": {
+            "bytes": 5266,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-006-workbook-clear-graph-view/attempts/implement/occurrence-002/attempt-000/outputs/change.md",
+            "sha256": "4569afed70a811056f9dcaf0a0a1144bf59c96d4f8bfe13d66b35da7d2ebbdf3"
+          },
+          "checks": {
+            "bytes": 3199,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-006-workbook-clear-graph-view/attempts/implement/occurrence-002/attempt-000/outputs/checks.md",
+            "sha256": "28913b5f1fcf689db047ea15a248ceb19a0d331989f73254d91274f594a40c05"
+          },
+          "project": {
+            "bytes": 1579,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-006-workbook-clear-graph-view/start-inputs/project",
+            "sha256": "7fb890447523edd100e9fa6c4daf85b1c7abcd6a28344e5d12099ad852ff70a3"
+          },
+          "task": {
+            "bytes": 2029,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-006-workbook-clear-graph-view/start-inputs/task",
+            "sha256": "d755dade05beb6c33ab9ec3ebbba2a38d7633e658d27afc722610f43691322c8"
+          }
+        }
+      },
+      "revision": 8,
+      "status": {
+        "kind": "active"
+      },
+      "visits": {
+        "deliver": "0/1",
+        "implement": "2/3",
+        "review": "2/3"
+      },
+      "work_id": "2026-10-04-006-workbook-clear-graph-view",
+      "workbook": "code-task-study@1.0.0"
+    },
+    {
+      "blocked": null,
+      "current": "deliver#1",
+      "done": [
+        "implement#1",
+        "review#1",
+        "implement#2",
+        "review#2",
+        "deliver#1"
+      ],
+      "effects_pending": false,
+      "flow": "default",
+      "last_attempt": {
+        "attempt": "deliver#1.0",
+        "outputs": {
+          "delivery": {
+            "bytes": 9548,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md",
+            "sha256": "52a13edfc0e4abd9f7cf47e2daad41147448d47b21de51b4f96d5b44d1e4383f"
+          },
+          "patch": {
+            "bytes": 189457,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch",
+            "sha256": "6ee6412735a35515fc33439341827dcd1a318e920259c55ee462f43b54ff1aa6"
+          }
+        },
+        "reason": null,
+        "status": "succeeded",
+        "summary": "完整交付材料已核验；独立审查及真人界面接受已记录，宿主关闭重开后同一Attempt接续，费用与个人分钟未知。"
+      },
+      "name": "workbook-compact-properties",
+      "next": [],
+      "pending": [],
+      "pending_publish": false,
+      "resume": {
+        "attempt": "deliver#1.0",
+        "brief_path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/deliver/occurrence-001/attempt-000/brief.md",
+        "draft_outputs": {},
+        "inputs": {
+          "change": {
+            "bytes": 5131,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/implement/occurrence-002/attempt-000/outputs/change.md",
+            "sha256": "b7e9adca19d0e4c1ebd1d99a7d4b04cf25c5d89a9443ee511c1d3bdc97b8e725"
+          },
+          "checks": {
+            "bytes": 2488,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/implement/occurrence-002/attempt-000/outputs/checks.md",
+            "sha256": "992a2325ca1919ae07a0ac2607a2126ed908b0ff8e9899e27fa0a0a0b82b94c3"
+          },
+          "review": {
+            "bytes": 4523,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/review/occurrence-002/attempt-000/outputs/review.md",
+            "sha256": "2efcdf8c0d7123297a66e83f9525844a9cde994ff2b5dcc402c3104f46abef09"
+          },
+          "task": {
+            "bytes": 932,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/start-inputs/task",
+            "sha256": "3339d3bdda27e1ff748bacea0788065f332395cdca070af626b7c43cafce87b1"
+          }
+        }
+      },
+      "revision": 11,
+      "status": {
+        "kind": "succeeded"
+      },
+      "visits": {
+        "deliver": "1/1",
+        "implement": "2/3",
+        "review": "2/3"
+      },
+      "work_id": "2026-10-04-007-workbook-compact-properties",
+      "workbook": "code-task-study@1.0.0"
+    },
+    {
+      "blocked": null,
+      "current": "deliver#1",
+      "done": [
+        "implement#1",
+        "review#1",
+        "implement#2",
+        "review#2",
+        "deliver#1"
+      ],
+      "effects_pending": false,
+      "flow": "default",
+      "last_attempt": {
+        "attempt": "deliver#1.0",
+        "outputs": {
+          "delivery": {
+            "bytes": 7296,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md",
+            "sha256": "3e294665ecd056c2cb044bbd1693fbad255b80dfb9b33d34021ccc2304050836"
+          },
+          "patch": {
+            "bytes": 270746,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch",
+            "sha256": "ff415138db9f938235174e5aa648a6a24d01f0bebfb86ee663c7ce5314ee7a1a"
+          }
+        },
+        "reason": null,
+        "status": "succeeded",
+        "summary": "73篇译文独审通过，完整patch独立应用与五份成果身份核验完成；真人阅读接受和实际目录写入仍未执行。"
+      },
+      "name": "agents-markdown-translation",
+      "next": [],
+      "pending": [],
+      "pending_publish": false,
+      "resume": {
+        "attempt": "deliver#1.0",
+        "brief_path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/deliver/occurrence-001/attempt-000/brief.md",
+        "draft_outputs": {},
+        "inputs": {
+          "change": {
+            "bytes": 4428,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/implement/occurrence-002/attempt-000/outputs/change.md",
+            "sha256": "64b8185e0639aaaf18faf8e3900d347fb498865d046d1209ff1edf408395c664"
+          },
+          "checks": {
+            "bytes": 3386,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/implement/occurrence-002/attempt-000/outputs/checks.md",
+            "sha256": "224a1aac0373165461973cf9ca8c448c7804016b0bdf2879bba1bc2369e3f08c"
+          },
+          "review": {
+            "bytes": 7115,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/review/occurrence-002/attempt-000/outputs/review.md",
+            "sha256": "b35ac23c4e62f0aaa5c5dd15666a1e9c92154395dfa77b614c0831939d537ffc"
+          },
+          "task": {
+            "bytes": 2066,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/start-inputs/task",
+            "sha256": "a09306b884538ccdc4fe697bd82a3b742e4749c9be5b02a159c1c6a0105f3822"
+          }
+        }
+      },
+      "revision": 11,
+      "status": {
+        "kind": "succeeded"
+      },
+      "visits": {
+        "deliver": "1/1",
+        "implement": "2/3",
+        "review": "2/3"
+      },
+      "work_id": "2026-10-04-008-agents-markdown-translation",
+      "workbook": "code-task-study@1.0.0"
+    },
+    {
+      "blocked": null,
+      "current": "deliver#1",
+      "done": [
+        "implement#1",
+        "review#1",
+        "implement#2",
+        "review#2",
+        "deliver#1"
+      ],
+      "effects_pending": false,
+      "flow": "default",
+      "last_attempt": {
+        "attempt": "deliver#1.0",
+        "outputs": {
+          "delivery": {
+            "bytes": 8670,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md",
+            "sha256": "5b2e266549af7d3376fb41bb6befe05801bd8799eb1766afdd8e09ad08b8300a"
+          },
+          "patch": {
+            "bytes": 64598,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch",
+            "sha256": "ca23e583f1a75ea4e676ab92f7758c0ee8d60592233588e86a5b090bbc195466"
+          }
+        },
+        "reason": null,
+        "status": "succeeded",
+        "summary": "同候选完整补丁及交付报告齐全，源码29与MacApp582新副本已交指定目录并独立LIVE核验；真实模型/权限/恢复与实际用户接受通过。限定范围完成，其他平台与费用限制保留。"
+      },
+      "name": "dsh-desktop-client",
+      "next": [],
+      "pending": [],
+      "pending_publish": false,
+      "resume": {
+        "attempt": "deliver#1.0",
+        "brief_path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/deliver/occurrence-001/attempt-000/brief.md",
+        "draft_outputs": {},
+        "inputs": {
+          "change": {
+            "bytes": 12846,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/implement/occurrence-002/attempt-000/outputs/change.md",
+            "sha256": "afdbfc73ce6df3c726acaff891370a585a69abf0953db5bb0e3a1c367890b6af"
+          },
+          "checks": {
+            "bytes": 17351,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/implement/occurrence-002/attempt-000/outputs/checks.md",
+            "sha256": "622a09fb447e930e1c482f8bf0537febaf2d21f9bf3525ebbb60055a072041f5"
+          },
+          "review": {
+            "bytes": 12245,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/review/occurrence-002/attempt-000/outputs/review.md",
+            "sha256": "f7ae973953df0a5f146cd66351de5bb6187f0e5c2f2bf5be255869f055cc5621"
+          },
+          "task": {
+            "bytes": 2514,
+            "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/start-inputs/task",
+            "sha256": "106b39f203a74d4439078c6f09b092d9b302e960c0a6fe699d67312be9489fa4"
+          }
+        }
+      },
+      "revision": 11,
+      "status": {
+        "kind": "succeeded"
+      },
+      "visits": {
+        "deliver": "1/1",
+        "implement": "2/3",
+        "review": "2/3"
+      },
+      "work_id": "2026-10-05-001-dsh-desktop-client",
+      "workbook": "code-task-study@1.0.0"
+    }
+  ],
+  "final_results": [
+    {
+      "artifacts": [
+        {
+          "bytes": 5131,
+          "key": "change",
+          "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/implement/occurrence-002/attempt-000/outputs/change.md",
+          "sha256": "b7e9adca19d0e4c1ebd1d99a7d4b04cf25c5d89a9443ee511c1d3bdc97b8e725",
+          "source": {
+            "attempt": "deliver#1.0",
+            "kind": "input",
+            "name": "change"
+          }
+        },
+        {
+          "bytes": 2488,
+          "key": "checks",
+          "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/implement/occurrence-002/attempt-000/outputs/checks.md",
+          "sha256": "992a2325ca1919ae07a0ac2607a2126ed908b0ff8e9899e27fa0a0a0b82b94c3",
+          "source": {
+            "attempt": "deliver#1.0",
+            "kind": "input",
+            "name": "checks"
+          }
+        },
+        {
+          "bytes": 9548,
+          "key": "delivery",
+          "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md",
+          "sha256": "52a13edfc0e4abd9f7cf47e2daad41147448d47b21de51b4f96d5b44d1e4383f",
+          "source": {
+            "attempt": "deliver#1.0",
+            "kind": "output",
+            "name": "delivery"
+          }
+        },
+        {
+          "bytes": 189457,
+          "key": "patch",
+          "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch",
+          "sha256": "6ee6412735a35515fc33439341827dcd1a318e920259c55ee462f43b54ff1aa6",
+          "source": {
+            "attempt": "deliver#1.0",
+            "kind": "output",
+            "name": "patch"
+          }
+        },
+        {
+          "bytes": 4523,
+          "key": "review",
+          "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-007-workbook-compact-properties/attempts/review/occurrence-002/attempt-000/outputs/review.md",
+          "sha256": "2efcdf8c0d7123297a66e83f9525844a9cde994ff2b5dcc402c3104f46abef09",
+          "source": {
+            "attempt": "deliver#1.0",
+            "kind": "input",
+            "name": "review"
+          }
+        }
+      ],
+      "effects_pending": false,
+      "final": true,
+      "flow": "default",
+      "format": "work-result/v1",
+      "revision": 11,
+      "status": {
+        "kind": "succeeded"
+      },
+      "work_id": "2026-10-04-007-workbook-compact-properties",
+      "workbook": {
+        "digest": "0d66bee3391522be7858130951dd979e2a7ee69b4a435e8968ac676153b21d86",
+        "id": "code-task-study",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "artifacts": [
+        {
+          "bytes": 4428,
+          "key": "change",
+          "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/implement/occurrence-002/attempt-000/outputs/change.md",
+          "sha256": "64b8185e0639aaaf18faf8e3900d347fb498865d046d1209ff1edf408395c664",
+          "source": {
+            "attempt": "deliver#1.0",
+            "kind": "input",
+            "name": "change"
+          }
+        },
+        {
+          "bytes": 3386,
+          "key": "checks",
+          "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/implement/occurrence-002/attempt-000/outputs/checks.md",
+          "sha256": "224a1aac0373165461973cf9ca8c448c7804016b0bdf2879bba1bc2369e3f08c",
+          "source": {
+            "attempt": "deliver#1.0",
+            "kind": "input",
+            "name": "checks"
+          }
+        },
+        {
+          "bytes": 7296,
+          "key": "delivery",
+          "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md",
+          "sha256": "3e294665ecd056c2cb044bbd1693fbad255b80dfb9b33d34021ccc2304050836",
+          "source": {
+            "attempt": "deliver#1.0",
+            "kind": "output",
+            "name": "delivery"
+          }
+        },
+        {
+          "bytes": 270746,
+          "key": "patch",
+          "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch",
+          "sha256": "ff415138db9f938235174e5aa648a6a24d01f0bebfb86ee663c7ce5314ee7a1a",
+          "source": {
+            "attempt": "deliver#1.0",
+            "kind": "output",
+            "name": "patch"
+          }
+        },
+        {
+          "bytes": 7115,
+          "key": "review",
+          "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-04-008-agents-markdown-translation/attempts/review/occurrence-002/attempt-000/outputs/review.md",
+          "sha256": "b35ac23c4e62f0aaa5c5dd15666a1e9c92154395dfa77b614c0831939d537ffc",
+          "source": {
+            "attempt": "deliver#1.0",
+            "kind": "input",
+            "name": "review"
+          }
+        }
+      ],
+      "effects_pending": false,
+      "final": true,
+      "flow": "default",
+      "format": "work-result/v1",
+      "revision": 11,
+      "status": {
+        "kind": "succeeded"
+      },
+      "work_id": "2026-10-04-008-agents-markdown-translation",
+      "workbook": {
+        "digest": "0d66bee3391522be7858130951dd979e2a7ee69b4a435e8968ac676153b21d86",
+        "id": "code-task-study",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "artifacts": [
+        {
+          "bytes": 12846,
+          "key": "change",
+          "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/implement/occurrence-002/attempt-000/outputs/change.md",
+          "sha256": "afdbfc73ce6df3c726acaff891370a585a69abf0953db5bb0e3a1c367890b6af",
+          "source": {
+            "attempt": "deliver#1.0",
+            "kind": "input",
+            "name": "change"
+          }
+        },
+        {
+          "bytes": 17351,
+          "key": "checks",
+          "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/implement/occurrence-002/attempt-000/outputs/checks.md",
+          "sha256": "622a09fb447e930e1c482f8bf0537febaf2d21f9bf3525ebbb60055a072041f5",
+          "source": {
+            "attempt": "deliver#1.0",
+            "kind": "input",
+            "name": "checks"
+          }
+        },
+        {
+          "bytes": 8670,
+          "key": "delivery",
+          "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/deliver/occurrence-001/attempt-000/outputs/delivery.md",
+          "sha256": "5b2e266549af7d3376fb41bb6befe05801bd8799eb1766afdd8e09ad08b8300a",
+          "source": {
+            "attempt": "deliver#1.0",
+            "kind": "output",
+            "name": "delivery"
+          }
+        },
+        {
+          "bytes": 64598,
+          "key": "patch",
+          "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/deliver/occurrence-001/attempt-000/outputs/change.patch",
+          "sha256": "ca23e583f1a75ea4e676ab92f7758c0ee8d60592233588e86a5b090bbc195466",
+          "source": {
+            "attempt": "deliver#1.0",
+            "kind": "output",
+            "name": "patch"
+          }
+        },
+        {
+          "bytes": 12245,
+          "key": "review",
+          "path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home/works/2026-10-05-001-dsh-desktop-client/attempts/review/occurrence-002/attempt-000/outputs/review.md",
+          "sha256": "f7ae973953df0a5f146cd66351de5bb6187f0e5c2f2bf5be255869f055cc5621",
+          "source": {
+            "attempt": "deliver#1.0",
+            "kind": "input",
+            "name": "review"
+          }
+        }
+      ],
+      "effects_pending": false,
+      "final": true,
+      "flow": "default",
+      "format": "work-result/v1",
+      "revision": 11,
+      "status": {
+        "kind": "succeeded"
+      },
+      "work_id": "2026-10-05-001-dsh-desktop-client",
+      "workbook": {
+        "digest": "0d66bee3391522be7858130951dd979e2a7ee69b4a435e8968ac676153b21d86",
+        "id": "code-task-study",
+        "version": "1.0.0"
+      }
+    }
+  ],
+  "method_show": {
+    "description": "同一目标、检查与有限返工方法；交付明确候选、完整patch和原始检查，内容判断由协调者与独立审阅者负责。",
+    "digest": "0d66bee3391522be7858130951dd979e2a7ee69b4a435e8968ac676153b21d86",
+    "flows": [
+      {
+        "edges": [
+          {
+            "from": "implement",
+            "kind": "main",
+            "to": "review"
+          },
+          {
+            "from": "review",
+            "kind": "back",
+            "to": "implement"
+          },
+          {
+            "from": "review",
+            "kind": "main",
+            "to": "deliver"
+          }
+        ],
+        "entry": "implement",
+        "id": "default",
+        "nodes": [
+          {
+            "executor": "agent",
+            "gate": false,
+            "id": "implement",
+            "title": "实现与检查"
+          },
+          {
+            "executor": "agent",
+            "gate": false,
+            "id": "review",
+            "title": "独立审查候选"
+          },
+          {
+            "executor": "agent",
+            "gate": false,
+            "id": "deliver",
+            "title": "整理完整交付"
+          }
+        ],
+        "start_inputs": [
+          "task",
+          "project"
+        ]
+      }
+    ],
+    "id": "code-task-study",
+    "name": "代码任务体验实验方法",
+    "pending_publish": false,
+    "requires": [],
+    "version": "1.0.0"
+  },
+  "commands": [
+    {
+      "argv": [
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+        "--home",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+        "work",
+        "list",
+        "--json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/01.stdout.json",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/01.stderr",
+      "stdout_sha256": "e9bf859dd26b8905a7286685e4366a35333d80a5a38e1c40b7f6c491fbeeb1d9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+        "--home",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+        "work",
+        "status",
+        "2026-10-04-001-workbook-visual-editor",
+        "--json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/02.stdout.json",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/02.stderr",
+      "stdout_sha256": "6026ebaaf2721f9e02c082e38f601e6cb1a2c82ec91ad570d3d9c5db403098fa",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+        "--home",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+        "work",
+        "status",
+        "2026-10-04-002-workbook-edge-repair",
+        "--json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/03.stdout.json",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/03.stderr",
+      "stdout_sha256": "cee04ad7574e8f98547b95825aec5481bfae6ee55237c2c4c6a9fa4ace9e13fd",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+        "--home",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+        "work",
+        "status",
+        "2026-10-04-003-workbook-navigation-repair",
+        "--json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/04.stdout.json",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/04.stderr",
+      "stdout_sha256": "30cdcd2bd0b3e8b579b89b152e1e6ff2d4babe12cfb57c3b97367fa52f813bb4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+        "--home",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+        "work",
+        "status",
+        "2026-10-04-004-workbook-usability-refinement",
+        "--json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/05.stdout.json",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/05.stderr",
+      "stdout_sha256": "4657fa164482300d893b214c8f0fff4f21726174a05e4209c7c69b3024ac0553",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+        "--home",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+        "work",
+        "status",
+        "2026-10-04-005-workbook-viewport-scroll-repair",
+        "--json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/06.stdout.json",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/06.stderr",
+      "stdout_sha256": "1c3aa2ab3e5a8188bf3a7c7f2dc305f5576b0cedba79f06220524192ed34a0d6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+        "--home",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+        "work",
+        "status",
+        "2026-10-04-006-workbook-clear-graph-view",
+        "--json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/07.stdout.json",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/07.stderr",
+      "stdout_sha256": "4522ed7b1552dd1f39c2867f132dd675a76a91e644c229b54f972f4d15e12678",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+        "--home",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+        "work",
+        "status",
+        "2026-10-04-007-workbook-compact-properties",
+        "--json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/08.stdout.json",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/08.stderr",
+      "stdout_sha256": "c95229de4c5b528d112191eab0c490d63b5033f7cbc9c084b7de841a84e6f128",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+        "--home",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+        "work",
+        "result",
+        "2026-10-04-007-workbook-compact-properties",
+        "--json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/09.stdout.json",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/09.stderr",
+      "stdout_sha256": "bf018ce034871cdd9a9861500e59ef2b2a2713d99169f02ead038e7a2f62a71f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+        "--home",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+        "work",
+        "status",
+        "2026-10-04-008-agents-markdown-translation",
+        "--json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/10.stdout.json",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/10.stderr",
+      "stdout_sha256": "3900dff098cd43eb83bfe1a2098d836ac5a5b9157036a8b96e612095c6bc3605",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+        "--home",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+        "work",
+        "result",
+        "2026-10-04-008-agents-markdown-translation",
+        "--json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/11.stdout.json",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/11.stderr",
+      "stdout_sha256": "9d39f720fefd2e4245840a3294a90db1769a25fa207eae518926b993037d925c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+        "--home",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+        "work",
+        "status",
+        "2026-10-05-001-dsh-desktop-client",
+        "--json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/12.stdout.json",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/12.stderr",
+      "stdout_sha256": "0cad759f47467277dd4ed8eba0de4856d1aa4de71f1f2b63b2b56e334d329d6d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+        "--home",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+        "work",
+        "result",
+        "2026-10-05-001-dsh-desktop-client",
+        "--json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/13.stdout.json",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/13.stderr",
+      "stdout_sha256": "9b08a7bcaf329793d26895daa4d1acdd63cc83653f3ca6f4f1c723e00656fb79",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+        "--home",
+        "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+        "workbook",
+        "show",
+        "code-task-study@1.0.0",
+        "--json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/14.stdout.json",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback/14.stderr",
+      "stdout_sha256": "df541d2c49addd2f40bf7df475efbc0a05b0a6ff89b1afc5a5aaeec5b535f0a6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "work_count": 9,
+  "succeeded_work_count": 3,
+  "historical_active_work_count": 6,
+  "facts": "9 actual Works, 3 selected final succeeded results; 6 previous C011 iterations held at historical pointers as required by completed C011 resume card; these are not new Native comparison runs",
+  "all_15_selected_artifact_bytes_verified": true,
+  "human_prior_use_count": "not inferred from task slots; actual Work sequence supplied with all assistant exposure",
+  "new_formal_runs_started": false,
+  "management_root_direct_writes": false
+}

@@ -1,5 +1,9 @@
 # C008 实施计划
 
+## 当前采用范围完成结论
+
+当前任务表全部为done，已采用的macOS aarch64／APFS范围无待实施或验收阻断。范围以[根规格](../../../spec.md#当前产品环境)和[D-044](../../../decisions/D-044-macos-apfs-product-scope.md)为准；[最终实跑与独立总审](../C008-dependency-readiness/evidence/final-acceptance-20261005/README.md)已核全部必需项。C005/C008未来需求触发入口与原历史未执行/费用/公平标签保留，不转成执行PASS；发布仍单独治理。
+
 状态：`completed`（仅本轮前检/真实条件缺项/授权延期交接）。probe机制not_adopted，原机制与真实观察/价值not_run；本轮scopedM1/M2完成，实际范围见plan/validation。
 
 每个任务和审查的范围基准都是本任务开工完整提交；提交前加 `--staged`，提交后用同一完整提交再核，不采用 README 总基线或随意 HEAD。准备/操作任务无 Rust 所属测试时不调用 task.sh。

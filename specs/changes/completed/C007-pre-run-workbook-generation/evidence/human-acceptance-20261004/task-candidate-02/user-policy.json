@@ -1,0 +1,15 @@
+{
+  "recorded_utc": "2026-10-04T06:56:32.058170+00:00",
+  "evidence_source": "user selected option 1 in current conversation",
+  "selection": 1,
+  "existing_translation_policy": "review_and_complete",
+  "rules": [
+    "Read current source and existing Simplified Chinese counterpart before deciding",
+    "Preserve correct complete translation content",
+    "Back up the exact existing target bytes before any repair",
+    "Retain original English source bytes",
+    "Keep original failures and previous versions; no silent overwrite"
+  ],
+  "formal_run_id": null,
+  "status": "user_selected_delivery_policy_preparation_only"
+}

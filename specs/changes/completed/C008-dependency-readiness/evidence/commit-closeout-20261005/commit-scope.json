@@ -1,0 +1,56 @@
+{
+  "recorded_utc": "2026-10-05T11:20:51.494427+00:00",
+  "base": "fcff75bf1cbc634cb7c2b84a6fac7d37f57b9910",
+  "run_dir": "/private/tmp/sheltie-c004-c008-commit-k_t_f0h0",
+  "allow_paths": [
+    "specs/README.md",
+    "specs/spec.md",
+    "specs/decisions/README.md",
+    "specs/decisions/D-044-macos-apfs-product-scope.md",
+    "specs/changes/completed/C004-verifiable-delegation/plan.md",
+    "specs/changes/completed/C004-verifiable-delegation/validation.md",
+    "specs/changes/completed/C005-executor-continuity/plan.md",
+    "specs/changes/completed/C005-executor-continuity/validation.md",
+    "specs/changes/completed/C006-result-delivery/plan.md",
+    "specs/changes/completed/C006-result-delivery/validation.md",
+    "specs/changes/completed/C007-pre-run-workbook-generation/plan.md",
+    "specs/changes/completed/C007-pre-run-workbook-generation/validation.md",
+    "specs/changes/completed/C008-dependency-readiness/plan.md",
+    "specs/changes/completed/C008-dependency-readiness/validation.md",
+    "specs/changes/completed/C002-v0.2.0-reliability/plan.md",
+    "specs/changes/completed/C002-v0.2.0-reliability/validation.md",
+    "specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005",
+    "specs/changes/completed/C005-executor-continuity/evidence/acceptance-20261005",
+    "specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005",
+    "specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005-engine-readback",
+    "specs/changes/completed/C007-pre-run-workbook-generation/evidence/acceptance-20261005",
+    "specs/changes/completed/C007-pre-run-workbook-generation/evidence/human-acceptance-20261004",
+    "specs/changes/completed/C008-dependency-readiness/evidence/acceptance-20261004",
+    "specs/changes/completed/C008-dependency-readiness/evidence/remaining-20261005",
+    "specs/changes/completed/C008-dependency-readiness/evidence/scope-macos-apfs-20261005",
+    "specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005",
+    "specs/changes/completed/C008-dependency-readiness/evidence/commit-closeout-20261005",
+    "specs/changes/completed/C008-dependency-readiness/remaining-acceptance.md",
+    "specs/changes/completed/C010-local-simplification/evidence/acceptance-20261004",
+    "_typos.toml"
+  ],
+  "excluded_modified": [
+    "specs/changes/completed/C010-local-simplification/validation.md"
+  ],
+  "actual_task_rows_all_done": {
+    "C004": 14,
+    "C005": 10,
+    "C006": 12,
+    "C007": 11,
+    "C008": 9
+  },
+  "scope": "current user-confirmed macOS aarch64/APFS, mixed3 completion; preserve old not_run/value limits",
+  "changes": "documentation/scope/archival validation only, already committed product code no new diff",
+  "citation_dependencies": [
+    "C002environment scope documentation and read-only carrier evidence",
+    "C01010files required by C008 earlier MSRV citation, not independent validation-page modification"
+  ],
+  "commit_authorized": "explicit current user instruction if complete submit code",
+  "commit_task_kind": "one completed cross-package acceptance closure; no synthetic active Task/Work trailer",
+  "supporting_hook_policy": "exact immutable work-export payload glob excluded from spelling auto-rewrite; authorship docs/case/conflict/symlink/TOML/semantic gates remain enabled"
+}

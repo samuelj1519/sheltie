@@ -700,3 +700,7 @@ T58独立修复提交6e33c37成功后，恢复M2 protocol文档到已审57f1 SHA
 M2修后完整[Spec](evidence/completion-20261003/m2-repaired-spec-review.md)/[工程](evidence/completion-20261003/m2-repaired-engineering-review.md)独立scoped PASS，无当前C002必修缺口；原32c报告与旧标签原件留原。受审6e33与protocol57f1、190/134、新951/46/2检测/新native、ef6173freshdeny4及当前drydist6全部分别绑定。归档只移动目录、修权威入口/既有链接，记录中的原run paths保持历史，不重写JSON/tar。C004–C008仍待依次恢复，不能由本M2推出全产品价值或发布。
 
 归档前后705文件逐SHA完全相同；root索引初次在“无active”行追加说明导致specs格式guard失败，改为规范独立声明后docs/specs0，首次原文保留。原JSON/tar录制run paths不改。
+
+## 2026-10-05 当前采用范围收尾
+
+当前只读载体前检已完成，真实物理非法UTF-8构造与外置盘仍缺实际目标/授权，保持not_run；首沙盒失败与字段读取修正保留。 实际原件与范围见 [本次记录](evidence/acceptance-20261005/README.md)。旧验证和原失败不改。

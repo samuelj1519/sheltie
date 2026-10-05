@@ -1,0 +1,32 @@
+{
+  "pass": true,
+  "first_all_payload_check_exit": 2,
+  "first_stdout": "staged-all-whitespace-first.stdout",
+  "cause": "nested patch context lines and exact stderr/stdout rendering are preserved bytes, not human-authored documentation whitespace defects",
+  "authored_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--cached",
+      "--check",
+      "--",
+      ".",
+      ":(glob,exclude)specs/changes/**/evidence/**/*.json",
+      ":(glob,exclude)specs/changes/**/evidence/**/*.jsonl",
+      ":(glob,exclude)specs/changes/**/evidence/**/*.stderr",
+      ":(glob,exclude)specs/changes/**/evidence/**/*.stdout",
+      ":(glob,exclude)specs/changes/**/evidence/**/*.txt",
+      ":(glob,exclude)specs/changes/**/evidence/**/*.log",
+      ":(glob,exclude)specs/changes/**/evidence/**/*.diff",
+      ":(glob,exclude)specs/changes/**/evidence/**/*.patch",
+      ":(glob,exclude)specs/changes/**/evidence/**/*.py"
+    ],
+    "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+    "exit": 0,
+    "stdout": "staged-authored-whitespace.stdout",
+    "stderr": "staged-authored-whitespace.stderr"
+  },
+  "raw_payload_proof": "original export20 by manifest; actual index Git blobs exact, historical stdout/stderr hashes preserved",
+  "no_raw_bytes_rewritten": true,
+  "git_commit_not_yet_attempted": true
+}

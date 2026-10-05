@@ -1,5 +1,7 @@
 # C008 验证：机制与真实净成本
 
+2026-10-04用户要求全量整理剩余验收；[最新清单](remaining-acceptance.md)索引C001–C010剩余真人、条件和载体义务，[本次自动工作](evidence/acceptance-20261004/README.md)记录当前前检、技术资格、新MSRV执行及真人试用准备。当前requires仍0，probe未采用；该清单不授权或宣称探针已实现/宿主ready。
+
 Candidate: `fedec201e2f71df8042088fd3caeed50519a497b`
 
 状态：`completed`（仅本轮前检/真实条件缺项/授权延期交接）。probe机制not_adopted，原机制与真实观察/价值not_run；本轮scopedM1/M2完成，实际范围见plan/validation。
@@ -125,3 +127,11 @@ C008-M1本轮前检限定PASS，candidate77f09112完整SHA；原probe未采用�
 ## M3 当前归档
 
 开工基线 `1e78a7406befc0bae4c8bc3ec82fc4b2e17ecd68`。总交接明确 C001–C008 真实通过、失败、未知和未执行项；旧实验原件不改。当前 192 源输入资格沿用 T05，最终独审与治理输出单列。
+
+## 2026-10-05 当前采用范围收尾
+
+当前剩余清单已纳入三任务完成与H01接受，独立收尾审查通过；7份声明/27Node/requires0原字节不变，无真实资源目标/重复摩擦，probe仍未采用。 实际原件与范围见 [本次记录](evidence/remaining-20261005/independent-review.md)。旧验证和原失败不改。
+
+## 2026-10-05 当前范围最终实跑验收
+
+用户要求继续执行到全部适用验收通过。当前macOS aarch64／APFS范围实际完成fmt/check/Clippy、948/948 Rust（run32976d61-a53c-4a04-8c79-a90da816cb26）、5/5 doctest、Rust1.85兼容编译、依赖检查、72/72编辑器真实CLI/HTTP/ZIP和全部治理门禁；232冻结输入及2补充策略文件保持。三任务实物与接受记录独立读回、最终总审PASS，无当前阻断。完整原件与当前封存见 [最终实跑记录](evidence/final-acceptance-20261005/README.md)。E01/E02按采用范围不要求，旧失败/历史费用与公平边界原样保留；未发布、安装或推送。

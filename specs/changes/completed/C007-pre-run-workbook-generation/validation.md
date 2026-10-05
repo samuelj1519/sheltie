@@ -1,5 +1,7 @@
 # C007 验证：质量与完整成本
 
+2026-10-04准备时点的真人试用与待填交接见 [human-acceptance-20261004](evidence/human-acceptance-20261004/README.md)。这次只核最新源码的可信binary、新Home和固定方法，无正式Work、run ID或真人使用历史；原质量、失败、公平偏差、not_run与未知费用均不变。
+
 Candidate: `45bf9feaf56a38a15e551a4a884b8e8cb833375f`
 
 状态：`completed`；技术资产/scopedM1/M2完成；真实任务、原正式准入/结果与盲审not_run。文档静态检查不进入实验结果。
@@ -188,3 +190,7 @@ T06分析cb315f5后按冻结规则选K72/run2（source-start仅完整合格）�
 T05 040bcbdf原件/末审、T06 cb315f5限定分析、T07 edb8f89实际文档应用分别独立单提交。公共/每armsetup/rolecost不知道的仍null，首个run19:50:26至所有审阅/分析/应用/最终归档整体180min原限22:50:26不重置；最终总值在actual收尾原件，不以六R窗口和替实际elapsed。原绝对路径/原frozenJSON/原报告计时都保原source，不归档后回写。
 
 根入口/原34资产/新六raw/43archive/20helper与同coordinatoractualtool records/quality/分析/三实际patch完整stage/index/全commitblob逐SHA保全，Root收尾实际完成后才归档完成。新的操作指南放guides，不将实验流水加rootspec；没有push/merge/release/安装或自动未采用probe，下一C008仅按真实条件。
+
+## 2026-10-05 当前采用范围收尾
+
+用户指定C011、翻译、DSH为本轮正式混合三任务并报告完成；三终点15成果核验、H01三指南实际接受已记录。9Work实例与6历史指针披露，原Native配对/公平/15%/费用缺口保留。 实际原件与范围见 [本次记录](evidence/acceptance-20261005/README.md)。旧验证和原失败不改。

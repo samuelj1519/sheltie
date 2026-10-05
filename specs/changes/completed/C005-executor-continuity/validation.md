@@ -184,3 +184,7 @@ T06提交73520b2全原件及hooks已实际读回；独立Reviewer完整EX01–08
 真实C005撤销七前提仍null，两真实C004消费者证明当前只普通续接，负前检有效；没有资格撤销需求就不执行替换样本。原真实试用/真人接受/成本/净收益not_run，四旧LEAK因果unknown、原次工具92与历史MSRV编译/原缓存/作者空白例外留原；新技术成功不注销过去。其他平台按用户范围排除。当前技术能力可收尾，原用户价值未执行不得写成全产品PASS；后续C006按顺序另任务。
 
 归档只移动当前package并同步入口；所有实际文件精确stage、核index=physical，并保留原字节。最终治理/范围/提交与全commit blob集合逐SHA读回另实际核，不由review预授PASS。没有push/merge/release或宿主安装。
+
+## 2026-10-05 当前采用范围收尾
+
+真实撤销条件前检已完成，没有实际需撤销事件或同目标处置闭包，不执行replace；普通重开和历史active指针不充当撤销需求。 实际原件与范围见 [本次记录](evidence/acceptance-20261005/current-revocation-preflight.json)。旧验证和原失败不改。

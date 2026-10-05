@@ -1,0 +1,69 @@
+{
+  "status": "technical_preparation_pass_formal_admission_pending",
+  "source_commit": "100a6f845e619f95d2f112d2adc5637fdf00801f",
+  "preparation_root": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu",
+  "home": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/home",
+  "binaries": {
+    "sheltie-export": {
+      "cargo_executable": "/private/tmp/sheltie-c010-target/debug/sheltie-export",
+      "frozen_path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie-export",
+      "sha256": "200fa4020e19cc645a6a5930d0b0e34dba4e43247a127caf8369c3be53b3289a",
+      "bytes": 5944720,
+      "mode": "0o755"
+    },
+    "sheltie": {
+      "cargo_executable": "/private/tmp/sheltie-c010-target/debug/sheltie",
+      "frozen_path": "/private/tmp/sheltie-human-acceptance-20261004.xw8h_gyu/bin/sheltie",
+      "sha256": "04dba0274004bd46b35e68a2e5fc8f26387cf009b07c33f2e38e3caf75fb45d8",
+      "bytes": 21977976,
+      "mode": "0o755"
+    }
+  },
+  "method_dir": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C007-pre-run-workbook-generation/experiments/confirmed-input",
+  "method_identity": "code-task-study@1.0.0",
+  "method_input_bytes": [
+    {
+      "path": "README.md",
+      "sha256": "c74b3e7e70b4eeb6a6cfbb0bebed1ef91e06ab2e88afc3054f572b7db9244bd9",
+      "bytes": 1781
+    },
+    {
+      "path": "flows/default.toml",
+      "sha256": "e1bd76e9dd23f365668aad21eba8622af0be4847011f96c9c16b54b273b12c41",
+      "bytes": 1751
+    },
+    {
+      "path": "instructions/deliver.md",
+      "sha256": "edeb471207b37a0ced065fbe4ee7c8487059442288ccb6d3579b6d9772b084ca",
+      "bytes": 4321
+    },
+    {
+      "path": "instructions/implement.md",
+      "sha256": "67757622df1985ed0517362eef6ee2bf91f25b40f5e94255e6b645f6553e0fe2",
+      "bytes": 4060
+    },
+    {
+      "path": "instructions/review.md",
+      "sha256": "74ba6783b27591baf35c2c8c17555cf8a88806de0d1487ffea86e9f46c2cac3b",
+      "bytes": 3792
+    },
+    {
+      "path": "workbook.toml",
+      "sha256": "18b28ad4991b7bc57a8cbbcfb6ad9d4e427f210ab34d075735a1944096a81362",
+      "bytes": 298
+    }
+  ],
+  "add_request_id": "0588aed7-af09-4660-839a-92bfba908d2b",
+  "cli_record": "prepare-cli.json",
+  "work_count": 0,
+  "formal_run_ids": [],
+  "requires_count": 0,
+  "version": "0.3.0-rc.1",
+  "schema": 4,
+  "source_environment": "prepare-build.json",
+  "limitations": [
+    "Dedicated temporary paths must exist and match recorded SHA before use",
+    "No Work started, no actual human participant or cost data, not original formal M1 admission",
+    "No default Home, user installation or host config touched"
+  ]
+}

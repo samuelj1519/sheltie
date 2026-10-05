@@ -1,0 +1,51 @@
+fix utf-8 byte order marker..............................................Passed
+check for case conflicts.................................................Passed
+check for merge conflicts................................................Passed
+check for broken symlinks................................................Passed
+check yaml...............................................................Passed
+check toml...............................................................Passed
+fix end of files.........................................................Passed
+mixed line ending........................................................Passed
+trim trailing whitespace.................................................Passed
+typos....................................................................Failed
+- hook id: typos
+- exit code: 2
+- files were modified by this hook
+
+error: `ba` should be `by`, `be`
+   ╭▸ specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/final-report-copies/2026-10-05-001-dsh-desktop-client-01a10b12-5baf-7663-a745-191232088dec/artifacts/0005/review.md:30:59
+   │
+30 │ - report-method-qualification四stdout真实exit0，write-tree为ff0ba，diff逐byte等原完整patch；其后delivery command041重新生成diff亦同SH…
+   ╰╴                                                               ━━
+error: `ba` should be `by`, `be`
+   ╭▸ specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/final-report-copies/2026-10-05-001-dsh-desktop-client-01a10b12-5baf-7663-a745-191232088dec/artifacts/0003/delivery.md:17:194
+   │
+17 │ …e-readback.json`。29源 bytes/mode/blob同且纯Python重构tree精确ff0ba，App582项全部kind/bytes/mode/symlink同manifest，新目录619项无extr…
+   ╰╴                                                                  ━━
+error: `ba` should be `by`, `be`
+   ╭▸ specs/changes/completed/C006-result-delivery/evidence/acceptance-20261005/final-report-copies/2026-10-05-001-dsh-desktop-client-01a10b12-5baf-7663-a745-191232088dec/artifacts/0003/delivery.md:25:273
+   │
+25 │ …e-index --refresh`、`apply --index`完整patch、`write-tree`得到ff0ba；29tracked逐blob/bytes/mode同，candidate默认index/ref保持。49条…
+   ╰╴                                                                  ━━
+
+check docs...............................................................Passed
+check specs governance...................................................Passed
+check sheltie skill......................................................Passed
+check engine vocabulary..................................................Passed
+check test names and owners..............................................Passed
+cargo fmt................................................................Passed
+cargo check..............................................................Passed
+cargo clippy.............................................................Passed
+cargo deny check.........................................................Failed
+- hook id: cargo-deny
+- exit code: 1
+
+2026-10-05 11:23:07 [ERROR] failed to acquire advisory database lock: failed to obtain lock file '/Users/shushu/.cargo/advisory-dbs/db.lock': attempted to take an exclusive lock on a read-only path
+
+cargo nextest............................................................Failed
+- hook id: cargo-test
+- exit code: 92
+
+error: this repository requires nextest version 0.9.145, but the current version is 0.9.140
+info: update nextest with cargo nextest self update, or bypass check with --override-version-check
+

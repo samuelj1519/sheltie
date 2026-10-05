@@ -1,5 +1,7 @@
 # C002 实施计划
 
+当前产品环境按 [根规格](../../../spec.md#当前产品环境) 与 [D-044](../../../decisions/D-044-macos-apfs-product-scope.md) 限定为已采用的macOS／APFS本地场景。E01/E02扩展载体验收不作为当前交付欠项，原未执行/载体阻断记录保留；本次不改代码、原任务完成状态或测试合同。
+
 状态：`completed`（当前采用恢复义务限定验收）。基准：`a664e75a3ab3041d09cd0a1ab4d69336f2dcd055`。2026-09-27 用户采用。本文件是当前实施进度的唯一权威；产品语义见根规格、架构与合同。
 
 阅读 [CONTEXT.md](../../../../CONTEXT.md)、[文档地图](../../../README.md) 与 [工程规范](../../../engineering.md)，再按本计划定位任务。问题索引见 [findings.md](findings.md)，已采用机制见 [design.md](design.md)，候选与运行见 [validation.md](validation.md)，最终审查见 [review.md](review.md)，文件范围见 [tasks.toml](tasks.toml)。

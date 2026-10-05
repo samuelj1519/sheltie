@@ -1,0 +1,423 @@
+{
+  "recorded_utc": "2026-10-05T08:01:24.007136+00:00",
+  "read_only": true,
+  "disks": [
+    {
+      "DeviceIdentifier": "disk0",
+      "DeviceNode": "/dev/disk0",
+      "MountPoint": "",
+      "FilesystemName": null,
+      "FilesystemType": null,
+      "Internal": true,
+      "Whole": null,
+      "VirtualOrPhysical": "Unknown",
+      "DeviceLocation": null,
+      "Protocol": null,
+      "RemovableMedia": false,
+      "MediaType": "Generic"
+    },
+    {
+      "DeviceIdentifier": "disk1",
+      "DeviceNode": "/dev/disk1",
+      "MountPoint": "",
+      "FilesystemName": null,
+      "FilesystemType": null,
+      "Internal": true,
+      "Whole": null,
+      "VirtualOrPhysical": "Virtual",
+      "DeviceLocation": null,
+      "Protocol": null,
+      "RemovableMedia": false,
+      "MediaType": "Generic"
+    },
+    {
+      "DeviceIdentifier": "disk1s1",
+      "DeviceNode": "/dev/disk1s1",
+      "MountPoint": "/System/Volumes/iSCPreboot",
+      "FilesystemName": "APFS",
+      "FilesystemType": "apfs",
+      "Internal": true,
+      "Whole": null,
+      "VirtualOrPhysical": null,
+      "DeviceLocation": null,
+      "Protocol": null,
+      "RemovableMedia": false,
+      "MediaType": "Generic"
+    },
+    {
+      "DeviceIdentifier": "disk1s2",
+      "DeviceNode": "/dev/disk1s2",
+      "MountPoint": "/System/Volumes/xarts",
+      "FilesystemName": "APFS",
+      "FilesystemType": "apfs",
+      "Internal": true,
+      "Whole": null,
+      "VirtualOrPhysical": null,
+      "DeviceLocation": null,
+      "Protocol": null,
+      "RemovableMedia": false,
+      "MediaType": "Generic"
+    },
+    {
+      "DeviceIdentifier": "disk1s3",
+      "DeviceNode": "/dev/disk1s3",
+      "MountPoint": "/System/Volumes/Hardware",
+      "FilesystemName": "APFS",
+      "FilesystemType": "apfs",
+      "Internal": true,
+      "Whole": null,
+      "VirtualOrPhysical": null,
+      "DeviceLocation": null,
+      "Protocol": null,
+      "RemovableMedia": false,
+      "MediaType": "Generic"
+    },
+    {
+      "DeviceIdentifier": "disk2",
+      "DeviceNode": "/dev/disk2",
+      "MountPoint": "",
+      "FilesystemName": null,
+      "FilesystemType": null,
+      "Internal": true,
+      "Whole": null,
+      "VirtualOrPhysical": "Virtual",
+      "DeviceLocation": null,
+      "Protocol": null,
+      "RemovableMedia": false,
+      "MediaType": "Generic"
+    },
+    {
+      "DeviceIdentifier": "disk3",
+      "DeviceNode": "/dev/disk3",
+      "MountPoint": "",
+      "FilesystemName": null,
+      "FilesystemType": null,
+      "Internal": true,
+      "Whole": null,
+      "VirtualOrPhysical": "Virtual",
+      "DeviceLocation": null,
+      "Protocol": null,
+      "RemovableMedia": false,
+      "MediaType": "Generic"
+    },
+    {
+      "DeviceIdentifier": "disk3s1s1",
+      "DeviceNode": "/dev/disk3s1s1",
+      "MountPoint": "/",
+      "FilesystemName": "APFS",
+      "FilesystemType": "apfs",
+      "Internal": true,
+      "Whole": null,
+      "VirtualOrPhysical": null,
+      "DeviceLocation": null,
+      "Protocol": null,
+      "RemovableMedia": false,
+      "MediaType": "Generic"
+    },
+    {
+      "DeviceIdentifier": "disk3s2",
+      "DeviceNode": "/dev/disk3s2",
+      "MountPoint": "/System/Volumes/Preboot",
+      "FilesystemName": "APFS",
+      "FilesystemType": "apfs",
+      "Internal": true,
+      "Whole": null,
+      "VirtualOrPhysical": null,
+      "DeviceLocation": null,
+      "Protocol": null,
+      "RemovableMedia": false,
+      "MediaType": "Generic"
+    },
+    {
+      "DeviceIdentifier": "disk3s3",
+      "DeviceNode": "/dev/disk3s3",
+      "MountPoint": "/Volumes/Recovery",
+      "FilesystemName": "APFS",
+      "FilesystemType": "apfs",
+      "Internal": true,
+      "Whole": null,
+      "VirtualOrPhysical": null,
+      "DeviceLocation": null,
+      "Protocol": null,
+      "RemovableMedia": false,
+      "MediaType": "Generic"
+    },
+    {
+      "DeviceIdentifier": "disk3s4",
+      "DeviceNode": "/dev/disk3s4",
+      "MountPoint": "/System/Volumes/Update",
+      "FilesystemName": "APFS",
+      "FilesystemType": "apfs",
+      "Internal": true,
+      "Whole": null,
+      "VirtualOrPhysical": null,
+      "DeviceLocation": null,
+      "Protocol": null,
+      "RemovableMedia": false,
+      "MediaType": "Generic"
+    },
+    {
+      "DeviceIdentifier": "disk3s5",
+      "DeviceNode": "/dev/disk3s5",
+      "MountPoint": "/System/Volumes/Data",
+      "FilesystemName": "APFS",
+      "FilesystemType": "apfs",
+      "Internal": true,
+      "Whole": null,
+      "VirtualOrPhysical": null,
+      "DeviceLocation": null,
+      "Protocol": null,
+      "RemovableMedia": false,
+      "MediaType": "Generic"
+    },
+    {
+      "DeviceIdentifier": "disk3s6",
+      "DeviceNode": "/dev/disk3s6",
+      "MountPoint": "/System/Volumes/VM",
+      "FilesystemName": "APFS",
+      "FilesystemType": "apfs",
+      "Internal": true,
+      "Whole": null,
+      "VirtualOrPhysical": null,
+      "DeviceLocation": null,
+      "Protocol": null,
+      "RemovableMedia": false,
+      "MediaType": "Generic"
+    },
+    {
+      "DeviceIdentifier": "disk4",
+      "DeviceNode": "/dev/disk4",
+      "MountPoint": "",
+      "FilesystemName": null,
+      "FilesystemType": null,
+      "Internal": false,
+      "Whole": null,
+      "VirtualOrPhysical": "Virtual",
+      "DeviceLocation": null,
+      "Protocol": null,
+      "RemovableMedia": true,
+      "MediaType": "Generic"
+    },
+    {
+      "DeviceIdentifier": "disk5",
+      "DeviceNode": "/dev/disk5",
+      "MountPoint": "",
+      "FilesystemName": null,
+      "FilesystemType": null,
+      "Internal": false,
+      "Whole": null,
+      "VirtualOrPhysical": "Virtual",
+      "DeviceLocation": null,
+      "Protocol": null,
+      "RemovableMedia": true,
+      "MediaType": "Generic"
+    },
+    {
+      "DeviceIdentifier": "disk5s1",
+      "DeviceNode": "/dev/disk5s1",
+      "MountPoint": "/Library/Developer/CoreSimulator/Volumes/iOS_23F77",
+      "FilesystemName": "APFS",
+      "FilesystemType": "apfs",
+      "Internal": false,
+      "Whole": null,
+      "VirtualOrPhysical": null,
+      "DeviceLocation": null,
+      "Protocol": null,
+      "RemovableMedia": true,
+      "MediaType": "Generic"
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "/usr/sbin/diskutil",
+        "list",
+        "-plist"
+      ],
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/diskutil-host-list.stdout.plist",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/diskutil-host-list.stderr"
+    },
+    {
+      "argv": [
+        "/usr/sbin/diskutil",
+        "info",
+        "-plist",
+        "disk0"
+      ],
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk0.stdout.plist",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk0.stderr"
+    },
+    {
+      "argv": [
+        "/usr/sbin/diskutil",
+        "info",
+        "-plist",
+        "disk1"
+      ],
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk1.stdout.plist",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk1.stderr"
+    },
+    {
+      "argv": [
+        "/usr/sbin/diskutil",
+        "info",
+        "-plist",
+        "disk1s1"
+      ],
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk1s1.stdout.plist",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk1s1.stderr"
+    },
+    {
+      "argv": [
+        "/usr/sbin/diskutil",
+        "info",
+        "-plist",
+        "disk1s2"
+      ],
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk1s2.stdout.plist",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk1s2.stderr"
+    },
+    {
+      "argv": [
+        "/usr/sbin/diskutil",
+        "info",
+        "-plist",
+        "disk1s3"
+      ],
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk1s3.stdout.plist",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk1s3.stderr"
+    },
+    {
+      "argv": [
+        "/usr/sbin/diskutil",
+        "info",
+        "-plist",
+        "disk2"
+      ],
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk2.stdout.plist",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk2.stderr"
+    },
+    {
+      "argv": [
+        "/usr/sbin/diskutil",
+        "info",
+        "-plist",
+        "disk3"
+      ],
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk3.stdout.plist",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk3.stderr"
+    },
+    {
+      "argv": [
+        "/usr/sbin/diskutil",
+        "info",
+        "-plist",
+        "disk3s1s1"
+      ],
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk3s1s1.stdout.plist",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk3s1s1.stderr"
+    },
+    {
+      "argv": [
+        "/usr/sbin/diskutil",
+        "info",
+        "-plist",
+        "disk3s2"
+      ],
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk3s2.stdout.plist",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk3s2.stderr"
+    },
+    {
+      "argv": [
+        "/usr/sbin/diskutil",
+        "info",
+        "-plist",
+        "disk3s3"
+      ],
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk3s3.stdout.plist",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk3s3.stderr"
+    },
+    {
+      "argv": [
+        "/usr/sbin/diskutil",
+        "info",
+        "-plist",
+        "disk3s4"
+      ],
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk3s4.stdout.plist",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk3s4.stderr"
+    },
+    {
+      "argv": [
+        "/usr/sbin/diskutil",
+        "info",
+        "-plist",
+        "disk3s5"
+      ],
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk3s5.stdout.plist",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk3s5.stderr"
+    },
+    {
+      "argv": [
+        "/usr/sbin/diskutil",
+        "info",
+        "-plist",
+        "disk3s6"
+      ],
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk3s6.stdout.plist",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk3s6.stderr"
+    },
+    {
+      "argv": [
+        "/usr/sbin/diskutil",
+        "info",
+        "-plist",
+        "disk4"
+      ],
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk4.stdout.plist",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk4.stderr"
+    },
+    {
+      "argv": [
+        "/usr/sbin/diskutil",
+        "info",
+        "-plist",
+        "disk5"
+      ],
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk5.stdout.plist",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk5.stderr"
+    },
+    {
+      "argv": [
+        "/usr/sbin/diskutil",
+        "info",
+        "-plist",
+        "disk5s1"
+      ],
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk5s1.stdout.plist",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C002-v0.2.0-reliability/evidence/acceptance-20261005/disk5s1.stderr"
+    }
+  ],
+  "external_whole_physical_candidates": [],
+  "target_path_authorized": false,
+  "actual_name_construction": "not_run",
+  "physical_export": "not_run",
+  "scope": "mounted/disk metadata only; no directory contents, no mount/unmount, no write to media"
+}

@@ -1,0 +1,662 @@
+{
+  "pass": true,
+  "reviewer": "translation_semantic_review",
+  "recorded_utc": "2026-10-05T11:07:47.423340+00:00",
+  "scope": "independent final judgment of user-adopted macOS aarch64/APFS and completed mixed3 scope; no new product design or source authoring",
+  "input_closure": {
+    "source_inputs_count": 232,
+    "source_inputs_sha256": "8dfac6cdd21982ba0d55f33dcd7f6c8675cab36b8dd9e5240c2ab5794af5741a",
+    "current_bytes_modes_and_literal_symlink_targets_match": true,
+    "declared_license_symlinks": 3,
+    "additional_policy_toolchain": "deny.toml/rust-toolchain.toml current bytes independently equal trusted compiled baseline100a; supplementary audit not invented pre-run capture"
+  },
+  "inputs": [
+    {
+      "path": "README.md",
+      "bytes": 3275,
+      "sha256": "af75abf9d080d5c4baf33a629aba30d11c3a25a4e891204783f6b2422da88614"
+    },
+    {
+      "path": "plan.json",
+      "bytes": 1544,
+      "sha256": "44fdf9ad5af5dde3ae8a3ec677cbbe2838c394263fa4e3e562df742107410b7c"
+    },
+    {
+      "path": "source-inputs.json",
+      "bytes": 49011,
+      "sha256": "8dfac6cdd21982ba0d55f33dcd7f6c8675cab36b8dd9e5240c2ab5794af5741a"
+    },
+    {
+      "path": "acceptance-matrix.json",
+      "bytes": 4805,
+      "sha256": "0b3368d3cab9c53c4abfae3a38a8644e6255aa71cf605a8090bd6f0d4ae7fcd0"
+    },
+    {
+      "path": "nextest-qualification.json",
+      "bytes": 589,
+      "sha256": "b278338eb77f267fb013ae158389ceef12f8aed796d450804f5e28a6259ffba5"
+    },
+    {
+      "path": "executed-test-qualification.json",
+      "bytes": 1265,
+      "sha256": "f64a465ba00fc003e4d421f3e148b727d11cc7a59e0db1e05dcdf7c6f1537ffc"
+    },
+    {
+      "path": "fresh-binaries.json",
+      "bytes": 2679,
+      "sha256": "20d0a1f26d822bd6e33310ce5a646d57f1fdb47bdc67b9dd79fa6858f8145b7f"
+    },
+    {
+      "path": "fixed-fresh-binaries.json",
+      "bytes": 661,
+      "sha256": "b99338aec1d47996f380b33d843a89f65f3a86777d831a480cadd818b8632ba3"
+    },
+    {
+      "path": "artifact-independent-readback.json",
+      "bytes": 98815,
+      "sha256": "df7be23e740a00f069e8e536fed92e539b4690edb5913708c8debe3fecdcc455"
+    },
+    {
+      "path": "artifact-independent-readback.md",
+      "bytes": 2364,
+      "sha256": "11c23e9a4494248b52e9702089686f576e08107dafc70c5624491da49abd1ef1"
+    },
+    {
+      "path": "dsh-runtime-current-readback.json",
+      "bytes": 543,
+      "sha256": "646d5687ab6cb25a547402003ffc82a2ebb7261e18fdad867b531453085ca428"
+    },
+    {
+      "path": "companion-policy-inputs.json",
+      "bytes": 1415,
+      "sha256": "584f96f4af079b9094b28589dd5b5fe603b408a10b29af9b5ad72644a5de65fe"
+    },
+    {
+      "path": "rust_pipeline.py.txt",
+      "bytes": 1932,
+      "sha256": "d3d77507612afcee58290616c4a41c4a879aba6debf85181e1fff57ef9b2d476"
+    },
+    {
+      "path": "run_check.py.txt",
+      "bytes": 2063,
+      "sha256": "0a872a8efd3d7a3f70ba3be2c6e94e926ad9b07ee14251eb31d403450d34d317"
+    }
+  ],
+  "checks": [
+    {
+      "name": "fmt01",
+      "metadata": "fmt01.json",
+      "metadata_sha256": "783a94c0f71df3669104ceb42a5d0c42af1352e2db3b79db7680621f47173887",
+      "argv": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "started_utc": "2026-10-05T10:44:37.796843+00:00",
+      "ended_utc": "2026-10-05T10:44:38.405151+00:00",
+      "elapsed_seconds": 0.6082587499986403,
+      "exit": 0,
+      "timeout": false,
+      "streams": {
+        "stdout": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/fmt01.stdout",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/fmt01.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reviewer_verification": "actual metadata/raw bytes SHA and result markers read; Root executed, reviewer did not rerun"
+    },
+    {
+      "name": "check01",
+      "metadata": "check01.json",
+      "metadata_sha256": "775f5f5a39fbf6828746364c09441017c336a37e9cd170f1b48bc9e5bade4187",
+      "argv": [
+        "cargo",
+        "check",
+        "--all-targets",
+        "--all-features",
+        "--locked"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "started_utc": "2026-10-05T10:44:38.429549+00:00",
+      "ended_utc": "2026-10-05T10:44:45.593292+00:00",
+      "elapsed_seconds": 7.163682500016876,
+      "exit": 0,
+      "timeout": false,
+      "streams": {
+        "stdout": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/check01.stdout",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/check01.stderr",
+          "bytes": 3622,
+          "sha256": "e5acb791b67f1f97024098b553276bd6e9e10fdfb43ed493ea7467892a5fc3a2"
+        }
+      },
+      "reviewer_verification": "actual metadata/raw bytes SHA and result markers read; Root executed, reviewer did not rerun"
+    },
+    {
+      "name": "clippy01",
+      "metadata": "clippy01.json",
+      "metadata_sha256": "8a5b39ea554079879fdbbb296948d9b878b14ff145e2530073aec9c64aad8c43",
+      "argv": [
+        "cargo",
+        "clippy",
+        "--all-targets",
+        "--all-features",
+        "--locked",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "started_utc": "2026-10-05T10:44:45.620250+00:00",
+      "ended_utc": "2026-10-05T10:44:48.509193+00:00",
+      "elapsed_seconds": 2.8888955829897895,
+      "exit": 0,
+      "timeout": false,
+      "streams": {
+        "stdout": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/clippy01.stdout",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/clippy01.stderr",
+          "bytes": 496,
+          "sha256": "0493e71eec8f5394a30a950f7b95688e616e23112d002b88136688e6d0d472a8"
+        }
+      },
+      "reviewer_verification": "actual metadata/raw bytes SHA and result markers read; Root executed, reviewer did not rerun"
+    },
+    {
+      "name": "build01",
+      "metadata": "build01.json",
+      "metadata_sha256": "a5e88a0f535f5e1aedc7c03f9e7d14c97302cb463b5c9db8e0d7e5076cbb3e3c",
+      "argv": [
+        "cargo",
+        "build",
+        "--bin",
+        "sheltie",
+        "--bin",
+        "sheltie-export",
+        "--all-features",
+        "--locked",
+        "--message-format=json"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "started_utc": "2026-10-05T10:44:48.533268+00:00",
+      "ended_utc": "2026-10-05T10:44:54.259559+00:00",
+      "elapsed_seconds": 5.726254665991291,
+      "exit": 0,
+      "timeout": false,
+      "streams": {
+        "stdout": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/build01.stdout",
+          "bytes": 75198,
+          "sha256": "78298d79130559bae885b58a33d6439d31bfec6039d630564996774c158ccb45"
+        },
+        "stderr": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/build01.stderr",
+          "bytes": 2091,
+          "sha256": "e772e0a7bfd6c9c6d3edbf633e43478c4e6e9b4c1c8a14b15967b23272911e06"
+        }
+      },
+      "reviewer_verification": "actual metadata/raw bytes SHA and result markers read; Root executed, reviewer did not rerun"
+    },
+    {
+      "name": "nextest01",
+      "metadata": "nextest01.json",
+      "metadata_sha256": "4318ae7f0a96180177145febb2d5795cd51bc5c813e3f59eeb9c98edecc229e1",
+      "argv": [
+        "cargo",
+        "nextest",
+        "run",
+        "--workspace",
+        "--all-features",
+        "--locked",
+        "--no-tests=fail"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "started_utc": "2026-10-05T10:44:54.300760+00:00",
+      "ended_utc": "2026-10-05T10:47:30.631555+00:00",
+      "elapsed_seconds": 156.3307637089747,
+      "exit": 0,
+      "timeout": false,
+      "streams": {
+        "stdout": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/nextest01.stdout",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/nextest01.stderr",
+          "bytes": 120087,
+          "sha256": "cf7d9782bfbb782c92ce7df32be8e1e942001d6fffccdffdfb8ad99b32d88e2a"
+        }
+      },
+      "reviewer_verification": "actual metadata/raw bytes SHA and result markers read; Root executed, reviewer did not rerun"
+    },
+    {
+      "name": "doctest01",
+      "metadata": "doctest01.json",
+      "metadata_sha256": "cdc77ef909de8788bd528dc539fa16ab33a6da08ab58edf4d9f3ea49acc4b58b",
+      "argv": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--doc",
+        "--all-features",
+        "--locked"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "started_utc": "2026-10-05T10:47:30.663282+00:00",
+      "ended_utc": "2026-10-05T10:47:31.709664+00:00",
+      "elapsed_seconds": 1.046317000000272,
+      "exit": 0,
+      "timeout": false,
+      "streams": {
+        "stdout": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/doctest01.stdout",
+          "bytes": 852,
+          "sha256": "aa2b8043e459525ca2000d52cedade036cf8fe6e6dc4f96c6060e7a79724f82b"
+        },
+        "stderr": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/doctest01.stderr",
+          "bytes": 156,
+          "sha256": "97b01d6ddea52cd28a0ee5b3470961472bbd2c08dab9a8782fd8643a67300867"
+        }
+      },
+      "reviewer_verification": "actual metadata/raw bytes SHA and result markers read; Root executed, reviewer did not rerun"
+    },
+    {
+      "name": "msrvcheck01",
+      "metadata": "msrvcheck01.json",
+      "metadata_sha256": "673241ec22c45f526258636ac7852b4dfd6424f286566226c43d01a225495daf",
+      "argv": [
+        "cargo",
+        "+1.85.0",
+        "check",
+        "--all-targets",
+        "--all-features",
+        "--locked"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "started_utc": "2026-10-05T10:47:31.737689+00:00",
+      "ended_utc": "2026-10-05T10:47:39.168183+00:00",
+      "elapsed_seconds": 7.430429832951631,
+      "exit": 0,
+      "timeout": false,
+      "streams": {
+        "stdout": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/msrvcheck01.stdout",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/msrvcheck01.stderr",
+          "bytes": 3622,
+          "sha256": "d04114aa27b5d68959a9ede50351d6b298200713fe34bc1d719b5363355e7491"
+        }
+      },
+      "reviewer_verification": "actual metadata/raw bytes SHA and result markers read; Root executed, reviewer did not rerun"
+    },
+    {
+      "name": "deny02",
+      "metadata": "deny02.json",
+      "metadata_sha256": "d5242541c7d8f727f8f21acf45492a7d273aa8ef86eb09074bd6b4b589f43705",
+      "argv": [
+        "cargo",
+        "deny",
+        "check"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "started_utc": "2026-10-05T10:46:00.712789+00:00",
+      "ended_utc": "2026-10-05T10:46:06.485510+00:00",
+      "elapsed_seconds": 5.7721198329818435,
+      "exit": 0,
+      "timeout": false,
+      "streams": {
+        "stdout": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/deny02.stdout",
+          "bytes": 48,
+          "sha256": "f1a0fca39d4280363937aabd77783990ea6480bd9ca257816de3b68fc8efa845"
+        },
+        "stderr": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/deny02.stderr",
+          "bytes": 2503,
+          "sha256": "42274248ce0b5910e8d4b9bdcb8c7748e4177a939262c6f79f2c1da1601d7f13"
+        }
+      },
+      "reviewer_verification": "actual metadata/raw bytes SHA and result markers read; Root executed, reviewer did not rerun"
+    },
+    {
+      "name": "npmci01",
+      "metadata": "npmci01.json",
+      "metadata_sha256": "5d16d28a20e107d04c0b6165a1b30d6bddbd824c90b2d3ed96399cede20644ab",
+      "argv": [
+        "npm",
+        "ci",
+        "--offline",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex/tools/workbook-editor",
+      "started_utc": "2026-10-05T10:44:39.015184+00:00",
+      "ended_utc": "2026-10-05T10:44:39.828621+00:00",
+      "elapsed_seconds": 0.813322416972369,
+      "exit": 0,
+      "timeout": false,
+      "streams": {
+        "stdout": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/npmci01.stdout",
+          "bytes": 27,
+          "sha256": "a6d7bc956cde896b4b62b97fa10cf331d12060917eba93173c779a911520e887"
+        },
+        "stderr": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/npmci01.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reviewer_verification": "actual metadata/raw bytes SHA and result markers read; Root executed, reviewer did not rerun"
+    },
+    {
+      "name": "editor01",
+      "metadata": "editor01.json",
+      "metadata_sha256": "4e24b3ac85e81427567ffeb061fce38216e7138a7f9e1eb68b2e0903f9c03a4f",
+      "argv": [
+        "npm",
+        "test"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex/tools/workbook-editor",
+      "started_utc": "2026-10-05T10:48:28.497411+00:00",
+      "ended_utc": "2026-10-05T10:48:33.938336+00:00",
+      "elapsed_seconds": 5.440732249990106,
+      "exit": 0,
+      "timeout": false,
+      "streams": {
+        "stdout": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/editor01.stdout",
+          "bytes": 50101,
+          "sha256": "33a82579e4c605922f9e34931d782d1ddc3ab7c005e79cfecced6b87b533cc2d"
+        },
+        "stderr": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/editor01.stderr",
+          "bytes": 93,
+          "sha256": "8011c57af735669c6ff81cc59242a2c3a65d826d4be19c99c6e07599bda7c068"
+        }
+      },
+      "reviewer_verification": "actual metadata/raw bytes SHA and result markers read; Root executed, reviewer did not rerun"
+    },
+    {
+      "name": "docs01",
+      "metadata": "docs01.json",
+      "metadata_sha256": "c06780cb7defcac2323cc9265218f4fd7f36311397050675a36577730dfc4d05",
+      "argv": [
+        "scripts/check-docs.sh"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "started_utc": "2026-10-05T10:50:20.675386+00:00",
+      "ended_utc": "2026-10-05T10:50:24.852747+00:00",
+      "elapsed_seconds": 4.17726487503387,
+      "exit": 0,
+      "timeout": false,
+      "streams": {
+        "stdout": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/docs01.stdout",
+          "bytes": 31,
+          "sha256": "c3e38c219307ba6915a6e3841d4d4f1c843fc7ed60eaa5de489ab36e9bb8a433"
+        },
+        "stderr": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/docs01.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reviewer_verification": "actual metadata/raw bytes SHA and result markers read; Root executed, reviewer did not rerun"
+    },
+    {
+      "name": "specs01",
+      "metadata": "specs01.json",
+      "metadata_sha256": "15857f1746ac8cba5ce170680845e306922514093efe2da9f37a6127f4c089ae",
+      "argv": [
+        "scripts/check-specs.sh"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "started_utc": "2026-10-05T10:50:24.881578+00:00",
+      "ended_utc": "2026-10-05T10:50:25.767014+00:00",
+      "elapsed_seconds": 0.8853569580242038,
+      "exit": 0,
+      "timeout": false,
+      "streams": {
+        "stdout": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/specs01.stdout",
+          "bytes": 47,
+          "sha256": "c27c28de5ae4f2dabe63e8ad7e3cf6875f6f48046939eae14bf1002a68c5d91b"
+        },
+        "stderr": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/specs01.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reviewer_verification": "actual metadata/raw bytes SHA and result markers read; Root executed, reviewer did not rerun"
+    },
+    {
+      "name": "testgovernance01",
+      "metadata": "testgovernance01.json",
+      "metadata_sha256": "843f46609e335486be5f340ad968455ca1d7c9bcf1d4288bf73a48e8b9bbd5aa",
+      "argv": [
+        "scripts/check-tests.sh"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "started_utc": "2026-10-05T10:50:25.797310+00:00",
+      "ended_utc": "2026-10-05T10:50:27.172141+00:00",
+      "elapsed_seconds": 1.374757417012006,
+      "exit": 0,
+      "timeout": false,
+      "streams": {
+        "stdout": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/testgovernance01.stdout",
+          "bytes": 52,
+          "sha256": "8425e4845e81769c8ce5f19af96fbbadc279ec436c08d3226785b408bb6e6b4f"
+        },
+        "stderr": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/testgovernance01.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reviewer_verification": "actual metadata/raw bytes SHA and result markers read; Root executed, reviewer did not rerun"
+    },
+    {
+      "name": "diff01",
+      "metadata": "diff01.json",
+      "metadata_sha256": "010502a607c30ba0f1c6867dbec33f493a13b1145d4ac77ecdcef32b7649c658",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "started_utc": "2026-10-05T10:50:27.197053+00:00",
+      "ended_utc": "2026-10-05T10:50:27.218036+00:00",
+      "elapsed_seconds": 0.02091704198392108,
+      "exit": 0,
+      "timeout": false,
+      "streams": {
+        "stdout": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/diff01.stdout",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/diff01.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reviewer_verification": "actual metadata/raw bytes SHA and result markers read; Root executed, reviewer did not rerun"
+    },
+    {
+      "name": "skill01",
+      "metadata": "skill01.json",
+      "metadata_sha256": "238832befa07cacc38f9dd9579a65bedadf74678a8d319ccb03b086a0d792f16",
+      "argv": [
+        "scripts/check-skill.sh"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "started_utc": "2026-10-05T10:50:20.675392+00:00",
+      "ended_utc": "2026-10-05T10:50:21.541583+00:00",
+      "elapsed_seconds": 0.8660955830127932,
+      "exit": 0,
+      "timeout": false,
+      "streams": {
+        "stdout": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/skill01.stdout",
+          "bytes": 16,
+          "sha256": "925b36ba25f57348a70881409d7f8d3adcd3ffa39e1b622a759080f389e2beec"
+        },
+        "stderr": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/skill01.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reviewer_verification": "actual metadata/raw bytes SHA and result markers read; Root executed, reviewer did not rerun"
+    },
+    {
+      "name": "corevocab01",
+      "metadata": "corevocab01.json",
+      "metadata_sha256": "5da643e1be559a86f76f14ca3af857d29ca3eae1b96f97937d6dad9fc5d5cf9b",
+      "argv": [
+        "scripts/check-core-vocab.sh"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "started_utc": "2026-10-05T10:50:21.567661+00:00",
+      "ended_utc": "2026-10-05T10:50:21.806019+00:00",
+      "elapsed_seconds": 0.23829270800342783,
+      "exit": 0,
+      "timeout": false,
+      "streams": {
+        "stdout": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/corevocab01.stdout",
+          "bytes": 21,
+          "sha256": "4e900fc6fc6507acbc09e2cb9abe4954d5d65b6e3a5bab9e115232fed152d51f"
+        },
+        "stderr": {
+          "path": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/final-acceptance-20261005/corevocab01.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reviewer_verification": "actual metadata/raw bytes SHA and result markers read; Root executed, reviewer did not rerun"
+    }
+  ],
+  "required_checks_verified": 16,
+  "actual_test_qualification": {
+    "run_id": "32976d61-a53c-4a04-8c79-a90da816cb26",
+    "nextest_actual_PASS_rows": 948,
+    "unique_run_counter_indices": "1..948, exact complete set",
+    "failed": 0,
+    "skipped": 0,
+    "leaked": 0,
+    "timeout": false,
+    "slow_test": "add_accepts_files_at_exact_limits, 72.138sec final PASS",
+    "doctest_actual_compile_fail_passed": 5,
+    "editor_actual": {
+      "tests": 72,
+      "pass": 72,
+      "fail": 0,
+      "skip": 0,
+      "cancelled": 0,
+      "real_CLI_HTTP_ZIP_markers": true
+    },
+    "MSRV": "actual cargo+1.85.0 check alltargets/allfeatures; no current MSRV whole-test claim"
+  },
+  "nextest_tool_qualification": {
+    "release": "cargo-nextest-0.9.145",
+    "official_saved_asset_digest_match": true,
+    "archive_sha256": "52ecaedb4f5af9267ef7ed02bc937d2a15a94ff96cb663080e81311f798c9905",
+    "pinned_binary_sha256": "84882f70f095269a4d89ac2255c4fe7490545d0adf42d8556905401ed4236b33",
+    "tar_member_equals_pinned_binary": true,
+    "selected_path_by_recorded_PATH": "/private/tmp/sheltie-completion-20261003/tools/nextest/cargo-nextest",
+    "PATH_default140_not_selected": true
+  },
+  "fresh_binary_qualification": {
+    "CargoJSON_origin_match": true,
+    "copied_fixed_bytes_match": true,
+    "sheltie_sha256": "ae8e100753e35acd37735f87d8c783c975883d8fdf3321bec9815bd43641b44e",
+    "export_sha256": "213ea031e902e4d93ca76ce151d942dd7852113a7171b0b271243b8859d8af12",
+    "both_actual_MachO_arm64": true,
+    "editor_fixed_fresh_engine_matches_actual_environment_and_stream": true
+  },
+  "artifact_qualification": {
+    "independent_reader": "/root/translation_batch_1",
+    "authorship_boundary": "not current Rust/C011/DSH code or aggregate checks author; former translation batch1 author, so placement/bytes only and no new independent translation semantic or blind claim",
+    "three_actual_readonly_public_result_commands_raw_match_previous": true,
+    "current_selected15_bytes_modes_match": true,
+    "C006_capsules15_bytes_match": true,
+    "fourth_clean_manifest_and_old_annotation": true,
+    "reviewer_additional_current_translation73_bytes_modes_match": true,
+    "original145_and5backups": "reader executed same reviewed bytes; no new semantic or human reading invented",
+    "DSH29_App582_target619": "reader executed independent current bytes/tree/mode/link check; no new GUI/model replay by final reviewer",
+    "DSH_current_runtime": "Root current readonly10700files/87164490B/Node/7pkg same frozenmanifest5842…; final reviewer verified receipt+manifest identity, did not repeat10k hash",
+    "acceptance_receipt_current_SHA_checked": [
+      "C011",
+      "C011_host_reopen",
+      "DSH",
+      "H01"
+    ]
+  },
+  "first_failures_preserved": {
+    "deny01": "actual advisory cache lock read-only failure kept; deny02 normal host retry exit0, four categories ok with existing policy warnings",
+    "root_runid_parser": "original null draft retained; corrected from same raw, no test replay",
+    "artifact_reader": "full original JSON/Markdown draft bytes/SHA verified; declared3license literal+target semantics honored; no product/source repair"
+  },
+  "reviewer_reading_diagnostics": [
+    {
+      "stage": "metadata exploration",
+      "error": "AttributeError: 'list' object has no attribute 'items'",
+      "cause": "source-inputs.json actual format is list, not dictionary",
+      "resolution": "read actual list schema; no input or expectation modification"
+    },
+    {
+      "stage": "actual nextest row parsing",
+      "initial_count": 849,
+      "cause": "initial regex omitted leading spaces in indices1..99",
+      "resolution": "read same unchanged raw; accept actual padded counter format and verify all948unique indices; not product failure or rerun"
+    },
+    {
+      "stage": "C006 annotation identity",
+      "error": "FileNotFoundError: completion-audit-notes.txt",
+      "cause": "annotation path is relative to explicit original capsule, not CWD",
+      "resolution": "resolve recorded original capsule path; existing92byte note and clean-copy absence verified; no mutation/export"
+    }
+  ],
+  "findings": [],
+  "remaining_current_blockers": [],
+  "outside_current_required_scope": {
+    "E01_E02": "not required under accepted D-044; historical not_run/environment_blocked not relabeledPASS",
+    "C005_C008": "actual trigger not supplied; future event entrypoints retained",
+    "old_Native_fair_blind_cost_15pct": "unknown/not_run/not_evaluable unchanged",
+    "other_OS": "existing excluded_by_user/not_run",
+    "fees": "unknown",
+    "human_activity_minutes": "unknown",
+    "release_push_merge_install": "not authorized or implied"
+  },
+  "reviewer_actions": "readonly file/hash/raw/schema/tar-MachO analysis and readonly gitshow two trusted baseline files; no test/cargo/model/UI/media/CLI lifecycle write or source/old report mutation",
+  "final_new_text_gate": "Root to capture doc check after these new report files; existing docs count not claimed to cover them"
+}

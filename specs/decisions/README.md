@@ -18,5 +18,6 @@ MVP 之后，一个重要决定使用一个 Markdown 文件。旧决定被取代
 | D-041 | accepted | [创建顺序号与行政替换](D-041-attempt-number-and-replacement.md) |
 | D-042 | accepted | [最终成果原字节与外围副本](D-042-final-artifact-copy.md) |
 | D-043 | accepted | [未发布候选的开发目标权威](D-043-development-target-authority.md) |
+| D-044 | accepted | [当前产品定位为macOS／APFS本地场景](D-044-macos-apfs-product-scope.md) |
 
 模板字段：状态、日期、关联 change、背景、选择、否决方案、后果、确认方式。

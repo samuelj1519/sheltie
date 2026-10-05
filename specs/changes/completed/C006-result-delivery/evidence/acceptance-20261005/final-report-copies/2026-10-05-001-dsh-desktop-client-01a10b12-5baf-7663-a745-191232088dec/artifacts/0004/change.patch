@@ -1,0 +1,1180 @@
+diff --git a/README.md b/README.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..065210f95b029da047d78f37bf12aa533b9376ae
+--- /dev/null
++++ b/README.md
+@@ -0,0 +1,53 @@
++# dsh 桌面客户端
++
++一个承载本机 dsh Web UI 的薄桌面客户端。连接后，工作区、会话、模型、流式回复、工具和权限询问由所连接的 dsh 服务提供。客户端只负责连接设置、窗口和自己启动的后端生命周期。
++
++## 第一次打开
++
++打开交付目录中的 `DSH.app`，在「连接 dsh」窗口选择连接方式：
++
++- **现有服务**：默认地址为 `http://127.0.0.1:3080`。如果已经有配置好模型的 dsh 服务，点击「连接」即可使用它。支持显式填写 `localhost`、`127.0.0.1` 或 `[::1]` 的 HTTP 根地址。退出或断开客户端不会停止这个服务。
++- **客户端启动**：填写或选择 Node 程序、已安装 dsh 的 JavaScript CLI 文件（通常为 `lib/bin.js`）、dsh Home 和工作目录，然后点击「启动并连接」。客户端以本机地址、空闲端口和不打开外部浏览器的参数启动它。所选 Node 必须可执行，CLI 必须是可读文件。
++
++启动后，dsh 自身的界面负责选择工作区、创建或打开会话、发送需求、处理工具权限和停止当前请求。「连接设置…」可以重新打开连接窗口。客户端的「停止后端」停止整个自有服务，与 dsh 页面中的停止当前请求不同。
++
++## 数据和重开
++
++客户端默认在自己的应用数据目录保存 `connection.json`、浏览器数据、自有 `dsh-home/` 和 `workspace/`。macOS 默认目录为 `~/Library/Application Support/dsh-desktop/`，实际位置由 Electron 的应用数据路径决定。默认自有 Home 是持久目录；没有自动复制模型凭据。希望使用已有配置和会话时，在「客户端启动」中明确选择对应 dsh Home；该目录由 dsh 自己读取。
++
++只有连接成功后才保存参数。下次打开会用最后一次成功的参数自动尝试恢复一次；失败时保留设置窗口供修改和重试。会话记录由原 dsh 服务的 Home 管理，客户端不会在退出时删除 Home、工作目录或会话。
++
++部署或检查时可使用绝对路径 `DSH_DESKTOP_USER_DATA` 指定客户端数据目录；相对路径会报错退出。这个环境变量仅改变客户端的设置、浏览器数据和默认自有目录，不修改全局 dsh、模型或 agent 配置。例如从终端启动已构建应用：
++
++```bash
++DSH_DESKTOP_USER_DATA=/absolute/path/dsh-client-data /path/to/DSH.app/Contents/MacOS/DSH
++```
++
++## 退出和故障
++
++关闭最后一个可见窗口或按 `Cmd+Q` / 菜单「退出 dsh」，都会等待后端清理。连接现有服务时只断开连接；客户端启动的服务则先正常停止，超时后仅对记录的自有进程组强制停止。正常退出后再打开，可以恢复连接并进入既有会话。
++
++如果停止未完成，应用会保留窗口、后端所有权和错误，提供「重试退出」。这种情况不能视为已退出。启动中点击「取消」会取消等待并回收已启动的自有后端。不会按端口猜进程归属，也不会停止其他工具启动的 dsh。
++
++- **服务无法连接**：确认本机服务正在运行、地址和端口正确，再点击「重试」。HTTP 就绪只代表服务可连接，不证明模型请求成功。
++- **启动失败**：核对 Node、CLI、Home 与工作目录。若原 dsh 配置覆盖了监听地址，后端报告非本机地址时客户端会停止自己的后端并报错；不会改写全局 patch。可展开「查看后端诊断」查看有限长度的输出。
++- **连接设置损坏**：页面明确显示错误，不会自动覆盖。修改参数后点击「修复设置并连接」，成功时把原 `connection.json` 保留为带时间戳的损坏备份，再写入当前设置。
++- **页面停止或加载失败**：打开「连接设置…」并选择「重新连接」。传输连接状态与页面错误分别显示，不会把页面加载失败当成模型任务结果。
++
++## 构建
++
++使用可运行此项目依赖的 Node 和 npm，在源目录执行：
++
++```bash
++npm ci
++npm run build
++npm test
++npm start
++npm run package:mac
++```
++
++`build` 使用严格 TypeScript 检查并生成 `lib/`。`package:mac` 生成 `dist/DSH-darwin-arm64/DSH.app`；没有复制 dsh runtime、模型配置或凭据，需要本机已安装 Node 和 dsh。锁文件固定 Electron 44.5.1、packager 20.3.0、TypeScript 7.0.2 和 Node 类型 26.6.4。
++
++`npm run package:windows` 和 `npm run package:linux` 共用主体代码与打包入口；本轮只针对 macOS arm64 做实际本机验证。其他平台原生运行、商业签名、公证、自动更新与全局安装均为 `not_run`。构建、连接检查、真实模型操作和真人接受是不同证据，最终实际结果见交付报告；费用为 `unknown`。
++
++设计与安全边界见 [docs/design.md](docs/design.md)，连接实现说明见 [docs/client.md](docs/client.md)。
+diff --git a/docs/client.md b/docs/client.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..6495f7836f31e977854d1c0bcfb36c844b291f1a
+--- /dev/null
++++ b/docs/client.md
+@@ -0,0 +1,16 @@
++# 客户端实现说明
++
++后端状态以 `BackendManager` 和 `src/contracts.ts` 为唯一权威。启动页读取其不可变 DTO；另外显示页面错误、参数检查是否进行中与退出是否未完成，不创建业务会话状态或模型成功状态。所有超时在受信配置边界明确解析：启动 45 秒、HTTP 3 秒、停止宽限 7 秒、强制退出等待 2 秒、诊断上限 64 KiB。Node 类型检查仅运行 `--version`，最多 3 秒、输出最多 4 KiB；路径发现只读 PATH、常见安装目录和 realpath，不运行 dsh `--help`。
++
++`src/main.ts` 创建两类窗口：
++
++- 本地设置页仅加载应用自己的 `ui/index.html`，用沙箱 CommonJS preload 暴露 state/config/connect/stop/choose。每个 main IPC handler 核验 sender 是这个窗口的 webContents、主 frame 和精确 file URL；payload 字段、类型和长度不符即拒绝。配置文件写入受信参数，未知配置字段不被丢弃后继续，而是报错。
++- 远程 dsh 窗口直接加载已核验本机服务自己的 URL，无 preload，无 Node 桥。两个窗口均使用 `sandbox: true`、`contextIsolation: true`、`nodeIntegration: false`。设置页禁止网页权限和网络请求；远程窗口仅允许同源的剪贴板安全写入权限，保留菜单标准复制、剪切、粘贴。其他浏览器权限拒绝，dsh 自己的工具授权由它的同源 Web UI 与服务处理。
++
++远程导航和重定向只能留在当前 HTTP loopback origin；新窗口、外部 origin、任意 file 跳转和 webview 都拒绝。设置页只允许自身文件。页面的同源 fetch 与 WebSocket 直接与原 dsh 服务交互，不复制其他版本的 RPC。页面渲染失败保留连接事实并显示单独错误。
++
++成功连接的参数以版本 1 的 `connection.json` 保存在应用 userData。环境覆盖同时设置 userData 和 sessionData，且必须在 Electron ready 之前使用绝对路径。损坏配置不触发自动恢复；显式修复在成功连接后保存，保留损坏原件。自有 Home、cwd 和 dsh 的持久服务记录不会被客户端删除。
++
++退出与关闭最后一个可见窗口统一进入 await `dispose()`；参数校验中的连接操作同时失去启动资格，不能晚到后再启动。后端清理成功且在途检查结束后才调用 quit。失败仍保留错误与所有权，显示设置窗口供重试退出；不会假称 idle 或重新启动另一个后端绕过问题。
++
++原始设计和准备独审约束仍以 [design.md](design.md) 为准。本说明补充具体文件与 UI 行为，不替代独立行为测试、原生应用验收、真实模型操作或真人接受。
+diff --git a/package.json b/package.json
+index 2557856b9cdbb7b894b9036b7e89187b15a3e4bf..e5a5b2c6b5c0c6b6e2bb0ab5f8087b040ddb30cf 100644
+--- a/package.json
++++ b/package.json
+@@ -8,9 +8,9 @@
+   "scripts": {
+     "start": "npm run build && electron .",
+     "test": "npm run build && node --test test/*.test.mjs",
+-    "package:mac": "npm run build && electron-packager . DSH --platform=darwin --arch=arm64 --out=dist --overwrite --ignore=^/(control|test|dist|.git)($|/)",
+-    "package:windows": "npm run build && electron-packager . DSH --platform=win32 --arch=x64 --out=dist --overwrite --ignore=^/(control|test|dist|.git)($|/)",
+-    "package:linux": "npm run build && electron-packager . DSH --platform=linux --arch=x64 --out=dist --overwrite --ignore=^/(control|test|dist|.git)($|/)",
++    "package:mac": "npm run build && electron-packager . DSH --platform=darwin --arch=arm64 --out=dist --overwrite --ignore=\"^/(control|test|dist|\\.git)($|/)\"",
++    "package:windows": "npm run build && electron-packager . DSH --platform=win32 --arch=x64 --out=dist --overwrite --ignore=\"^/(control|test|dist|\\.git)($|/)\"",
++    "package:linux": "npm run build && electron-packager . DSH --platform=linux --arch=x64 --out=dist --overwrite --ignore=\"^/(control|test|dist|\\.git)($|/)\"",
+     "build": "tsc -p tsconfig.json"
+   },
+   "devDependencies": {
+diff --git a/src/backend.ts b/src/backend.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..003c9ab7a29900e8b869a593799fe8a41531db8f
+--- /dev/null
++++ b/src/backend.ts
+@@ -0,0 +1,379 @@
++import { spawn, type ChildProcess } from 'node:child_process';
++import http from 'node:http';
++import { lookup } from 'node:dns';
++import type { LookupFunction } from 'node:net';
++import { isAbsolute } from 'node:path';
++import type { ConnectionState, DesktopBackend, ExitFacts, OwnedLaunchSpec } from './contracts.js';
++
++/** Only explicit loopback HTTP service roots are accepted; no credentials, redirects or query strings. */
++export function validateLocalEndpoint(endpoint: string): string {
++  if (typeof endpoint !== 'string' || !/^http:\/\/(?:127\.0\.0\.1|localhost|\[::1\])(?::[0-9]+)?\/?$/.test(endpoint)) {
++    throw new Error('Use a local HTTP service root, such as http://127.0.0.1:3080, without credentials or query strings.');
++  }
++  let url: URL;
++  try { url = new URL(endpoint); }
++  catch { throw new Error('Select a valid loopback HTTP address with a port between 1 and 65535.'); }
++  if (url.port === '0') throw new Error('The service must have an actual nonzero port.');
++  return url.href;
++}
++
++interface Deferred<T> {
++  promise: Promise<T>;
++  resolve(value: T): void;
++  reject(reason: Error): void;
++}
++
++function deferred<T>(): Deferred<T> {
++  let resolve!: (value: T) => void;
++  let reject!: (reason: Error) => void;
++  const promise = new Promise<T>((yes, no) => { resolve = yes; reject = no; });
++  return { promise, resolve, reject };
++}
++
++interface Operation {
++  controller: AbortController;
++  finished: Deferred<void>;
++  cancelled: boolean;
++}
++
++interface OwnedResource {
++  child: ChildProcess;
++  pid: number | undefined;
++  spec: OwnedLaunchSpec;
++  operation: Operation;
++  ready: Deferred<string>;
++  exited: boolean;
++  closed: boolean;
++  facts: { code: number | null; signal: string | null; timedOut: boolean; forced: boolean };
++  stop: Promise<void> | null;
++}
++
++const pause = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
++const message = (reason: unknown): string => reason instanceof Error ? reason.message : String(reason);
++const abortReason = (signal: AbortSignal): Error => signal.reason instanceof Error ? signal.reason : new Error('Connection cancelled.');
++class DeadlineError extends Error {}
++
++const loopbackLookup: LookupFunction = (hostname, options, callback) => {
++  lookup(hostname, { ...options, all: true }, (error, addresses) => {
++    if (error) { callback(error, []); return; }
++    const local = addresses.filter(address => address.address === '127.0.0.1' || address.address === '::1');
++    if (!local.length) { callback(new Error('The local service hostname did not resolve to loopback.'), []); return; }
++    if (options.all) callback(null, local);
++    else callback(null, local[0]!.address, local[0]!.family);
++  });
++};
++
++/** GET readiness never follows redirects, and cancellation/deadlines destroy the local request and socket. */
++function checkHealth(endpoint: string, timeoutMs: number, signal: AbortSignal): Promise<void> {
++  return new Promise((resolve, reject) => {
++    if (signal.aborted) { reject(abortReason(signal)); return; }
++    let settled = false;
++    const request = http.get(endpoint, { agent: false, lookup: loopbackLookup }, response => {
++      const status = response.statusCode ?? 0;
++      response.resume();
++      if (status < 200 || status >= 300) finish(new Error(`Local service returned HTTP ${status}. Check the selected dsh service and retry.`));
++      else finish();
++      response.destroy();
++    });
++    const timer = setTimeout(() => finish(new DeadlineError(`Local service health check timed out after ${timeoutMs} ms. Check the service and retry.`)), timeoutMs);
++    const onAbort = () => finish(abortReason(signal));
++    function finish(error?: Error): void {
++      if (settled) return;
++      settled = true;
++      clearTimeout(timer);
++      signal.removeEventListener('abort', onAbort);
++      request.destroy();
++      if (error) reject(error); else resolve();
++    }
++    request.on('error', error => finish(new Error(`Cannot reach the local dsh service: ${error.message}`)));
++    signal.addEventListener('abort', onAbort, { once: true });
++    if (signal.aborted) onAbort();
++  });
++}
++
++function validateTimeout(value: number, name: string): void {
++  if (!Number.isSafeInteger(value) || value <= 0 || value > 2_147_483_647) throw new Error(`${name} must be a positive timeout in milliseconds.`);
++}
++
++function validateLaunch(spec: OwnedLaunchSpec): void {
++  for (const name of ['nodePath', 'launcherPath', 'homePath', 'cwd'] as const) {
++    if (typeof spec[name] !== 'string' || !isAbsolute(spec[name]) || spec[name].includes('\0')) throw new Error(`Select an absolute ${name} path before starting dsh.`);
++  }
++  for (const name of ['startupTimeoutMs', 'healthTimeoutMs', 'stopGraceMs', 'forceExitTimeoutMs'] as const) validateTimeout(spec[name], name);
++  if (!Number.isSafeInteger(spec.maxLogBytes) || spec.maxLogBytes <= 0) throw new Error('maxLogBytes must be a positive byte limit.');
++}
++
++/**
++ * Owns only children it spawned. dsh loads credentials/model settings from the explicitly selected
++ * DSH_HOME and inherited environment; this controller never opens, copies or exposes credential files.
++ * POSIX detached children have a recorded process group. Cleanup succeeds only after child close and
++ * group disappearance, including descendants holding pipes. Escaped groups cannot be inferred or killed.
++ * Windows uses taskkill /T on a recorded, still-live child PID; native Windows behavior needs host testing.
++ */
++export class BackendManager implements DesktopBackend {
++  private state: ConnectionState = Object.freeze({ phase: 'idle', ownership: null, url: null, error: null, diagnostics: '', lastExit: null });
++  private readonly listeners = new Set<(state: ConnectionState) => void>();
++  private owned: OwnedResource | null = null;
++  private operation: Operation | null = null;
++  private disconnecting: Promise<ConnectionState> | null = null;
++  private disposing: Promise<void> | null = null;
++  private sealed = false;
++  private logs = Buffer.alloc(0);
++  private logLimit = 16_384;
++
++  getState(): ConnectionState { return this.state; }
++
++  subscribe(listener: (state: ConnectionState) => void): () => void {
++    if (this.sealed) return () => {};
++    this.listeners.add(listener);
++    this.deliver(listener);
++    return () => { this.listeners.delete(listener); };
++  }
++
++  private deliver(listener: (state: ConnectionState) => void, state = this.state): void {
++    try { listener(state); } catch { /* A presentation callback cannot disrupt transport ownership. */ }
++  }
++
++  private update(patch: Partial<ConnectionState>): void {
++    this.state = Object.freeze({ ...this.state, ...patch });
++    const state = this.state;
++    for (const listener of this.listeners) this.deliver(listener, state);
++  }
++
++  private begin(): Operation {
++    if (this.sealed) throw new Error('This backend controller is disposed. Open a new controller to connect.');
++    if (this.operation || this.owned || this.disconnecting || !['idle', 'error'].includes(this.state.phase)) throw new Error('Disconnect the current service before starting another connection.');
++    const op: Operation = { controller: new AbortController(), finished: deferred<void>(), cancelled: false };
++    this.operation = op;
++    this.logs = Buffer.alloc(0);
++    return op;
++  }
++
++  private finishOperation(op: Operation): void {
++    if (this.operation === op) this.operation = null;
++    op.finished.resolve();
++  }
++
++  private eligible(op: Operation): boolean {
++    return this.operation === op && !op.controller.signal.aborted && !this.sealed && this.state.phase === 'starting';
++  }
++
++  private appendLog(text: string): void {
++    this.logs = Buffer.concat([this.logs, Buffer.from(text)]);
++    if (this.logs.length > this.logLimit) {
++      let start = this.logs.length - this.logLimit;
++      while (start < this.logs.length && (this.logs[start]! & 0xc0) === 0x80) start++;
++      this.logs = this.logs.subarray(start);
++    }
++    this.update({ diagnostics: this.logs.toString('utf8') });
++  }
++
++  private exitSnapshot(resource: OwnedResource): ExitFacts { return Object.freeze({ ...resource.facts }); }
++
++  async startOwned(input: OwnedLaunchSpec): Promise<ConnectionState> {
++    validateLaunch(input);
++    const spec = Object.freeze({ ...input });
++    const op = this.begin();
++    this.logLimit = Math.min(spec.maxLogBytes, 1_048_576);
++    let resource: OwnedResource | undefined;
++    let deadline: NodeJS.Timeout | undefined;
++    try {
++      const child = spawn(spec.nodePath, [spec.launcherPath, 'web', '--host', '127.0.0.1', '--port', '0', '--no-open'], {
++        cwd: spec.cwd,
++        env: { ...process.env, DSH_HOME: spec.homePath, DSH_TELEMETRY_DISABLED: '1' },
++        detached: process.platform !== 'win32',
++        windowsHide: true,
++        stdio: ['ignore', 'pipe', 'pipe'],
++      });
++      resource = { child, pid: child.pid, spec, operation: op, ready: deferred<string>(), exited: false, closed: false, facts: { code: null, signal: null, timedOut: false, forced: false }, stop: null };
++      this.owned = resource;
++      const current = resource;
++      void current.ready.promise.catch(() => {});
++      op.controller.signal.addEventListener('abort', () => current.ready.reject(abortReason(op.controller.signal)), { once: true });
++      let line = '';
++      let oversized = false;
++      child.stdout!.setEncoding('utf8');
++      child.stderr!.setEncoding('utf8');
++      child.stdout!.on('data', (chunk: string) => {
++        this.appendLog(chunk);
++        for (const part of chunk.split(/(?<=\n)/)) {
++          const complete = part.endsWith('\n');
++          if (!oversized && line.length + part.length <= 8192) line += part;
++          else { oversized = true; line = ''; }
++          if (!complete) continue;
++          if (!oversized && this.eligible(op) && line.startsWith('dsh web: ')) {
++            try {
++              const raw = line.replace(/\r?\n$/, '').slice('dsh web: '.length);
++              if (!/^http:\/\/(?:127\.0\.0\.1|localhost|\[::1\]):[1-9][0-9]{0,4}\/?$/.test(raw)) throw new Error('dsh did not announce an explicit loopback HTTP port. Check the selected runtime configuration.');
++              current.ready.resolve(validateLocalEndpoint(raw));
++            } catch (error) { op.controller.abort(new Error(message(error))); }
++          }
++          line = ''; oversized = false;
++        }
++      });
++      child.stderr!.on('data', (chunk: string) => this.appendLog(chunk));
++      child.stdout!.on('error', error => op.controller.abort(new Error(`Cannot read dsh stdout: ${error.message}`)));
++      child.stderr!.on('error', error => op.controller.abort(new Error(`Cannot read dsh stderr: ${error.message}`)));
++      child.once('error', error => op.controller.abort(new Error(`Cannot launch dsh with the selected Node, CLI and working directory: ${error.message}`)));
++      child.once('exit', (code, signal) => {
++        current.exited = true;
++        current.facts.code = code; current.facts.signal = signal;
++        this.observeExit(current);
++      });
++      child.once('close', (code, signal) => {
++        current.closed = true;
++        current.facts.code = code; current.facts.signal = signal;
++        this.observeExit(current);
++      });
++      deadline = setTimeout(() => {
++        current.facts.timedOut = true;
++        op.controller.abort(new Error(`dsh startup timed out after ${spec.startupTimeoutMs} ms. Check the selected runtime and configuration, then retry.`));
++      }, spec.startupTimeoutMs);
++      this.update({ phase: 'starting', ownership: 'owned', url: null, error: null, diagnostics: '', lastExit: null });
++      const endpoint = await current.ready.promise;
++      await checkHealth(endpoint, spec.healthTimeoutMs, op.controller.signal);
++      if (!this.eligible(op) || current.exited || current.closed) throw abortReason(op.controller.signal);
++      clearTimeout(deadline);
++      this.update({ phase: 'connected', url: endpoint, error: null });
++      return this.state;
++    } catch (error) {
++      let failure = new Error(message(error));
++      if (deadline) clearTimeout(deadline);
++      if (resource) {
++        if (error instanceof DeadlineError) resource.facts.timedOut = true;
++        try { await this.stopOwned(resource); }
++        catch (cleanupError) { failure = new Error(`${failure.message} Cleanup incomplete: ${message(cleanupError)}`); }
++      }
++      if (!op.cancelled || this.owned) this.update({ phase: 'error', ownership: this.owned ? 'owned' : null, url: null, error: failure.message });
++      throw failure;
++    } finally {
++      if (deadline) clearTimeout(deadline);
++      this.finishOperation(op);
++    }
++  }
++
++  private observeExit(resource: OwnedResource): void {
++    if (this.owned !== resource) return;
++    const error = new Error(`dsh exited (code ${resource.facts.code ?? 'none'}, signal ${resource.facts.signal ?? 'none'}). Check the runtime diagnostics and retry.`);
++    if (this.operation === resource.operation) resource.operation.controller.abort(error);
++    if (this.state.phase === 'connected') {
++      this.update({ phase: 'error', url: null, error: error.message, lastExit: this.exitSnapshot(resource) });
++      void this.stopOwned(resource).then(() => {
++        if (!this.owned && !this.operation && this.state.phase === 'error') this.update({ ownership: null });
++      }, reason => this.update({ error: `${error.message} Cleanup incomplete: ${message(reason)}` }));
++    } else this.update({ lastExit: this.exitSnapshot(resource) });
++  }
++
++  async attach(endpoint: string, healthTimeoutMs: number): Promise<ConnectionState> {
++    const url = validateLocalEndpoint(endpoint);
++    validateTimeout(healthTimeoutMs, 'healthTimeoutMs');
++    const op = this.begin();
++    this.logLimit = 16_384;
++    this.update({ phase: 'starting', ownership: 'external', url: null, error: null, diagnostics: '', lastExit: null });
++    try {
++      await checkHealth(url, healthTimeoutMs, op.controller.signal);
++      if (!this.eligible(op)) throw abortReason(op.controller.signal);
++      this.update({ phase: 'connected', url });
++      return this.state;
++    } catch (error) {
++      if (!op.cancelled) this.update({ phase: 'error', ownership: null, url: null, error: message(error) });
++      throw error;
++    } finally { this.finishOperation(op); }
++  }
++
++  /** On POSIX, PID is the group leader captured from our detached spawn, never from a URL or name. */
++  private groupAlive(resource: OwnedResource): boolean {
++    if (resource.pid === undefined) return false;
++    if (process.platform === 'win32') return !resource.exited && !resource.closed;
++    try { process.kill(-resource.pid, 0); return true; }
++    catch (error) {
++      if ((error as NodeJS.ErrnoException).code === 'ESRCH') return false;
++      throw new Error(`Cannot confirm owned process group ${resource.pid} has stopped: ${message(error)}`);
++    }
++  }
++
++  private async signalOwned(resource: OwnedResource, force: boolean): Promise<void> {
++    const pid = resource.pid;
++    if (pid === undefined || !this.groupAlive(resource)) return;
++    if (!Number.isSafeInteger(pid) || pid <= 1 || pid === process.pid) throw new Error('Refusing an invalid owned process identity.');
++    if (force) { resource.facts.forced = true; this.update({ lastExit: this.exitSnapshot(resource) }); }
++    if (process.platform !== 'win32') {
++      try { process.kill(-pid, force ? 'SIGKILL' : 'SIGTERM'); }
++      catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw error; }
++      return;
++    }
++    await new Promise<void>((resolve, reject) => {
++      const taskkill = spawn('taskkill.exe', ['/PID', String(pid), '/T', ...(force ? ['/F'] : [])], { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
++      let detail = '';
++      for (const stream of [taskkill.stdout!, taskkill.stderr!]) stream.on('data', chunk => { detail = (detail + String(chunk)).slice(-4096); });
++      const timer = setTimeout(() => { taskkill.kill(); reject(new Error('Owned Windows process-tree stop timed out. Retry stopping this controller.')); }, resource.spec.forceExitTimeoutMs);
++      taskkill.once('error', error => { clearTimeout(timer); reject(error); });
++      taskkill.once('close', code => {
++        clearTimeout(timer);
++        if (code === 0) resolve();
++        else reject(new Error(`Cannot stop owned Windows process tree (${code}): ${detail}`));
++      });
++    });
++  }
++
++  private async awaitStopped(resource: OwnedResource, timeoutMs: number): Promise<boolean> {
++    const end = performance.now() + timeoutMs;
++    do {
++      if (resource.closed && !this.groupAlive(resource)) return true;
++      await pause(Math.min(15, Math.max(1, end - performance.now())));
++    } while (performance.now() < end);
++    return resource.closed && !this.groupAlive(resource);
++  }
++
++  private stopOwned(resource: OwnedResource): Promise<void> {
++    if (resource.stop) return resource.stop;
++    const stop = (async () => {
++      try { await this.signalOwned(resource, false); }
++      catch (error) { this.appendLog(`Owned graceful stop failed: ${message(error)}\n`); }
++      if (!await this.awaitStopped(resource, resource.spec.stopGraceMs)) {
++        await this.signalOwned(resource, true);
++        if (!await this.awaitStopped(resource, resource.spec.forceExitTimeoutMs)) throw new Error('Owned child close or process-group disappearance could not be confirmed. Resources remain owned; retry Stop.');
++      }
++      this.update({ lastExit: this.exitSnapshot(resource) });
++      if (this.owned === resource) this.owned = null;
++    })();
++    resource.stop = stop;
++    void stop.finally(() => { if (resource.stop === stop) resource.stop = null; }).catch(() => {});
++    return stop;
++  }
++
++  disconnect(): Promise<ConnectionState> {
++    if (this.disconnecting) return this.disconnecting;
++    const pending = deferred<ConnectionState>();
++    const stopping = pending.promise;
++    this.disconnecting = stopping;
++    const op = this.operation;
++    if (op) { op.cancelled = true; op.controller.abort(new Error('Connection cancelled by Stop.')); }
++    const resource = this.owned;
++    this.update({ phase: resource ? 'stopping' : 'idle', url: null, ownership: resource ? 'owned' : null, error: null });
++    void (async () => {
++      try {
++        if (resource) await this.stopOwned(resource);
++        if (op) await op.finished.promise;
++        this.update({ phase: 'idle', ownership: null, url: null, error: null });
++        return this.state;
++      } catch (error) {
++        if (op) await op.finished.promise;
++        this.update({ phase: 'error', ownership: this.owned ? 'owned' : null, url: null, error: `Cannot stop the owned dsh runtime: ${message(error)}` });
++        throw error;
++      }
++    })().then(pending.resolve, pending.reject);
++    void stopping.finally(() => { if (this.disconnecting === stopping) this.disconnecting = null; }).catch(() => {});
++    return stopping;
++  }
++
++  dispose(): Promise<void> {
++    if (this.disposing) return this.disposing;
++    this.sealed = true;
++    this.listeners.clear();
++    const disposal = this.disconnect().then(() => {});
++    this.disposing = disposal;
++    void disposal.catch(() => { if (this.disposing === disposal) this.disposing = null; });
++    return disposal;
++  }
++}
+diff --git a/src/config.ts b/src/config.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..8e88c4083932175e423b9c4d4b798b37984735f9
+--- /dev/null
++++ b/src/config.ts
+@@ -0,0 +1,189 @@
++import { constants } from 'node:fs';
++import { access, copyFile, mkdir, open, readFile, readdir, realpath, rename, stat, unlink, type FileHandle } from 'node:fs/promises';
++import { execFile } from 'node:child_process';
++import { randomUUID } from 'node:crypto';
++import { homedir } from 'node:os';
++import { delimiter, dirname, isAbsolute, join } from 'node:path';
++import type { ConnectionState, OwnedLaunchSpec } from './contracts.js';
++
++export interface DesktopSettings {
++  mode: 'external' | 'owned';
++  endpoint: string;
++  nodePath: string;
++  launcherPath: string;
++  homePath: string;
++  cwd: string;
++}
++
++export interface SettingsSnapshot {
++  settings: DesktopSettings;
++  saved: boolean;
++  configError: string | null;
++}
++
++export interface DesktopViewState {
++  connection: ConnectionState;
++  actionError: string | null;
++  actionPending: boolean;
++  lifecycle: 'active' | 'exiting' | 'exit-failed';
++}
++
++export type PathField = 'nodePath' | 'launcherPath' | 'homePath' | 'cwd';
++
++export interface DesktopBridge {
++  config(): Promise<SettingsSnapshot>;
++  state(): Promise<DesktopViewState>;
++  connect(payload: { settings: DesktopSettings; repairConfig: boolean }): Promise<void>;
++  stop(): Promise<void>;
++  choose(payload: { field: PathField }): Promise<string | null>;
++  subscribe(listener: (state: DesktopViewState) => void): () => void;
++}
++
++const SETTINGS_KEYS = ['mode', 'endpoint', 'nodePath', 'launcherPath', 'homePath', 'cwd'];
++
++/** Reject extra fields instead of treating arbitrary renderer data as launch options. */
++export function exactObject(value: unknown, keys: readonly string[]): Record<string, unknown> {
++  if (value === null || typeof value !== 'object' || Array.isArray(value)) throw new Error('参数必须是对象。');
++  const result = value as Record<string, unknown>;
++  const actual = Object.keys(result);
++  if (actual.length !== keys.length || actual.some(key => !keys.includes(key))) throw new Error('参数字段不匹配。');
++  return result;
++}
++
++export function validateSettings(value: unknown): DesktopSettings {
++  const object = exactObject(value, SETTINGS_KEYS);
++  if (object.mode !== 'external' && object.mode !== 'owned') throw new Error('请选择现有服务或客户端启动。');
++  for (const key of SETTINGS_KEYS.slice(1)) {
++    if (typeof object[key] !== 'string' || (object[key] as string).length > 4096 || (object[key] as string).includes('\0')) {
++      throw new Error('地址和路径必须是有效文本，长度不能超过 4096 个字符。');
++    }
++  }
++  return object as unknown as DesktopSettings;
++}
++
++async function firstFile(paths: string[]): Promise<string> {
++  for (const path of paths) {
++    try {
++      const resolved = await realpath(path);
++      if ((await stat(resolved)).isFile()) return resolved;
++    } catch { /* A missing discovery candidate is not a configuration failure. */ }
++  }
++  return '';
++}
++
++async function versionFiles(root: string, suffix: string): Promise<string[]> {
++  try {
++    const versions = (await readdir(root, { withFileTypes: true })).filter(entry => entry.isDirectory()).slice(0, 100);
++    return versions.map(entry => entry.name).sort((a, b) => b.localeCompare(a, undefined, { numeric: true })).map(version => join(root, version, suffix));
++  } catch { return []; }
++}
++
++/** Only filesystem/PATH discovery; dsh --help can write generated configuration. */
++export async function defaultSettings(userData: string): Promise<DesktopSettings> {
++  const paths = (process.env.PATH ?? '').split(delimiter).filter(path => isAbsolute(path)).slice(0, 100);
++  const mise = join(homedir(), '.local', 'share', 'mise', 'installs');
++  const nodePath = await firstFile([
++    ...await versionFiles(join(mise, 'node'), 'bin/node'),
++    ...paths.map(path => join(path, process.platform === 'win32' ? 'node.exe' : 'node')),
++    '/opt/homebrew/bin/node', '/usr/local/bin/node',
++  ]);
++  const launcherPath = await firstFile([
++    ...await versionFiles(join(mise, 'npm-deepseek-ai-dsh'), 'lib/node_modules/@deepseek-ai/dsh/lib/bin.js'),
++    ...paths.map(path => join(path, 'dsh')),
++    join(homedir(), '.local', 'bin', 'dsh'),
++    '/opt/homebrew/lib/node_modules/@deepseek-ai/dsh/lib/bin.js',
++    '/usr/local/lib/node_modules/@deepseek-ai/dsh/lib/bin.js',
++  ]);
++  return { mode: 'external', endpoint: 'http://127.0.0.1:3080', nodePath, launcherPath, homePath: join(userData, 'dsh-home'), cwd: join(userData, 'workspace') };
++}
++
++export class ConfigStore {
++  readonly path: string;
++  private damaged = false;
++
++  constructor(userData: string) { this.path = join(userData, 'connection.json'); }
++
++  async load(fallback: DesktopSettings): Promise<SettingsSnapshot> {
++    let raw: string;
++    try { raw = await readFile(this.path, 'utf8'); }
++    catch (error) {
++      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return { settings: fallback, saved: false, configError: null };
++      throw error;
++    }
++    try {
++      const parsed = exactObject(JSON.parse(raw) as unknown, ['version', 'settings']);
++      if (parsed.version !== 1) throw new Error('不支持的设置版本。');
++      return { settings: validateSettings(parsed.settings), saved: true, configError: null };
++    } catch (error) {
++      this.damaged = true;
++      return { settings: fallback, saved: false, configError: `连接设置无法读取：${String(error)}。修改参数后使用「修复设置并连接」；原文件将保留备份。` };
++    }
++  }
++
++  async save(settings: DesktopSettings, repair: boolean): Promise<void> {
++    if (this.damaged && !repair) throw new Error('连接设置已损坏，需要明确选择修复后再保存。');
++    const content = JSON.stringify({ version: 1, settings: validateSettings(settings) }, null, 2) + '\n';
++    await mkdir(dirname(this.path), { recursive: true, mode: 0o700 });
++    if (this.damaged) await copyFile(this.path, `${this.path}.damaged-${Date.now()}`, constants.COPYFILE_EXCL);
++    const temporary = `${this.path}.tmp-${randomUUID()}`;
++    let handle: FileHandle | undefined;
++    let created = false;
++    let failure: unknown;
++    try {
++      handle = await open(temporary, 'wx', 0o600);
++      created = true;
++      await handle.writeFile(content, 'utf8');
++      await handle.close();
++      handle = undefined;
++      await rename(temporary, this.path);
++      created = false;
++      this.damaged = false;
++    } catch (error) {
++      failure = error;
++      throw error;
++    } finally {
++      const cleanupErrors: unknown[] = [];
++      if (handle) {
++        try { await handle.close(); } catch (error) { cleanupErrors.push(error); }
++      }
++      if (created) {
++        try { await unlink(temporary); }
++        catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') cleanupErrors.push(error); }
++      }
++      if (cleanupErrors.length) {
++        throw new AggregateError(failure === undefined ? cleanupErrors : [failure, ...cleanupErrors],
++          `临时设置文件清理失败：${temporary}。请检查应用数据目录写权限后重试；原保存错误保留在错误详情中。`);
++      }
++    }
++  }
++}
++
++function nodeVersion(nodePath: string): Promise<void> {
++  return new Promise((resolve, reject) => {
++    execFile(nodePath, ['--version'], { timeout: 3000, killSignal: 'SIGKILL', maxBuffer: 4096, windowsHide: true }, (error, stdout) => {
++      if (error) reject(new Error(`Node 验证失败：${error.message}`));
++      else if (!/^v\d+\.\d+\.\d+\s*$/.test(stdout)) reject(new Error('所选程序没有返回有效 Node 版本。'));
++      else resolve();
++    });
++  });
++}
++
++/** All timing/log limits are explicit at the trusted boundary, never hidden backend defaults. */
++export async function resolveOwnedSpec(settings: DesktopSettings): Promise<OwnedLaunchSpec> {
++  for (const [label, path] of [['Node', settings.nodePath], ['dsh CLI', settings.launcherPath], ['Home', settings.homePath], ['工作目录', settings.cwd]]) {
++    if (!isAbsolute(path)) throw new Error(`${label} 必须是绝对路径。`);
++  }
++  const nodePath = await realpath(settings.nodePath);
++  const launcherPath = await realpath(settings.launcherPath);
++  if (!(await stat(nodePath)).isFile() || !(await stat(launcherPath)).isFile()) throw new Error('Node 和 dsh CLI 必须指向文件。');
++  await access(nodePath, constants.X_OK);
++  await access(launcherPath, constants.R_OK);
++  await nodeVersion(nodePath);
++  await mkdir(settings.homePath, { recursive: true, mode: 0o700 });
++  await mkdir(settings.cwd, { recursive: true, mode: 0o700 });
++  return {
++    nodePath, launcherPath, homePath: await realpath(settings.homePath), cwd: await realpath(settings.cwd),
++    startupTimeoutMs: 45_000, healthTimeoutMs: 3_000, stopGraceMs: 7_000,
++    forceExitTimeoutMs: 2_000, maxLogBytes: 64 * 1024,
++  };
++}
+diff --git a/src/main.ts b/src/main.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..00b05c761338f8ab67b559690cb1d9d6ab5682b1
+--- /dev/null
++++ b/src/main.ts
+@@ -0,0 +1,263 @@
++import { app, BrowserWindow, dialog, ipcMain, Menu, type IpcMainInvokeEvent } from 'electron';
++import { mkdirSync } from 'node:fs';
++import { dirname, isAbsolute, join } from 'node:path';
++import { fileURLToPath, pathToFileURL } from 'node:url';
++import { BackendManager, validateLocalEndpoint } from './backend.js';
++import {
++  ConfigStore, defaultSettings, exactObject, resolveOwnedSpec, validateSettings,
++  type DesktopSettings, type DesktopViewState, type PathField, type SettingsSnapshot,
++} from './config.js';
++
++const base = dirname(fileURLToPath(import.meta.url));
++const localPath = join(base, '..', 'ui', 'index.html');
++const localURL = pathToFileURL(localPath).href;
++const manager = new BackendManager();
++let localWindow: BrowserWindow | null = null;
++let remoteWindow: BrowserWindow | null = null;
++let store: ConfigStore;
++let snapshot: SettingsSnapshot;
++let actionError: string | null = null;
++let operation: Promise<void> | null = null;
++let generation = 0;
++let lifecycle: DesktopViewState['lifecycle'] = 'active';
++let quitAllowed = false;
++let quitOperation: Promise<void> | null = null;
++let bootstrapError: unknown = null;
++
++try {
++  const override = process.env.DSH_DESKTOP_USER_DATA;
++  if (override !== undefined) {
++    if (!isAbsolute(override)) throw new Error('DSH_DESKTOP_USER_DATA 必须是绝对路径。');
++    mkdirSync(override, { recursive: true, mode: 0o700 });
++    app.setPath('userData', override);
++    app.setPath('sessionData', override);
++  }
++} catch (error) { bootstrapError = error; }
++
++function viewState(): DesktopViewState {
++  return { connection: manager.getState(), actionError, actionPending: operation !== null, lifecycle };
++}
++
++function publish(): void {
++  if (localWindow && !localWindow.isDestroyed()) localWindow.webContents.send('dsh:state-update', viewState());
++}
++
++function message(error: unknown): string { return error instanceof Error ? error.message : String(error); }
++
++function trustedSender(event: IpcMainInvokeEvent): void {
++  if (!localWindow || localWindow.isDestroyed() || event.sender !== localWindow.webContents ||
++      event.senderFrame !== localWindow.webContents.mainFrame || event.senderFrame.url !== localURL) {
++    throw new Error('拒绝来自非设置页面的请求。');
++  }
++}
++
++function noPayload(payload: unknown): void {
++  if (payload !== undefined) throw new Error('此操作不接受参数。');
++}
++
++function protectWindow(window: BrowserWindow, permitted: (url: string) => boolean): void {
++  window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
++  window.webContents.on('will-navigate', (event, url) => { if (!permitted(url)) event.preventDefault(); });
++  window.webContents.on('will-redirect', (event, url) => { if (!permitted(url)) event.preventDefault(); });
++  window.webContents.on('will-frame-navigate', event => { if (!permitted(event.url)) event.preventDefault(); });
++  window.webContents.on('will-attach-webview', event => event.preventDefault());
++  window.on('close', event => {
++    if (quitAllowed) return;
++    const others = BrowserWindow.getAllWindows().filter(other => other !== window && other.isVisible() && !other.isDestroyed());
++    if (others.length === 0) {
++      event.preventDefault();
++      void requestQuit();
++    }
++  });
++}
++
++function showSettings(): void {
++  if (!localWindow || localWindow.isDestroyed()) createSettingsWindow();
++  localWindow!.show();
++  localWindow!.focus();
++  publish();
++}
++
++function createSettingsWindow(): void {
++  const window = new BrowserWindow({
++    width: 640, height: 650, minWidth: 420, minHeight: 460, title: '连接 dsh', backgroundColor: '#f7f9fc',
++    webPreferences: { preload: join(base, 'preload.cjs'), nodeIntegration: false, contextIsolation: true, sandbox: true, partition: 'persist:dsh-settings' },
++  });
++  localWindow = window;
++  protectWindow(window, url => url === localURL);
++  window.webContents.session.setPermissionCheckHandler(() => false);
++  window.webContents.session.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
++  window.on('closed', () => { if (localWindow === window) localWindow = null; });
++  void window.loadFile(localPath).catch(error => dialog.showErrorBox('设置页面无法打开', message(error)));
++}
++
++async function showRemote(url: string): Promise<void> {
++  const endpoint = validateLocalEndpoint(url);
++  const origin = new URL(endpoint).origin;
++  if (remoteWindow && !remoteWindow.isDestroyed()) {
++    const old = remoteWindow;
++    remoteWindow = null;
++    old.destroy();
++  }
++  const window = new BrowserWindow({
++    width: 1180, height: 820, minWidth: 640, minHeight: 480, title: 'dsh', show: false, backgroundColor: '#ffffff',
++    webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true, partition: 'persist:dsh-web' },
++  });
++  remoteWindow = window;
++  protectWindow(window, target => {
++    try { return new URL(target).origin === origin; } catch { return false; }
++  });
++  const session = window.webContents.session;
++  session.setPermissionCheckHandler((contents, permission, requestingOrigin) =>
++    contents === window.webContents && requestingOrigin === origin && permission === 'clipboard-sanitized-write');
++  session.setPermissionRequestHandler((contents, permission, callback) => {
++    let sameOrigin = false;
++    try { sameOrigin = new URL(contents.getURL()).origin === origin; } catch { /* Not an origin-bearing page. */ }
++    callback(contents === window.webContents && sameOrigin && permission === 'clipboard-sanitized-write');
++  });
++  window.on('closed', () => { if (remoteWindow === window) remoteWindow = null; });
++  window.webContents.on('render-process-gone', (_event, details) => {
++    actionError = `dsh 页面已停止（${details.reason}）。请重新连接。`;
++    showSettings();
++  });
++  try {
++    await window.loadURL(endpoint);
++    if (!window.isDestroyed() && lifecycle === 'active' && manager.getState().phase === 'connected') {
++      window.show();
++      window.focus();
++      localWindow?.hide();
++    }
++  } catch (error) {
++    if (window.isDestroyed() || lifecycle !== 'active') return;
++    actionError = `服务已连接，但 dsh 页面无法打开：${message(error)}。请检查地址后重试。`;
++    showSettings();
++  }
++}
++
++async function connect(settings: DesktopSettings, repairConfig: boolean): Promise<void> {
++  if (lifecycle !== 'active') throw new Error('应用正在退出或退出未完成，请先重试退出。');
++  if (operation) throw new Error('已有连接操作正在进行，请等待或取消。');
++  if (snapshot.configError && !repairConfig) throw new Error('连接设置损坏；请使用「修复设置并连接」。');
++  const token = ++generation;
++  actionError = null;
++  const run = async (): Promise<void> => {
++    const endpoint = settings.mode === 'external' ? validateLocalEndpoint(settings.endpoint) : null;
++    const spec = settings.mode === 'owned' ? await resolveOwnedSpec(settings) : null;
++    if (token !== generation || lifecycle !== 'active') return;
++    if (manager.getState().phase !== 'idle') await manager.disconnect();
++    if (token !== generation || lifecycle !== 'active') return;
++    const state = spec ? await manager.startOwned(spec) : await manager.attach(endpoint!, 3_000);
++    if (token !== generation || lifecycle !== 'active') return;
++    if (state.phase !== 'connected' || !state.url) throw new Error(state.error ?? '服务未达到可连接状态。');
++    await store.save(settings, repairConfig);
++    snapshot = { settings: { ...settings }, saved: true, configError: null };
++    if (token !== generation || lifecycle !== 'active') return;
++    await showRemote(state.url);
++  };
++  operation = run();
++  publish();
++  try { await operation; }
++  catch (error) {
++    if (token !== generation || lifecycle !== 'active') return;
++    actionError = message(error);
++    showSettings();
++    throw error;
++  } finally { operation = null; publish(); }
++}
++
++async function stop(): Promise<void> {
++  if (lifecycle === 'exit-failed') { await requestQuit(); return; }
++  if (lifecycle !== 'active') return;
++  ++generation;
++  actionError = null;
++  if (remoteWindow && !remoteWindow.isDestroyed()) remoteWindow.destroy();
++  remoteWindow = null;
++  try {
++    await manager.disconnect();
++    await operation?.catch(() => {});
++  } catch (error) { actionError = message(error); throw error; }
++  finally { showSettings(); }
++}
++
++/** before-quit and the last visible window use the same awaited ownership cleanup. */
++function requestQuit(): Promise<void> {
++  if (quitOperation) return quitOperation;
++  ++generation;
++  lifecycle = 'exiting';
++  if (remoteWindow && !remoteWindow.isDestroyed()) remoteWindow.destroy();
++  remoteWindow = null;
++  if (snapshot) showSettings();
++  publish();
++  quitOperation = (async () => {
++    try {
++      await manager.dispose();
++      await operation?.catch(() => {});
++      quitAllowed = true;
++      app.quit();
++    } catch (error) {
++      lifecycle = 'exit-failed';
++      actionError = `退出未完成：${message(error)}。应用仍保留后端所有权，请点击「重试退出」。`;
++      showSettings();
++    } finally { quitOperation = null; publish(); }
++  })();
++  return quitOperation;
++}
++
++function installIPC(): void {
++  ipcMain.handle('dsh:config', (event, payload: unknown) => { trustedSender(event); noPayload(payload); return snapshot; });
++  ipcMain.handle('dsh:state', (event, payload: unknown) => { trustedSender(event); noPayload(payload); return viewState(); });
++  ipcMain.handle('dsh:connect', async (event, payload: unknown) => {
++    trustedSender(event);
++    const value = exactObject(payload, ['settings', 'repairConfig']);
++    if (typeof value.repairConfig !== 'boolean') throw new Error('repairConfig 必须是布尔值。');
++    await connect(validateSettings(value.settings), value.repairConfig);
++  });
++  ipcMain.handle('dsh:stop', async (event, payload: unknown) => { trustedSender(event); noPayload(payload); await stop(); });
++  ipcMain.handle('dsh:choose', async (event, payload: unknown) => {
++    trustedSender(event);
++    const value = exactObject(payload, ['field']);
++    if (!['nodePath', 'launcherPath', 'homePath', 'cwd'].includes(value.field as string)) throw new Error('未知路径字段。');
++    const field = value.field as PathField;
++    const result = await dialog.showOpenDialog(localWindow!, {
++      title: field === 'nodePath' ? '选择 Node 程序' : field === 'launcherPath' ? '选择 dsh CLI JavaScript 文件' : field === 'homePath' ? '选择 dsh Home' : '选择工作目录',
++      properties: [field === 'nodePath' || field === 'launcherPath' ? 'openFile' : 'openDirectory'],
++    });
++    return result.canceled ? null : result.filePaths[0] ?? null;
++  });
++}
++
++function installMenu(): void {
++  Menu.setApplicationMenu(Menu.buildFromTemplate([
++    { label: 'dsh', submenu: [
++      { label: '连接设置…', accelerator: 'CmdOrCtrl+,', click: showSettings },
++      { label: '重新连接', accelerator: 'CmdOrCtrl+R', click: () => { showSettings(); void connect(snapshot.settings, false).catch(() => {}); } },
++      { label: '停止客户端后端 / 断开现有服务', click: () => { void stop().catch(() => {}); } },
++      { type: 'separator' }, { label: '退出 dsh', accelerator: 'CmdOrCtrl+Q', click: () => { void requestQuit(); } },
++    ] },
++    { label: '编辑', submenu: [{ role: 'undo' }, { role: 'redo' }, { type: 'separator' }, { role: 'cut' }, { role: 'copy' }, { role: 'paste' }, { role: 'selectAll' }] },
++    { label: '视图', submenu: [{ role: 'resetZoom' }, { role: 'zoomIn' }, { role: 'zoomOut' }, { role: 'togglefullscreen' }] },
++    { label: '窗口', submenu: [{ role: 'minimize' }, { role: 'close' }] },
++  ]));
++}
++
++app.on('before-quit', event => { if (!quitAllowed) { event.preventDefault(); void requestQuit(); } });
++app.on('window-all-closed', () => { if (!quitAllowed) void requestQuit(); });
++app.on('activate', () => { if (snapshot && lifecycle !== 'exiting' && !remoteWindow?.isVisible()) showSettings(); });
++
++void app.whenReady().then(async () => {
++  if (bootstrapError) throw bootstrapError;
++  store = new ConfigStore(app.getPath('userData'));
++  snapshot = await store.load(await defaultSettings(app.getPath('userData')));
++  installIPC();
++  manager.subscribe(state => {
++    publish();
++    if (state.phase === 'error' && lifecycle === 'active') showSettings();
++  });
++  installMenu();
++  createSettingsWindow();
++  if (snapshot.saved && !snapshot.configError) void connect(snapshot.settings, false).catch(() => {});
++}).catch(error => {
++  dialog.showErrorBox('dsh 客户端无法启动', message(error));
++  quitAllowed = true;
++  app.exit(1);
++});
+diff --git a/src/preload.cts b/src/preload.cts
+new file mode 100644
+index 0000000000000000000000000000000000000000..1723dc97679d46fd33c4131896d92ce77d8b25ba
+--- /dev/null
++++ b/src/preload.cts
+@@ -0,0 +1,17 @@
++import { contextBridge, ipcRenderer } from 'electron';
++import type { DesktopBridge, DesktopViewState } from './config.js';
++
++const bridge: DesktopBridge = {
++  config: () => ipcRenderer.invoke('dsh:config'),
++  state: () => ipcRenderer.invoke('dsh:state'),
++  connect: payload => ipcRenderer.invoke('dsh:connect', payload),
++  stop: () => ipcRenderer.invoke('dsh:stop'),
++  choose: payload => ipcRenderer.invoke('dsh:choose', payload),
++  subscribe: listener => {
++    const receive = (_event: Electron.IpcRendererEvent, state: DesktopViewState) => listener(state);
++    ipcRenderer.on('dsh:state-update', receive);
++    return () => ipcRenderer.removeListener('dsh:state-update', receive);
++  },
++};
++
++contextBridge.exposeInMainWorld('dshDesktop', Object.freeze(bridge));
+diff --git a/src/renderer.ts b/src/renderer.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..6a519ad35c93d9db7e42740d95dcf3d17d2ab850
+--- /dev/null
++++ b/src/renderer.ts
+@@ -0,0 +1,118 @@
++import type { DesktopSettings, DesktopViewState, PathField, SettingsSnapshot } from './config.js';
++import type { DesktopBridge } from './config.js';
++
++declare global { interface Window { dshDesktop: DesktopBridge; } }
++
++function element<T extends HTMLElement>(id: string): T {
++  const result = document.getElementById(id);
++  if (!result) throw new Error(`缺少界面元素：${id}`);
++  return result as T;
++}
++
++const bridge = window.dshDesktop;
++const form = element<HTMLFormElement>('connection-form');
++const connectButton = element<HTMLButtonElement>('connect');
++const stopButton = element<HTMLButtonElement>('stop');
++const tabs = [element<HTMLButtonElement>('external-tab'), element<HTMLButtonElement>('owned-tab')];
++let mode: DesktopSettings['mode'] = 'external';
++let configError: string | null = null;
++let current: DesktopViewState | null = null;
++let localError: string | null = null;
++
++function selectMode(next: DesktopSettings['mode']): void {
++  mode = next;
++  tabs.forEach((tab, index) => {
++    const selected = (index === 0 ? 'external' : 'owned') === mode;
++    tab.setAttribute('aria-selected', String(selected));
++    tab.tabIndex = selected ? 0 : -1;
++  });
++  element('external-panel').hidden = mode !== 'external';
++  element('owned-panel').hidden = mode !== 'owned';
++  render();
++}
++
++function displayError(id: string, text: string | null): void {
++  const target = element(id);
++  target.textContent = text;
++  target.hidden = !text;
++}
++
++function readSettings(): DesktopSettings {
++  const value = (id: string) => element<HTMLInputElement>(id).value;
++  return { mode, endpoint: value('endpoint').trim(), nodePath: value('nodePath'), launcherPath: value('launcherPath'), homePath: value('homePath'), cwd: value('cwd') };
++}
++
++function populate(snapshot: SettingsSnapshot): void {
++  for (const key of ['endpoint', 'nodePath', 'launcherPath', 'homePath', 'cwd'] as const) {
++    element<HTMLInputElement>(key).value = snapshot.settings[key];
++  }
++  configError = snapshot.configError;
++  selectMode(snapshot.settings.mode);
++}
++
++function render(): void {
++  displayError('config-error', configError);
++  if (!current) return;
++  const { connection: state, lifecycle, actionPending } = current;
++  const busy = actionPending || state.phase === 'starting' || state.phase === 'stopping' || lifecycle !== 'active';
++  form.querySelectorAll<HTMLInputElement | HTMLButtonElement>('input, button[data-choose]').forEach(input => { input.disabled = busy; });
++  tabs.forEach(tab => { tab.disabled = busy; });
++  connectButton.disabled = busy;
++  connectButton.textContent = configError ? '修复设置并连接' : state.phase === 'error' ? '重试' : mode === 'owned' ? '启动并连接' : '连接';
++  stopButton.hidden = state.phase === 'idle' && !actionPending && lifecycle === 'active';
++  stopButton.disabled = lifecycle === 'exiting' || state.phase === 'stopping';
++  stopButton.textContent = lifecycle === 'exit-failed' ? '重试退出' : state.phase === 'starting' || actionPending ? '取消' : state.ownership === 'owned' ? '停止后端' : '断开连接';
++  const status = lifecycle === 'exiting' ? '正在等待后端停止后退出…' : lifecycle === 'exit-failed' ? '退出未完成' :
++    state.phase === 'starting' ? '正在启动后端并检查服务…' : state.phase === 'stopping' ? '正在停止后端…' :
++    actionPending && state.phase !== 'connected' ? '正在检查连接参数…' : state.phase === 'connected' ?
++    (state.ownership === 'owned' ? '已连接客户端启动的后端' : '已连接现有服务') : state.phase === 'error' ? '连接失败' : '尚未连接';
++  element('status').textContent = status;
++  const url = element('connected-url');
++  url.textContent = state.url;
++  url.hidden = !state.url;
++  displayError('action-error', localError ?? current.actionError ?? state.error);
++  element('diagnostics').textContent = state.diagnostics;
++  element('diagnostic-details').hidden = !state.diagnostics;
++}
++
++tabs.forEach((tab, index) => {
++  tab.addEventListener('click', () => selectMode(index === 0 ? 'external' : 'owned'));
++  tab.addEventListener('keydown', event => {
++    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
++      event.preventDefault();
++      selectMode(mode === 'external' ? 'owned' : 'external');
++      tabs[mode === 'external' ? 0 : 1].focus();
++    }
++  });
++});
++
++form.addEventListener('submit', event => {
++  event.preventDefault();
++  localError = null;
++  void bridge.connect({ settings: readSettings(), repairConfig: configError !== null }).then(async () => {
++    configError = (await bridge.config()).configError;
++  }).catch(error => { localError = String(error); }).finally(() => render());
++});
++
++stopButton.addEventListener('click', () => {
++  localError = null;
++  void bridge.stop().catch(error => { localError = String(error); }).finally(() => render());
++});
++
++document.querySelectorAll<HTMLButtonElement>('button[data-choose]').forEach(button => {
++  button.addEventListener('click', () => {
++    const field = button.dataset.choose as PathField;
++    void bridge.choose({ field }).then(path => { if (path) element<HTMLInputElement>(field).value = path; })
++      .catch(error => { localError = String(error); render(); });
++  });
++});
++
++const unsubscribe = bridge.subscribe(state => { current = state; render(); });
++window.addEventListener('beforeunload', unsubscribe);
++void Promise.all([bridge.config(), bridge.state()]).then(([snapshot, state]) => {
++  current = state;
++  populate(snapshot);
++}).catch(error => {
++  element('status').textContent = '连接设置无法加载';
++  displayError('action-error', String(error));
++});
+diff --git a/ui/index.html b/ui/index.html
+new file mode 100644
+index 0000000000000000000000000000000000000000..b47c75668e735962ff30f5b3c3301c9a8daf0606
+--- /dev/null
++++ b/ui/index.html
+@@ -0,0 +1,43 @@
++<!doctype html>
++<html lang="zh-CN">
++<head>
++  <meta charset="UTF-8">
++  <meta name="viewport" content="width=device-width, initial-scale=1">
++  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
++  <title>连接 dsh</title>
++  <link rel="stylesheet" href="style.css">
++</head>
++<body>
++  <main>
++    <header><h1>连接 dsh</h1><p>使用已有服务，或由客户端启动本机后端。</p></header>
++    <div class="tabs" role="tablist" aria-label="连接方式">
++      <button id="external-tab" type="button" role="tab" aria-selected="true" aria-controls="external-panel" tabindex="0">现有服务</button>
++      <button id="owned-tab" type="button" role="tab" aria-selected="false" aria-controls="owned-panel" tabindex="-1">客户端启动</button>
++    </div>
++    <form id="connection-form">
++      <section id="external-panel" role="tabpanel" aria-labelledby="external-tab">
++        <div class="field"><label for="endpoint">服务地址</label><input id="endpoint" type="url" spellcheck="false" placeholder="http://127.0.0.1:3080" autocomplete="off"></div>
++        <p class="help">连接本机已运行的 dsh。退出客户端时，服务继续运行。</p>
++      </section>
++      <section id="owned-panel" role="tabpanel" aria-labelledby="owned-tab" hidden>
++        <div class="field"><label for="nodePath">Node</label><input id="nodePath" type="text" spellcheck="false" autocomplete="off"><button type="button" data-choose="nodePath" aria-label="选择 Node 程序">选择</button></div>
++        <div class="field"><label for="launcherPath">dsh CLI</label><input id="launcherPath" type="text" spellcheck="false" autocomplete="off"><button type="button" data-choose="launcherPath" aria-label="选择 dsh CLI 文件">选择</button></div>
++        <p class="help">CLI 请选择已安装 dsh 的 JavaScript 入口文件，如 <code>lib/bin.js</code>。</p>
++        <div class="field"><label for="homePath">dsh Home</label><input id="homePath" type="text" spellcheck="false" autocomplete="off"><button type="button" data-choose="homePath" aria-label="选择 dsh Home">选择</button></div>
++        <p class="help">默认使用客户端自己的持久目录。要使用已有模型配置和会话，可明确选择对应的 dsh Home。</p>
++        <div class="field"><label for="cwd">工作目录</label><input id="cwd" type="text" spellcheck="false" autocomplete="off"><button type="button" data-choose="cwd" aria-label="选择工作目录">选择</button></div>
++        <p class="help">启动后分配空闲端口。退出客户端时，会等待所启动的后端停止；数据目录保留。</p>
++      </section>
++      <p id="config-error" class="error" role="alert" hidden></p>
++      <div class="actions"><button id="connect" class="primary" type="submit">连接</button><button id="stop" type="button" hidden>断开连接</button></div>
++    </form>
++    <section class="connection-status" aria-label="连接状态">
++      <p id="status" role="status" aria-live="polite">正在读取连接设置…</p>
++      <p id="connected-url" class="help" hidden></p>
++      <p id="action-error" class="error" role="alert" hidden></p>
++      <details id="diagnostic-details" hidden><summary>查看后端诊断</summary><pre id="diagnostics"></pre></details>
++    </section>
++  </main>
++  <script type="module" src="../lib/renderer.js"></script>
++</body>
++</html>
+diff --git a/ui/style.css b/ui/style.css
+new file mode 100644
+index 0000000000000000000000000000000000000000..7b0b2b7d9382f4e9b2f0fb9c862b8580bb4421f6
+--- /dev/null
++++ b/ui/style.css
+@@ -0,0 +1,31 @@
++:root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Noto Sans", sans-serif; color: #1f2a44; background: #f7f9fc; font-size: 14px; line-height: 1.5; }
++* { box-sizing: border-box; }
++body { margin: 0; }
++main { max-width: 700px; margin: 0 auto; padding: 28px 30px 24px; }
++header { margin-bottom: 22px; }
++h1 { margin: 0 0 5px; font-size: 24px; font-weight: 650; letter-spacing: -.35px; }
++p { margin: 0; }
++header p { color: #1f2a44; opacity: .75; }
++.tabs { display: flex; border-bottom: 1px solid #dbe3ef; gap: 24px; margin-bottom: 24px; }
++button { font: inherit; color: inherit; padding: 7px 13px; border: 1px solid #dbe3ef; border-radius: 5px; background: #fff; cursor: pointer; white-space: nowrap; }
++.tabs button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; padding: 9px 1px; background: transparent; }
++.tabs button[aria-selected="true"] { border-bottom-color: #4d6bfe; color: #1f2a44; font-weight: 600; }
++.field { display: grid; grid-template-columns: 82px minmax(0, 1fr) auto; align-items: center; gap: 10px; margin-top: 15px; }
++.field:first-child { margin-top: 0; }
++#external-panel .field { grid-template-columns: 82px minmax(0, 1fr); }
++input { min-width: 0; width: 100%; padding: 8px 9px; font: inherit; border: 1px solid #dbe3ef; border-radius: 5px; color: #1f2a44; background: #fff; }
++.help { margin-top: 8px; font-size: 12px; line-height: 1.6; color: #1f2a44; opacity: .75; overflow-wrap: anywhere; }
++.field + .help { margin-left: 92px; }
++.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
++.primary { color: #fff; background: #1f2a44; border-color: #1f2a44; min-width: 88px; font-weight: 600; }
++button:hover:enabled { border-color: #4d6bfe; }
++button:disabled, input:disabled { opacity: .6; cursor: default; }
++button:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid #4d6bfe; outline-offset: 3px; }
++.connection-status { border-top: 1px solid #dbe3ef; margin-top: 26px; padding-top: 17px; }
++#status { font-weight: 600; }
++.error { color: #b54708; font-size: 13px; overflow-wrap: anywhere; margin-top: 12px; }
++details { margin-top: 13px; font-size: 12px; }
++summary { cursor: pointer; color: #1f2a44; opacity: .75; width: fit-content; }
++pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 180px; overflow: auto; background: #fff; border: 1px solid #dbe3ef; padding: 12px; border-radius: 4px; font-size: 11px; }
++[hidden] { display: none !important; }
++@media (max-width: 480px) { main { padding: 22px 18px; } .field { grid-template-columns: 68px minmax(0, 1fr) auto; gap: 8px; } #external-panel .field { grid-template-columns: 68px minmax(0, 1fr); } .field + .help { margin-left: 76px; } }

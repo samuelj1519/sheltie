@@ -1,0 +1,8 @@
+{
+  "recorded_utc": "2026-10-05T08:17:58.002735+00:00",
+  "old_check": "new-doc-whitespace-checks.json",
+  "classification": "checker invocation unsuitable: git diff --no-index implies exit-code, --check incompatible with exit-code; exit1/empty output is not authored whitespace failure",
+  "primary_reference": "https://git-scm.com/docs/git-diff",
+  "old_results_preserved": true,
+  "new_qualification": "mandatory tracked git diff --check plus direct authored-text conflict/trailing-white checks, no frozen artifact byte rewriting"
+}

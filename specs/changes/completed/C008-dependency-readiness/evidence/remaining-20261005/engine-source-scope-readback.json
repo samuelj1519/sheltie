@@ -1,0 +1,58 @@
+{
+  "pass": true,
+  "recorded_utc": "2026-10-05T08:06:41.541293+00:00",
+  "compiled_source_baseline": "100a6f845e619f95d2f112d2adc5637fdf00801f",
+  "scope": [
+    "crates",
+    "Cargo.toml",
+    "Cargo.lock",
+    "rust-toolchain.toml",
+    ".cargo",
+    "examples",
+    "workbooks"
+  ],
+  "tracked_code_build_and_workbook_inputs_same_to_HEAD_and_worktree": true,
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "diff",
+        "100a6f845e619f95d2f112d2adc5637fdf00801f",
+        "HEAD",
+        "--",
+        "crates",
+        "Cargo.toml",
+        "Cargo.lock",
+        "rust-toolchain.toml",
+        ".cargo",
+        "examples",
+        "workbooks"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/remaining-20261005/1-engine-input-diff.stdout",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/remaining-20261005/1-engine-input-diff.stderr"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "HEAD",
+        "--",
+        "crates",
+        "Cargo.toml",
+        "Cargo.lock",
+        "rust-toolchain.toml",
+        ".cargo",
+        "examples",
+        "workbooks"
+      ],
+      "cwd": "/Users/shushu/orca/workspaces/sheltie/codex",
+      "exit": 0,
+      "stdout": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/remaining-20261005/2-engine-input-diff.stdout",
+      "stderr": "/Users/shushu/orca/workspaces/sheltie/codex/specs/changes/completed/C008-dependency-readiness/evidence/remaining-20261005/2-engine-input-diff.stderr"
+    }
+  ],
+  "meaning": "no new product Rust validation required for current docs/evidence-only work; original qualified suite remains tied to original run, not a new run",
+  "not_proved": "full machine environment or native carrier values; no new full test run claimed"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "docsfinal",
+  "exit": 1,
+  "cause": "new final README link was captured before actual closure JSON creation completed",
+  "scope": "post-report document write ordering; no product-source/test defect",
+  "correction": "actual populated verdict/reference closure now exists; rerun only changed docs gate, not already passing tests",
+  "original_raw": "docsfinal.stdout and metadata retained"
+}

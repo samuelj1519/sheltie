@@ -1,0 +1,47 @@
+{
+  "pass": true,
+  "recorded_utc": "2026-10-05T10:50:20.722770+00:00",
+  "source_input_count": 232,
+  "input_drift": [],
+  "nextest": {
+    "executed": true,
+    "run_id": "32976d61-a53c-4a04-8c79-a90da816cb26",
+    "actual_pass": 948,
+    "skipped": 0,
+    "failed": 0,
+    "leaked": 0,
+    "one_slow_test": "add_accepts_files_at_exact_limits passed72.138s, not timeout"
+  },
+  "doctests": {
+    "executed": true,
+    "actual_pass": 5
+  },
+  "editor": {
+    "executed": true,
+    "actual_pass": 72,
+    "fail": 0,
+    "skip": 0,
+    "fixed_fresh_binary": "fixed-fresh-binaries.json",
+    "deps": [
+      {
+        "name": "smol-toml",
+        "version": "1.7.1"
+      },
+      {
+        "name": "fflate",
+        "version": "0.8.2"
+      }
+    ]
+  },
+  "rust_gate_metadata": [
+    "fmt01.json",
+    "check01.json",
+    "clippy01.json",
+    "nextest01.json",
+    "doctest01.json",
+    "msrvcheck01.json"
+  ],
+  "dependency_check": "deny02 exit0; advisories/bans/licenses/sources allok, policy warnings retained",
+  "first_deny_sandbox_failure": "deny01 retained, cache-lock permission issue not dependency defect",
+  "run_id_parser_note": "initial test-run wording did not match actual Nextest run ID line; corrected extraction from same raw, no tests repeated"
+}

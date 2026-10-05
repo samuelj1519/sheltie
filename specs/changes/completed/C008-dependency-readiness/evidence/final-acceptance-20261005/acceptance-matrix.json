@@ -1,0 +1,143 @@
+{
+  "recorded_utc": "2026-10-05T10:54:30.615979+00:00",
+  "scope": "user-confirmed macOS aarch64/APFS; current adopted C011/translation/DSH completion samples",
+  "scope_authority": "specs/spec.md / D-044",
+  "checks": [
+    {
+      "name": "fmt01",
+      "metadata": "fmt01.json",
+      "metadata_sha256": "783a94c0f71df3669104ceb42a5d0c42af1352e2db3b79db7680621f47173887",
+      "result": "PASS",
+      "mode": "executed"
+    },
+    {
+      "name": "check01",
+      "metadata": "check01.json",
+      "metadata_sha256": "775f5f5a39fbf6828746364c09441017c336a37e9cd170f1b48bc9e5bade4187",
+      "result": "PASS",
+      "mode": "executed"
+    },
+    {
+      "name": "clippy01",
+      "metadata": "clippy01.json",
+      "metadata_sha256": "8a5b39ea554079879fdbbb296948d9b878b14ff145e2530073aec9c64aad8c43",
+      "result": "PASS",
+      "mode": "executed"
+    },
+    {
+      "name": "build01",
+      "metadata": "build01.json",
+      "metadata_sha256": "a5e88a0f535f5e1aedc7c03f9e7d14c97302cb463b5c9db8e0d7e5076cbb3e3c",
+      "result": "PASS",
+      "mode": "executed"
+    },
+    {
+      "name": "nextest01",
+      "metadata": "nextest01.json",
+      "metadata_sha256": "4318ae7f0a96180177145febb2d5795cd51bc5c813e3f59eeb9c98edecc229e1",
+      "result": "PASS",
+      "mode": "executed"
+    },
+    {
+      "name": "doctest01",
+      "metadata": "doctest01.json",
+      "metadata_sha256": "cdc77ef909de8788bd528dc539fa16ab33a6da08ab58edf4d9f3ea49acc4b58b",
+      "result": "PASS",
+      "mode": "executed"
+    },
+    {
+      "name": "msrvcheck01",
+      "metadata": "msrvcheck01.json",
+      "metadata_sha256": "673241ec22c45f526258636ac7852b4dfd6424f286566226c43d01a225495daf",
+      "result": "PASS",
+      "mode": "executed"
+    },
+    {
+      "name": "deny02",
+      "metadata": "deny02.json",
+      "metadata_sha256": "d5242541c7d8f727f8f21acf45492a7d273aa8ef86eb09074bd6b4b589f43705",
+      "result": "PASS",
+      "mode": "executed"
+    },
+    {
+      "name": "npmci01",
+      "metadata": "npmci01.json",
+      "metadata_sha256": "5d16d28a20e107d04c0b6165a1b30d6bddbd824c90b2d3ed96399cede20644ab",
+      "result": "PASS",
+      "mode": "executed"
+    },
+    {
+      "name": "editor01",
+      "metadata": "editor01.json",
+      "metadata_sha256": "4e24b3ac85e81427567ffeb061fce38216e7138a7f9e1eb68b2e0903f9c03a4f",
+      "result": "PASS",
+      "mode": "executed"
+    },
+    {
+      "name": "docs01",
+      "metadata": "docs01.json",
+      "metadata_sha256": "c06780cb7defcac2323cc9265218f4fd7f36311397050675a36577730dfc4d05",
+      "result": "PASS",
+      "mode": "executed"
+    },
+    {
+      "name": "specs01",
+      "metadata": "specs01.json",
+      "metadata_sha256": "15857f1746ac8cba5ce170680845e306922514093efe2da9f37a6127f4c089ae",
+      "result": "PASS",
+      "mode": "executed"
+    },
+    {
+      "name": "testgovernance01",
+      "metadata": "testgovernance01.json",
+      "metadata_sha256": "843f46609e335486be5f340ad968455ca1d7c9bcf1d4288bf73a48e8b9bbd5aa",
+      "result": "PASS",
+      "mode": "executed"
+    },
+    {
+      "name": "diff01",
+      "metadata": "diff01.json",
+      "metadata_sha256": "010502a607c30ba0f1c6867dbec33f493a13b1145d4ac77ecdcef32b7649c658",
+      "result": "PASS",
+      "mode": "executed"
+    },
+    {
+      "name": "skill01",
+      "metadata": "skill01.json",
+      "metadata_sha256": "238832befa07cacc38f9dd9579a65bedadf74678a8d319ccb03b086a0d792f16",
+      "result": "PASS",
+      "mode": "executed"
+    },
+    {
+      "name": "corevocab01",
+      "metadata": "corevocab01.json",
+      "metadata_sha256": "5da643e1be559a86f76f14ca3af857d29ca3eae1b96f97937d6dad9fc5d5cf9b",
+      "result": "PASS",
+      "mode": "executed"
+    }
+  ],
+  "test_qualification": "executed-test-qualification.json",
+  "nextest_run_id": "32976d61-a53c-4a04-8c79-a90da816cb26",
+  "actual_counts": {
+    "Rust": 948,
+    "doctest": 5,
+    "Workbook_editor": 72
+  },
+  "source_inputs": 232,
+  "input_drift": false,
+  "artifact_independent_readback": {
+    "path": "artifact-independent-readback.json",
+    "sha256": "df7be23e740a00f069e8e536fed92e539b4690edb5913708c8debe3fecdcc455",
+    "result": "PASS",
+    "mode": "executed_readonly"
+  },
+  "human_acceptance": "actual earlier explicit reports qualified by same delivered bytes, not fabricated new actions",
+  "E01_E02": "not required for this accepted product scope; original not_run labels retained",
+  "future_events": "C005/C008 conditions not triggered, not unfinished implementation",
+  "old_Native_fair_blind_fees_ROI": "unchanged unknown/not_run/not_evaluable; no value claim",
+  "required_current_items_all_PASS": true,
+  "new_product_code_repairs_needed": false,
+  "remaining_current_blockers": [],
+  "final_acceptance_review": "pending independent judgment",
+  "publication": "not_run; not implied by acceptance"
+}
