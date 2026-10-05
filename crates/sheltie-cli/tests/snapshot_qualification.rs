@@ -722,15 +722,36 @@ fn historical_gate_replay_refuses_an_inconsistent_audit_subject_before_reading_f
                 use std::os::unix::fs::PermissionsExt;
                 let parent = env.dir.path().join("works").join(&work);
                 let permissions = std::fs::metadata(&parent).unwrap().permissions();
+                let parent_mode = permissions.mode();
+                let frozen = parent.join("workbook");
+                let retained = parent.join("retained-workbook");
+                let frozen_permissions = std::fs::metadata(&frozen).unwrap().permissions();
+                let frozen_mode = frozen_permissions.mode();
                 std::fs::set_permissions(
                     &parent,
-                    std::fs::Permissions::from_mode(permissions.mode() | 0o700),
+                    std::fs::Permissions::from_mode(parent_mode | 0o700),
                 )
                 .unwrap();
-                let moved =
-                    std::fs::rename(parent.join("workbook"), parent.join("retained-workbook"));
+                // Permit the fixture move on hosts that require source-directory write access.
+                std::fs::set_permissions(
+                    &frozen,
+                    std::fs::Permissions::from_mode(frozen_mode | 0o200),
+                )
+                .unwrap();
+                let moved = std::fs::rename(&frozen, &retained);
+                let restore_path = if moved.is_ok() { &retained } else { &frozen };
+                std::fs::set_permissions(restore_path, frozen_permissions).unwrap();
                 std::fs::set_permissions(&parent, permissions).unwrap();
                 moved.unwrap();
+                assert_eq!(
+                    std::fs::metadata(&parent).unwrap().permissions().mode(),
+                    parent_mode
+                );
+                assert_eq!(
+                    std::fs::metadata(&retained).unwrap().permissions().mode(),
+                    frozen_mode
+                );
+                assert!(!frozen.exists(), "the frozen lookup must remain missing");
             }
             let objects = audit_fixture_objects(&env);
             let (error, exit) = env.fail(&args.iter().map(String::as_str).collect::<Vec<_>>());
