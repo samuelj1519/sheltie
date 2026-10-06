@@ -59,98 +59,98 @@ All notable changes to this project will be documented in this file. See [conven
 
 ### Bug Fixes
 
-- **(ci)** Remove duplicate release job and use cargo-dist only - ([9d60711](https://github.com/samuelj1519/sheltie/commit/9d60711373bba2870059e15b82758385b937e0bd)) - Samuel-J
-- **(cli)** Include at in gate-approval data - ([dc05b1d](https://github.com/samuelj1519/sheltie/commit/dc05b1d9cd2c17e72824bd2df52bf7eadd20d8a9)) - Samuel-J
-- **(cli)** Remove next_ops_of JSON roundtrip and silent fallback - ([36e8577](https://github.com/samuelj1519/sheltie/commit/36e8577856a4f7f7d6d20a96c6cb56f5bf240e61)) - Samuel-J
-- **(cli)** Follow CARGO_PKG_VERSION and register T25/T26 scope - ([7e4243a](https://github.com/samuelj1519/sheltie/commit/7e4243adb76ea9a31ba127c98fc14077dbb00a66)) - Samuel-J
-- **(core)** Reject noncanonical numbers, complete Han ranges, correct error fields - ([e55effd](https://github.com/samuelj1519/sheltie/commit/e55effddfbdf94914935b27c76ee2d9f962b0618)) - Samuel-J
-- **(core)** Reject required references to optional outputs in rule 5 - ([5f4b6d6](https://github.com/samuelj1519/sheltie/commit/5f4b6d6ece4b8dfa1bb8f646187bae2d4226b006)) - Samuel-J
-- **(core)** Carry all requires and resolve declared versions - ([51eda62](https://github.com/samuelj1519/sheltie/commit/51eda626d1dfbf22788451a4d2bad07b27973c15)) - Samuel-J
-- **(core)** Identify upstream node for unbound inputs - ([496a182](https://github.com/samuelj1519/sheltie/commit/496a182834bf5ac06dcd2218f8d2e220360d3de2)) - Samuel-J
-- **(core)** Enforce readback bounds/normalization and prevent Graph decoding - ([f47af48](https://github.com/samuelj1519/sheltie/commit/f47af4834ec55bc9e8741d3ad8eefdca74030f95)) - Samuel-J
-- **(core)** Report stats serialization errors and compute once - ([03a9be9](https://github.com/samuelj1519/sheltie/commit/03a9be9bfe1642fc30ba11170de738ab8e36fdc7)) - Samuel-J
-- **(core)** Render resource-kind notes and calculate durations via unix_secs - ([bc14d36](https://github.com/samuelj1519/sheltie/commit/bc14d36c0383ddb506f30479bdaa4a395c2e5a3a)) - Samuel-J
-- **(core)** Include current Attempt in engine.stats - ([00eaeeb](https://github.com/samuelj1519/sheltie/commit/00eaeeb9eab574068f2e8e15f8e4c0818cbecf54)) - Samuel-J
-- **(core)** Add deny_unknown_fields to persistent structures - ([c5d567c](https://github.com/samuelj1519/sheltie/commit/c5d567c51284fc08a171cdc311acf54ec2db9f8c)) - Samuel-J
-- **(release)** Use actual samuelj1519/sheltie repository everywhere - ([7dae6d0](https://github.com/samuelj1519/sheltie/commit/7dae6d01364570085406d2dff698acc61a7d6a2f)) - Samuel-J
-- **(runtime)** Rebuild replay stats, correct failpoint, add M2 tests - ([1a5d7a7](https://github.com/samuelj1519/sheltie/commit/1a5d7a76f1a7bada8f198f3218765bc94d298a7b)) - Samuel-J
-- **(runtime)** Create Store before install's idempotent shortcut - ([67332b6](https://github.com/samuelj1519/sheltie/commit/67332b6dbe16efcac40cf7bb416b62c0c5a19372)) - Samuel-J
-- **(runtime)** Delete discarded rollback binary with remove_file - ([8c5c7cf](https://github.com/samuelj1519/sheltie/commit/8c5c7cfdc7871dbc3fed4bf90e146a322c7faade)) - Samuel-J
-- **(runtime)** Adapt actual cargo-dist manifest and archive layout - ([d5d2008](https://github.com/samuelj1519/sheltie/commit/d5d200827e1d86b5b82f00a3d2674522001d1643)) - Samuel-J
-- **(scripts)** Support macOS bundled bash 3.2 in check-task.sh - ([8b33c48](https://github.com/samuelj1519/sheltie/commit/8b33c48f1fb5bdfee7d9eac9d6864d94139a4cdf)) - Samuel-J
-- **(scripts)** Correct check-task mixed files, shared placeholders, and timing - ([deb31ed](https://github.com/samuelj1519/sheltie/commit/deb31ed8a6c6ce5126954069e3d20cd7fc7926e1)) - Samuel-J
-- **(scripts)** Union check-task scope, fix fullwidth colon and empty arrays - ([904a54c](https://github.com/samuelj1519/sheltie/commit/904a54c69ee9eb1fd61e91cb062064fa6b8bcaec)) - Samuel-J
-- **(scripts)** Put mutation output under target to keep worktree clean - ([82d870b](https://github.com/samuelj1519/sheltie/commit/82d870ba7192ceff6e7a40fccfb79466830fb912)) - Samuel-J
-- **(scripts)** Limit check 2 file entries to .rs too - ([767084b](https://github.com/samuelj1519/sheltie/commit/767084b5b805677316dfe25e3cf82490123a1599)) - Samuel-J
+- **(ci)** Remove duplicate release job and use cargo-dist only - ([0ba0ea6](https://github.com/samuelj1519/sheltie/commit/0ba0ea6fd18ca4933a31d7d1ed126eaf939dc98c)) - Samuel-J
+- **(cli)** Include at in gate-approval data - ([06d0460](https://github.com/samuelj1519/sheltie/commit/06d04603a49fe2c62f5e070bec1fe3e21a1a78f3)) - Samuel-J
+- **(cli)** Remove next_ops_of JSON roundtrip and silent fallback - ([0691e0b](https://github.com/samuelj1519/sheltie/commit/0691e0b7b5574c1dfed7a49f02635789982891e9)) - Samuel-J
+- **(cli)** Follow CARGO_PKG_VERSION and register T25/T26 scope - ([8e46759](https://github.com/samuelj1519/sheltie/commit/8e467591db2fca0e98d7cf66293e0ab207847c49)) - Samuel-J
+- **(core)** Reject noncanonical numbers, complete Han ranges, correct error fields - ([448f650](https://github.com/samuelj1519/sheltie/commit/448f6509d0fd2833f49a27e9599cd28c776b73cf)) - Samuel-J
+- **(core)** Reject required references to optional outputs in rule 5 - ([e6f41c2](https://github.com/samuelj1519/sheltie/commit/e6f41c2b85296e0bc612198be3b77685a9546132)) - Samuel-J
+- **(core)** Carry all requires and resolve declared versions - ([0ca633f](https://github.com/samuelj1519/sheltie/commit/0ca633fd0b30ca470f37dd6391e7950476cb8642)) - Samuel-J
+- **(core)** Identify upstream node for unbound inputs - ([d126736](https://github.com/samuelj1519/sheltie/commit/d1267362e33e79abcbc0e82329eede169c4ee86a)) - Samuel-J
+- **(core)** Enforce readback bounds/normalization and prevent Graph decoding - ([65e85ad](https://github.com/samuelj1519/sheltie/commit/65e85ad9abb3bac3a0949939623156278c0484af)) - Samuel-J
+- **(core)** Report stats serialization errors and compute once - ([dc1cc43](https://github.com/samuelj1519/sheltie/commit/dc1cc437715cba04b3694ef10a12c73d8f00c0f9)) - Samuel-J
+- **(core)** Render resource-kind notes and calculate durations via unix_secs - ([d199b2c](https://github.com/samuelj1519/sheltie/commit/d199b2c3d7a076fd039677b697b6b84c6d9e83f0)) - Samuel-J
+- **(core)** Include current Attempt in engine.stats - ([c767989](https://github.com/samuelj1519/sheltie/commit/c767989a24d821eec504662b980c4f744c4d3f31)) - Samuel-J
+- **(core)** Add deny_unknown_fields to persistent structures - ([eb4ca85](https://github.com/samuelj1519/sheltie/commit/eb4ca85540888daebbef1eeb0bd7fc8db835038c)) - Samuel-J
+- **(release)** Use actual samuelj1519/sheltie repository everywhere - ([4f5912f](https://github.com/samuelj1519/sheltie/commit/4f5912f25d0ad8d2a8e3ac6e19f09cbc52d0e4a7)) - Samuel-J
+- **(runtime)** Rebuild replay stats, correct failpoint, add M2 tests - ([f2d6323](https://github.com/samuelj1519/sheltie/commit/f2d63231b5688acea5ae77b16f0be0c7ebe29525)) - Samuel-J
+- **(runtime)** Create Store before install's idempotent shortcut - ([1a55b0b](https://github.com/samuelj1519/sheltie/commit/1a55b0b7bb1bcf189cbf70bf99bc618154e8906f)) - Samuel-J
+- **(runtime)** Delete discarded rollback binary with remove_file - ([8a259c2](https://github.com/samuelj1519/sheltie/commit/8a259c2aa606281ba91df55ecab4efee4df30627)) - Samuel-J
+- **(runtime)** Adapt actual cargo-dist manifest and archive layout - ([a0c1396](https://github.com/samuelj1519/sheltie/commit/a0c139601b43fa8a46d591f807f8829e1528c7e0)) - Samuel-J
+- **(scripts)** Support macOS bundled bash 3.2 in check-task.sh - ([4ca7e55](https://github.com/samuelj1519/sheltie/commit/4ca7e55961263836c2101367b1fbe406e50a446f)) - Samuel-J
+- **(scripts)** Correct check-task mixed files, shared placeholders, and timing - ([9027006](https://github.com/samuelj1519/sheltie/commit/9027006cd013f93bb050c5d49b0af4122696c4b6)) - Samuel-J
+- **(scripts)** Union check-task scope, fix fullwidth colon and empty arrays - ([3bcec2f](https://github.com/samuelj1519/sheltie/commit/3bcec2f70e5e581f41ad3feb28e9e494281ca9cf)) - Samuel-J
+- **(scripts)** Put mutation output under target to keep worktree clean - ([d908f85](https://github.com/samuelj1519/sheltie/commit/d908f859986c5190026c928c0c9a37ef7760f5d9)) - Samuel-J
+- **(scripts)** Limit check 2 file entries to .rs too - ([502882b](https://github.com/samuelj1519/sheltie/commit/502882bd14c6d290f311795c1ade88fb3f88be9a)) - Samuel-J
 
 ### Documentation
 
-- **(cli)** Correct self_cmd header: install creates store.db - ([dbebdcd](https://github.com/samuelj1519/sheltie/commit/dbebdcd90331a41e8fdfd0862932f64ea7ca0574)) - Samuel-J
-- **(readme)** Make install.sh quick start executable end to end - ([e502a92](https://github.com/samuelj1519/sheltie/commit/e502a92a0a25c38fa4493d0d9e4f2904f74254a1)) - Samuel-J
-- **(readme)** Address three observed onboarding obstacles - ([022764c](https://github.com/samuelj1519/sheltie/commit/022764c66d100e2f235d7fa2c64a61589b12e13e)) - Samuel-J
-- **(specs)** Establish Sheltie specifications, contracts, plan, and spec-dev Workbook - ([82099e1](https://github.com/samuelj1519/sheltie/commit/82099e1870c185e14085e9698947167d33785f6e)) - Samuel-J
-- **(specs)** Define work stats blocked/approval accounting - ([ac17547](https://github.com/samuelj1519/sheltie/commit/ac17547e1709db1b2021553ae6b8f2a543f32591)) - Samuel-J
-- **(specs)** Correct D-28, document year 9999 saturation, restore D-25 facts - ([64f4647](https://github.com/samuelj1519/sheltie/commit/64f4647dcfcba8890d45dc818aeb4cafdfd31148)) - Samuel-J
-- **(specs)** Record M2 review, D-29, and lessons - ([268ec6d](https://github.com/samuelj1519/sheltie/commit/268ec6d7904a7ce9ea40bc7b641395fcad6f5ef8)) - Samuel-J
-- **(specs)** Record M3 review and twelve end-to-end scenarios - ([458e947](https://github.com/samuelj1519/sheltie/commit/458e947b021012b67ce8082f90b636d7361c1f58)) - Samuel-J
-- **(specs)** Record M3 re-review, D-31, and consistent install semantics - ([a3b63f7](https://github.com/samuelj1519/sheltie/commit/a3b63f78dd49d4d141d5e6257bba8da3a659c0be)) - Samuel-J
-- **(workspace)** Replace literal translations with natural Simplified Chinese - ([dc44577](https://github.com/samuelj1519/sheltie/commit/dc4457728352fdec105e0e25128717f09d4d75ac)) - Samuel-J
-- **(workspace)** Replace stiff translated nouns with natural Chinese - ([18c65fa](https://github.com/samuelj1519/sheltie/commit/18c65fad1874c6403cf20e24596515b960991bea)) - Samuel-J
-- **(workspace)** Standardize response envelope, sole state authority, reference checks - ([fa4710b](https://github.com/samuelj1519/sheltie/commit/fa4710bbe92a3a194313000bba0c1bc6a88964c7)) - Samuel-J
+- **(cli)** Correct self_cmd header: install creates store.db - ([edc097b](https://github.com/samuelj1519/sheltie/commit/edc097bd1f08a732738795407330d60bfdf6192d)) - Samuel-J
+- **(readme)** Make install.sh quick start executable end to end - ([c92dd4d](https://github.com/samuelj1519/sheltie/commit/c92dd4d162e6d5ab6e943b4ec4f8c70cfa16c449)) - Samuel-J
+- **(readme)** Address three observed onboarding obstacles - ([d2f8903](https://github.com/samuelj1519/sheltie/commit/d2f8903e8217926c1e407035fda3f4e7080b9c75)) - Samuel-J
+- **(specs)** Establish Sheltie specifications, contracts, plan, and spec-dev Workbook - ([24a2dfc](https://github.com/samuelj1519/sheltie/commit/24a2dfc903aa817f53c979b3dcb6a68e417e4258)) - Samuel-J
+- **(specs)** Define work stats blocked/approval accounting - ([80e576c](https://github.com/samuelj1519/sheltie/commit/80e576cc5fe77402c44b34d99333766a839496cb)) - Samuel-J
+- **(specs)** Correct D-28, document year 9999 saturation, restore D-25 facts - ([5efdde7](https://github.com/samuelj1519/sheltie/commit/5efdde78e20c6586e4da9afe0c97ad4de460041e)) - Samuel-J
+- **(specs)** Record M2 review, D-29, and lessons - ([9fd7bbe](https://github.com/samuelj1519/sheltie/commit/9fd7bbe4b092d27cccd715c61f9a5ce642942b40)) - Samuel-J
+- **(specs)** Record M3 review and twelve end-to-end scenarios - ([7586042](https://github.com/samuelj1519/sheltie/commit/7586042b69d6bf308350e02d90812d2f825fc54b)) - Samuel-J
+- **(specs)** Record M3 re-review, D-31, and consistent install semantics - ([e3aa914](https://github.com/samuelj1519/sheltie/commit/e3aa91452bc95c4c9e7fc1f5f698de0df4ff7bec)) - Samuel-J
+- **(workspace)** Replace literal translations with natural Simplified Chinese - ([0767b84](https://github.com/samuelj1519/sheltie/commit/0767b842269172720798ddf1feaad30fe3509f0b)) - Samuel-J
+- **(workspace)** Replace stiff translated nouns with natural Chinese - ([90deda9](https://github.com/samuelj1519/sheltie/commit/90deda99c7d554dba4e7ac8cdbd9c3096a2a0a9b)) - Samuel-J
+- **(workspace)** Standardize response envelope, sole state authority, reference checks - ([b89653b](https://github.com/samuelj1519/sheltie/commit/b89653b8e01995821ae66b5cdc66376649fa0c69)) - Samuel-J
 
 ### Features
 
-- **(cli)** workbook add/list/show/remove/verify - ([71930b6](https://github.com/samuelj1519/sheltie/commit/71930b6b5caa88bb4808e5932270a84b54e75f60)) - Samuel-J
-- **(cli)** work start/list/status/cancel - ([63dea79](https://github.com/samuelj1519/sheltie/commit/63dea790c2bc8a9a0255b29e57a6e748d3f1938b)) - Samuel-J
-- **(cli)** Add attempt begin/submit/fail and gate approve - ([72794ea](https://github.com/samuelj1519/sheltie/commit/72794eaf6dbcd728d77bedbb9e142b636c40d080)) - Samuel-J
-- **(cli)** Add self commands and cargo-dist release chain - ([420157e](https://github.com/samuelj1519/sheltie/commit/420157e229e0ac998e66e2796a8de22f3bb53b57)) - Samuel-J
-- **(core)** Add typed IDs, relative paths, bounded text, and digests - ([ef584ab](https://github.com/samuelj1519/sheltie/commit/ef584ab0098104db2f73aefacd16b7a106693d95)) - Samuel-J
-- **(core)** Parse workbook.toml - ([b292a38](https://github.com/samuelj1519/sheltie/commit/b292a38663aaeb2c6b91f52305132366cc6d0d99)) - Samuel-J
-- **(core)** Parse flow/v1 nodes, edges, and input sources - ([7c45ed8](https://github.com/samuelj1519/sheltie/commit/7c45ed80d4158245b99192897760e9df14a07d18)) - Samuel-J
-- **(core)** Compile Flow into a validated graph - ([7f23d81](https://github.com/samuelj1519/sheltie/commit/7f23d8167b4cecfb99d76b15f479dfc3812d3e8c)) - Samuel-J
-- **(core)** Add Work state, Start command, and initial legal next - ([12a6ade](https://github.com/samuelj1519/sheltie/commit/12a6ade437baedd4e1c0800267f6ed16ae1bc8a7)) - Samuel-J
-- **(core)** Add BeginAttempt edge choice, counting, and frozen inputs - ([9044612](https://github.com/samuelj1519/sheltie/commit/9044612f4ab329ca27367a3f1e4cda99c93fb060)) - Samuel-J
-- **(core)** Add SubmitAttempt/FailAttempt and output-contract validation - ([4334925](https://github.com/samuelj1519/sheltie/commit/4334925b67ba61a4b340385fe410f351fed727c1)) - Samuel-J
-- **(core)** Add gate approval, cancellation, and terminal guard - ([810730f](https://github.com/samuelj1519/sheltie/commit/810730fabf20d02b7e42649c2228752226eaebb1)) - Samuel-J
-- **(core)** Render briefs, cards, and next projections - ([8af5f94](https://github.com/samuelj1519/sheltie/commit/8af5f9491d5fe8467b9f99df12a5bd6525cde513)) - Samuel-J
-- **(retro)** Add reflection node, engine.stats input, and work stats facts - ([6a26fc6](https://github.com/samuelj1519/sheltie/commit/6a26fc60d0e97329f74549c077b6224aca2cdfd7)) - Samuel-J
-- **(runtime)** Resolve management roots, confine paths, observe files - ([9b2d00f](https://github.com/samuelj1519/sheltie/commit/9b2d00f4a39742f7cb6adaaaef70d4c224d4346a)) - Samuel-J
-- **(runtime)** Add SQLite validation, deduplication, revision CAS, sequences - ([a860311](https://github.com/samuelj1519/sheltie/commit/a860311a94c042ef726bcd1146e5d9d74cab6199)) - Samuel-J
-- **(runtime)** Add Workbook repository and atomic staging registration - ([00bd835](https://github.com/samuelj1519/sheltie/commit/00bd835f52e5147afcbfc8a88708ac6e0af1db20)) - Samuel-J
-- **(runtime)** Add Workbook removal reference checks and verify - ([fc4f9f9](https://github.com/samuelj1519/sheltie/commit/fc4f9f97312affa62c4c69255a04c68abac74ce0)) - Samuel-J
-- **(runtime)** Complete Work commands and read-only views - ([2344894](https://github.com/samuelj1519/sheltie/commit/2344894fd4bae0aafe63f3200811b8c089282dd2)) - Samuel-J
-- **(skill)** Deliver sheltie skill and command allowlist checks - ([86ef062](https://github.com/samuelj1519/sheltie/commit/86ef062e5bccbf1966cd63444776f8601b714a46)) - Samuel-J
+- **(cli)** workbook add/list/show/remove/verify - ([b5cf46f](https://github.com/samuelj1519/sheltie/commit/b5cf46f7dc26afc52dbf2dcc80ca9c33aba2e3b0)) - Samuel-J
+- **(cli)** work start/list/status/cancel - ([f2db5b6](https://github.com/samuelj1519/sheltie/commit/f2db5b62c6879f5bab649d8e75073ab2c7518a2e)) - Samuel-J
+- **(cli)** Add attempt begin/submit/fail and gate approve - ([9d3bdd7](https://github.com/samuelj1519/sheltie/commit/9d3bdd790175d96f184179682e441a631af2781f)) - Samuel-J
+- **(cli)** Add self commands and cargo-dist release chain - ([0bc7e6e](https://github.com/samuelj1519/sheltie/commit/0bc7e6eefe9e1757647fd1cfe2b365bd141c2f11)) - Samuel-J
+- **(core)** Add typed IDs, relative paths, bounded text, and digests - ([56f48c9](https://github.com/samuelj1519/sheltie/commit/56f48c9da17172a438fd96fd618d9035f026ef0f)) - Samuel-J
+- **(core)** Parse workbook.toml - ([bb6c8dd](https://github.com/samuelj1519/sheltie/commit/bb6c8ddf798f529458bcc8e071a8764b70d706b4)) - Samuel-J
+- **(core)** Parse flow/v1 nodes, edges, and input sources - ([6919528](https://github.com/samuelj1519/sheltie/commit/69195282b970941f48ff04147820ddb5085d90c9)) - Samuel-J
+- **(core)** Compile Flow into a validated graph - ([776e6f7](https://github.com/samuelj1519/sheltie/commit/776e6f7ab82bb3b30895a1200bcb1f1896549860)) - Samuel-J
+- **(core)** Add Work state, Start command, and initial legal next - ([ba05cb7](https://github.com/samuelj1519/sheltie/commit/ba05cb7534cbfa8f651968d393563fca5383f03b)) - Samuel-J
+- **(core)** Add BeginAttempt edge choice, counting, and frozen inputs - ([dae16cb](https://github.com/samuelj1519/sheltie/commit/dae16cb559b645e1866b3d8ad6dcba60184074c5)) - Samuel-J
+- **(core)** Add SubmitAttempt/FailAttempt and output-contract validation - ([78e9a12](https://github.com/samuelj1519/sheltie/commit/78e9a126e0e373766122d72b6b4685bdce4c4f03)) - Samuel-J
+- **(core)** Add gate approval, cancellation, and terminal guard - ([7694854](https://github.com/samuelj1519/sheltie/commit/76948544e1588cdf33467e93617a2407fea66c9b)) - Samuel-J
+- **(core)** Render briefs, cards, and next projections - ([aa80ca1](https://github.com/samuelj1519/sheltie/commit/aa80ca1909ad263ed014675ee52e1437286875e8)) - Samuel-J
+- **(retro)** Add reflection node, engine.stats input, and work stats facts - ([8ccaae0](https://github.com/samuelj1519/sheltie/commit/8ccaae0e51a24d6917964f82308aa5fb954f7d48)) - Samuel-J
+- **(runtime)** Resolve management roots, confine paths, observe files - ([fce89af](https://github.com/samuelj1519/sheltie/commit/fce89af53a42516f136596de0a7b94ba1a2f2aac)) - Samuel-J
+- **(runtime)** Add SQLite validation, deduplication, revision CAS, sequences - ([ce400eb](https://github.com/samuelj1519/sheltie/commit/ce400eba05dfd7907ff0d56565ca07c272f57574)) - Samuel-J
+- **(runtime)** Add Workbook repository and atomic staging registration - ([391f6ef](https://github.com/samuelj1519/sheltie/commit/391f6ef2db32085d283ed73550716d5ba54a0efe)) - Samuel-J
+- **(runtime)** Add Workbook removal reference checks and verify - ([debade8](https://github.com/samuelj1519/sheltie/commit/debade8c583a01b6b2298bc45d469e7a8c519539)) - Samuel-J
+- **(runtime)** Complete Work commands and read-only views - ([60abbc6](https://github.com/samuelj1519/sheltie/commit/60abbc610095a9c24de52106184f423494b3e375)) - Samuel-J
+- **(skill)** Deliver sheltie skill and command allowlist checks - ([ec94090](https://github.com/samuelj1519/sheltie/commit/ec94090e5917191e262a5d208a614ff1bf30f4d1)) - Samuel-J
 
 ### Miscellaneous Chores
 
-- **(release)** Move dist config, fix install path, regenerate workflow - ([5286e97](https://github.com/samuelj1519/sheltie/commit/5286e97d4392ede3a46dc2b4ca4306a58fef893d)) - Samuel-J
-- **(review)** Recheck T02, add three boundary tests, refine body-filling workflow - ([9d73175](https://github.com/samuelj1519/sheltie/commit/9d731753721113077db040dd4da7db78247f6673)) - Samuel-J
-- **(review)** Accept T02 rebuttals and fix scaffold residue/tool blind spots - ([a9ed84c](https://github.com/samuelj1519/sheltie/commit/a9ed84c742546b8f3f92b7f06514a3d23ff88a5e)) - Samuel-J
-- **(review)** Correct T05 whitespace-test replacement - ([ac5eb9c](https://github.com/samuelj1519/sheltie/commit/ac5eb9cfdd19b0c8d07ab8db4bed373d20cdfff9)) - Samuel-J
-- **(review)** Correct example/fixture input names violating ID rules - ([00ca15a](https://github.com/samuelj1519/sheltie/commit/00ca15adc07f8aeb471f8e88b7ebf41c17a59ace)) - Samuel-J
-- **(review)** Pin T05 rule 9 rejection - ([8aad2e9](https://github.com/samuelj1519/sheltie/commit/8aad2e95cefd11bd3f9cb28271a947643a47e50d)) - Samuel-J
-- **(review)** Complete spec-dev files and repair review-loop fixture - ([43ec6bf](https://github.com/samuelj1519/sheltie/commit/43ec6bf3bd95e6097b6bbf0e71b3c58fad9818a7)) - Samuel-J
-- **(review)** Validate input-name uniqueness only, revert kebab renames - ([685d4f2](https://github.com/samuelj1519/sheltie/commit/685d4f2040b1a85d4693d96c7eb8c955bdac288d)) - Samuel-J
-- **(workspace)** Scaffold three crates, disabled tests, and task tools - ([461f5c7](https://github.com/samuelj1519/sheltie/commit/461f5c7a3ec4db47ee6042922da5eac2cf0bcb51)) - Samuel-J
+- **(release)** Move dist config, fix install path, regenerate workflow - ([7e8673d](https://github.com/samuelj1519/sheltie/commit/7e8673d921890d69c8dd4b1ba9ebd20cff81ed63)) - Samuel-J
+- **(review)** Recheck T02, add three boundary tests, refine body-filling workflow - ([07e9e10](https://github.com/samuelj1519/sheltie/commit/07e9e10ec072b2d31db45d2b463069a6b3370039)) - Samuel-J
+- **(review)** Accept T02 rebuttals and fix scaffold residue/tool blind spots - ([a9812bc](https://github.com/samuelj1519/sheltie/commit/a9812bcc07dc7c8ab4982a73a8d51c0d166efb0b)) - Samuel-J
+- **(review)** Correct T05 whitespace-test replacement - ([5672127](https://github.com/samuelj1519/sheltie/commit/567212726d841c504a93591ec90acdfd8bb7f453)) - Samuel-J
+- **(review)** Correct example/fixture input names violating ID rules - ([3e136a2](https://github.com/samuelj1519/sheltie/commit/3e136a2364617d99bf3439795e01d269a7ed64f0)) - Samuel-J
+- **(review)** Pin T05 rule 9 rejection - ([6beaf9d](https://github.com/samuelj1519/sheltie/commit/6beaf9d1b3d23392d75518482dcdd2ce40eb20a6)) - Samuel-J
+- **(review)** Complete spec-dev files and repair review-loop fixture - ([b296d99](https://github.com/samuelj1519/sheltie/commit/b296d9959aa713190b22f2127182d0b2d5fa0622)) - Samuel-J
+- **(review)** Validate input-name uniqueness only, revert kebab renames - ([d4f75c6](https://github.com/samuelj1519/sheltie/commit/d4f75c622725364799221f901b92c90dfd254ab2)) - Samuel-J
+- **(workspace)** Scaffold three crates, disabled tests, and task tools - ([2af9e7d](https://github.com/samuelj1519/sheltie/commit/2af9e7dfb66860d34ad38237e5d6888a93b719ba)) - Samuel-J
 
 ### Refactoring
 
-- **(core)** Remove duplicate summary checks and early return - ([6290c61](https://github.com/samuelj1519/sheltie/commit/6290c613fc07354aab06f25a1e10dffaba60cc0f)) - Samuel-J
+- **(core)** Remove duplicate summary checks and early return - ([a02c166](https://github.com/samuelj1519/sheltie/commit/a02c16648098b19c3162ff2373fcd9f422297c01)) - Samuel-J
 
 ### Tests
 
-- **(cli)** Cover review back edges, visit limits, and reference inputs - ([96c79f9](https://github.com/samuelj1519/sheltie/commit/96c79f9307e2e89925faa63c12d21c80017aafed)) - Samuel-J
-- **(cli)** Cover gates, integrity, and Workbook lifecycle - ([3c62ead](https://github.com/samuelj1519/sheltie/commit/3c62eadd060fb5188f925e97bbc5975348578752)) - Samuel-J
-- **(core)** Add M1 tests, remove dead code, record workflow lessons - ([6ace5a3](https://github.com/samuelj1519/sheltie/commit/6ace5a30dc74a8bf62bcd0ee394deb02cfc6d7cd)) - Samuel-J
-- **(core)** Add M1 round 2 oracles, full requires, strict Timestamp - ([caa9d23](https://github.com/samuelj1519/sheltie/commit/caa9d2365474f789b65065a837efe2637e48e50c)) - Samuel-J
-- **(core)** Close M1 after cross-declaration and distant-date tests - ([94519d7](https://github.com/samuelj1519/sheltie/commit/94519d7b59c2c6268c7581641894b90632fd48ed)) - Samuel-J
-- **(core)** Compile example Workbooks under contracts - ([9ca2526](https://github.com/samuelj1519/sheltie/commit/9ca25261cf85a297723d631a5c9c9c1b1a792ef3)) - Samuel-J
-- **(runtime)** Keep directories traversable in T15 missing-directory test - ([fe7f5fe](https://github.com/samuelj1519/sheltie/commit/fe7f5feb056fdf77cc81d8a10c06cf9d80edbb2c)) - Samuel-J
-- **(runtime)** Cover crashes, request replay, and upgrade recovery - ([64c34ad](https://github.com/samuelj1519/sheltie/commit/64c34ad2cc0acbf90ef0b7944b9861a7b4697793)) - Samuel-J
-- **(runtime)** Add M3 release/install oracles - ([fe91704](https://github.com/samuelj1519/sheltie/commit/fe91704601948d8a9c302501b875212fad3e60d7)) - Samuel-J
-- **(runtime)** Cover .tgz archive suffix - ([7008803](https://github.com/samuelj1519/sheltie/commit/700880308c03deea8eaa4611f657e39bf46c304d)) - Samuel-J
-- Use behavior names and // Task ownership markers - ([f1a8715](https://github.com/samuelj1519/sheltie/commit/f1a871553b7992f044e2f83f70ae5fb8576c14da)) - Samuel-J
+- **(cli)** Cover review back edges, visit limits, and reference inputs - ([ee001cd](https://github.com/samuelj1519/sheltie/commit/ee001cd7f39be42ab6f3615636997dabab89f1c0)) - Samuel-J
+- **(cli)** Cover gates, integrity, and Workbook lifecycle - ([53b3c9a](https://github.com/samuelj1519/sheltie/commit/53b3c9ab3c11b5d76841d18190e4a21fa5a1dabf)) - Samuel-J
+- **(core)** Add M1 tests, remove dead code, record workflow lessons - ([d585b6f](https://github.com/samuelj1519/sheltie/commit/d585b6f2c6ac3d8ef39fa9d4f2e782081425179e)) - Samuel-J
+- **(core)** Add M1 round 2 oracles, full requires, strict Timestamp - ([e260462](https://github.com/samuelj1519/sheltie/commit/e2604629aec72d5cb9a47ede63d552ab22ec1062)) - Samuel-J
+- **(core)** Close M1 after cross-declaration and distant-date tests - ([0c20e7c](https://github.com/samuelj1519/sheltie/commit/0c20e7c801553402d2d4a171ef45673390902c19)) - Samuel-J
+- **(core)** Compile example Workbooks under contracts - ([70ad3d2](https://github.com/samuelj1519/sheltie/commit/70ad3d2995f868f04970ef1b3261c396e0aa6712)) - Samuel-J
+- **(runtime)** Keep directories traversable in T15 missing-directory test - ([8b6654b](https://github.com/samuelj1519/sheltie/commit/8b6654bad41e86db7bc75907b2862ddbdb788e42)) - Samuel-J
+- **(runtime)** Cover crashes, request replay, and upgrade recovery - ([24d098e](https://github.com/samuelj1519/sheltie/commit/24d098e99213aadc7244577879f4c8b39e8212e9)) - Samuel-J
+- **(runtime)** Add M3 release/install oracles - ([81a3970](https://github.com/samuelj1519/sheltie/commit/81a3970c5126e9148e66cd6fee5b62c5a865fa66)) - Samuel-J
+- **(runtime)** Cover .tgz archive suffix - ([53f1049](https://github.com/samuelj1519/sheltie/commit/53f104908ec5b3a30a27777874852c3019dbcd20)) - Samuel-J
+- Use behavior names and // Task ownership markers - ([c5193dd](https://github.com/samuelj1519/sheltie/commit/c5193dd6ce213c8107b62771ba4fd8a9d7ecff8e)) - Samuel-J
 
-Historical GitHub commit links above identify original published history. Mapped local identities are recorded in [the message-migration map](docs/en/history/git-message-migration.tsv).
+Commit links above point to the corresponding commits in `main` history. Release records retain original publication identities and artifact checksums.
 
 <!-- generated by git-cliff -->

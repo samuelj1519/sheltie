@@ -64,6 +64,6 @@ Push uses normal fast-forward protection. If the remote advanced, preserve the l
 
 ## History and recovery
 
-The main source commit and Wiki commit are separate identities. Keep both when recording publication. Source archives remain in Git; the generated manifest does not replace original validation evidence. The full C012 snapshot is the ancestral commit `eec267b7b54b1e18e75578f7b5e269e7ddf73df8` in main history; obtain full history when a shallow clone lacks it. No separate C012 tag is needed.
+The main source commit and Wiki commit are separate identities. Keep both when recording publication. Source archives remain in Git; the generated manifest does not replace original validation evidence. Obtain full history when a shallow clone lacks a recorded snapshot.
 
 To restore a prior Wiki publication, inspect its Git commit, restore the required managed files, review, and publish a new normal commit. Never infer current product acceptance from a historical documentation snapshot.

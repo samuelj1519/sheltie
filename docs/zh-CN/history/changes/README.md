@@ -17,6 +17,5 @@
 | C009 | [实现与测试精简](C009-project-simplification/README.md) |
 | C010 | [局部精简与方法交付](C010-local-simplification/README.md) |
 | C011 | [Workbook 可视化作者工具](C011-workbook-visual-editor/README.md) |
-| C012 | [英文默认项目迁移](C012-english-default/README.md) |
 
 每份记录中的固定快照保留完整任务、验证和独立审查；治理工具从原 specs/changes/completed 路径读取该快照，不因移动记录改写历史。查阅方法见[维护指南](../../how-to/maintain-docs.md#查阅历史原件)。

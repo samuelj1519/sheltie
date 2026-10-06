@@ -44,10 +44,9 @@ def main():
             if name not in {"README.zh-CN.md", "skills/sheltie/SKILL.zh-CN.md"}:
                 errors.append(f"{name}: Chinese reader documents belong in docs/zh-CN")
             continue
-        historical_inventory = name == "docs/en/history/changes/C012-english-default/inventory.md"
         text = path.read_text()
         for number, line in enumerate(text.splitlines(), 1):
-            if historical_inventory or not HAN.search(line.replace("\u7b80\u4f53\u4e2d\u6587", "")):
+            if not HAN.search(line.replace("\u7b80\u4f53\u4e2d\u6587", "")):
                 continue
             key = (name, line.strip())
             if key in exceptions:

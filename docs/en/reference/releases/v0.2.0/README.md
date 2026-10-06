@@ -13,7 +13,7 @@ Release target: `aarch64-apple-darwin`
 
 ## Scope
 
-The release tag points to the corresponding commit on `main` from the [English message migration](../../../history/git-message-migration.md), with the same source tree as Original published commit. After repository recreation, original release assets are uploaded again with identical bytes and checksums. GitHub release records have new identities, and old workflow runs are unavailable. Recorded checks were not rerun, and no new binaries were built for this restoration.
+The release tag points to the corresponding commit on `main`, with the same source tree as Original published commit. After repository recreation, original release assets are uploaded again with identical bytes and checksums. GitHub release records have new identities, and old workflow runs are unavailable. Recorded checks were not rerun, and no new binaries were built for this restoration.
 
 Includes [C002 reliability](../../../history/changes/C002-v0.2.0-reliability/README.md): request identity/replay, file ownership, Workbook digest/freezing, transactional publication/recovery, fact views, coordinator resume, Workbooks/skill, and release governance. Remains three crates, one `sheltie` binary, and a local SQLite workflow engine.
 

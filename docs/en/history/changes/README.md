@@ -17,6 +17,5 @@ These archives retain scope, reasons, and bounded outcomes by change ID. Only th
 | C009 | [Implementation and test simplification](C009-project-simplification/README.md) |
 | C010 | [Local simplification and method delivery](C010-local-simplification/README.md) |
 | C011 | [Visual Workbook authoring tool](C011-workbook-visual-editor/README.md) |
-| C012 | [English-default project migration](C012-english-default/README.md) |
 
 Fixed snapshots retain complete tasks, validation, and independent reviews. Governance tools read original specs/changes/completed paths in those snapshots; moving records does not rewrite history. See the [maintenance guide](../../how-to/maintain-docs.md#read-original-historical-records).

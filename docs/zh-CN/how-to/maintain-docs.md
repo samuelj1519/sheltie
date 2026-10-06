@@ -46,14 +46,11 @@
 
 过程产物清理前的完整已提交文档快照为 `9d98bf8f15944b7bda4fbd4096e7771b09eab728`。它包含 C001–C011 的完整 completed package 和 MVP 历史材料。更早被移出的 C002 原始证据位于 `9ca6714e17c12dbe3f0e81056a03a781dbbfc8fd` 的 `specs/changes/active/C002-v0.2.0-reliability/`；这是归档 commit，不是发布 tag。
 
-C012 语言迁移的完整 package 和原始证据保存在 `eec267b7b54b1e18e75578f7b5e269e7ddf73df8` 的 `specs/changes/completed/C012-english-default/`。[历史参考](../history/changes/C012-english-default/README.md)与双语清单保留长期查阅入口。
-
 在仓库根读单份历史文件：
 
 ```bash
 git show 9d98bf8f15944b7bda4fbd4096e7771b09eab728:specs/changes/completed/C011-workbook-visual-editor/design.md
 git show 9d98bf8f15944b7bda4fbd4096e7771b09eab728:specs/releases/v0.1.0/plan.md
-git show eec267b7b54b1e18e75578f7b5e269e7ddf73df8:specs/changes/completed/C012-english-default/validation.md
 ```
 
 需要完整目录时，解压到新的临时目录：

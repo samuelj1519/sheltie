@@ -46,14 +46,11 @@ These are maintenance procedures, without adopting proposals, approving gates, o
 
 The complete committed pre-cleanup documentation snapshot is `9d98bf8f15944b7bda4fbd4096e7771b09eab728`, containing full C001–C011 completed packages and MVP history. Earlier removed C002 evidence is at `9ca6714e17c12dbe3f0e81056a03a781dbbfc8fd` under specs/changes/active/C002-v0.2.0-reliability/. That is an archive commit, not a release tag.
 
-The complete C012 language-migration package and its original evidence are at `eec267b7b54b1e18e75578f7b5e269e7ddf73df8` under `specs/changes/completed/C012-english-default/`. Its [historical reference](../history/changes/C012-english-default/README.md) and bilingual inventory retain the long-term reading path.
-
 Read one historical file from the root:
 
 ```bash
 git show 9d98bf8f15944b7bda4fbd4096e7771b09eab728:specs/changes/completed/C011-workbook-visual-editor/design.md
 git show 9d98bf8f15944b7bda4fbd4096e7771b09eab728:specs/releases/v0.1.0/plan.md
-git show eec267b7b54b1e18e75578f7b5e269e7ddf73df8:specs/changes/completed/C012-english-default/validation.md
 ```
 
 Extract complete directories into new temporary directories:

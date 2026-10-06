@@ -9,5 +9,3 @@
 - [设计决定](../explanation/decisions/README.md)：按主题理解设计理由及其当前适用范围。
 
 历史摘要保留原结果，不替代当前候选验证。完整计划、验证和审查从记录指定的 Git 快照读取，方法见[历史查阅指南](../how-to/maintain-docs.md#查阅历史原件)。
-
-[Git 提交信息迁移映射](git-message-migration.md)用于对应原提交与英文本地提交身份；历史文件树及远端发布证据保持原样。

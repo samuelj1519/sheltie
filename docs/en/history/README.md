@@ -9,5 +9,3 @@ Maintainers use this archive to trace scope, reasons, validation limits, and ori
 - [Architecture decisions](../explanation/decisions/README.md): design reasons and current applicability by topic.
 
 Summaries retain original outcomes without replacing current-candidate validation. Read complete plans, validation, and reviews from the specified Git snapshots using the [historical lookup guide](../how-to/maintain-docs.md#read-original-historical-records).
-
-The [Git message migration map](git-message-migration.md) resolves original and English local commit identities without changing historical file trees or remote publication evidence.
