@@ -5,15 +5,14 @@ English | [简体中文](../../../../zh-CN/reference/releases/v0.1.0/README.md)
 Status: `released + accepted`
 Version: `0.1.0`
 Git tag: `v0.1.0`
-Release commit: `9f87188f3b0ad2523abc7e975ae98e96db6f492b`
-Mapped history commit: `6af9501b7bc12e2b18ac6017b6c894dadfc43626`
+Release commit: `6af9501b7bc12e2b18ac6017b6c894dadfc43626`
 Original published commit: `9f87188f3b0ad2523abc7e975ae98e96db6f492b`
 Installation, publication, and quickstart closure: `4bf86f7be09c27bbee98a11825eb57704e4403b9`
 Real-host and MVP acceptance closure: `7196697ea40c9c303d059279c02f9e3d2218efd9`
 
 ## Scope
 
-The release tag and Release commit retain the actual published identity. The separate Mapped history commit follows the [English message migration](../../../history/git-message-migration.md) and has the same source tree. Only the main branch is republished; tags, historical workflow runs, and release assets retain their existing identity and checksums. Recorded checks were not rerun against a new identity.
+The release tag now points to the corresponding commit on `main` from the [English message migration](../../../history/git-message-migration.md), with the same source tree as Original published commit. Historical workflow runs and release assets retain their original identity and checksums. Moving the tag does not rerun recorded checks or publish new artifacts.
 
 MVP implemented three crates, one `sheltie` binary, Workbook/Flow, Work state machine, SQLite Store, CLI, self management, three examples, `spec-dev`, and coordinator skill.
 

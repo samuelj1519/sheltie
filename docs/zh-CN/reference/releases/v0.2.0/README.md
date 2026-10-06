@@ -5,14 +5,13 @@
 状态：`released`（按用户授权范围完成）
 版本：`0.2.0`
 Git tag：`v0.2.0`
-Release commit：`8455aed2bcd9ac1739852be3987091a0975e7ac3`
-映射历史提交：`5c7183a3644dd250069ed362dc1adeeb7fb71cc6`
+Release commit：`5c7183a3644dd250069ed362dc1adeeb7fb71cc6`
 原发布提交：`8455aed2bcd9ac1739852be3987091a0975e7ac3`
 真实宿主与续接验收闭包：`ed73febf31bf039bf1e09b5e83ef22fd56a5b5a2`
 发布时间：`2026-10-02T17:03:04Z`（UTC）
 发布目标：`aarch64-apple-darwin`
 
-发布 tag 与发布提交保持实际已发布的身份。另列的映射历史提交按[英文信息迁移](../../../history/git-message-migration.md)对应，源码树相同。本次仅重新发布 main 分支；tag、历史工作流及发布资产保持现有身份与校验和，历史验证不改记为新身份上的重跑。
+发布 tag 现指向[英文信息迁移](../../../history/git-message-migration.md)后 `main` 历史上的对应提交，其源码树与原发布提交完全相同。历史工作流与发布资产保留原身份和校验和。调整 tag 不重跑历史验证，也不发布新的实物。
 
 ## 范围
 
@@ -22,7 +21,7 @@ Release commit：`8455aed2bcd9ac1739852be3987091a0975e7ac3`
 
 ## 验收
 
-- [正式 Release](https://github.com/samuelj1519/sheltie/releases/tag/v0.2.0) 的 tag 与源码保持上述原发布提交。[发布工作流 37037558064](https://github.com/samuelj1519/sheltie/actions/runs/37037558064) 实际完成 quality、构建、host 与 announce，结论 `success`。
+- [正式 Release](https://github.com/samuelj1519/sheltie/releases/tag/v0.2.0) 从上述原发布提交构建。[发布工作流 37037558064](https://github.com/samuelj1519/sheltie/actions/runs/37037558064) 实际完成 quality、构建、host 与 announce，结论 `success`。
 - 同一源码 SHA 的 quality 实际通过工程、文档、规格、skill、测试治理、依赖与 MSRV 1.85 locked 门禁。Nextest 为 700/700、0 skipped、1 slow，测试阶段 156.541 秒；原始运行与范围见 [C002 历史原件](../../../how-to/maintain-docs.md#查阅历史原件)。
 - T16 在本机实际完成样例、`spec-dev` 四任务、独立审查、真实关闭并重开会话后的 Work006 续接，以及获具体批准后的 Work003 最终 retro gate。闭包固定到上述 T16 提交，详见 [C002 历史审查](../../../how-to/maintain-docs.md#查阅历史原件)。
 - 正式发布后重新下载并核验实际包、manifest 与二进制，不复用 PR 构建字节。使用默认 GitHub 来源在独立管理根执行指定 `0.2.0` 的远端 update 与 rollback；回退后二进制逐字相同、Store 不变、prev 移除。更新来源为 T16 的 C002/schema 2 构建，其显示版本为 `0.1.0`；这次验证不证明 legacy schema 1 迁移。

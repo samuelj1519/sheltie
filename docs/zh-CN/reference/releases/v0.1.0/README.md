@@ -5,13 +5,12 @@
 状态：`released + accepted`
 版本：`0.1.0`
 Git tag：`v0.1.0`
-Release commit：`9f87188f3b0ad2523abc7e975ae98e96db6f492b`
-映射历史提交：`6af9501b7bc12e2b18ac6017b6c894dadfc43626`
+Release commit：`6af9501b7bc12e2b18ac6017b6c894dadfc43626`
 原发布提交：`9f87188f3b0ad2523abc7e975ae98e96db6f492b`
 安装、发布与快速开始闭包：`4bf86f7be09c27bbee98a11825eb57704e4403b9`
 真实宿主与 MVP 验收闭包：`7196697ea40c9c303d059279c02f9e3d2218efd9`
 
-发布 tag 与发布提交保持实际已发布的身份。另列的映射历史提交按[英文信息迁移](../../../history/git-message-migration.md)对应，源码树相同。本次仅重新发布 main 分支；tag、历史工作流及发布资产保持现有身份与校验和，历史验证不改记为新身份上的重跑。
+发布 tag 现指向[英文信息迁移](../../../history/git-message-migration.md)后 `main` 历史上的对应提交，其源码树与原发布提交完全相同。历史工作流与发布资产保留原身份和校验和。调整 tag 不重跑历史验证，也不发布新的实物。
 
 ## 范围
 
