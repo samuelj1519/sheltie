@@ -52,3 +52,7 @@ The source-release commit includes pre-publication status, which remains immutab
 ## Final publication-document checks
 
 Docs/specs/language/test ownership/Wiki source/typos and both independent T02 review axes passed on the final publication record set. The original raw CI log includes trailing whitespace emitted by the runner; retain its bytes and exclude evidence from the authored-file diff whitespace check, consistent with the repository pre-commit evidence exclusions. These are documentation consumers; runtime, Cargo, tests, contracts, and method inputs remain the immutable 063029a release candidate, so unrelated Rust reruns are not required.
+
+## Wiki publication
+
+Generated/verified 144 files from clean reviewed source b34321846612adcb05ce34a1b6f84c97ead65c8f; staged only managed paths and normally pushed Wiki commit 112dcc2e5aca8ce3abb59968de8ad54327a3b049. Remote Git refs matched, and actual public English/Chinese Home and first-Work HTML contained the source SHA and reciprocal language links. [Readback record](evidence/t02/wiki-publication.json) retains identities and HTML hashes; raw HTTP responses remain with the recovery originals. Current reader pages are identical to that source snapshot; this final package record does not alter them.
