@@ -12,7 +12,7 @@ Real-host and MVP acceptance closure: `7196697ea40c9c303d059279c02f9e3d2218efd9`
 
 ## Scope
 
-The release tag now points to the corresponding commit on `main` from the [English message migration](../../../history/git-message-migration.md), with the same source tree as Original published commit. Historical workflow runs and release assets retain their original identity and checksums. Moving the tag does not rerun recorded checks or publish new artifacts.
+The release tag points to the corresponding commit on `main` from the [English message migration](../../../history/git-message-migration.md), with the same source tree as Original published commit. After repository recreation, original release assets are uploaded again with identical bytes and checksums. GitHub release records have new identities, and old workflow runs are unavailable. Recorded checks were not rerun, and no new binaries were built for this restoration.
 
 MVP implemented three crates, one `sheltie` binary, Workbook/Flow, Work state machine, SQLite Store, CLI, self management, three examples, `spec-dev`, and coordinator skill.
 

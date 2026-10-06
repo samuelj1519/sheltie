@@ -8,12 +8,12 @@ Git tag: `v0.2.0`
 Release commit: `5c7183a3644dd250069ed362dc1adeeb7fb71cc6`
 Original published commit: `8455aed2bcd9ac1739852be3987091a0975e7ac3`
 Real-host and resume acceptance closure: `ed73febf31bf039bf1e09b5e83ef22fd56a5b5a2`
-Published: `2026-10-02T17:03:04Z` (UTC)
+Original publication: `2026-10-02T17:03:04Z` (UTC)
 Release target: `aarch64-apple-darwin`
 
 ## Scope
 
-The release tag now points to the corresponding commit on `main` from the [English message migration](../../../history/git-message-migration.md), with the same source tree as Original published commit. Historical workflow runs and release assets retain their original identity and checksums. Moving the tag does not rerun recorded checks or publish new artifacts.
+The release tag points to the corresponding commit on `main` from the [English message migration](../../../history/git-message-migration.md), with the same source tree as Original published commit. After repository recreation, original release assets are uploaded again with identical bytes and checksums. GitHub release records have new identities, and old workflow runs are unavailable. Recorded checks were not rerun, and no new binaries were built for this restoration.
 
 Includes [C002 reliability](../../../history/changes/C002-v0.2.0-reliability/README.md): request identity/replay, file ownership, Workbook digest/freezing, transactional publication/recovery, fact views, coordinator resume, Workbooks/skill, and release governance. Remains three crates, one `sheltie` binary, and a local SQLite workflow engine.
 
@@ -21,7 +21,7 @@ Only macOS aarch64 packages were released. Linux/x86_64 were excluded by user in
 
 ## Acceptance
 
-- The [official release](https://github.com/samuelj1519/sheltie/releases/tag/v0.2.0) was built from Original published commit above. [Workflow 37037558064](https://github.com/samuelj1519/sheltie/actions/runs/37037558064) completed quality/build/host/announce with success.
+- The [official release](https://github.com/samuelj1519/sheltie/releases/tag/v0.2.0) restores assets built from Original published commit above. Original workflow `37037558064` completed quality/build/host/announce with success; its GitHub run was removed when the repository was recreated. Committed evidence remains in the [original records](../../../how-to/maintain-docs.md#read-original-historical-records).
 - The same source SHA passed engineering, docs/specs/skill/test governance, dependencies, and locked MSRV 1.85 gates. Nextest: 700/700, 0 skipped, 1 slow, 156.541 seconds in the test phase. See [original scope/output](../../../how-to/maintain-docs.md#read-original-historical-records).
 - T16 locally completed examples, four `spec-dev` tasks, independent review, Work006 continuation after genuinely closing/reopening the session, and Work003 final retro gate after specific approval. The T16 commit above fixes closure; see [historical review](../../../how-to/maintain-docs.md#read-original-historical-records).
 - After release, actual packages/manifests/binaries were downloaded and reverified, without reusing PR bytes. Default GitHub-source pinned `0.2.0` remote update/rollback ran in an independent root. Rolled-back bytes were identical, Store unchanged, prev removed. The source was T16's C002/schema 2 build showing `0.1.0`; this does not prove legacy schema 1 migration.
