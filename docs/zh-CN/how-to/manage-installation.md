@@ -12,7 +12,7 @@
 "$engine_binary" --home "$management_root" --json self version
 ```
 
-核 `data.version`、`data.platform`、`data.home`、`data.schema_version`。正式发布及其二进制实物见[发布记录](../reference/releases/README.md)；开发源码使用 Store schema 4，正式 v0.2.0 使用 schema 2。两者不能共用业务 Store；旧记录使用对应旧二进制和旧根查询。
+核 `data.version`、`data.platform`、`data.home`、`data.schema_version`。正式发布及其二进制实物见[发布记录](../reference/releases/README.md)；v0.3.0 基线使用 Store schema 4。不支持旧版本兼容或迁移；不匹配的 Store 会被拒绝，原数据不会修改。
 
 新安装选择新根。`self install` 安装的是正在执行的二进制，不会自动取得正式版；从开发源码执行它就安装开发候选。路径确认无误后：
 
@@ -32,12 +32,12 @@ export PATH="$management_root/bin:$PATH"
 
 ## 2. 更新已发布版本
 
-更新从正式发布渠道取得包。先核目标版本、平台资产、Store 格式及实际 `SHELTIE_RELEASE_BASE`；未设置时使用本项目 GitHub Releases。不要用 schema 4 开发根试装 schema 2 正式版来验证业务兼容性。
+更新从正式发布渠道取得包。先核目标版本、平台资产、Store 格式及实际 `SHELTIE_RELEASE_BASE`；未设置时使用本项目 GitHub Releases。更新只替换二进制，不迁移 Store 数据。
 
-在与发布版匹配的已安装根中，明确选择版本后执行；下例仅适用于目标确为 `0.2.0`：
+在与发布版匹配的已安装根中，明确选择版本后执行；下例仅适用于目标确为 `0.3.0`：
 
 ```bash
-"$installed_binary" --home "$management_root" --json self update --version 0.2.0
+"$installed_binary" --home "$management_root" --json self update --version 0.3.0
 "$installed_binary" --home "$management_root" --json self version
 ```
 

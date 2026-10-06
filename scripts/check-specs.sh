@@ -240,10 +240,24 @@ for release in docs/en/reference/releases/v*/README.md; do
 	release_name="$(basename "$(dirname "$release")")"
 	tag="$(sed -n 's/^Git tag: `\([^`]*\)`.*/\1/p' "$release")"
 	release_commit="$(sed -n 's/^Release commit: `\([0-9a-f]*\)`.*/\1/p' "$release")"
+	withdrawn=""
+	if grep -q '^Status: `withdrawn`$' "$release"; then
+		withdrawn=1
+		grep -Eq '^Withdrawal date: `[0-9]{4}-[0-9]{2}-[0-9]{2}`$' "$release" ||
+			fail "$release withdrawn release is missing Withdrawal date"
+		authority="$(sed -n 's/^Withdrawal authority: \[.*\](\([^)]*\))$/\1/p' "$release")"
+		if [ -z "$authority" ] || [ ! -f "$(dirname "$release")/$authority" ]; then
+			fail "$release withdrawn release is missing a local Withdrawal authority"
+		elif ! grep -q '^Status: `accepted`$' "$(dirname "$release")/$authority"; then
+			fail "$release withdrawn release authority is not accepted"
+		fi
+	fi
 	if [ -z "$tag" ]; then
 		fail "$release is missing Git tag"
 	elif ! git rev-parse --verify --quiet "refs/tags/$tag" >/dev/null; then
-		fail "$(missing_history_diag "tag $tag"); it is recorded in $release"
+		if [ -z "$withdrawn" ]; then
+			fail "$(missing_history_diag "tag $tag"); it is recorded in $release"
+		fi
 	elif [ -n "$release_commit" ] && [ "$(git rev-list -n 1 "$tag")" != "$release_commit" ]; then
 		fail "$release Release commit does not match tag $tag"
 	fi

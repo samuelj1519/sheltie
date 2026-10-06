@@ -23,12 +23,12 @@ The current product environment is **macOS on Apple Silicon (`aarch64`), using A
 
 | Track | Version | Start here |
 | --- | --- | --- |
-| Latest documented release | **v0.2.0** | [Release record](docs/en/reference/releases/v0.2.0/README.md) or the installation below |
-| Current source candidate | **0.3.0-rc.1**, unreleased | [Build from source](docs/en/how-to/build-from-source.md), then [your first Work](docs/en/tutorials/first-work.md) |
+| First supported baseline | **v0.3.0** | [Publication status and artifacts](docs/en/reference/releases/README.md) or the installation below once published |
+| Build the same source | **0.3.0** | [Build from source](docs/en/how-to/build-from-source.md), then [your first Work](docs/en/tutorials/first-work.md) |
 
-Current source defaults to English and includes newer capabilities such as [code-change](docs/en/how-to/run-code-change.md) and [explicit result export](docs/en/how-to/export-results.md). These are not included in the v0.2.0 binary. Repository documentation describes current source; released versions retain their own CLI wording and behavior.
+This baseline defaults to English and includes [code-change](docs/en/how-to/run-code-change.md) and [explicit result export](docs/en/how-to/export-results.md). The exporter is built separately from source; it is not included in the engine archive.
 
-v0.2.0 uses Store schema 2; current source uses schema 4. Use separate management roots: Store formats do not migrate automatically. Full installation, update, rollback, and removal instructions are in the [installation guide](docs/en/how-to/manage-installation.md).
+Only current formats are supported. There is no legacy-version compatibility or data migration; incompatible Stores are rejected without changing their data. Use a fresh management root for first use. See the [installation guide](docs/en/how-to/manage-installation.md).
 
 ## Quick start
 
@@ -37,7 +37,7 @@ v0.2.0 uses Store schema 2; current source uses schema 4. Use separate managemen
 On macOS Apple Silicon:
 
 ```bash
-curl --proto '=https' --tlsv1.2 -LsSf https://github.com/samuelj1519/sheltie/releases/download/v0.2.0/sheltie-cli-installer.sh | sh
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/samuelj1519/sheltie/releases/download/v0.3.0/sheltie-cli-installer.sh | sh
 export PATH="$HOME/.sheltie/bin:$PATH"
 ```
 

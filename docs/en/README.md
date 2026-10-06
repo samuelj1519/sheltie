@@ -24,9 +24,9 @@ These documents serve method authors, coordinators, operators, and maintainers. 
 
 ## Version and reading scope
 
-Current source is on the `0.3.0-rc.1` development line; the released version remains v0.2.0. Instructions and formats here target current source. See [release records](reference/releases/README.md) for released binaries and artifacts. Store formats do not migrate automatically. Try the development line with a new explicit management root; see [support and compatibility](reference/limitations.md).
+The first supported public baseline is `v0.3.0`. Instructions and formats here target this source baseline; [release records](reference/releases/README.md) establish publication status and available artifacts. No legacy-version compatibility or migration is supported. First use needs a new explicit management root; see [support and compatibility](reference/limitations.md).
 
-The engine does not install host resources, invoke models, judge report quality, or publish results automatically. The authoring tool and exporter are unreleased external tools, each with separate file and permission boundaries.
+The engine does not install host resources, invoke models, judge report quality, or publish results automatically. The authoring tool and exporter are source-distributed external tools, each with separate file and permission boundaries.
 
 ## Four document types and specification authority
 

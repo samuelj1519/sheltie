@@ -1,32 +1,25 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
+See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
 ## [Unreleased]
 
-### Changed
+## [0.3.0] - pending publication
 
-- English is the default for current documentation, source comments/API docs, CLI/status/editor messages, and new commits; retain explicitly selected Chinese documentation and methods.
-- English sample Workbooks use 1.0.1 and spec-dev uses 0.2.3; localized Chinese IDs retain their prior versions. Frozen installed/running versions remain untouched.
-- Preserve commit trees/identities/timestamps while translating local history messages, with an explicit old/new mapping. Published remote evidence retains its original identity.
-- Use the standard root LICENSE filename with unchanged MIT terms and copyright; add contributor, security, support, conduct, issue, and PR entry points.
+### First supported public baseline
 
-### Added
+- Local macOS Apple Silicon/APFS workflow engine with Workbooks, explicit graphs, frozen briefs/inputs, sealed outputs, legal next actions, human gates, and persistent recovery.
+- Current-Attempt resume, terminal-selected results, raw artifact reads, one-time executor replacement, and source-built editable result exports.
+- English-default CLI and documentation, explicit Chinese reader/method variants, code-change/spec-dev methods, and source-distributed visual Workbook authoring. English examples use Workbook 1.0.1 and spec-dev uses 0.2.3; installed/running methods retain their frozen versions.
+- Standard MIT LICENSE and contributor, security, support, conduct, issue, and PR entry points.
+- Store schema 4, cli-result/v4, work-result/v1, and workbook-digest/v2. Only current formats are supported; incompatible data is preserved and rejected without migration or clearing.
+- v0.1.0/v0.2.0 are historical development publications scheduled for withdrawal, not supported upgrade sources. Their original qualifications and limits remain in [release records](docs/en/reference/releases/README.md); v0.3.0 does not reuse their evidence as current validation.
+- The engine and coordinator skill are planned release assets. sheltie-export remains source-only; the local authoring tool runs from the source tree. Other platforms and physical-device certification are excluded.
 
-- Current-Attempt briefs, frozen inputs, and declared draft pointers; live status reads revision and pending effects together.
-- Required terminal inputs/outputs may explicitly select final results; read-only `work result` returns complete references bound or sealed by that terminal Attempt.
-- A minimal code-change method with fixed implementation, independent review, and delivery stages, preserving explicit rework edges.
-- Explicit one-time executor replacement per Occurrence, preserving superseded history and inherited frozen inputs; actual-failure retry limits are counted independently.
-- Read original bytes through the same result revision/key. The unreleased external sheltie-export verifies every artifact before creating a new editable copy, without overwriting objects and with accurate staging/published-but-unconfirmed states.
+## Historical development publications
 
-### Changed
-
-- spec-dev 0.2.2 introduced shared approval-correction rules and delivery/reflection results through work result after final approval; existing Works retain their frozen method version.
-
-### Breaking Changes
-
-- The development candidate is `0.3.0-rc.1`, with Store schema 4 and public `cli-result/v4`. Attempt creation sequence is number; superseded records replacement reasons. Preserve and reject old schema 1/2/3 roots without automatic migration or clearing.
+The records below retain original development facts and do not define compatibility obligations for the first supported baseline.
 
 ## [0.2.0]
 

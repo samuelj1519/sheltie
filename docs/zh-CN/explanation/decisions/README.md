@@ -34,6 +34,7 @@
 | [D-032：change package](D-032-use-change-packages.md) | accepted | 采用范围、active plan、提交归属和完成资格；文档分类由 D-045 细化 |
 | [D-043：开发目标权威](D-043-development-target-authority.md) | accepted | 未发布候选的基础版本与实施进度、发布身份分别管理 |
 | [D-045：规范与技术文档分工](D-045-specs-and-diataxis.md) | accepted | specs 保存规范，docs 按读者用途组织，闭合变更归历史档案 |
+| [D-046：首个对外支持基线](D-046-first-public-baseline.md) | accepted | v0.3.0 支持基线；撤回早期发布，保留固定证据，不支持旧格式兼容 |
 
 ## 阅读和维护记录
 

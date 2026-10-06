@@ -309,7 +309,7 @@ Crashes between4/5 leave previous without current. Running ~/.sheltie/bin/shelti
 
 Successful purge retains only empty root/original lock; remove main/WAL sidecars/workbooks/works/pending/tmp/bin. Reads create no Store. Legal add/install initialize on the same lock. Old Work calls return NOT_FOUND without recreation. Different schemas remain rejected without migration/clearing.
 
-Update does not modify Store. Higher-schema binaries reject old Stores on next operation (§1.1); v0.2.0 also rejects schema2. Rollback needs a matching old root; old binaries must not write new roots. Binary rollback is not schema downgrade.
+Update does not modify Store. Binaries reject mismatched Store formats on the next operation (§1.1). No old-version continuation or migration is supported. Rollback needs a matching old root; old binaries must not write new roots. Binary rollback is not schema downgrade.
 
 Cargo-dist generates GitHub Releases, archives, sha256 manifests, and install.sh from tags. Update reads dist-manifest.json, accepting thin {version,assets:[{platform,name,sha256}]} for local/tests and full cargo-dist manifests adapted by selfmgmt. SHELTIE_RELEASE_BASE local directories avoid networking and mirror latest/dist-manifest.json and v<version>/dist-manifest.json, using the same resolver. Network uses system curl, not axoupdater (D-30). Distribution contains only the sheltie executable.
 

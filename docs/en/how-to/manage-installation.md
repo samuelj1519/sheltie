@@ -12,7 +12,7 @@ Manage an already obtained trusted `sheltie` binary. Verify source/version/root 
 "$engine_binary" --home "$management_root" --json self version
 ```
 
-Check data.version/platform/home/schema_version. See [releases](../reference/releases/README.md) for binaries. Development uses schema 4; released v0.2.0 uses schema 2. They cannot share business Store; use matching old binaries/roots for history.
+Check data.version/platform/home/schema_version. See [releases](../reference/releases/README.md) for binaries. The v0.3.0 baseline uses schema 4. No old-version compatibility or migration is supported; mismatched Stores are rejected without modification.
 
 Choose a new root for new installs. `self install` installs the executing binary rather than fetching releases; a development build installs its candidate. After confirming paths:
 
@@ -32,12 +32,12 @@ Continue using explicit `--home` so PATH versions and business roots match. Coor
 
 ## 2. Update released versions
 
-Updates download release-channel packages. Verify target/platform assets/Store format/actual `SHELTIE_RELEASE_BASE` (default GitHub Releases). Installing schema 2 releases into schema 4 development roots does not validate business compatibility.
+Updates download release-channel packages. Verify target/platform assets/Store format/actual `SHELTIE_RELEASE_BASE` (default GitHub Releases). Updates replace only the binary; they do not migrate Store data.
 
-Use a release-matching installed root and choose the version explicitly. This example applies only when the actual target is `0.2.0`:
+Use a release-matching installed root and choose the version explicitly. This example applies only when the actual target is `0.3.0`:
 
 ```bash
-"$installed_binary" --home "$management_root" --json self update --version 0.2.0
+"$installed_binary" --home "$management_root" --json self update --version 0.3.0
 "$installed_binary" --home "$management_root" --json self version
 ```
 

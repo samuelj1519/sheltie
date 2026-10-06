@@ -62,7 +62,7 @@ git archive 9d98bf8f15944b7bda4fbd4096e7771b09eab728 specs/changes/completed/C01
 
 浅克隆可能没有所需历史。先用 `git cat-file -e <SHA>^{commit}` 核快照，缺失时取得包含该 commit 的完整历史；不能因取不到原件将结果默认为通过。CI 的治理检出要求 `fetch-depth: 0`。文档收敛不重写 Git 历史、不减少 .git 的历史体积。显式授权的提交信息迁移另行执行：引用按已核验的新旧映射同步，原始历史记录字节保持。
 
-发布时的规格直接从发布 tag 读取，例如 `git show v0.2.0:specs/contracts/storage.md`。复查历史任务门禁时应在对应历史 checkout 使用当时源码、计划、工具和输入闭包；新工作区的映射只保留任务归属与范围检查用途，不能重建过去执行环境。
+仍在发布的版本从 Tag 查阅发布时规格。已撤回版本使用历史记录中的固定 Release commit，例如 `git show 5c7183a3644dd250069ed362dc1adeeb7fb71cc6:specs/contracts/storage.md`；不再要求已删除的 Tag。历史任务检查仍需要相匹配的源码、计划、工具与输入闭包。当前任务映射只保留归属和范围，不重建旧执行环境。
 
 ## 英文默认与中文版本
 

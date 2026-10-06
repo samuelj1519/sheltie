@@ -1,0 +1,119 @@
+   Compiling libc v0.2.189
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.26
+   Compiling quote v1.0.47
+   Compiling serde_core v1.0.229
+   Compiling version_check v0.9.5
+   Compiling memchr v2.8.3
+   Compiling typenum v1.20.1
+   Compiling find-msvc-tools v0.1.13
+   Compiling cfg-if v1.0.5
+   Compiling shlex v2.0.1
+   Compiling rustix v1.1.4
+   Compiling zmij v1.0.23
+   Compiling anstyle v1.0.14
+   Compiling pkg-config v0.3.34
+   Compiling bitflags v2.13.2
+   Compiling vcpkg v0.2.15
+   Compiling getrandom v0.4.3
+   Compiling cc v1.4.7
+   Compiling autocfg v1.5.1
+   Compiling camino v1.2.6
+   Compiling serde_json v1.0.151
+   Compiling generic-array v0.14.7
+   Compiling aho-corasick v1.1.5
+   Compiling winnow v1.0.4
+   Compiling utf8parse v0.2.2
+   Compiling num-traits v0.2.19
+   Compiling regex-syntax v0.8.11
+   Compiling foldhash v0.1.5
+   Compiling serde v1.0.229
+   Compiling thiserror v2.0.21
+   Compiling toml_parser v1.1.3+spec-1.1.0
+   Compiling hashbrown v0.15.5
+   Compiling libsqlite3-sys v0.35.0
+   Compiling anstyle-parse v1.0.0
+   Compiling colorchoice v1.0.5
+   Compiling anstyle-query v1.1.5
+   Compiling itoa v1.0.18
+   Compiling regex-automata v0.4.18
+   Compiling winnow v0.7.15
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling toml_writer v1.1.2+spec-1.1.0
+   Compiling anstream v1.0.0
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling hashlink v0.10.0
+   Compiling strsim v0.11.1
+   Compiling digest v0.10.7
+   Compiling smallvec v1.16.1
+   Compiling clap_lex v1.1.1
+   Compiling heck v0.5.0
+   Compiling fallible-streaming-iterator v0.1.9
+   Compiling syn v3.0.6
+   Compiling predicates-core v1.0.10
+   Compiling fallible-iterator v0.3.0
+   Compiling log v0.4.34
+   Compiling clap_builder v4.6.7
+   Compiling normalize-line-endings v0.3.0
+   Compiling termtree v0.5.1
+   Compiling assert_cmd v2.2.2
+   Compiling difflib v0.4.0
+   Compiling predicates-tree v1.0.13
+   Compiling fastrand v2.5.0
+   Compiling once_cell v1.21.4
+   Compiling errno v0.3.14
+   Compiling cpufeatures v0.2.17
+   Compiling sha2 v0.10.9
+   Compiling uzers v0.12.2
+   Compiling wait-timeout v0.2.1
+   Compiling float-cmp v0.10.0
+   Compiling uuid v1.26.1
+   Compiling serde_spanned v1.1.1
+   Compiling toml_datetime v0.7.5+spec-1.1.0
+   Compiling toml v0.9.12+spec-1.1.0
+   Compiling fs4 v0.13.1
+   Compiling tempfile v3.27.0
+   Compiling regex v1.13.1
+   Compiling bstr v1.13.1
+   Compiling predicates v3.1.4
+   Compiling thiserror-impl v2.0.21
+   Compiling serde_derive v1.0.229
+   Compiling clap_derive v4.6.7
+   Compiling clap v4.6.7
+   Compiling rusqlite v0.37.0
+   Compiling sheltie-core v0.3.0-rc.1 (/Users/shushu/code/productions/sheltie/crates/sheltie-core)
+   Compiling sheltie-runtime v0.3.0-rc.1 (/Users/shushu/code/productions/sheltie/crates/sheltie-runtime)
+   Compiling sheltie-cli v0.3.0-rc.1 (/Users/shushu/code/productions/sheltie/crates/sheltie-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.33s
+     Running tests/release_governance.rs (/private/tmp/sheltie-first-baseline-20261006/target/debug/deps/release_governance-34ee2f0444e55431)
+
+running 4 tests
+test withdrawn_release_preserves_fixed_evidence_without_tag ... FAILED
+test withdrawn_release_rejects_moved_tag ... ok
+test withdrawn_release_requires_explicit_authority_and_date ... FAILED
+test withdrawn_release_rejects_missing_fixed_commit_without_tag ... ok
+
+failures:
+
+---- withdrawn_release_preserves_fixed_evidence_without_tag stdout ----
+
+thread 'withdrawn_release_preserves_fixed_evidence_without_tag' (76468917) panicked at crates/sheltie-cli/tests/release_governance.rs:439:5:
+Withdrawn fixed evidence must survive tag removal: check-specs: tag v0.1.0 is absent from this Git history (not created or not pushed); it is recorded in docs/en/reference/releases/v0.1.0/README.md
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- withdrawn_release_requires_explicit_authority_and_date stdout ----
+
+thread 'withdrawn_release_requires_explicit_authority_and_date' (76468920) panicked at crates/sheltie-cli/tests/release_governance.rs:457:9:
+Missing Withdrawal authority:  must reject even with a tag: check-specs: OK (1 changes, 1 active)
+
+
+
+failures:
+    withdrawn_release_preserves_fixed_evidence_without_tag
+    withdrawn_release_requires_explicit_authority_and_date
+
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 35 filtered out; finished in 0.54s
+
+error: test failed, to rerun pass `-p sheltie-cli --test release_governance`

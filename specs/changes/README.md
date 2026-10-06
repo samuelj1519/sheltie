@@ -1,8 +1,8 @@
 # Change entry points
 
-Active change: none
+Active change: [C013 first public baseline](active/C013-first-public-baseline/README.md)
 
-There are no proposed or rejected changes. Closed changes are indexed in the [historical archive](../../docs/en/history/changes/README.md). Execute a plan only after human adoption; only one change may be active at a time.
+C013 was adopted by the user to establish the first supported public baseline. There are no proposed or rejected changes. Closed changes are indexed in the [historical archive](../../docs/en/history/changes/README.md). Execute a plan only after human adoption; only one change may be active at a time.
 
 ```text
 proposed ──human adoption──▶ active ──implementation, validation, independent review──▶ completed

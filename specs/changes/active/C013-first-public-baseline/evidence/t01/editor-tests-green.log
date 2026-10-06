@@ -1,0 +1,205 @@
+npm notice run sheltie-workbook-editor@0.1.0 test
+npm notice run node --test test/*.test.mjs
+✔ First-visit main order uses compact three-step rows; step four wraps, independent of nodes array order (0.809125ms)
+✔ Row and turn ports follow actual direction; highlights reuse the same route (0.649959ms)
+✔ Input names require only text and node-local uniqueness; Chinese and underscore choices are preserved (0.518167ms)
+✔ Real spec graph has 11 nodes/25 edges and a 9-node/8-edge backbone; all/adjacent views share edge objects and avoid other cards (35.046208ms)
+✔ Hidden closer routes do not participate in hit tests or fit; focusing a hidden list route changes only view selection (0.368917ms)
+✔ Direct predecessor outputs and inherited inputs preserve omitted/false/true required and do not copy terminal properties (0.819875ms)
+✔ Invalid self/missing/optional choices cannot be added; imported invalid rows are not repaired (1.260708ms)
+✔ Conflict preview does not overwrite rows; identical name/from pairs deduplicate and valid names may be customized (0.104875ms)
+✔ Committed fixed references create owned resources without reading absolute/relative/URL locations; rename changes only name and COW preserves shared files (1.121667ms)
+✔ Invalid ownership markers, UTF-8, or UUID context fall back to ordinary resources without overwriting existing files (0.420791ms)
+✔ Batch failure or excess file count preserves the original Map and rows without orphan reference files (8.755917ms)
+✖ Real CLI accepts Chinese/underscore/optional inputs and external-location resources after rename and COW edits (0.441958ms)
+✔ Incoming and outgoing edges on the same physical card side share ports; rework does not overlap the whole main route (7.413917ms)
+✔ Existing sources in the real 12-input plan project selected state and aliases from from, without new staged choices (16.710041ms)
+✔ Multiple aliases and exact required declarations derive from the same source; rename/removal refreshes without merging declarations (0.844667ms)
+✔ Predecessor choices sharing from display actual used names, without guessing from candidate name or required (0.193833ms)
+✔ Invalid original sources retain exact usage state; projection preserves unknown fields, tri-state requirements, and numeric bytes (0.41075ms)
+✔ Grouping and search preserve first source groups and row indexes; tabs only project the original 27 sample files (5.178334ms)
+✖ Inherited-source usage refreshes; item name/path edits and reparsing preserve from and advanced declarations (0.435417ms)
+✔ Removing staged A after source refresh does not let its stale chip callback delete staged B (0.09575ms)
+file:///Users/shushu/code/productions/sheltie/tools/workbook-editor/test/engine.test.mjs:11
+if (!engine) throw new Error('SHELTIE_EDITOR_ENGINE must point to this verified engine; real CLI tests cannot be skipped.');
+                   ^
+
+Error: SHELTIE_EDITOR_ENGINE must point to this verified engine; real CLI tests cannot be skipped.
+    at file:///Users/shushu/code/productions/sheltie/tools/workbook-editor/test/engine.test.mjs:11:20
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v26.5.0
+✖ test/engine.test.mjs (74.165709ms)
+✔ Count/total-size exact limits are accepted and +1 is rejected (5.215667ms)
+✔ Reject escaping, duplicate, ASCII/NFC/directory aliases and prefix conflicts (0.365667ms)
+✔ Strict base64 and entry arrays reject size and duplicate paths before decoding (0.497417ms)
+✔ Oversized browser file lists are never read; actual read size is checked again (0.226916ms)
+✔ Exclusive materialization verifies the actual file set and original bytes (102.282834ms)
+file:///Users/shushu/code/productions/sheltie/tools/workbook-editor/test/http.test.mjs:15
+if (!binary) throw new Error('A real engine is required');
+                   ^
+
+Error: A real engine is required
+    at file:///Users/shushu/code/productions/sheltie/tools/workbook-editor/test/http.test.mjs:15:20
+
+Node.js v26.5.0
+✖ test/http.test.mjs (85.210208ms)
+✔ Real app layout drag/pan/zoom/fit/save/load preserves every Workbook file byte (8.060417ms)
+✔ Corrupt layout cache and invalid coordinates fall back to the default view without writing the Workbook (0.298209ms)
+✔ Editing one field preserves the whole object, other Flows and resource bytes (6.97975ms)
+✖ Adding an explicit edge adds no input; input edits add no edge; deletion preserves references for CLI refusal (54.321666ms)
+{"boundary":"real-cli-unknown","level":"manifest","checked":{"ok":false,"error":"The \"file\" argument must be of type string. Received undefined","process":null}}
+✖ Unknown fields at every TOML level survive title edits and are individually refused by the real CLI (111.763083ms)
+✔ Unparseable/unrepresentable Flows preserve bytes and reject editing; HTML instructions remain literal text (1.775125ms)
+✔ Parsed unrepresentable known fields reject further editing without cleaning bytes (0.167708ms)
+✔ Editing parsed TOML through instructions reparses it; subsequent property edits preserve the new bytes (0.202834ms)
+✖ Integral floats never become valid integers; unrepresentable advanced fields retain bytes and reject editing (47.355209ms)
+✖ Unknown objects preserve integer/float distinctions and large integers; title edits do not clean nested numbers (41.591916ms)
+✔ Repeated endpoint additions across kinds return the original edge and preserve unknown objects and bytes (0.555417ms)
+✔ Endpoint edits reject cross-kind duplicates and self-loops while preserving endpoints and all bytes (0.876792ms)
+✖ Imported duplicate/self-loop bytes remain intact; repeated additions do not clean them and the real CLI refuses them (31.615791ms)
+✖ Repeated endpoint additions pass the real CLI; reverse back edges remain legal and add no inputs (52.223708ms)
+file:///Users/shushu/code/productions/sheltie/tools/workbook-editor/test/presentation.test.mjs:6
+if (!engine) throw new Error('A real trusted engine is required');
+                   ^
+
+Error: A real trusted engine is required
+    at file:///Users/shushu/code/productions/sheltie/tools/workbook-editor/test/presentation.test.mjs:6:20
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v26.5.0
+✖ test/presentation.test.mjs (74.969125ms)
+✔ S1 counterexample: exit, vertical/horizontal sections and entry avoid a moved third card without changing layout or Flow (2.099ms)
+✔ An upper card blocks the target vertical channel; routes still avoid it and nearest-line selection identifies the actual object (0.428917ms)
+✔ Main edges validate after same-side offsets: neutral y78 is clear, while actual y73.5/69 must avoid the third card (0.179042ms)
+✔ Blocked upper/lower source and target sides use verified local detours without merely moving the outer lane (1.553709ms)
+✔ Main-flow layout follows actual hierarchy, terminates cycles/orphans, ignores array order, and rearranges deterministically (0.881542ms)
+✔ Edge objects, ports, routes and labels share identity; reverse edges differ and invalid references add no nodes (0.754666ms)
+✔ Fit includes outer lanes and labels; prepare preserves dragged coordinates and arranging preserves the full Map bytes (9.704042ms)
+✔ Four source types map exact declarations and all Workbook files, including paths outside resources (0.473459ms)
+✔ Missing/reserved/invalid/unknown sources stay custom without guesses; incomplete pickers do not commit (0.16125ms)
+✔ Advanced tri-state and BigInt bytes survive; invalid large integers are rejected without rounding (0.104583ms)
+✔ Source descriptions and incomplete choices do not mutate fields; source changes preserve required=false and unknown properties (0.11975ms)
+✔ Main edges that would cross a third card use independent outer lanes without changing kind (0.112541ms)
+✔ Initial 100% main view fits visible backbone only; cached cameras and manual positions remain intact (0.193542ms)
+✔ Source picker excludes its owner; original self-references stay custom and incomplete choices do not guess outputs (0.136417ms)
+✔ Unknown prototype-like edge kinds remain literal without Object prototype lookup (0.046583ms)
+✔ Integer pointer positions select the nearest visible main edge independently of farther transparent-hit draw order (0.257709ms)
+✔ Equal-distance intersections return every candidate explicitly; pan/zoom and endpoint distances remain accurate (0.0955ms)
+✔ Caller conversion after native scroll251 uses the actual world rectangle and does not confuse main/rework edges (0.228208ms)
+✔ Caller conversion uses the rendered rectangle for horizontal/vertical scroll, pan/zoom, and zero scroll (0.048292ms)
+✔ Zoom after native scroll remains centered on the pointer; zero-scroll consumers retain their behavior (0.069834ms)
+ℹ tests 62
+ℹ suites 0
+ℹ pass 51
+ℹ fail 11
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 453.3105
+
+✖ failing tests:
+
+test at test/clear-graph.test.mjs:132:1
+✖ Real CLI accepts Chinese/underscore/optional inputs and external-location resources after rename and COW edits (0.441958ms)
+  AssertionError [ERR_ASSERTION]: A real trusted engine is required
+      at TestContext.<anonymous> (file:///Users/shushu/code/productions/sheltie/tools/workbook-editor/test/clear-graph.test.mjs:133:60)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at test/compact-properties.test.mjs:57:1
+✖ Inherited-source usage refreshes; item name/path edits and reparsing preserve from and advanced declarations (0.435417ms)
+  AssertionError [ERR_ASSERTION]: A real, pinned engine is required
+      at TestContext.<anonymous> (file:///Users/shushu/code/productions/sheltie/tools/workbook-editor/test/compact-properties.test.mjs:58:60)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at test/engine.test.mjs:1:1
+✖ test/engine.test.mjs (74.165709ms)
+  'test failed'
+
+test at test/http.test.mjs:1:1
+✖ test/http.test.mjs (85.210208ms)
+  'test failed'
+
+test at test/model.test.mjs:23:1
+✖ Adding an explicit edge adds no input; input edits add no edge; deletion preserves references for CLI refusal (54.321666ms)
+  TypeError: Cannot read properties of null (reading 'stdout')
+      at TestContext.<anonymous> (file:///Users/shushu/code/productions/sheltie/tools/workbook-editor/test/model.test.mjs:29:125)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+
+test at test/model.test.mjs:31:1
+✖ Unknown fields at every TOML level survive title edits and are individually refused by the real CLI (111.763083ms)
+  TypeError: Cannot read properties of null (reading 'stdout')
+      at TestContext.<anonymous> (file:///Users/shushu/code/productions/sheltie/tools/workbook-editor/test/model.test.mjs:49:74)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+
+test at test/model.test.mjs:71:1
+✖ Integral floats never become valid integers; unrepresentable advanced fields retain bytes and reject editing (47.355209ms)
+  TypeError: Cannot read properties of null (reading 'stdout')
+      at TestContext.<anonymous> (file:///Users/shushu/code/productions/sheltie/tools/workbook-editor/test/model.test.mjs:77:130)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+
+test at test/model.test.mjs:81:1
+✖ Unknown objects preserve integer/float distinctions and large integers; title edits do not clean nested numbers (41.591916ms)
+  TypeError: Cannot read properties of null (reading 'stdout')
+      at TestContext.<anonymous> (file:///Users/shushu/code/productions/sheltie/tools/workbook-editor/test/model.test.mjs:88:128)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+
+test at test/model.test.mjs:122:1
+✖ Imported duplicate/self-loop bytes remain intact; repeated additions do not clean them and the real CLI refuses them (31.615791ms)
+  TypeError: Cannot read properties of null (reading 'stdout')
+      at TestContext.<anonymous> (file:///Users/shushu/code/productions/sheltie/tools/workbook-editor/test/model.test.mjs:131:67)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+
+test at test/model.test.mjs:135:1
+✖ Repeated endpoint additions pass the real CLI; reverse back edges remain legal and add no inputs (52.223708ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/shushu/code/productions/sheltie/tools/workbook-editor/test/model.test.mjs:142:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/presentation.test.mjs:1:1
+✖ test/presentation.test.mjs (74.969125ms)
+  'test failed'

@@ -62,7 +62,7 @@ git archive 9d98bf8f15944b7bda4fbd4096e7771b09eab728 specs/changes/completed/C01
 
 Shallow clones may lack history. Check `git cat-file -e <SHA>^{commit}`; fetch history containing missing commits, without defaulting unavailable originals to PASS. Governance CI uses fetch-depth: 0. Documentation consolidation does not rewrite history or reduce .git size. Explicitly authorized message-only history migration is separate: use its verified old/new mapping for references while preserving original record bytes.
 
-Read release specifications from tags, e.g. git show v0.2.0:specs/contracts/storage.md. Historical task gates require matching historical source/plans/tools/input closure. Current mappings retain ownership/scope only, without reconstructing old execution environments.
+Read active release specifications from their tags. For withdrawn releases, use the fixed Release commit in their historical record, e.g. `git show 5c7183a3644dd250069ed362dc1adeeb7fb71cc6:specs/contracts/storage.md`; removed tags are not required. Historical task gates require matching historical source/plans/tools/input closure. Current mappings retain ownership/scope only, without reconstructing old execution environments.
 
 ## English defaults and Chinese variants
 

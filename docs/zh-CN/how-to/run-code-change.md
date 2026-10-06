@@ -2,7 +2,7 @@
 
 [English](../../en/how-to/run-code-change.md) | 简体中文
 
-本文面向首次使用当前源码的协调者，覆盖 `0.3.0-rc.1`、Store schema 4 和 `cli-result/v4`。源码候选尚未发布；[README 的远端安装](../../../README.zh-CN.md#快速开始)仍是已发布的 v0.2.0。这里直接运行构建产物，不安装、更新或发布。
+本文面向首次使用当前基线的协调者，覆盖 `v0.3.0`、Store schema 4 和 `cli-result/v4`。[README 的远端安装](../../../README.zh-CN.md#快速开始)面向此基线；可用状态以[发布记录](../reference/releases/README.md)为准。这里直接运行源码构建产物。
 
 使用 [code-change](../../../examples/code-change/README.md) 完成已获准的本地仓库任务：implement → review → deliver，review 可返工到 implement。工作 agent 执行各节点内容，协调者核对报告、候选与检查，选择合法下一步；引擎只记状态、冻结文件并守输出合同。方法默认没有 gate，不授予合并、部署或发布权限。
 

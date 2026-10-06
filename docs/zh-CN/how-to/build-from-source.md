@@ -2,7 +2,7 @@
 
 [English](../../en/how-to/build-from-source.md) | 简体中文
 
-用于运行 0.3.0-rc.1 开发线。构建直接取得可信二进制，不安装或替换用户版本；需要 macOS aarch64／APFS 环境中的源码副本、仓库工具链、Git、Python 3 和 Bash。
+用于运行 0.3.0 源码基线。构建直接取得可信二进制，不安装或替换用户版本；需要 macOS aarch64／APFS 环境中的源码副本、仓库工具链、Git、Python 3 和 Bash。
 
 以下命令在源码仓库根、同一 Bash 会话运行；任一命令失败立即停止，保留 stdout、stderr 和退出码。首次使用不指向旧 Store，也不清理旧数据。
 
@@ -37,7 +37,7 @@ PY
 "$engine_binary" --home "$source_home" --json self version
 ```
 
-解析失败就停止。核响应的 `data.version=0.3.0-rc.1`、`data.schema_version=4` 和 `data.home` 为本次 `source_home`。记录 `engine_binary`、`source_home`、`session_dir` 的实际绝对路径；所有后续调用始终带同一 `--home`，重开会话恢复这些值，不能回落到 `SHELTIE_HOME` 或默认 `~/.sheltie`。新的管理根尚未创建，`self version` 不创建它。
+解析失败就停止。核响应的 `data.version=0.3.0`、`data.schema_version=4` 和 `data.home` 为本次 `source_home`。记录 `engine_binary`、`source_home`、`session_dir` 的实际绝对路径；所有后续调用始终带同一 `--home`，重开会话恢复这些值，不能回落到 `SHELTIE_HOME` 或默认 `~/.sheltie`。新的管理根尚未创建，`self version` 不创建它。
 
 ## 使用构建结果
 

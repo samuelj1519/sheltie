@@ -34,6 +34,7 @@ Choose a topic below rather than reading every ID. `accepted` means the decision
 | [D-032: Change packages](D-032-use-change-packages.md) | `accepted` | Adopted scope, active plans, commit ownership, closure qualification; D-045 refines document types |
 | [D-043: Development target](D-043-development-target-authority.md) | `accepted` | Separate candidate base version, implementation progress, and release identity |
 | [D-045: Specifications and documentation](D-045-specs-and-diataxis.md) | `accepted` | specs authority, reader-oriented docs, closed-change archives |
+| [D-046: First public baseline](D-046-first-public-baseline.md) | `accepted` | v0.3.0 support baseline; withdrawn previews retain fixed evidence without compatibility |
 
 ## Reading and maintaining records
 

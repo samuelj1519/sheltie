@@ -22,7 +22,7 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-      # Governance resolves historical tags/commits recorded by releases;
+      # Governance resolves release tags and fixed historical commits;
       # a shallow checkout omits old tags, so check-specs can only report incomplete history.
       - uses: actions/checkout@v7
         with:

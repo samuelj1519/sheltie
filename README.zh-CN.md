@@ -23,12 +23,12 @@
 
 | 版本类型 | 版本 | 从哪里开始 |
 | --- | --- | --- |
-| 最新有记录的发布版本 | **v0.2.0** | [发布记录](docs/zh-CN/reference/releases/v0.2.0/README.md)，或使用下方安装命令 |
-| 当前源码候选 | **0.3.0-rc.1**，尚未发布 | [从源码构建](docs/zh-CN/how-to/build-from-source.md)，再运行[第一个 Work](docs/zh-CN/tutorials/first-work.md) |
+| 首个对外支持基线 | **v0.3.0** | [发布状态与附件](docs/zh-CN/reference/releases/README.md)；完成发布后可使用下方安装命令 |
+| 构建同版本源码 | **0.3.0** | [从源码构建](docs/zh-CN/how-to/build-from-source.md)，再运行[第一个 Work](docs/zh-CN/tutorials/first-work.md) |
 
-当前源码以英文为默认语言，并提供 [code-change](docs/zh-CN/how-to/run-code-change.md)、[明确成果导出](docs/zh-CN/how-to/export-results.md)等新增能力。v0.2.0 二进制不包含这些能力。仓库文档说明当前源码；发布版本保留各自的 CLI 文案和行为。
+本基线以英文为默认语言，提供 [code-change](docs/zh-CN/how-to/run-code-change.md) 和[明确成果导出](docs/zh-CN/how-to/export-results.md)。导出器须从源码单独构建，不包含在引擎压缩包中。
 
-v0.2.0 使用 Store schema 2，当前源码使用 schema 4。两个版本应使用独立管理根，Store 格式不会自动迁移。安装、升级、回滚和卸载的完整步骤见[安装管理指南](docs/zh-CN/how-to/manage-installation.md)。
+只支持当前格式，不提供旧版本兼容或数据迁移；不匹配的 Store 会被拒绝，原数据不会修改。首次使用应选择新的管理根。完整操作见[安装管理指南](docs/zh-CN/how-to/manage-installation.md)。
 
 ## 快速开始
 
@@ -37,7 +37,7 @@ v0.2.0 使用 Store schema 2，当前源码使用 schema 4。两个版本应使�
 在 Apple Silicon Mac 上执行：
 
 ```bash
-curl --proto '=https' --tlsv1.2 -LsSf https://github.com/samuelj1519/sheltie/releases/download/v0.2.0/sheltie-cli-installer.sh | sh
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/samuelj1519/sheltie/releases/download/v0.3.0/sheltie-cli-installer.sh | sh
 export PATH="$HOME/.sheltie/bin:$PATH"
 ```
 

@@ -8,7 +8,7 @@
 
 当前产品定位是 macOS aarch64／APFS 本地场景。其他 OS、架构、非 APFS 与外置物理设备专项认证属于未来采用范围。当前物理 APFS 无法创建的非 UTF-8 名称没有现场遍历通过结论；字节接口拒绝测试不替代实际载体。
 
-正式发布为 v0.2.0。当前开发源码是 0.3.0-rc.1，Store schema 4、cli-result/v4、work-result/v1、workbook-digest/v2；sheltie-export 和作者工具未发布。schema 1／2／3 的旧 Store 不自动迁移或清空，也不按 schema 4 解释。旧二进制与对应根保留用于历史查询，新开发线使用新的显式根。
+首个对外支持基线为 v0.3.0，使用 Store schema 4、cli-result/v4、work-result/v1 和 workbook-digest/v2。实际发布状态以[发布记录](releases/README.md)为准。sheltie-export 仅从源码构建；本地作者工具从源码目录运行。不支持旧版本兼容或迁移。schema 1／2／3 的旧 Store 会被拒绝，不清空或修改原数据。使用新的显式管理根；撤回发布不授权删除现有数据。
 
 ## 操作与内容
 

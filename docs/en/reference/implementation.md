@@ -26,4 +26,4 @@ GF-20–GF-26 host installation/readiness, cross-version continuation, host isol
 
 ## Use this baseline
 
-When maintaining behavior, connect requirements to public entry points, complete call chains, positive/negative oracles, and recovery windows before choosing validation. Record exact implementation/specification differences. Unexecuted, unknown, or excluded environments cannot become PASS. Tutorials/guides use existing public capabilities above; unreleased formats use new explicit roots.
+When maintaining behavior, connect requirements to public entry points, complete call chains, positive/negative oracles, and recovery windows before choosing validation. Record exact implementation/specification differences. Unexecuted, unknown, or excluded environments cannot become PASS. Tutorials/guides use existing public capabilities above; the current baseline uses fresh explicit roots without legacy migration.

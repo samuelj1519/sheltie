@@ -2,7 +2,7 @@
 
 English | [简体中文](../../zh-CN/how-to/edit-workbook.md)
 
-Use this to create/edit methods visually. The unreleased local web tool requires Node.js ≥ 22 and a trusted current-source engine. It edits browser drafts and downloads new ZIPs, without overwriting author directories or running Works.
+Use this to create/edit methods visually. The source-distributed local web tool requires Node.js ≥ 22 and a trusted current-source engine. It edits browser drafts and downloads new ZIPs, without overwriting author directories or running Works.
 
 ## 1. Start the local tool
 

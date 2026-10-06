@@ -2,7 +2,7 @@
 
 English | [简体中文](../../zh-CN/reference/workbook-editor.md)
 
-The unreleased local web tool in `tools/workbook-editor` edits drafts and downloads complete ZIPs. See [canvas editing](../how-to/edit-workbook.md), [design](../explanation/workbook-editor.md), and the authoritative [Workbook contract](../../../specs/contracts/workbook.md)`.`
+The source-distributed local web tool in `tools/workbook-editor` edits drafts and downloads complete ZIPs. See [canvas editing](../how-to/edit-workbook.md), [design](../explanation/workbook-editor.md), and the authoritative [Workbook contract](../../../specs/contracts/workbook.md)`.`
 
 ## Startup and environment
 

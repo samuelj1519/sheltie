@@ -16,6 +16,10 @@ Current commitments/acceptance cover adopted local macOS aarch64/APFS scenarios,
 
 Non-UTF-8 names APFS cannot create are not mandatory live inputs. Preserve accurate invalid argument/name/path rejection contracts/tests. External physical-drive tests do not block local APFS delivery. Scope restrictions neither convert unrun tests into passes nor introduce runtime filesystem admission. Adopt explicit scope/real environments before extending verification ([D-044](../docs/en/explanation/decisions/D-044-macos-apfs-product-scope.md)).
 
+### First supported public baseline
+
+The first supported public baseline is v0.3.0, using the current formats defined by the contracts. Earlier v0.1.0/v0.2.0 publications will be withdrawn under [D-046](../docs/en/explanation/decisions/D-046-first-public-baseline.md); their fixed development and validation history remains historical evidence. The owner confirmed that there are no external users. No legacy CLI, Workbook, or Store compatibility or migration is supported. Reject incompatible or malformed data without modifying its original bytes. This baseline decision does not authorize clearing any existing management root or imply that future changes may bypass current integrity and recovery requirements.
+
 ## 2. Success
 
 A new user must be able to use documentation alone to:

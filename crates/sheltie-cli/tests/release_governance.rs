@@ -406,6 +406,107 @@ fn check_specs_full_history_resolves_release_commits() {
     assert!(ok, "{text}");
 }
 
+fn withdraw_release(fx: &Fixture) {
+    let record = fx.root.join("docs/en/reference/releases/v0.1.0/README.md");
+    let text = fs::read_to_string(&record).unwrap();
+    fs::write(
+        record,
+        format!(
+            "Status: `withdrawn`\nWithdrawal date: `2026-10-06`\n\
+             Withdrawal authority: [Owner decision](../../../explanation/decisions/D-046-first-public-baseline.md)\n\n{text}"
+        ),
+    )
+    .unwrap();
+    write_fixture_file(
+        &fx.root,
+        "docs/en/explanation/decisions/D-046-first-public-baseline.md",
+        "# Withdrawal decision\n\nStatus: `accepted`\n",
+    );
+    write_fixture_file(
+        &fx.root,
+        "docs/en/explanation/decisions/README.md",
+        "[Withdrawal decision](D-046-first-public-baseline.md)\n",
+    );
+}
+
+// Task: C013-T01
+#[test]
+fn withdrawn_release_preserves_fixed_evidence_without_tag() {
+    let fx = make_fixture("0.2.0", Some("## [Unreleased]"), Lifecycle::ActiveC002);
+    withdraw_release(&fx);
+    git_ok(&fx.root, &["tag", "-d", "v0.1.0"]);
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(
+        ok,
+        "Withdrawn fixed evidence must survive tag removal: {text}"
+    );
+}
+
+// Task: C013-T01
+#[test]
+fn withdrawn_release_requires_explicit_authority_and_date() {
+    for field in ["Withdrawal authority: ", "Withdrawal date: "] {
+        let fx = make_fixture("0.2.0", Some("## [Unreleased]"), Lifecycle::ActiveC002);
+        withdraw_release(&fx);
+        let record = fx.root.join("docs/en/reference/releases/v0.1.0/README.md");
+        let text = fs::read_to_string(&record).unwrap();
+        let text = text
+            .lines()
+            .filter(|line| !line.starts_with(field))
+            .collect::<Vec<_>>()
+            .join("\n");
+        fs::write(record, text).unwrap();
+        let (ok, text) = run_check_specs(&fx.root);
+        assert!(!ok, "Missing {field} must reject even with a tag: {text}");
+        assert!(text.contains("withdrawn release"), "{text}");
+    }
+}
+
+// Task: C013-T01
+#[test]
+fn withdrawn_release_requires_available_accepted_authority() {
+    for text in [None, Some("# Decision\n\nStatus: `proposed`\n")] {
+        let fx = make_fixture("0.2.0", Some("## [Unreleased]"), Lifecycle::ActiveC002);
+        withdraw_release(&fx);
+        let authority = fx
+            .root
+            .join("docs/en/explanation/decisions/D-046-first-public-baseline.md");
+        match text {
+            None => fs::remove_file(authority).unwrap(),
+            Some(text) => fs::write(authority, text).unwrap(),
+        }
+        let (ok, text) = run_check_specs(&fx.root);
+        assert!(!ok, "Unavailable/unadopted withdrawal must reject: {text}");
+        assert!(text.contains("withdrawn release"), "{text}");
+    }
+}
+
+// Task: C013-T01
+#[test]
+fn withdrawn_release_rejects_missing_fixed_commit_without_tag() {
+    let fx = make_fixture("0.2.0", Some("## [Unreleased]"), Lifecycle::ActiveC002);
+    withdraw_release(&fx);
+    git_ok(&fx.root, &["tag", "-d", "v0.1.0"]);
+    rewrite_release_commits(&fx.root, "1111111111111111111111111111111111111111");
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(!ok, "Withdrawal cannot waive missing commits: {text}");
+    assert!(
+        text.contains("commit 1111111111111111111111111111111111111111"),
+        "{text}"
+    );
+}
+
+// Task: C013-T01
+#[test]
+fn withdrawn_release_rejects_moved_tag() {
+    let fx = make_fixture("0.2.0", Some("## [Unreleased]"), Lifecycle::ActiveC002);
+    withdraw_release(&fx);
+    git_ok(&fx.root, &["tag", "-f", "v0.1.0", "HEAD"]);
+    let (ok, text) = run_check_specs(&fx.root);
+    assert!(!ok, "Withdrawal cannot excuse a moved tag: {text}");
+    assert!(text.contains("Release commit does not match tag"), "{text}");
+}
+
 // Task: C002-T15
 #[test]
 fn check_specs_accepts_active_target_without_tag() {

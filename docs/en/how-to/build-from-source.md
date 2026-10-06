@@ -2,7 +2,7 @@
 
 English | [简体中文](../../zh-CN/how-to/build-from-source.md)
 
-Use this for the 0.3.0-rc.1 development line. Builds yield a trusted binary without installing/replacing user versions. Requires a source checkout on macOS aarch64/APFS, repository toolchain, Git, Python 3, and Bash.
+Use this for the 0.3.0 source baseline. Builds yield a trusted binary without installing/replacing user versions. Requires a source checkout on macOS aarch64/APFS, repository toolchain, Git, Python 3, and Bash.
 
 Run from the source root in one Bash session. Stop immediately on any failure, retaining stdout/stderr/exit. First use must not target an old Store or clear old data.
 
@@ -37,7 +37,7 @@ PY
 "$engine_binary" --home "$source_home" --json self version
 ```
 
-Stop on parsing failure. Verify `data.version=0.3.0-rc.1`, `data.schema_version=4`, and `data.home` matching this source_home. Record actual absolute engine_binary/source_home/session_dir paths. Every later call uses the same `--home`; restore those values after reopening rather than falling back to SHELTIE_HOME/~/.sheltie. The new root does not yet exist; `self version` does not create it.
+Stop on parsing failure. Verify `data.version=0.3.0`, `data.schema_version=4`, and `data.home` matching this source_home. Record actual absolute engine_binary/source_home/session_dir paths. Every later call uses the same `--home`; restore those values after reopening rather than falling back to SHELTIE_HOME/~/.sheltie. The new root does not yet exist; `self version` does not create it.
 
 ## Use the build
 

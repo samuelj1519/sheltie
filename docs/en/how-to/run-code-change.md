@@ -2,7 +2,7 @@
 
 English | [简体中文](../../zh-CN/how-to/run-code-change.md)
 
-For coordinators using current 0.3.0-rc.1/schema 4/cli-result/v4 for the first time. Source is unreleased; [README remote installation](../../../README.md#install-the-released-engine) targets v0.2.0. Run build artifacts directly, without install/update/publication.
+For coordinators using the v0.3.0/schema 4/cli-result/v4 baseline for the first time. [README remote installation](../../../README.md#install-the-released-engine) targets this baseline; [release records](../reference/releases/README.md) establish availability. This guide runs source-build artifacts directly.
 
 [code-change](../../../examples/code-change/README.md) handles authorized local work: implement → review → deliver with review back to implement. Workers execute content; coordinators check reports/candidates/checks and choose legal actions. Engine records/freezes/enforces outputs. Default has no gate and grants no merge/deploy/publish authority.
 

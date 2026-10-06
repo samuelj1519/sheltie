@@ -2,7 +2,7 @@
 
 [English](../../en/reference/workbook-editor.md) | 简体中文
 
-作者工具是 `tools/workbook-editor` 中未发布的本地网页，用于编辑草稿并下载完整 ZIP。使用步骤见[画布编辑](../how-to/edit-workbook.md)，设计理由见[作者工具原理](../explanation/workbook-editor.md)。方法格式仍由[Workbook 合同](../../../specs/contracts/workbook.md)定义。
+作者工具是 `tools/workbook-editor` 中的本地网页，用于编辑草稿并下载完整 ZIP。使用步骤见[画布编辑](../how-to/edit-workbook.md)，设计理由见[作者工具原理](../explanation/workbook-editor.md)。方法格式仍由[Workbook 合同](../../../specs/contracts/workbook.md)定义。
 
 ## 启动与运行环境
 

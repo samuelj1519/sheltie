@@ -8,7 +8,7 @@ This page describes current-source use. The [specification](../../../specs/spec.
 
 The product targets local macOS aarch64/APFS. Other OS/architectures, non-APFS, and dedicated external-physical-device certification require future adoption. Physical non-UTF-8 names unconstructible on current APFS have no successful on-site traversal claim; byte-interface rejection tests do not replace actual media.
 
-Released version is v0.2.0. Development source is 0.3.0-rc.1 with Store schema 4, cli-result/v4, work-result/v1, workbook-digest/v2. sheltie-export/authoring tools remain unreleased. Old schema 1/2/3 Stores are neither migrated/cleared nor interpreted as schema 4. Retain matching old binaries/roots for historical queries; use a new explicit development root.
+The first supported baseline is v0.3.0, with Store schema 4, cli-result/v4, work-result/v1, and workbook-digest/v2. See [release records](releases/README.md) for actual publication status. sheltie-export remains source-only; the local authoring tool is used from the source tree. No legacy-version compatibility or migration is supported. Old schema 1/2/3 Stores are rejected without clearing or changing their data. Use a new explicit root; withdrawing publications does not authorize removing existing data.
 
 ## Operations and content
 
