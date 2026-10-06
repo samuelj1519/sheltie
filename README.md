@@ -23,7 +23,7 @@ The current product environment is **macOS on Apple Silicon (`aarch64`), using A
 
 | Track | Version | Start here |
 | --- | --- | --- |
-| First supported baseline | **v0.3.0** | [Publication status and artifacts](docs/en/reference/releases/README.md) or the installation below once published |
+| First supported baseline | **v0.3.0** | [Publication status and artifacts](docs/en/reference/releases/README.md) or the installation below |
 | Build the same source | **0.3.0** | [Build from source](docs/en/how-to/build-from-source.md), then [your first Work](docs/en/tutorials/first-work.md) |
 
 This baseline defaults to English and includes [code-change](docs/en/how-to/run-code-change.md) and [explicit result export](docs/en/how-to/export-results.md). The exporter is built separately from source; it is not included in the engine archive.

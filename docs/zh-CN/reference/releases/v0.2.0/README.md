@@ -2,7 +2,9 @@
 
 [English](../../../../en/reference/releases/v0.2.0/README.md) | 简体中文
 
-状态：`released`（按用户授权范围完成）
+Status: `withdrawn`
+撤回日期：`2026-10-06`
+撤回依据：[D-046](../../../explanation/decisions/D-046-first-public-baseline.md)
 版本：`0.2.0`
 Git tag：`v0.2.0`
 Release commit：`5c7183a3644dd250069ed362dc1adeeb7fb71cc6`
@@ -11,7 +13,11 @@ Release commit：`5c7183a3644dd250069ed362dc1adeeb7fb71cc6`
 原发布时间：`2026-10-02T17:03:04Z`（UTC）
 发布目标：`aarch64-apple-darwin`
 
-发布 tag 指向 `main` 历史上的对应提交，其源码树与原发布提交完全相同。仓库重建后重新上传原发布附件，字节与校验和完全一致。GitHub 发布记录具有新的身份，旧工作流运行已不可用。本次恢复不重跑历史验证，也不构建新的二进制。
+原发布 tag 曾指向 `main` 历史上的对应提交，其源码树与原发布提交完全相同。仓库重建后、撤回前曾重新上传原发布附件，字节与校验和完全一致。GitHub 发布记录具有新的身份，旧工作流运行已不可用。本次恢复不重跑历史验证，也不构建新的二进制。
+
+## 撤回
+
+项目所有者确认没有外部用户，并授权删除 GitHub Release、附件及本地和远端 Tag。v0.3.0 为首个对外支持基线。本记录保留原始源码身份、校验和、验证结论及限制，不作为安装或升级来源。查询发布时文件应使用上方固定 Release commit，不再使用已删除的 Tag。撤回不改写原始 PASS／FAIL／not_run 结论。
 
 ## 范围
 
@@ -21,16 +27,16 @@ Release commit：`5c7183a3644dd250069ed362dc1adeeb7fb71cc6`
 
 ## 验收
 
-- [正式 Release](https://github.com/samuelj1519/sheltie/releases/tag/v0.2.0) 恢复从上述原发布提交构建的附件。原发布工作流 `37037558064` 实际完成 quality、构建、host 与 announce，结论 `success`；其 GitHub 运行记录随仓库重建移除。已提交的证据仍可从 [C002 历史原件](../../../how-to/maintain-docs.md#查阅历史原件)读取。
+- 撤回前恢复的发布包含从上述原发布提交构建的附件。原发布工作流 `37037558064` 实际完成 quality、构建、host 与 announce，结论 `success`；其 GitHub 运行记录随仓库重建移除。已提交的证据仍可从 [C002 历史原件](../../../how-to/maintain-docs.md#查阅历史原件)读取。
 - 同一源码 SHA 的 quality 实际通过工程、文档、规格、skill、测试治理、依赖与 MSRV 1.85 locked 门禁。Nextest 为 700/700、0 skipped、1 slow，测试阶段 156.541 秒；原始运行与范围见 [C002 历史原件](../../../how-to/maintain-docs.md#查阅历史原件)。
 - T16 在本机实际完成样例、`spec-dev` 四任务、独立审查、真实关闭并重开会话后的 Work006 续接，以及获具体批准后的 Work003 最终 retro gate。闭包固定到上述 T16 提交，详见 [C002 历史审查](../../../how-to/maintain-docs.md#查阅历史原件)。
 - 正式发布后重新下载并核验实际包、manifest 与二进制，不复用 PR 构建字节。使用默认 GitHub 来源在独立管理根执行指定 `0.2.0` 的远端 update 与 rollback；回退后二进制逐字相同、Store 不变、prev 移除。更新来源为 T16 的 C002/schema 2 构建，其显示版本为 `0.1.0`；这次验证不证明 legacy schema 1 迁移。
 
 | 实物 | SHA256 |
 | --- | --- |
-| [macOS aarch64 包](https://github.com/samuelj1519/sheltie/releases/download/v0.2.0/sheltie-cli-aarch64-apple-darwin.tar.xz)，1779600 字节 | `fc63c9d0c7132796cdacd050be102ed5501f637f2db0f19b279da6b4744899e4` |
+| 原 macOS aarch64 包，1779600 字节 | `fc63c9d0c7132796cdacd050be102ed5501f637f2db0f19b279da6b4744899e4` |
 | 包内 `sheltie` 二进制 | `a220309ab437a5de52202acb8b8f933370a45969e2027c55964930818e315130` |
-| [dist-manifest.json](https://github.com/samuelj1519/sheltie/releases/download/v0.2.0/dist-manifest.json) | `8540728b9db73a31a74e7f762128bebed90210ecfb2ec24845786db02a02354b` |
+| 原 `dist-manifest.json` | `8540728b9db73a31a74e7f762128bebed90210ecfb2ec24845786db02a02354b` |
 
 ## 兼容性
 

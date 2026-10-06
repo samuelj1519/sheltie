@@ -1,0 +1,237 @@
+[
+  {
+    "argv": [
+      "/private/tmp/sheltie-first-baseline-20261006/public-extracted/sheltie-cli-aarch64-apple-darwin/sheltie",
+      "--home",
+      "/private/tmp/sheltie-first-baseline-20261006/public-version-only",
+      "--json",
+      "self",
+      "version"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"home\":\"/private/tmp/sheltie-first-baseline-20261006/public-version-only\",\"platform\":\"aarch64-apple-darwin\",\"schema_version\":4,\"version\":\"0.3.0\"},\"next\":[],\"ok\":true}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-first-baseline-20261006/public-extracted/sheltie-cli-aarch64-apple-darwin/sheltie",
+      "--home",
+      "/private/tmp/sheltie-first-baseline-20261006/public-fresh-home",
+      "--json",
+      "self",
+      "install"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"already_installed\":false,\"installed_to\":\"/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/bin/sheltie\",\"path_hint\":\"Add /private/tmp/sheltie-first-baseline-20261006/public-fresh-home/bin to PATH\"},\"next\":[],\"ok\":true}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/bin/sheltie",
+      "--home",
+      "/private/tmp/sheltie-first-baseline-20261006/public-fresh-home",
+      "--json",
+      "workbook",
+      "add",
+      "/Users/shushu/code/productions/sheltie/examples/two-step"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"e7a9475793e5d6649ef9ad5bfdc6bfb1d13900d6024fcf365424a31a1d9c7552\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.1\"},\"next\":[],\"ok\":true,\"request_id\":\"01a10fa7-e63d-74a6-b0b5-2628774f0915\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/bin/sheltie",
+      "--home",
+      "/private/tmp/sheltie-first-baseline-20261006/public-fresh-home",
+      "--json",
+      "work",
+      "start",
+      "--workbook",
+      "two-step",
+      "--flow",
+      "default",
+      "--input",
+      "topic=Verify the first supported public baseline"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"flow\":\"default\",\"name\":\"default\",\"replayed\":false,\"requires\":[],\"work_dir\":\"/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/works/2026-10-06-001-default\",\"work_id\":\"2026-10-06-001-default\",\"workbook\":{\"digest\":\"e7a9475793e5d6649ef9ad5bfdc6bfb1d13900d6024fcf365424a31a1d9c7552\",\"id\":\"two-step\",\"version\":\"1.0.1\"}},\"next\":[{\"args\":{\"node\":\"outline\",\"work\":\"2026-10-06-001-default\"},\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-06-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a10fa7-e687-70de-95ad-de8a779a2ad7\",\"revision\":1}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/bin/sheltie",
+      "--home",
+      "/private/tmp/sheltie-first-baseline-20261006/public-fresh-home",
+      "--json",
+      "attempt",
+      "begin",
+      "2026-10-06-001-default",
+      "--node",
+      "outline"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"outline#1.0\",\"brief_path\":\"/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/works/2026-10-06-001-default/attempts/outline/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"topic\":\"/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/works/2026-10-06-001-default/start-inputs/topic\"},\"node\":\"outline\",\"number\":0,\"occurrence\":1,\"output_dir\":\"/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/works/2026-10-06-001-default/attempts/outline/occurrence-001/attempt-000/outputs\",\"outputs\":{\"outline\":\"/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/works/2026-10-06-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"replayed\":false,\"requires\":[]},\"next\":[{\"args\":{\"attempt\":\"outline#1.0\",\"work\":\"2026-10-06-001-default\"},\"op\":\"attempt submit\"},{\"args\":{\"attempt\":\"outline#1.0\",\"work\":\"2026-10-06-001-default\"},\"op\":\"attempt fail\"},{\"args\":{\"attempt\":\"outline#1.0\",\"work\":\"2026-10-06-001-default\"},\"op\":\"attempt replace\"},{\"args\":{\"work\":\"2026-10-06-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a10fa7-e712-70f1-acec-4acf82b2b44c\",\"revision\":2}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/bin/sheltie",
+      "--home",
+      "/private/tmp/sheltie-first-baseline-20261006/public-fresh-home",
+      "--json",
+      "attempt",
+      "submit",
+      "2026-10-06-001-default",
+      "--attempt",
+      "outline#1.0",
+      "--summary",
+      "Declared output written"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"outline#1.0\",\"outputs\":{\"outline\":{\"bytes\":45,\"path\":\"/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/works/2026-10-06-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\",\"sha256\":\"70f96d801a52b729ef346d592a46bb2c7606876a9ea69605f4f235ada774aa8e\"}},\"replayed\":false,\"work_status\":{\"kind\":\"active\"}},\"next\":[{\"args\":{\"node\":\"summary\",\"work\":\"2026-10-06-001-default\"},\"edge\":\"main\",\"executor\":\"agent\",\"op\":\"attempt begin\",\"tier\":\"standard\"},{\"args\":{\"work\":\"2026-10-06-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a10fa7-e75c-727e-a077-9eaa92685d55\",\"revision\":3}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/bin/sheltie",
+      "--home",
+      "/private/tmp/sheltie-first-baseline-20261006/public-fresh-home",
+      "--json",
+      "attempt",
+      "begin",
+      "2026-10-06-001-default",
+      "--node",
+      "summary"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"summary#1.0\",\"brief_path\":\"/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/works/2026-10-06-001-default/attempts/summary/occurrence-001/attempt-000/brief.md\",\"inputs\":{\"outline\":\"/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/works/2026-10-06-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\"},\"node\":\"summary\",\"number\":0,\"occurrence\":1,\"output_dir\":\"/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/works/2026-10-06-001-default/attempts/summary/occurrence-001/attempt-000/outputs\",\"outputs\":{\"summary\":\"/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/works/2026-10-06-001-default/attempts/summary/occurrence-001/attempt-000/outputs/summary.md\"},\"replayed\":false,\"requires\":[]},\"next\":[{\"args\":{\"attempt\":\"summary#1.0\",\"work\":\"2026-10-06-001-default\"},\"op\":\"attempt submit\"},{\"args\":{\"attempt\":\"summary#1.0\",\"work\":\"2026-10-06-001-default\"},\"op\":\"attempt fail\"},{\"args\":{\"attempt\":\"summary#1.0\",\"work\":\"2026-10-06-001-default\"},\"op\":\"attempt replace\"},{\"args\":{\"work\":\"2026-10-06-001-default\"},\"op\":\"work cancel\"}],\"ok\":true,\"request_id\":\"01a10fa7-e79c-7575-8fd2-563a46b6a587\",\"revision\":4}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/bin/sheltie",
+      "--home",
+      "/private/tmp/sheltie-first-baseline-20261006/public-fresh-home",
+      "--json",
+      "attempt",
+      "submit",
+      "2026-10-06-001-default",
+      "--attempt",
+      "summary#1.0",
+      "--summary",
+      "Declared output written"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"attempt\":\"summary#1.0\",\"outputs\":{\"summary\":{\"bytes\":45,\"path\":\"/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/works/2026-10-06-001-default/attempts/summary/occurrence-001/attempt-000/outputs/summary.md\",\"sha256\":\"eb8524b3ea9a5c6c4037295ea6eba5fbef4b4e898c304a87b96f4e7c855ebe54\"}},\"replayed\":false,\"work_status\":{\"kind\":\"succeeded\"}},\"next\":[],\"ok\":true,\"request_id\":\"01a10fa7-e7e6-773c-b90f-66575416a032\",\"revision\":5}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/bin/sheltie",
+      "--home",
+      "/private/tmp/sheltie-first-baseline-20261006/public-fresh-home",
+      "--json",
+      "work",
+      "status",
+      "2026-10-06-001-default"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"blocked\":null,\"current\":\"summary#1\",\"done\":[\"outline#1\",\"summary#1\"],\"effects_pending\":false,\"flow\":\"default\",\"last_attempt\":{\"attempt\":\"summary#1.0\",\"outputs\":{\"summary\":{\"bytes\":45,\"path\":\"/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/works/2026-10-06-001-default/attempts/summary/occurrence-001/attempt-000/outputs/summary.md\",\"sha256\":\"eb8524b3ea9a5c6c4037295ea6eba5fbef4b4e898c304a87b96f4e7c855ebe54\"}},\"reason\":null,\"status\":\"succeeded\",\"summary\":\"Declared output written\"},\"name\":\"default\",\"next\":[],\"pending\":[],\"pending_publish\":false,\"resume\":{\"attempt\":\"summary#1.0\",\"brief_path\":\"/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/works/2026-10-06-001-default/attempts/summary/occurrence-001/attempt-000/brief.md\",\"draft_outputs\":{},\"inputs\":{\"outline\":{\"bytes\":45,\"path\":\"/private/tmp/sheltie-first-baseline-20261006/public-fresh-home/works/2026-10-06-001-default/attempts/outline/occurrence-001/attempt-000/outputs/outline.md\",\"sha256\":\"70f96d801a52b729ef346d592a46bb2c7606876a9ea69605f4f235ada774aa8e\"}}},\"revision\":5,\"status\":{\"kind\":\"succeeded\"},\"visits\":{\"outline\":\"1/1\",\"summary\":\"1/1\"},\"work_id\":\"2026-10-06-001-default\",\"workbook\":\"two-step@1.0.1\"},\"next\":[],\"ok\":true}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-first-baseline-20261006/updater-target/debug/sheltie",
+      "--home",
+      "/private/tmp/sheltie-first-baseline-20261006/public-update-home",
+      "--json",
+      "self",
+      "version"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"home\":\"/private/tmp/sheltie-first-baseline-20261006/public-update-home\",\"platform\":\"aarch64-apple-darwin\",\"schema_version\":4,\"version\":\"0.3.0-rc.1\"},\"next\":[],\"ok\":true}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-first-baseline-20261006/updater-target/debug/sheltie",
+      "--home",
+      "/private/tmp/sheltie-first-baseline-20261006/public-update-home",
+      "--json",
+      "self",
+      "install"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"already_installed\":false,\"installed_to\":\"/private/tmp/sheltie-first-baseline-20261006/public-update-home/bin/sheltie\",\"path_hint\":\"Add /private/tmp/sheltie-first-baseline-20261006/public-update-home/bin to PATH\"},\"next\":[],\"ok\":true}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-first-baseline-20261006/public-update-home/bin/sheltie",
+      "--home",
+      "/private/tmp/sheltie-first-baseline-20261006/public-update-home",
+      "--json",
+      "workbook",
+      "add",
+      "/Users/shushu/code/productions/sheltie/examples/two-step"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"digest\":\"e7a9475793e5d6649ef9ad5bfdc6bfb1d13900d6024fcf365424a31a1d9c7552\",\"flows\":[\"default\"],\"id\":\"two-step\",\"replayed\":false,\"requires\":[],\"version\":\"1.0.1\"},\"next\":[],\"ok\":true,\"request_id\":\"01a10fa7-eba4-71e4-b49a-f834d8c80a59\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-first-baseline-20261006/public-update-home/bin/sheltie",
+      "--home",
+      "/private/tmp/sheltie-first-baseline-20261006/public-update-home",
+      "--json",
+      "self",
+      "update",
+      "--version",
+      "0.3.0"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"from\":\"0.3.0-rc.1\",\"to\":\"0.3.0\",\"up_to_date\":false},\"next\":[],\"ok\":true}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-first-baseline-20261006/public-update-home/bin/sheltie",
+      "--home",
+      "/private/tmp/sheltie-first-baseline-20261006/public-update-home",
+      "--json",
+      "self",
+      "version"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"home\":\"/private/tmp/sheltie-first-baseline-20261006/public-update-home\",\"platform\":\"aarch64-apple-darwin\",\"schema_version\":4,\"version\":\"0.3.0\"},\"next\":[],\"ok\":true}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-first-baseline-20261006/public-update-home/bin/sheltie",
+      "--home",
+      "/private/tmp/sheltie-first-baseline-20261006/public-update-home",
+      "--json",
+      "self",
+      "rollback"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"rolled_back\":true},\"next\":[],\"ok\":true}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/sheltie-first-baseline-20261006/public-update-home/bin/sheltie",
+      "--home",
+      "/private/tmp/sheltie-first-baseline-20261006/public-update-home",
+      "--json",
+      "self",
+      "version"
+    ],
+    "exit": 0,
+    "stdout": "{\"data\":{\"home\":\"/private/tmp/sheltie-first-baseline-20261006/public-update-home\",\"platform\":\"aarch64-apple-darwin\",\"schema_version\":4,\"version\":\"0.3.0-rc.1\"},\"next\":[],\"ok\":true}\n",
+    "stderr": ""
+  }
+]

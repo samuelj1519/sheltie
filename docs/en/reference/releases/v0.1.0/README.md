@@ -2,7 +2,9 @@
 
 English | [简体中文](../../../../zh-CN/reference/releases/v0.1.0/README.md)
 
-Status: `released + accepted`
+Status: `withdrawn`
+Withdrawal date: `2026-10-06`
+Withdrawal authority: [D-046](../../../explanation/decisions/D-046-first-public-baseline.md)
 Version: `0.1.0`
 Git tag: `v0.1.0`
 Release commit: `6af9501b7bc12e2b18ac6017b6c894dadfc43626`
@@ -10,9 +12,13 @@ Original published commit: `9f87188f3b0ad2523abc7e975ae98e96db6f492b`
 Installation, publication, and quickstart closure: `4bf86f7be09c27bbee98a11825eb57704e4403b9`
 Real-host and MVP acceptance closure: `7196697ea40c9c303d059279c02f9e3d2218efd9`
 
+## Withdrawal
+
+The owner authorized removal of the GitHub Release, its assets, and the local/remote tag because there are no external users. v0.3.0 is the first supported public baseline. This record retains original source identities, checksums, qualifications, and limits; it is not an installation or upgrade source. Read release-time files by the fixed Release commit above instead of the removed tag. Withdrawal does not revise original PASS/FAIL/not_run conclusions.
+
 ## Scope
 
-The release tag points to the corresponding commit on `main`, with the same source tree as Original published commit. After repository recreation, original release assets are uploaded again with identical bytes and checksums. GitHub release records have new identities, and old workflow runs are unavailable. Recorded checks were not rerun, and no new binaries were built for this restoration.
+The former release tag pointed to the corresponding commit on `main`, with the same source tree as Original published commit. After repository recreation, original release assets were uploaded again with identical bytes and checksums before withdrawal. GitHub release records have new identities, and old workflow runs are unavailable. Recorded checks were not rerun, and no new binaries were built for this restoration.
 
 MVP implemented three crates, one `sheltie` binary, Workbook/Flow, Work state machine, SQLite Store, CLI, self management, three examples, `spec-dev`, and coordinator skill.
 

@@ -4,7 +4,7 @@
 
 Status: `accepted`
 采用日期：2026-10-06
-关联 change：[C013](../../../../specs/changes/active/C013-first-public-baseline/README.md)
+关联 change：[C013](../../../../specs/changes/completed/C013-first-public-baseline/README.md)
 
 项目所有者确认，刚重建的仓库尚无外部用户，并授权撤回重新上传的 v0.1.0／v0.2.0 发布。当前实现经过候选验证和实际发布附件验证后，以 v0.3.0 作为首个对外支持基线。保留当前版本编号，不将已经发布过的名称重新分配给不同内容。此次调整改变发布和支持策略，不改写历史验证结论。
 

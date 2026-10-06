@@ -5,7 +5,7 @@ See [conventional commits](https://www.conventionalcommits.org/) for commit guid
 ---
 ## [Unreleased]
 
-## [0.3.0] - pending publication
+## [0.3.0] - 2026-10-06
 
 ### First supported public baseline
 
@@ -14,8 +14,8 @@ See [conventional commits](https://www.conventionalcommits.org/) for commit guid
 - English-default CLI and documentation, explicit Chinese reader/method variants, code-change/spec-dev methods, and source-distributed visual Workbook authoring. English examples use Workbook 1.0.1 and spec-dev uses 0.2.3; installed/running methods retain their frozen versions.
 - Standard MIT LICENSE and contributor, security, support, conduct, issue, and PR entry points.
 - Store schema 4, cli-result/v4, work-result/v1, and workbook-digest/v2. Only current formats are supported; incompatible data is preserved and rejected without migration or clearing.
-- v0.1.0/v0.2.0 are historical development publications scheduled for withdrawal, not supported upgrade sources. Their original qualifications and limits remain in [release records](docs/en/reference/releases/README.md); v0.3.0 does not reuse their evidence as current validation.
-- The engine and coordinator skill are planned release assets. sheltie-export remains source-only; the local authoring tool runs from the source tree. Other platforms and physical-device certification are excluded.
+- v0.1.0/v0.2.0 are historical development publications withdrawn on 2026-10-06, not supported upgrade sources. Their original qualifications and limits remain in [release records](docs/en/reference/releases/README.md); v0.3.0 does not reuse their evidence as current validation.
+- The engine and coordinator skill are release assets. sheltie-export remains source-only; the local authoring tool runs from the source tree. Other platforms and physical-device certification are excluded.
 
 ## Historical development publications
 

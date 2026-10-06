@@ -23,7 +23,7 @@
 
 | 版本类型 | 版本 | 从哪里开始 |
 | --- | --- | --- |
-| 首个对外支持基线 | **v0.3.0** | [发布状态与附件](docs/zh-CN/reference/releases/README.md)；完成发布后可使用下方安装命令 |
+| 首个对外支持基线 | **v0.3.0** | [发布状态与附件](docs/zh-CN/reference/releases/README.md)，或使用下方安装命令 |
 | 构建同版本源码 | **0.3.0** | [从源码构建](docs/zh-CN/how-to/build-from-source.md)，再运行[第一个 Work](docs/zh-CN/tutorials/first-work.md) |
 
 本基线以英文为默认语言，提供 [code-change](docs/zh-CN/how-to/run-code-change.md) 和[明确成果导出](docs/zh-CN/how-to/export-results.md)。导出器须从源码单独构建，不包含在引擎压缩包中。

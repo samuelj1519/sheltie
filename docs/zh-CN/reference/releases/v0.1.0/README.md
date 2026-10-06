@@ -2,7 +2,9 @@
 
 [English](../../../../en/reference/releases/v0.1.0/README.md) | 简体中文
 
-状态：`released + accepted`
+Status: `withdrawn`
+撤回日期：`2026-10-06`
+撤回依据：[D-046](../../../explanation/decisions/D-046-first-public-baseline.md)
 版本：`0.1.0`
 Git tag：`v0.1.0`
 Release commit：`6af9501b7bc12e2b18ac6017b6c894dadfc43626`
@@ -10,7 +12,11 @@ Release commit：`6af9501b7bc12e2b18ac6017b6c894dadfc43626`
 安装、发布与快速开始闭包：`4bf86f7be09c27bbee98a11825eb57704e4403b9`
 真实宿主与 MVP 验收闭包：`7196697ea40c9c303d059279c02f9e3d2218efd9`
 
-发布 tag 指向 `main` 历史上的对应提交，其源码树与原发布提交完全相同。仓库重建后重新上传原发布附件，字节与校验和完全一致。GitHub 发布记录具有新的身份，旧工作流运行已不可用。本次恢复不重跑历史验证，也不构建新的二进制。
+原发布 tag 曾指向 `main` 历史上的对应提交，其源码树与原发布提交完全相同。仓库重建后、撤回前曾重新上传原发布附件，字节与校验和完全一致。GitHub 发布记录具有新的身份，旧工作流运行已不可用。本次恢复不重跑历史验证，也不构建新的二进制。
+
+## 撤回
+
+项目所有者确认没有外部用户，并授权删除 GitHub Release、附件及本地和远端 Tag。v0.3.0 为首个对外支持基线。本记录保留原始源码身份、校验和、验证结论及限制，不作为安装或升级来源。查询发布时文件应使用上方固定 Release commit，不再使用已删除的 Tag。撤回不改写原始 PASS／FAIL／not_run 结论。
 
 ## 范围
 

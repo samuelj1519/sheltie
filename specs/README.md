@@ -1,8 +1,8 @@
 # Current development specifications
 
-Released: [`v0.2.0`](../docs/en/reference/releases/v0.2.0/README.md)
+Released: [`v0.3.0`](../docs/en/reference/releases/v0.3.0/README.md)
 Development target: `v0.3.0`
-Active change: [C013 first public baseline](changes/active/C013-first-public-baseline/README.md)
+Active change: none
 
 The specifications contain current rules and change entry points. Learning, operations, source navigation, and historical references belong in [docs](../docs/en/README.md).
 

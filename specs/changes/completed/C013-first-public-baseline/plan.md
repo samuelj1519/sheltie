@@ -3,7 +3,7 @@
 | ID | Status | Owner | Dependencies | Result |
 | --- | --- | --- | --- | --- |
 | C013-T01 | done | Codex | none | Validated and independently reviewed v0.3.0 source baseline and withdrawal governance |
-| C013-T02 | todo | Codex | C013-T01 | Old releases withdrawn, v0.3.0 published and actual artifacts verified |
+| C013-T02 | done | Codex | C013-T01 | Old releases withdrawn, v0.3.0 published and actual artifacts verified |
 
 ## C013-T01 Prepare the current baseline
 

@@ -1,6 +1,6 @@
 # C013: First supported public baseline
 
-Status: `active`
+Status: `completed`
 Target version: `v0.3.0`
 Compatibility: none; no legacy-format support or migration
 Baseline: `6d0f37a7c27c8cc265b0d799365e6a48dd66102c`

@@ -17,7 +17,7 @@ Implementation and bounded acceptance for current macOS/APFS scope are complete,
 | C007 experience | Six actual runs, 4 quality passes/2 blocked deliveries, document delivery | Strict fair comparison, 15% improvement, original code/human protocol pass |
 | C008 dependencies | Zero requires across 7 methods/27 Nodes | Host ready, implemented probes, no future dependencies |
 | C009/C010 simplification | Behavior preservation/engineering review on each frozen candidate | Current source needs no validation; product benefit/release qualified |
-| C011 authoring | Tested usability, actual user acceptance, same-Attempt reopening/resume | Released; personal minutes/cost/ROI known |
+| C011 authoring | Tested usability, actual user acceptance, same-Attempt reopening/resume | Standalone tool binary released; personal minutes/cost/ROI known |
 
 Historical LEAK, native coverage, query forensics, and SK01/SK02 follow original records. New LEAK-free runs do not explain past causes. Missing original facts remain unknown/not_run. Attempt durations include waiting/human activities and cannot become model usage; unknown costs are not zero.
 

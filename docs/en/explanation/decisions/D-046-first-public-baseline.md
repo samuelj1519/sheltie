@@ -4,7 +4,7 @@ English | [简体中文](../../../zh-CN/explanation/decisions/D-046-first-public
 
 Status: `accepted`
 Adopted: 2026-10-06
-Related change: [C013](../../../../specs/changes/active/C013-first-public-baseline/README.md)
+Related change: [C013](../../../../specs/changes/completed/C013-first-public-baseline/README.md)
 
 The owner confirmed that the newly recreated repository has no external users and authorized withdrawing the restored v0.1.0/v0.2.0 publications. Establish v0.3.0 from the current implementation as the first supported public baseline after candidate and actual-artifact verification. Retain the version number rather than assigning new contents to previously published names. This changes publication/support policy, not historical validation outcomes.
 
